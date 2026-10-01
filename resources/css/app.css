@@ -38,19 +38,27 @@ html.dark {
 }
 
 /* ==========================================================================
-   Swiss Minimalist Global Dark Mode Engine
-   Seamlessly adapts all Swiss cards, surfaces, borders, text, and form elements
+   Swiss Minimalist Dark Mode Precision Styling (Linear / Vercel Aesthetic)
    ========================================================================== */
+
+/* 1. Base Layout & Surfaces */
 .dark body {
-    background-color: #09090b !important; /* zinc-950 */
-    color: #f4f4f5;
+    background-color: #09090b !important; /* Deepest Onyx */
+    color: #e4e4e7; /* Zinc-200 */
 }
 
-/* Surface Cards & Containers */
-.dark .bg-white {
-    background-color: #18181b !important; /* zinc-900 */
+/* Main Cards, Containers, Header, Aside, Nav */
+.dark div.bg-white,
+.dark section.bg-white,
+.dark article.bg-white,
+.dark aside.bg-white,
+.dark header.bg-white,
+.dark nav.bg-white {
+    background-color: #121215 !important; /* Elevated Dark Surface */
+    border-color: #27272a !important; /* Zinc-800 */
 }
 
+/* Inset Wells, Subtle Panels, Sub-cards */
 .dark .bg-zinc-50,
 .dark .bg-zinc-50\/40,
 .dark .bg-zinc-50\/50,
@@ -58,14 +66,24 @@ html.dark {
 .dark .bg-zinc-50\/70,
 .dark .bg-zinc-50\/80,
 .dark .bg-zinc-50\/90 {
-    background-color: #0d0d0f !important;
+    background-color: #18181b !important; /* Inset Zinc-900 */
 }
 
-.dark .bg-zinc-100 {
-    background-color: #27272a !important; /* zinc-800 */
+/* Secondary Badges & Highlight Pills */
+.dark span.bg-zinc-100,
+.dark div.bg-zinc-100 {
+    background-color: #27272a !important; /* Zinc-800 */
+    color: #d4d4d8 !important;
+    border-color: #3f3f46 !important;
 }
 
-/* Subtle Swiss Borders */
+.dark span.bg-zinc-200,
+.dark div.bg-zinc-200 {
+    background-color: #3f3f46 !important; /* Zinc-700 */
+    color: #f4f4f5 !important;
+}
+
+/* 2. Precision Borders */
 .dark .border-zinc-100,
 .dark .border-zinc-200,
 .dark .border-zinc-200\/60,
@@ -73,51 +91,89 @@ html.dark {
 .dark .border-zinc-200\/80,
 .dark .border-zinc-200\/90,
 .dark .border-zinc-300 {
-    border-color: #27272a !important; /* zinc-800 */
+    border-color: #27272a !important; /* Zinc-800 */
 }
 
 .dark .divide-zinc-100 > :not([hidden]) ~ :not([hidden]),
-.dark .divide-zinc-200 > :not([hidden]) ~ :not([hidden]) {
+.dark .divide-zinc-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-zinc-200\/80 > :not([hidden]) ~ :not([hidden]) {
     border-color: #27272a !important;
 }
 
-/* Headings & Text Hierarchy */
-.dark .text-zinc-900 {
-    color: #f4f4f5 !important; /* zinc-100 */
+/* 3. Swiss Typographic Scale (High Contrast & Legibility) */
+.dark .text-zinc-900,
+.dark .text-zinc-950,
+.dark .text-black {
+    color: #f4f4f5 !important; /* Zinc-100 */
 }
 
 .dark .text-zinc-800 {
-    color: #e4e4e7 !important; /* zinc-200 */
+    color: #e4e4e7 !important; /* Zinc-200 */
 }
 
 .dark .text-zinc-700 {
-    color: #d4d4d8 !important; /* zinc-300 */
+    color: #d4d4d8 !important; /* Zinc-300 */
 }
 
 .dark .text-zinc-600 {
-    color: #a1a1aa !important; /* zinc-400 */
+    color: #a1a1aa !important; /* Zinc-400 */
 }
 
-.dark .text-zinc-500,
+.dark .text-zinc-500 {
+    color: #8e8e93 !important;
+}
+
 .dark .text-zinc-400 {
-    color: #71717a !important; /* zinc-500 */
+    color: #71717a !important; /* Zinc-500 */
 }
 
-/* Hover States on Surfaces */
-.dark .hover\:bg-zinc-50:hover,
-.dark .hover\:bg-zinc-100:hover,
-.dark .hover\:bg-zinc-200\/60:hover {
-    background-color: #27272a !important;
+.dark .text-zinc-300 {
+    color: #52525b !important;
 }
 
-.dark .hover\:text-zinc-900:hover,
-.dark .hover\:text-black:hover,
-.dark .group:hover .group-hover\:text-zinc-900,
-.dark .group:hover .group-hover\:text-black {
+/* 4. Action Buttons (Monochrome Swiss Inversion) */
+/* Primary Action Buttons (Inverted: Bright white CTA on dark surface) */
+.dark button.bg-zinc-900,
+.dark a.bg-zinc-900,
+.dark input[type="submit"].bg-zinc-900 {
+    background-color: #f4f4f5 !important;
+    color: #09090b !important;
+    border-color: transparent !important;
+}
+
+.dark button.bg-zinc-900:hover,
+.dark a.bg-zinc-900:hover,
+.dark input[type="submit"].bg-zinc-900:hover {
+    background-color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark button.bg-zinc-900 svg,
+.dark a.bg-zinc-900 svg {
+    color: #09090b !important;
+}
+
+/* Secondary Action Buttons (Elevated Zinc Surface) */
+.dark button.bg-white,
+.dark a.bg-white {
+    background-color: #222226 !important;
+    border-color: #333338 !important;
+    color: #e4e4e7 !important;
+}
+
+.dark button.bg-white:hover,
+.dark a.bg-white:hover {
+    background-color: #2c2c32 !important;
+    border-color: #44444c !important;
     color: #ffffff !important;
 }
 
-/* Form Controls (Inputs, Selects, Textareas) */
+.dark button.bg-white svg,
+.dark a.bg-white svg {
+    color: #a1a1aa !important;
+}
+
+/* 5. Form Controls & Inputs */
 .dark input[type="text"],
 .dark input[type="search"],
 .dark input[type="date"],
@@ -128,8 +184,21 @@ html.dark {
 .dark select,
 .dark textarea {
     background-color: #18181b !important;
-    border-color: #27272a !important;
+    border-color: #2e2e33 !important;
     color: #f4f4f5 !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="search"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="time"]:focus,
+.dark input[type="url"]:focus,
+.dark select:focus,
+.dark textarea:focus {
+    background-color: #1f1f23 !important;
+    border-color: #52525b !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) !important;
 }
 
 .dark input::placeholder,
@@ -137,62 +206,136 @@ html.dark {
     color: #52525b !important;
 }
 
-/* Table Headings & Rows */
+.dark select option {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+}
+
+/* 6. Tables & Data Grids */
+.dark table {
+    border-color: #27272a !important;
+}
+
 .dark th {
     background-color: #18181b !important;
-    color: #a1a1aa !important;
+    color: #8e8e93 !important;
+    border-color: #27272a !important;
+}
+
+.dark td {
     border-color: #27272a !important;
 }
 
 .dark tr:hover td {
-    background-color: #27272a !important;
+    background-color: #1f1f23 !important;
 }
 
-/* Accent Badges / Pills in Dark Mode */
+/* 7. Semantic Accent Tinted Badges & Panels */
+/* Emerald / Success */
 .dark .bg-emerald-50 {
-    background-color: rgba(5, 150, 105, 0.15) !important;
+    background-color: rgba(16, 185, 129, 0.12) !important;
     color: #34d399 !important;
 }
 .dark .border-emerald-100,
-.dark .border-emerald-200 {
-    border-color: rgba(5, 150, 105, 0.3) !important;
+.dark .border-emerald-200,
+.dark .border-emerald-300 {
+    border-color: rgba(16, 185, 129, 0.25) !important;
+}
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-emerald-600 {
+    color: #34d399 !important;
 }
 
-.dark .bg-sky-50,
-.dark .bg-blue-50 {
-    background-color: rgba(2, 132, 199, 0.15) !important;
+/* Blue / Sky / Info */
+.dark .bg-blue-50,
+.dark .bg-sky-50 {
+    background-color: rgba(14, 165, 233, 0.12) !important;
     color: #38bdf8 !important;
 }
-.dark .border-sky-100,
-.dark .border-sky-200,
 .dark .border-blue-100,
-.dark .border-blue-200 {
-    border-color: rgba(2, 132, 199, 0.3) !important;
+.dark .border-blue-200,
+.dark .border-sky-100,
+.dark .border-sky-200 {
+    border-color: rgba(14, 165, 233, 0.25) !important;
+}
+.dark .text-blue-700,
+.dark .text-blue-800,
+.dark .text-sky-700,
+.dark .text-sky-800,
+.dark .text-blue-600,
+.dark .text-sky-600 {
+    color: #38bdf8 !important;
 }
 
-.dark .bg-rose-50 {
-    background-color: rgba(225, 29, 72, 0.15) !important;
+/* Rose / Red / Error */
+.dark .bg-rose-50,
+.dark .bg-red-50 {
+    background-color: rgba(244, 63, 94, 0.12) !important;
     color: #fb7185 !important;
 }
 .dark .border-rose-100,
-.dark .border-rose-200 {
-    border-color: rgba(225, 29, 72, 0.3) !important;
+.dark .border-rose-200,
+.dark .border-red-100,
+.dark .border-red-200 {
+    border-color: rgba(244, 63, 94, 0.25) !important;
+}
+.dark .text-rose-700,
+.dark .text-rose-800,
+.dark .text-rose-600,
+.dark .text-red-700,
+.dark .text-red-800,
+.dark .text-red-600 {
+    color: #fb7185 !important;
 }
 
-.dark .bg-amber-50 {
-    background-color: rgba(217, 119, 6, 0.15) !important;
+/* Amber / Orange / Warning */
+.dark .bg-amber-50,
+.dark .bg-orange-50 {
+    background-color: rgba(245, 158, 11, 0.12) !important;
     color: #fbbf24 !important;
 }
 .dark .border-amber-100,
-.dark .border-amber-200 {
-    border-color: rgba(217, 119, 6, 0.3) !important;
+.dark .border-amber-200,
+.dark .border-orange-100,
+.dark .border-orange-200 {
+    border-color: rgba(245, 158, 11, 0.25) !important;
+}
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-600,
+.dark .text-orange-700,
+.dark .text-orange-800,
+.dark .text-orange-600 {
+    color: #fbbf24 !important;
 }
 
+/* Purple */
 .dark .bg-purple-50 {
-    background-color: rgba(147, 51, 234, 0.15) !important;
+    background-color: rgba(168, 85, 247, 0.12) !important;
     color: #c084fc !important;
 }
 .dark .border-purple-100,
 .dark .border-purple-200 {
-    border-color: rgba(147, 51, 234, 0.3) !important;
+    border-color: rgba(168, 85, 247, 0.25) !important;
+}
+.dark .text-purple-700,
+.dark .text-purple-800,
+.dark .text-purple-600 {
+    color: #c084fc !important;
+}
+
+/* Indigo */
+.dark .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    color: #818cf8 !important;
+}
+.dark .border-indigo-100,
+.dark .border-indigo-200 {
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+.dark .text-indigo-700,
+.dark .text-indigo-800,
+.dark .text-indigo-600 {
+    color: #818cf8 !important;
 }
