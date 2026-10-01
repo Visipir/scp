@@ -5,3 +5,194 @@
 [x-cloak] {
     display: none !important;
 }
+
+html.dark {
+    color-scheme: dark;
+}
+
+/* Swiss Minimalist Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d4d4d8;
+    border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1aa;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+}
+
+/* ==========================================================================
+   Swiss Minimalist Global Dark Mode Engine
+   Seamlessly adapts all Swiss cards, surfaces, borders, text, and form elements
+   ========================================================================== */
+.dark body {
+    background-color: #09090b !important; /* zinc-950 */
+    color: #f4f4f5;
+}
+
+/* Surface Cards & Containers */
+.dark .bg-white {
+    background-color: #18181b !important; /* zinc-900 */
+}
+
+.dark .bg-zinc-50,
+.dark .bg-zinc-50\/40,
+.dark .bg-zinc-50\/50,
+.dark .bg-zinc-50\/60,
+.dark .bg-zinc-50\/70,
+.dark .bg-zinc-50\/80,
+.dark .bg-zinc-50\/90 {
+    background-color: #0d0d0f !important;
+}
+
+.dark .bg-zinc-100 {
+    background-color: #27272a !important; /* zinc-800 */
+}
+
+/* Subtle Swiss Borders */
+.dark .border-zinc-100,
+.dark .border-zinc-200,
+.dark .border-zinc-200\/60,
+.dark .border-zinc-200\/70,
+.dark .border-zinc-200\/80,
+.dark .border-zinc-200\/90,
+.dark .border-zinc-300 {
+    border-color: #27272a !important; /* zinc-800 */
+}
+
+.dark .divide-zinc-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-zinc-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #27272a !important;
+}
+
+/* Headings & Text Hierarchy */
+.dark .text-zinc-900 {
+    color: #f4f4f5 !important; /* zinc-100 */
+}
+
+.dark .text-zinc-800 {
+    color: #e4e4e7 !important; /* zinc-200 */
+}
+
+.dark .text-zinc-700 {
+    color: #d4d4d8 !important; /* zinc-300 */
+}
+
+.dark .text-zinc-600 {
+    color: #a1a1aa !important; /* zinc-400 */
+}
+
+.dark .text-zinc-500,
+.dark .text-zinc-400 {
+    color: #71717a !important; /* zinc-500 */
+}
+
+/* Hover States on Surfaces */
+.dark .hover\:bg-zinc-50:hover,
+.dark .hover\:bg-zinc-100:hover,
+.dark .hover\:bg-zinc-200\/60:hover {
+    background-color: #27272a !important;
+}
+
+.dark .hover\:text-zinc-900:hover,
+.dark .hover\:text-black:hover,
+.dark .group:hover .group-hover\:text-zinc-900,
+.dark .group:hover .group-hover\:text-black {
+    color: #ffffff !important;
+}
+
+/* Form Controls (Inputs, Selects, Textareas) */
+.dark input[type="text"],
+.dark input[type="search"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="url"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark select,
+.dark textarea {
+    background-color: #18181b !important;
+    border-color: #27272a !important;
+    color: #f4f4f5 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #52525b !important;
+}
+
+/* Table Headings & Rows */
+.dark th {
+    background-color: #18181b !important;
+    color: #a1a1aa !important;
+    border-color: #27272a !important;
+}
+
+.dark tr:hover td {
+    background-color: #27272a !important;
+}
+
+/* Accent Badges / Pills in Dark Mode */
+.dark .bg-emerald-50 {
+    background-color: rgba(5, 150, 105, 0.15) !important;
+    color: #34d399 !important;
+}
+.dark .border-emerald-100,
+.dark .border-emerald-200 {
+    border-color: rgba(5, 150, 105, 0.3) !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-blue-50 {
+    background-color: rgba(2, 132, 199, 0.15) !important;
+    color: #38bdf8 !important;
+}
+.dark .border-sky-100,
+.dark .border-sky-200,
+.dark .border-blue-100,
+.dark .border-blue-200 {
+    border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+.dark .bg-rose-50 {
+    background-color: rgba(225, 29, 72, 0.15) !important;
+    color: #fb7185 !important;
+}
+.dark .border-rose-100,
+.dark .border-rose-200 {
+    border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+.dark .bg-amber-50 {
+    background-color: rgba(217, 119, 6, 0.15) !important;
+    color: #fbbf24 !important;
+}
+.dark .border-amber-100,
+.dark .border-amber-200 {
+    border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+.dark .bg-purple-50 {
+    background-color: rgba(147, 51, 234, 0.15) !important;
+    color: #c084fc !important;
+}
+.dark .border-purple-100,
+.dark .border-purple-200 {
+    border-color: rgba(147, 51, 234, 0.3) !important;
+}
