@@ -6,13 +6,13 @@ use App\Models\SystemConfiguration;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
-use App\Models\Journal;
 use App\Services\AcademicCalendarService;
+use App\Services\DashboardService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request, DashboardService $dashboards): View
     {
         $user = $request->user();
         $config = SystemConfiguration::first();
@@ -26,7 +26,7 @@ class DashboardController extends Controller
         if ($user->role_id === 2) {
             // If today KBM is suspended, no journal is required (suppress late alerts)
             if (!$kbmSuspendedEvent) {
-                $alerts = $this->getUnfilledJournalAlerts($user->id, $config);
+                $alerts = $dashboards->unfilledJournalAlerts($user->id, $config);
                 $journalLateAlert = !empty($alerts);
             }
 
@@ -74,94 +74,13 @@ class DashboardController extends Controller
             $attendanceStats = ['Hadir' => 0, 'Sakit' => 0, 'Izin' => 0, 'Alpa' => 0, 'Terlambat' => 0];
 
             if (!$kbmSuspendedEvent) {
-                $now = Carbon::now();
-                $dayMap = [
-                    'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
-                    'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
-                ];
-                $todayDay = $dayMap[$now->format('l')] ?? null;
-                $activeCycle = $config?->active_cycle ?? 'Putaran 1';
-
-                if ($todayDay) {
-                    $allSchedules = Schedule::with(['teacher', 'schoolClass'])->where('day_of_week', $todayDay)->where('cycle_type', $activeCycle)->get();
-                    $filledScheduleIds = Journal::whereDate('date', $today)->pluck('schedule_id')->toArray();
-                    $threshold = $now->copy(); // For Waka, let's just use schedules that have ended, without 30m grace period, or we can keep it. I'll just check if it's past end time.
-
-                    $unfilledSchedules = $allSchedules->filter(function($sched) use ($threshold, $filledScheduleIds) {
-                        if (in_array($sched->id, $filledScheduleIds)) return false;
-                        $endTimeRaw = $sched->end_time;
-                        $endTime = strlen($endTimeRaw) === 5 ? Carbon::createFromFormat('H:i', $endTimeRaw) : Carbon::createFromFormat('H:i:s', $endTimeRaw);
-                        return $endTime->lt($threshold);
-                    });
-                }
-
-                $attendanceCounts = \App\Models\Attendance::whereDate('date', $today)
-                    ->selectRaw('status, count(*) as total')
-                    ->groupBy('status')
-                    ->pluck('total', 'status');
-
-                foreach (array_keys($attendanceStats) as $status) {
-                    $attendanceStats[$status] = (int) ($attendanceCounts[$status] ?? 0);
-                }
+                $unfilledSchedules = $dashboards->wakaUnfilledSchedules($config);
+                $attendanceStats = $dashboards->attendanceTodayCounts();
             }
 
             return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats'));
         }
 
         return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent'));
-    }
-
-    private function getUnfilledJournalAlerts(int $teacherId, ?SystemConfiguration $config): array
-    {
-        $today = Carbon::today();
-        if (AcademicCalendarService::isKbmSuspendedToday($today->toDateString())) {
-            return []; // KBM suspended — no journals required
-        }
-
-        $now = Carbon::now();
-
-        // Map Indonesian day names
-        $dayMap = [
-            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
-            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu',
-        ];
-        $todayDay = $dayMap[$today->format('l')] ?? null;
-
-        if (!$todayDay) {
-            return []; // Sunday — no schedules
-        }
-
-        $activeCycle = $config?->active_cycle ?? 'Putaran 1';
-
-        // Get today's schedules for this teacher in the active cycle
-        $schedules = Schedule::with(['schoolClass', 'room'])
-            ->where('teacher_id', $teacherId)
-            ->where('day_of_week', $todayDay)
-            ->where('cycle_type', $activeCycle)
-            ->get();
-
-        if ($schedules->isEmpty()) {
-            return [];
-        }
-
-        $filledScheduleIds = Journal::whereDate('date', $today)
-            ->whereIn('schedule_id', $schedules->pluck('id'))
-            ->pluck('schedule_id')
-            ->toArray();
-
-        $threshold = $now->copy()->subMinutes(30);
-
-        return $schedules->filter(function (Schedule $schedule) use ($threshold, $filledScheduleIds) {
-            if (in_array($schedule->id, $filledScheduleIds)) {
-                return false;
-            }
-
-            $endTimeRaw = $schedule->end_time;
-            $endTime = strlen($endTimeRaw) === 5
-                ? Carbon::createFromFormat('H:i', $endTimeRaw)
-                : Carbon::createFromFormat('H:i:s', $endTimeRaw);
-
-            return $endTime->lte($threshold);
-        })->values()->all();
     }
 }

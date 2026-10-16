@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
 use App\Models\Journal;
+use App\Services\AttendanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,7 +27,7 @@ class AttendanceController extends Controller
     /**
      * Bulk update attendance statuses for a journal.
      */
-    public function update(Request $request, Journal $journal): RedirectResponse
+    public function update(Request $request, Journal $journal, AttendanceService $attendance): RedirectResponse
     {
         if ($journal->schedule->teacher_id !== $request->user()->id) {
             abort(403);
@@ -40,14 +40,7 @@ class AttendanceController extends Controller
             'attendances.*.notes'  => ['nullable', 'string', 'max:255'],
         ]);
 
-        foreach ($validated['attendances'] as $data) {
-            Attendance::where('id', $data['id'])
-                ->where('journal_id', $journal->id) // scope to this journal for safety
-                ->update([
-                    'status' => $data['status'],
-                    'notes'  => $data['status'] === 'Hadir' ? null : ($data['notes'] ?? null),
-                ]);
-        }
+        $attendance->updateForJournal($journal, $validated['attendances']);
 
         return redirect()->route('journals.show', $journal)
             ->with('success', 'Presensi berhasil diperbarui.');

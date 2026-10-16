@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\User;
 use App\Models\SystemConfiguration;
 use App\Services\LessonHourService;
+use App\Services\ScheduleConflictService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -68,7 +69,7 @@ class ScheduleController extends Controller
         return view('schedules.create', compact('classes', 'rooms', 'teachers', 'config', 'scheduleMatrix'));
     }
 
-    public function store(StoreScheduleRequest $request): RedirectResponse
+    public function store(StoreScheduleRequest $request, ScheduleConflictService $conflicts): RedirectResponse
     {
         $validated = $request->validated();
         $user = $request->user();
@@ -76,7 +77,7 @@ class ScheduleController extends Controller
             ? (int) $validated['teacher_id']
             : $user->id;
 
-        $conflict = $this->findConflict($validated, $teacherId);
+        $conflict = $conflicts->findConflict($validated, $teacherId);
         if ($conflict) {
             return back()->withInput()->withErrors($conflict);
         }
@@ -100,7 +101,7 @@ class ScheduleController extends Controller
         return view('schedules.edit', compact('schedule', 'classes', 'rooms', 'teachers', 'config', 'scheduleMatrix'));
     }
 
-    public function update(UpdateScheduleRequest $request, Schedule $schedule): RedirectResponse
+    public function update(UpdateScheduleRequest $request, Schedule $schedule, ScheduleConflictService $conflicts): RedirectResponse
     {
         $this->authorizeTeacher($schedule);
 
@@ -112,7 +113,7 @@ class ScheduleController extends Controller
             ? (int) $validated['teacher_id']
             : $schedule->teacher_id;
 
-        $conflict = $this->findConflict($validated, $teacherId, $schedule->id);
+        $conflict = $conflicts->findConflict($validated, $teacherId, $schedule->id);
         if ($conflict) {
             return back()->withInput()->withErrors($conflict);
         }
@@ -141,34 +142,8 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Check for teacher/room/class time overlap conflicts.
-     * Returns error array if conflict found, null otherwise.
+     * Ensure the current user may mutate the given schedule.
      */
-    private function findConflict(array $data, int $teacherId, ?int $excludeId = null): ?array
-    {
-        $baseQuery = fn () => Schedule::where('day_of_week', $data['day_of_week'])
-            ->where('cycle_type', $data['cycle_type'])
-            ->where('start_time', '<', $data['end_time'])->where('end_time', '>', $data['start_time'])
-            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId));
-
-        // Teacher conflict
-        if ($baseQuery()->where('teacher_id', $teacherId)->exists()) {
-            return ['start_time' => 'Konflik jadwal: Guru sudah memiliki jadwal di waktu yang sama.'];
-        }
-
-        // Room conflict (only when a room is specified; null room must not match other room-less schedules)
-        if (!empty($data['room_id']) && $baseQuery()->where('room_id', $data['room_id'])->exists()) {
-            return ['room_id' => 'Konflik jadwal: Ruangan sudah digunakan di waktu yang sama.'];
-        }
-
-        // Class conflict
-        if ($baseQuery()->where('class_id', $data['class_id'])->exists()) {
-            return ['class_id' => 'Konflik jadwal: Kelas sudah memiliki jadwal di waktu yang sama.'];
-        }
-
-        return null;
-    }
-
     private function authorizeTeacher(Schedule $schedule): void
     {
         $user = request()->user();

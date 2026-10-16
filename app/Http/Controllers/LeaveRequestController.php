@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LeaveRequest;
+use App\Services\LeaveRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -82,7 +83,7 @@ class LeaveRequestController extends Controller
      * Store a new leave request (by student or parent).
      * IDOR Protection: validates that student_id is either self or own child.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, LeaveRequestService $service): RedirectResponse
     {
         $user = $request->user();
 
@@ -94,28 +95,7 @@ class LeaveRequestController extends Controller
             'document'    => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:2048'],
         ]);
 
-        // IDOR Protection: ensure student_id is either self or own child
-        $studentId = (int) $validated['student_id'];
-        $isOwnRequest = $studentId === $user->id;
-        $isChildRequest = $user->children()->where('id', $studentId)->exists();
-
-        if (! $isOwnRequest && ! $isChildRequest) {
-            abort(403, 'Anda tidak berhak mengajukan izin untuk siswa ini.');
-        }
-
-        $documentPath = null;
-        if ($request->hasFile('document')) {
-            $documentPath = $request->file('document')->store('leave-documents', 'local');
-        }
-
-        LeaveRequest::create([
-            'student_id'    => $studentId,
-            'applicant_id'  => $user->id,
-            'start_date'    => $validated['start_date'],
-            'end_date'      => $validated['end_date'],
-            'reason'        => $validated['reason'],
-            'document_path' => $documentPath,
-        ]);
+        $service->create($user, $validated, $request->file('document'));
 
         return redirect()->route('leave-requests.index')
             ->with('success', 'Permohonan izin berhasil diajukan.');
@@ -124,7 +104,7 @@ class LeaveRequestController extends Controller
     /**
      * Approve or reject a leave request (Tim Kesiswaan / Waka only).
      */
-    public function updateStatus(Request $request, LeaveRequest $leaveRequest): RedirectResponse
+    public function updateStatus(Request $request, LeaveRequest $leaveRequest, LeaveRequestService $service): RedirectResponse
     {
         abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
 
@@ -132,10 +112,7 @@ class LeaveRequestController extends Controller
             'status_approval' => ['required', 'in:Approved,Rejected'],
         ]);
 
-        $leaveRequest->update([
-            'status_approval' => $validated['status_approval'],
-            'verified_by'     => $request->user()->id,
-        ]);
+        $service->updateStatus($leaveRequest, $validated['status_approval'], $request->user());
 
         $statusText = $validated['status_approval'] === 'Approved' ? 'disetujui' : 'ditolak';
 
