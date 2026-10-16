@@ -1,0 +1,1147 @@
+openapi: 3.1.0
+info:
+  title: SCP (School Class Progress) API
+  version: "1.0.0"
+  description: |
+    Versioned JSON API for the native iOS client of SCP.
+    All endpoints are prefixed with `/api/v1` and (except login) require a
+    Sanctum Bearer token. Errors use a uniform envelope:
+    `{ "message": string, "errors": {field: [msg]} | null }`.
+servers:
+  - url: http://localhost
+    description: Local development
+tags:
+  - name: Auth
+  - name: Config
+  - name: Lookups
+  - name: Dashboard
+  - name: Schedules
+  - name: Journals
+  - name: Leave Requests
+  - name: Attendance
+  - name: System
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and issue a Sanctum token
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/XThrottle'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string, format: password }
+                device_name: { type: string, maxLength: 100, default: ios }
+      responses:
+        '200':
+          description: Login succeeded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /api/v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke the current token
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user (role, class, children for parents)
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/auth/profile:
+    patch:
+      tags: [Auth]
+      summary: Update the current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullname]
+              properties:
+                fullname: { type: string, maxLength: 255 }
+                username: { type: string, maxLength: 255 }
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/User' }
+        '403': { $ref: '#/components/responses/MustChangePassword' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/auth/change-password:
+    post:
+      tags: [Auth]
+      summary: Change password (current_password required unless forced)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, password_confirmation]
+              properties:
+                current_password: { type: string, format: password }
+                password: { type: string, format: password, minLength: 6 }
+                password_confirmation: { type: string, format: password }
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/config:
+    get:
+      tags: [Config]
+      summary: Global configuration and server time
+      responses:
+        '200':
+          description: Config
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Config' }
+
+  /api/v1/classes:
+    get:
+      tags: [Lookups]
+      summary: List classes
+      responses:
+        '200':
+          description: Classes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Class' }
+
+  /api/v1/rooms:
+    get:
+      tags: [Lookups]
+      summary: List rooms
+      responses:
+        '200':
+          description: Rooms
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Room' }
+
+  /api/v1/teachers:
+    get:
+      tags: [Lookups]
+      summary: List teachers (Waka only)
+      responses:
+        '200':
+          description: Teachers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Teacher' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Role-dependent dashboard payload
+      description: |
+        - role 2 (Guru): `today_schedules` (each with `journal_filled`), `late_journal_alerts`.
+        - role 1 (Waka): `attendance_today`, `unfilled_journals`.
+        - role 3 (Tim Kesiswaan): `pending_leave_count`.
+        - role 4 (Siswa/Ortu): `student`, `month`, `summary`.
+      responses:
+        '200':
+          description: Dashboard
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardResponse' }
+
+  /api/v1/schedules:
+    get:
+      tags: [Schedules]
+      summary: List schedules (roles 1, 2; Guru sees own only)
+      parameters:
+        - name: cycle
+          in: query
+          schema: { $ref: '#/components/schemas/CycleType' }
+        - name: day
+          in: query
+          schema: { $ref: '#/components/schemas/DayOfWeek' }
+        - name: teacher_id
+          in: query
+          schema: { type: integer }
+        - name: class_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedules
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Schedule' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      tags: [Schedules]
+      summary: Create a schedule (Waka, or Guru for self)
+      parameters:
+        - $ref: '#/components/parameters/ScheduleLock'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScheduleInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Schedule' }
+        '403': { $ref: '#/components/responses/ScheduleLockedOrForbidden' }
+        '422': { $ref: '#/components/responses/ConflictOrValidation' }
+
+  /api/v1/schedules/{schedule}:
+    parameters:
+      - name: schedule
+        in: path
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Schedules]
+      summary: Update a schedule (owner teacher or Waka)
+      parameters:
+        - $ref: '#/components/parameters/ScheduleLock'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScheduleInput' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Schedule' }
+        '403': { $ref: '#/components/responses/ScheduleLockedOrForbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ConflictOrValidation' }
+    delete:
+      tags: [Schedules]
+      summary: Delete a schedule
+      parameters:
+        - $ref: '#/components/parameters/ScheduleLock'
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '403': { $ref: '#/components/responses/ScheduleLockedOrForbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/journals:
+    get:
+      tags: [Journals]
+      summary: List journals (Guru own; Waka all; Tim Kesiswaan scoped by class)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated journals
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginated'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/JournalSummary' }
+    post:
+      tags: [Journals]
+      summary: Create a journal and sync attendance (Guru, multipart)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [schedule_id, date, topic_description, photo]
+              properties:
+                schedule_id: { type: integer }
+                date: { type: string, format: date }
+                topic_description: { type: string, maxLength: 5000 }
+                photo: { type: string, format: binary }
+                absent_students:
+                  type: array
+                  items: { $ref: '#/components/schemas/AbsentStudentInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/JournalSummary' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/journals/prepare:
+    get:
+      tags: [Journals]
+      summary: Roster for a schedule/date with approved-leave flags (Guru)
+      parameters:
+        - name: schedule_id
+          in: query
+          required: true
+          schema: { type: integer }
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Roster
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          schedule: { $ref: '#/components/schemas/Schedule' }
+                          date: { type: string, format: date }
+                          students:
+                            type: array
+                            items: { $ref: '#/components/schemas/PrepareStudent' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/journals/{journal}:
+    parameters:
+      - name: journal
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Journals]
+      summary: Journal detail with attendances
+      responses:
+        '200':
+          description: Journal
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/JournalDetail' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/journals/{journal}/photo:
+    parameters:
+      - name: journal
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Journals]
+      summary: Stream the private journal photo (inline)
+      responses:
+        '200':
+          description: Image stream
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/journals/{journal}/attendances:
+    parameters:
+      - name: journal
+        in: path
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Journals]
+      summary: Bulk update attendance by student_id (Guru owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [attendances]
+              properties:
+                attendances:
+                  type: array
+                  items: { $ref: '#/components/schemas/AttendanceUpdateInput' }
+      responses:
+        '200':
+          description: Updated journal
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/JournalDetail' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/leave-requests:
+    get:
+      tags: [Leave Requests]
+      summary: List leave requests (Siswa/Ortu own, Tim Kesiswaan scoped, Waka all)
+      parameters:
+        - name: status_approval
+          in: query
+          schema: { $ref: '#/components/schemas/LeaveStatus' }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated leave requests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginated'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/LeaveRequest' }
+    post:
+      tags: [Leave Requests]
+      summary: Submit a leave request (role 4, multipart)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [student_id, start_date, end_date, reason]
+              properties:
+                student_id: { type: integer }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                reason: { type: string, maxLength: 5000 }
+                document: { type: string, format: binary, description: 'pdf, jpg, jpeg, png (max 2MB)' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/LeaveRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/leave-requests/{leaveRequest}:
+    parameters:
+      - name: leaveRequest
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Leave Requests]
+      summary: Leave request detail
+      responses:
+        '200':
+          description: Leave request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/LeaveRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/leave-requests/{leaveRequest}/document:
+    parameters:
+      - name: leaveRequest
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Leave Requests]
+      summary: Stream the private leave document (inline)
+      responses:
+        '200':
+          description: Document stream
+          content:
+            application/octet-stream: { schema: { type: string, format: binary } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/leave-requests/{leaveRequest}/status:
+    parameters:
+      - name: leaveRequest
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      tags: [Leave Requests]
+      summary: Approve or reject (roles 1, 3 scoped). Does NOT write attendance.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status_approval]
+              properties:
+                status_approval: { type: string, enum: [Approved, Rejected] }
+      responses:
+        '200':
+          description: Updated leave request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/LeaveRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/attendance:
+    get:
+      tags: [Attendance]
+      summary: Attendance recap for a student or one of a parent's children (role 4)
+      parameters:
+        - name: student_id
+          in: query
+          schema: { type: integer }
+        - name: month
+          in: query
+          schema: { type: string, pattern: '^\d{4}-\d{2}$' }
+      responses:
+        '200':
+          description: Recap
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AttendanceRecap' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/system/cycle:
+    patch:
+      tags: [System]
+      summary: Set the active cycle explicitly (Waka only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active_cycle]
+              properties:
+                active_cycle: { $ref: '#/components/schemas/CycleType' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          active_cycle: { $ref: '#/components/schemas/CycleType' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/system/lock:
+    patch:
+      tags: [System]
+      summary: Set the schedule lock explicitly (Waka only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [is_schedule_locked]
+              properties:
+                is_schedule_locked: { type: boolean }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          is_schedule_locked: { type: boolean }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/system/unfilled-journals:
+    get:
+      tags: [System]
+      summary: Teachers with unfilled journals past end_time + 30 minutes (Waka only)
+      responses:
+        '200':
+          description: Unfilled journals per teacher
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          teachers:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                teacher_id: { type: integer }
+                                teacher: { type: [string, 'null'] }
+                                schedules:
+                                  type: array
+                                  items: { $ref: '#/components/schemas/Schedule' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 15 }
+    ScheduleLock:
+      name: X-Schedule-Lock
+      in: header
+      required: false
+      description: Informational; schedule lock is enforced server-side.
+      schema: { type: string }
+    XThrottle:
+      name: X-Throttle
+      in: header
+      required: false
+      description: Login is limited to 5 attempts per minute per username + IP.
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: Unauthenticated., errors: null }
+    Forbidden:
+      description: Authenticated but not allowed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Akses ditolak.", errors: null }
+    MustChangePassword:
+      description: Password change required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Anda harus mengganti kata sandi terlebih dahulu.", errors: null, code: must_change_password }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Data tidak ditemukan.", errors: null }
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Data yang diberikan tidak valid.", errors: { username: ["The username field is required."] } }
+    ConflictOrValidation:
+      description: Schedule conflict or validation error (field keys start_time / room_id / class_id)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Konflik jadwal: Guru sudah memiliki jadwal di waktu yang sama.", errors: { start_time: ["Konflik jadwal: Guru sudah memiliki jadwal di waktu yang sama."] } }
+    ScheduleLockedOrForbidden:
+      description: Schedule is locked (Waka only bypasses) or not allowed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Jadwal sedang dikunci oleh Waka Kurikulum.", errors: null }
+    TooManyRequests:
+      description: Rate limited
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+          example: { message: "Terlalu banyak percobaan. Silakan coba lagi nanti.", errors: null }
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [message, errors]
+      properties:
+        message: { type: string }
+        errors:
+          type: [object, 'null']
+          additionalProperties:
+            type: array
+            items: { type: string }
+        code:
+          type: string
+          description: Optional machine-readable code (e.g. must_change_password).
+
+    Message:
+      type: object
+      properties:
+        message: { type: string }
+        errors: { type: [object, 'null'] }
+
+    SuccessSingle:
+      type: object
+      properties:
+        data: {}
+
+    SuccessList:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+
+    Paginated:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+    PaginationMeta:
+      type: object
+      required: [current_page, per_page, total, last_page]
+      properties:
+        current_page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        last_page: { type: integer }
+
+    Role:
+      type: integer
+      enum: [1, 2, 3, 4]
+      description: "1=Waka, 2=Guru, 3=Tim Kesiswaan/BK, 4=Siswa/Ortu"
+
+    CycleType:
+      type: string
+      enum: ["Putaran 1", "Putaran 2"]
+
+    DayOfWeek:
+      type: string
+      enum: [Senin, Selasa, Rabu, Kamis, Jumat, Sabtu, Minggu]
+
+    AttendanceStatus:
+      type: string
+      enum: [Hadir, Sakit, Izin, Alpa, Terlambat]
+
+    LeaveStatus:
+      type: string
+      enum: [Pending, Approved, Rejected]
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        fullname: { type: string }
+        role_id: { $ref: '#/components/schemas/Role' }
+        role: { type: [string, 'null'] }
+        class_id: { type: [integer, 'null'] }
+        class: { type: [string, 'null'] }
+        gender: { type: [string, 'null'] }
+        attendance_number: { type: [integer, 'null'] }
+        must_change_password: { type: boolean }
+        children:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              fullname: { type: string }
+              class_id: { type: [integer, 'null'] }
+              class: { type: [string, 'null'] }
+
+    LoginResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            token: { type: string }
+            must_change_password: { type: boolean }
+            user: { $ref: '#/components/schemas/User' }
+
+    Config:
+      type: object
+      properties:
+        active_cycle: { $ref: '#/components/schemas/CycleType' }
+        is_schedule_locked: { type: boolean }
+        server_time: { type: string, format: date-time }
+        today_kbm_suspended: { type: boolean }
+
+    Class:
+      type: object
+      properties:
+        id: { type: integer }
+        class_name: { type: string }
+        academic_year: { type: [string, 'null'] }
+        grade_level: { type: [string, 'null'] }
+        major: { type: [string, 'null'] }
+
+    Room:
+      type: object
+      properties:
+        id: { type: integer }
+        room_name: { type: string }
+
+    Teacher:
+      type: object
+      properties:
+        id: { type: integer }
+        fullname: { type: string }
+        username: { type: string }
+
+    Schedule:
+      type: object
+      properties:
+        id: { type: integer }
+        subject: { type: string }
+        day_of_week: { $ref: '#/components/schemas/DayOfWeek' }
+        start_time: { type: [string, 'null'], pattern: '^\d{2}:\d{2}$' }
+        end_time: { type: [string, 'null'], pattern: '^\d{2}:\d{2}$' }
+        cycle_type: { $ref: '#/components/schemas/CycleType' }
+        start_period: { type: [integer, 'null'] }
+        end_period: { type: [integer, 'null'] }
+        period_label: { type: string }
+        teacher:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            fullname: { type: string }
+        class:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            class_name: { type: string }
+        room:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            room_name: { type: string }
+        journal_filled:
+          type: boolean
+          description: Only present on the Guru dashboard.
+
+    ScheduleInput:
+      type: object
+      required: [class_id, subject, day_of_week, start_time, end_time, cycle_type]
+      properties:
+        class_id: { type: integer }
+        room_id: { type: [integer, 'null'] }
+        teacher_id: { type: integer, description: Waka only }
+        subject: { type: string, maxLength: 100 }
+        day_of_week: { $ref: '#/components/schemas/DayOfWeek' }
+        start_period: { type: [integer, 'null'] }
+        end_period: { type: [integer, 'null'] }
+        start_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+        end_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+        cycle_type: { $ref: '#/components/schemas/CycleType' }
+
+    AbsentStudentInput:
+      type: object
+      required: [student_id, status]
+      properties:
+        student_id: { type: integer }
+        status: { type: string, enum: [Sakit, Izin, Alpa, Terlambat] }
+        notes: { type: [string, 'null'], maxLength: 255 }
+
+    AttendanceUpdateInput:
+      type: object
+      required: [student_id, status]
+      properties:
+        student_id: { type: integer }
+        status: { $ref: '#/components/schemas/AttendanceStatus' }
+        notes: { type: [string, 'null'], maxLength: 255 }
+
+    AttendanceSummary:
+      type: object
+      properties:
+        Hadir: { type: integer }
+        Sakit: { type: integer }
+        Izin: { type: integer }
+        Alpa: { type: integer }
+        Terlambat: { type: integer }
+
+    JournalSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        topic_description: { type: string }
+        photo_url: { type: [string, 'null'] }
+        schedule:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            subject: { type: string }
+            day_of_week: { $ref: '#/components/schemas/DayOfWeek' }
+            start_time: { type: [string, 'null'] }
+            end_time: { type: [string, 'null'] }
+            cycle_type: { $ref: '#/components/schemas/CycleType' }
+            class:
+              type: [object, 'null']
+              properties:
+                id: { type: integer }
+                class_name: { type: string }
+        attendance_summary:
+          type: object
+          properties:
+            total: { type: integer }
+            hadir: { type: integer }
+            sakit: { type: integer }
+            izin: { type: integer }
+            alpa: { type: integer }
+            terlambat: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    JournalDetail:
+      allOf:
+        - $ref: '#/components/schemas/JournalSummary'
+        - type: object
+          properties:
+            attendances:
+              type: array
+              items: { $ref: '#/components/schemas/AttendanceEntry' }
+
+    AttendanceEntry:
+      type: object
+      properties:
+        student_id: { type: integer }
+        fullname: { type: [string, 'null'] }
+        username: { type: [string, 'null'] }
+        status: { $ref: '#/components/schemas/AttendanceStatus' }
+        notes: { type: [string, 'null'] }
+
+    PrepareStudent:
+      type: object
+      properties:
+        student_id: { type: integer }
+        fullname: { type: string }
+        username: { type: string }
+        on_approved_leave: { type: boolean }
+        leave:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            start_date: { type: [string, 'null'], format: date }
+            end_date: { type: [string, 'null'], format: date }
+            reason: { type: string }
+
+    LeaveRequest:
+      type: object
+      properties:
+        id: { type: integer }
+        student:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            fullname: { type: string }
+            username: { type: string }
+            class_id: { type: [integer, 'null'] }
+            class: { type: [string, 'null'] }
+        applicant:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            fullname: { type: string }
+        start_date: { type: [string, 'null'], format: date }
+        end_date: { type: [string, 'null'], format: date }
+        reason: { type: string }
+        status_approval: { $ref: '#/components/schemas/LeaveStatus' }
+        verifier:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            fullname: { type: string }
+        document_url: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    AttendanceRecap:
+      type: object
+      properties:
+        student: { $ref: '#/components/schemas/User' }
+        month: { type: string, pattern: '^\d{4}-\d{2}$' }
+        summary: { $ref: '#/components/schemas/AttendanceSummary' }
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              date: { type: [string, 'null'], format: date }
+              subject: { type: [string, 'null'] }
+              period_label: { type: [string, 'null'] }
+              start_time: { type: [string, 'null'] }
+              end_time: { type: [string, 'null'] }
+              status: { $ref: '#/components/schemas/AttendanceStatus' }
+              notes: { type: [string, 'null'] }
+
+    DashboardResponse:
+      type: object
+      description: Shape depends on the authenticated user's role.
+      properties:
+        data:
+          type: object
+          properties:
+            today_schedules:
+              type: array
+              items: { $ref: '#/components/schemas/Schedule' }
+            late_journal_alerts:
+              type: array
+              items: { $ref: '#/components/schemas/Schedule' }
+            attendance_today: { $ref: '#/components/schemas/AttendanceSummary' }
+            unfilled_journals:
+              type: array
+              items:
+                type: object
+                properties:
+                  teacher_id: { type: integer }
+                  teacher: { type: [string, 'null'] }
+                  schedules:
+                    type: array
+                    items: { $ref: '#/components/schemas/Schedule' }
+            pending_leave_count: { type: integer }
+            student: { $ref: '#/components/schemas/User' }
+            month: { type: string, pattern: '^\d{4}-\d{2}$' }
+            summary: { $ref: '#/components/schemas/AttendanceSummary' }
