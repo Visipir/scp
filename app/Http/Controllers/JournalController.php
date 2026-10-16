@@ -107,16 +107,12 @@ class JournalController extends Controller
     /**
      * Stream the private journal documentation photo to an authorized user (inline).
      */
-    public function photo(Request $request, Journal $journal)
+    public function photo(Request $request, Journal $journal, JournalService $journals)
     {
         $journal->loadMissing('schedule');
         $user = $request->user();
 
-        $allowed = (int) $user->role_id === 1
-            || (int) $user->role_id === 3
-            || ((int) $user->role_id === 2 && (int) $journal->schedule?->teacher_id === (int) $user->id);
-
-        abort_unless($allowed, 403, 'Akses ditolak.');
+        abort_unless($journals->canViewPhoto($user, $journal), 403, 'Akses ditolak.');
 
         abort_if(blank($journal->photo_path), 404);
 

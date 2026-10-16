@@ -129,6 +129,55 @@ class JournalService
     }
 
     /**
+     * Scope a journal query to what the user may list.
+     */
+    public function scopeForUser(User $user, $query)
+    {
+        if ((int) $user->role_id === 2) {
+            $query->whereHas('schedule', fn ($q) => $q->where('teacher_id', $user->id));
+        } elseif ((int) $user->role_id === 3) {
+            $classId = $user->scopedClassId();
+            if ($classId !== null) {
+                $query->whereHas('schedule', fn ($q) => $q->where('class_id', $classId));
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Whether the user may read this journal's detail.
+     */
+    public function userCanView(User $user, Journal $journal): bool
+    {
+        if ((int) $user->role_id === 1) {
+            return true;
+        }
+
+        if ((int) $user->role_id === 2) {
+            return (int) $journal->schedule?->teacher_id === (int) $user->id;
+        }
+
+        if ((int) $user->role_id === 3) {
+            $classId = $user->scopedClassId();
+
+            return $classId === null || (int) $journal->schedule?->class_id === $classId;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the user may stream the photo (same rule as the web route).
+     */
+    public function canViewPhoto(User $user, Journal $journal): bool
+    {
+        return (int) $user->role_id === 1
+            || (int) $user->role_id === 3
+            || ((int) $user->role_id === 2 && (int) $journal->schedule?->teacher_id === (int) $user->id);
+    }
+
+    /**
      * Grouped attendance status counts for a journal.
      *
      * @return array<string, int>

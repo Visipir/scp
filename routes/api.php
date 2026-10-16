@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\JournalController as V1JournalController;
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Middleware\CheckScheduleLock;
@@ -47,6 +48,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('/schedules', [ScheduleController::class, 'store'])->middleware(CheckScheduleLock::class)->name('schedules.store');
             Route::put('/schedules/{schedule}', [ScheduleController::class, 'update'])->middleware(CheckScheduleLock::class)->name('schedules.update');
             Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy'])->middleware(CheckScheduleLock::class)->name('schedules.destroy');
+        });
+
+        Route::middleware('role:2')->group(function () {
+            Route::get('/journals/prepare', [V1JournalController::class, 'prepare'])->name('journals.prepare');
+            Route::post('/journals', [V1JournalController::class, 'store'])->name('journals.store');
+            Route::put('/journals/{journal}/attendances', [V1JournalController::class, 'updateAttendances'])->name('journals.attendances.update');
+        });
+
+        Route::middleware('role:1,2,3')->group(function () {
+            Route::get('/journals', [V1JournalController::class, 'index'])->name('journals.index');
+            Route::get('/journals/{journal}', [V1JournalController::class, 'show'])->name('journals.show');
+            Route::get('/journals/{journal}/photo', [V1JournalController::class, 'photo'])->name('journals.photo');
         });
     });
 });

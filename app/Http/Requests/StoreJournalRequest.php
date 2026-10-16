@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreJournalRequest extends FormRequest
 {
@@ -29,9 +28,15 @@ class StoreJournalRequest extends FormRequest
             'date'              => [
                 'required',
                 'date',
-                Rule::unique('journals')->where(fn ($query) =>
-                    $query->where('schedule_id', $this->input('schedule_id'))
-                ),
+                function ($attribute, $value, $fail) {
+                    $exists = \App\Models\Journal::where('schedule_id', $this->input('schedule_id'))
+                        ->whereDate('date', $value)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('Jurnal untuk jadwal ini pada tanggal tersebut sudah ada.');
+                    }
+                },
             ],
             'topic_description' => ['required', 'string', 'max:5000'],
             'photo'             => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],

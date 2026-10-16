@@ -23,4 +23,30 @@ class AttendanceService
                 ]);
         }
     }
+
+    /**
+     * Bulk update attendance addressed by student_id (API shape).
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    public function updateForJournalByStudent(Journal $journal, array $rows): void
+    {
+        $byStudent = $journal->attendances()->get()->keyBy('student_id');
+
+        $mapped = [];
+        foreach ($rows as $row) {
+            $attendance = $byStudent->get((int) $row['student_id']);
+            if ($attendance === null) {
+                continue;
+            }
+
+            $mapped[] = [
+                'id'     => $attendance->id,
+                'status' => $row['status'],
+                'notes'  => $row['notes'] ?? null,
+            ];
+        }
+
+        $this->updateForJournal($journal, $mapped);
+    }
 }
