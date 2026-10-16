@@ -19,9 +19,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\EnsurePasswordIsChanged::class,
         ]);
+        $middleware->api(append: [
+            \App\Http\Middleware\ForceJsonResponse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            return \App\Support\ApiErrorRenderer::render($e);
+        });
     })->create();

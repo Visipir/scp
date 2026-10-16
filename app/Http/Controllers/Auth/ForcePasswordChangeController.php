@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class ForcePasswordChangeController extends Controller
 {
+    public function __construct(private AuthService $authService)
+    {
+    }
     /**
      * Display the first-time password change form.
      */
@@ -50,10 +53,7 @@ class ForcePasswordChangeController extends Controller
             'password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
         ]);
 
-        $user->update([
-            'password' => Hash::make($request->password),
-            'must_change_password' => false,
-        ]);
+        $this->authService->changePassword($user, (string) $request->password);
 
         return redirect()->route('dashboard')->with('success', 'Kata sandi Anda berhasil diperbarui. Selamat datang di portal siswa!');
     }
