@@ -10,7 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\User;
 use App\Models\SystemConfiguration;
 use App\Services\LessonHourService;
-use App\Services\ScheduleConflictService;
+use App\Services\ScheduleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -69,20 +69,9 @@ class ScheduleController extends Controller
         return view('schedules.create', compact('classes', 'rooms', 'teachers', 'config', 'scheduleMatrix'));
     }
 
-    public function store(StoreScheduleRequest $request, ScheduleConflictService $conflicts): RedirectResponse
+    public function store(StoreScheduleRequest $request, ScheduleService $schedules): RedirectResponse
     {
-        $validated = $request->validated();
-        $user = $request->user();
-        $teacherId = ($user->role_id === 1 && !empty($validated['teacher_id']))
-            ? (int) $validated['teacher_id']
-            : $user->id;
-
-        $conflict = $conflicts->findConflict($validated, $teacherId);
-        if ($conflict) {
-            return back()->withInput()->withErrors($conflict);
-        }
-
-        Schedule::create([...$validated, 'teacher_id' => $teacherId]);
+        $schedules->create($request->user(), $request->validated());
 
         return redirect()->route('schedules.index')
             ->with('success', 'Jadwal blok jam pelajaran berhasil ditambahkan.');
@@ -101,54 +90,21 @@ class ScheduleController extends Controller
         return view('schedules.edit', compact('schedule', 'classes', 'rooms', 'teachers', 'config', 'scheduleMatrix'));
     }
 
-    public function update(UpdateScheduleRequest $request, Schedule $schedule, ScheduleConflictService $conflicts): RedirectResponse
+    public function update(UpdateScheduleRequest $request, Schedule $schedule, ScheduleService $schedules): RedirectResponse
     {
-        $this->authorizeTeacher($schedule);
-
-        $validated = $request->validated();
-        $user = $request->user();
-
-        // If Waka Kurikulum (role 1) specifies a teacher_id, use it; otherwise preserve schedule's teacher
-        $teacherId = ($user->role_id === 1 && !empty($validated['teacher_id']))
-            ? (int) $validated['teacher_id']
-            : $schedule->teacher_id;
-
-        $conflict = $conflicts->findConflict($validated, $teacherId, $schedule->id);
-        if ($conflict) {
-            return back()->withInput()->withErrors($conflict);
-        }
-
-        $data = $validated;
-        if ($user->role_id === 1 && !empty($validated['teacher_id'])) {
-            $data['teacher_id'] = $teacherId;
-        } else {
-            unset($data['teacher_id']);
-        }
-
-        $schedule->update($data);
+        $schedules->update($request->user(), $schedule, $request->validated());
 
         return redirect()->route('schedules.index')
             ->with('success', 'Jadwal berhasil diperbarui.');
     }
 
-    public function destroy(Schedule $schedule): RedirectResponse
+    public function destroy(Schedule $schedule, ScheduleService $schedules): RedirectResponse
     {
-        $this->authorizeTeacher($schedule);
+        $schedules->authorizeTeacher(request()->user(), $schedule);
 
         $schedule->delete();
 
         return redirect()->route('schedules.index')
             ->with('success', 'Jadwal berhasil dihapus.');
-    }
-
-    /**
-     * Ensure the current user may mutate the given schedule.
-     */
-    private function authorizeTeacher(Schedule $schedule): void
-    {
-        $user = request()->user();
-        if ($user->role_id !== 1 && $schedule->teacher_id !== $user->id) {
-            abort(403, 'Anda tidak memiliki akses ke jadwal ini.');
-        }
     }
 }

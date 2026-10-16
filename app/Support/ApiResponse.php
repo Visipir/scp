@@ -22,6 +22,19 @@ class ApiResponse
     }
 
     /**
+     * @param  iterable<mixed>  $items
+     * @param  class-string<JsonResource>  $resourceClass
+     */
+    public static function list(iterable $items, string $resourceClass): JsonResponse
+    {
+        $data = collect($items)
+            ->map(fn ($model) => (new $resourceClass($model))->resolve())
+            ->all();
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
      * @param  class-string<JsonResource>  $resourceClass
      */
     public static function paginated(LengthAwarePaginator $paginator, string $resourceClass): JsonResponse

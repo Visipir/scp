@@ -38,7 +38,7 @@ class DashboardService
 
         $activeCycle = $config?->active_cycle ?? 'Putaran 1';
 
-        $schedules = Schedule::with(['schoolClass', 'room'])
+        $schedules = Schedule::with(['teacher', 'schoolClass', 'room'])
             ->where('teacher_id', $teacherId)
             ->where('day_of_week', $todayDay)
             ->where('cycle_type', $activeCycle)

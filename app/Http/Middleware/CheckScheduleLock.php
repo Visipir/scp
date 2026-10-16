@@ -15,7 +15,7 @@ class CheckScheduleLock
 
         if ($config && $config->is_schedule_locked && $request->user()?->role_id !== 1) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'Jadwal sedang dikunci oleh Waka Kurikulum.'], 403);
+                return response()->json(['message' => 'Jadwal sedang dikunci oleh Waka Kurikulum.', 'errors' => null], 403);
             }
 
             return redirect()->route('schedules.index')

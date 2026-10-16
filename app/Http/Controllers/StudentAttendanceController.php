@@ -22,22 +22,12 @@ class StudentAttendanceController extends Controller
 
         $month = $validated['month'] ?? now()->format('Y-m');
 
-        // A parent is a role 4 account that has children linked via parent_id
-        $children = $user->children()->where('role_id', 4)->orderBy('fullname')->get();
-        $isParent = $children->isNotEmpty();
+        $target = $service->resolveTargetStudent($user, isset($validated['student_id']) ? (int) $validated['student_id'] : null);
 
-        if ($isParent) {
-            $studentId = (int) ($validated['student_id'] ?? $children->first()->id);
-
-            // Only the parent's own children are allowed
-            abort_unless($children->pluck('id')->contains($studentId), 403, 'Akses ditolak.');
-
-            $student = $children->firstWhere('id', $studentId);
-        } else {
-            // Plain student: always their own records
-            $studentId = $user->id;
-            $student = $user;
-        }
+        $student = $target['student'];
+        $studentId = $target['student_id'];
+        $isParent = $target['is_parent'];
+        $children = $target['children'];
 
         ['summary' => $summary, 'records' => $records] = $service->forStudent($studentId, $month);
 

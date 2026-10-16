@@ -63,4 +63,23 @@ trait ScpTestHelpers
             'is_schedule_locked' => false,
         ], $attributes));
     }
+
+    /**
+     * Issue a Sanctum token for API tests.
+     */
+    protected function apiToken(User $user, string $device = 'phpunit'): string
+    {
+        return $user->createToken($device)->plainTextToken;
+    }
+
+    /**
+     * Authenticate a TestCase request as the given user via a Bearer token.
+     */
+    protected function apiAs(User $user): static
+    {
+        // Reset any cached guard user so switching tokens re-authenticates.
+        \Illuminate\Support\Facades\Auth::forgetGuards();
+
+        return $this->withToken($this->apiToken($user));
+    }
 }
