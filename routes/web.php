@@ -94,6 +94,10 @@ Route::middleware(['auth', 'role:2'])->prefix('attendances')->name('attendances.
     Route::put('/{journal}', [AttendanceController::class, 'update'])->name('update');
 });
 
+Route::middleware(['auth', 'role:4'])
+    ->get('/attendance', [\App\Http\Controllers\StudentAttendanceController::class, 'index'])
+    ->name('student.attendance.index');
+
 Route::middleware(['auth'])->prefix('leave-requests')->name('leave-requests.')->group(function () {
     Route::middleware('role:1,3,4')->group(function () {
         Route::get('/', [LeaveRequestController::class, 'index'])->name('index');

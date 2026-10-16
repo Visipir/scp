@@ -34,12 +34,12 @@ trait ScpTestHelpers
 
     protected function makeClass(string $name = 'X PPLG 1', string $year = '2026/2027'): SchoolClass
     {
-        return SchoolClass::create(['class_name' => $name, 'academic_year' => $year]);
+        return SchoolClass::firstOrCreate(['class_name' => $name], ['academic_year' => $year]);
     }
 
     protected function makeRoom(string $name = 'Lab RPL 1'): Room
     {
-        return Room::create(['room_name' => $name]);
+        return Room::firstOrCreate(['room_name' => $name]);
     }
 
     protected function makeSchedule(array $attributes = []): Schedule
