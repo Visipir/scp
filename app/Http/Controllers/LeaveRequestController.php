@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LeaveRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LeaveRequestController extends Controller
@@ -42,6 +43,21 @@ class LeaveRequestController extends Controller
         $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
 
         return view('leave-requests.show', compact('leaveRequest'));
+    }
+
+    /**
+     * Stream the private leave document to an authorized user (inline).
+     */
+    public function document(Request $request, LeaveRequest $leaveRequest)
+    {
+        abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
+
+        abort_if(blank($leaveRequest->document_path), 404);
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($leaveRequest->document_path), 404);
+
+        return $disk->response($leaveRequest->document_path);
     }
 
     /**
@@ -89,7 +105,7 @@ class LeaveRequestController extends Controller
 
         $documentPath = null;
         if ($request->hasFile('document')) {
-            $documentPath = $request->file('document')->store('leave-documents', 'public');
+            $documentPath = $request->file('document')->store('leave-documents', 'local');
         }
 
         LeaveRequest::create([

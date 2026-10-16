@@ -87,6 +87,7 @@ Route::middleware(['auth'])->prefix('journals')->name('journals.')->group(functi
         Route::post('/', [JournalController::class, 'store'])->name('store');
     });
     Route::get('/{journal}', [JournalController::class, 'show'])->name('show')->middleware('role:1,2,3');
+    Route::get('/{journal}/photo', [JournalController::class, 'photo'])->name('photo')->middleware('role:1,2,3');
 });
 
 Route::middleware(['auth', 'role:2'])->prefix('attendances')->name('attendances.')->group(function () {
@@ -104,6 +105,7 @@ Route::middleware(['auth'])->prefix('leave-requests')->name('leave-requests.')->
         Route::get('/create', [LeaveRequestController::class, 'create'])->name('create')->middleware('role:4');
         Route::post('/', [LeaveRequestController::class, 'store'])->name('store')->middleware('role:4');
         Route::get('/{leaveRequest}', [LeaveRequestController::class, 'show'])->name('show');
+        Route::get('/{leaveRequest}/document', [LeaveRequestController::class, 'document'])->name('document');
     });
     Route::middleware('role:1,3')->group(function () {
         Route::patch('/{leaveRequest}/status', [LeaveRequestController::class, 'updateStatus'])->name('update-status');

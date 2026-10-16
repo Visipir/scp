@@ -57,7 +57,7 @@
                     <h3 class="text-xs font-bold text-zinc-700 mb-1.5">Foto Dokumentasi KBM</h3>
                     <div class="inline-block p-1 bg-zinc-50 border border-zinc-200 rounded-lg">
                         <img 
-                            src="{{ asset('storage/' . $journal->photo_path) }}" 
+                            src="{{ route('journals.photo', $journal) }}" 
                             alt="Dokumentasi KBM" 
                             class="rounded max-h-96 max-w-full w-auto object-contain"
                         />

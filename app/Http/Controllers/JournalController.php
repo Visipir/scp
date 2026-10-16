@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -216,12 +217,34 @@ class JournalController extends Controller
     }
 
     /**
+     * Stream the private journal documentation photo to an authorized user (inline).
+     */
+    public function photo(Request $request, Journal $journal)
+    {
+        $journal->loadMissing('schedule');
+        $user = $request->user();
+
+        $allowed = (int) $user->role_id === 1
+            || (int) $user->role_id === 3
+            || ((int) $user->role_id === 2 && (int) $journal->schedule?->teacher_id === (int) $user->id);
+
+        abort_unless($allowed, 403, 'Akses ditolak.');
+
+        abort_if(blank($journal->photo_path), 404);
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($journal->photo_path), 404);
+
+        return $disk->response($journal->photo_path);
+    }
+
+    /**
      * Auto compress and store journal documentation photo without requiring external packages.
      * Uses PHP GD (built-in standard) to resize and compress down from up to 5MB to ~200-400KB.
      */
     protected function compressAndStorePhoto(UploadedFile $file): string
     {
-        $destinationDir = storage_path('app/public/journals');
+        $destinationDir = Storage::disk('local')->path('journals');
         if (!file_exists($destinationDir)) {
             mkdir($destinationDir, 0755, true);
         }
@@ -325,6 +348,6 @@ class JournalController extends Controller
         }
 
         // Graceful Fallback: standard Laravel file store
-        return $file->store('journals', 'public');
+        return $file->store('journals', 'local');
     }
 }
