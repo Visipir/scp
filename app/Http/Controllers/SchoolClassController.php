@@ -21,6 +21,12 @@ class SchoolClassController extends Controller
 
         $query = SchoolClass::withCount('users as students_count');
 
+        // Wali Kelas (role 3 with class_id) only sees their homeroom class
+        $scopedClassId = $request->user()?->scopedClassId();
+        if ($scopedClassId !== null) {
+            $query->where('id', $scopedClassId);
+        }
+
         if ($selectedYear && $selectedYear !== 'all') {
             $query->where('academic_year', $selectedYear);
         }
@@ -49,6 +55,10 @@ class SchoolClassController extends Controller
 
     public function show(Request $request, SchoolClass $class): View
     {
+        // Wali Kelas (role 3 with class_id) may only open their homeroom class
+        $scopedClassId = $request->user()?->scopedClassId();
+        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
         $search = $request->query('search');
@@ -181,6 +191,10 @@ class SchoolClassController extends Controller
 
     public function exportAttendance(Request $request, SchoolClass $class)
     {
+        // Wali Kelas (role 3 with class_id) may only export their homeroom class
+        $scopedClassId = $request->user()?->scopedClassId();
+        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+
         $request->validate([
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',

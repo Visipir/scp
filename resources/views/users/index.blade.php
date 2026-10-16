@@ -106,7 +106,7 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3.5">
-                                @if($user->role_id == 4 && $user->schoolClass)
+                                @if(in_array($user->role_id, [3, 4]) && $user->schoolClass)
                                     <span class="inline-block px-2 py-0.5 rounded bg-zinc-200/70 text-zinc-800 font-mono text-[11px] font-bold">
                                         {{ $user->schoolClass->class_name }}
                                     </span>
@@ -204,8 +204,8 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div x-show="role == '4'">
-                            <x-input-label for="add_class_id" value="Kelas (Khusus Siswa)" />
+                        <div x-show="role == '4' || role == '3'">
+                            <label for="add_class_id" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5" x-text="role == '3' ? 'Kelas Perwalian (kosongkan untuk Guru BK)' : 'Kelas (Khusus Siswa)'"></label>
                             <select id="add_class_id" name="class_id" :required="role == '4'" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition">
                                 <option value="">-- Pilih Kelas --</option>
                                 @php $allClasses = \App\Models\SchoolClass::orderBy('class_name')->get(); @endphp
@@ -267,8 +267,8 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div x-show="editUser.role_id == '4'">
-                            <x-input-label for="edit_class_id" value="Kelas (Khusus Siswa)" />
+                        <div x-show="editUser.role_id == '4' || editUser.role_id == '3'">
+                            <label for="edit_class_id" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5" x-text="editUser.role_id == '3' ? 'Kelas Perwalian (kosongkan untuk Guru BK)' : 'Kelas (Khusus Siswa)'"></label>
                             <select id="edit_class_id" name="class_id" x-model="editUser.class_id" :required="editUser.role_id == '4'" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition">
                                 <option value="">-- Pilih Kelas --</option>
                                 @foreach($allClasses as $c)

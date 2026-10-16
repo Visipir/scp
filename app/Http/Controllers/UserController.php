@@ -58,7 +58,7 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
 
-        if ($validated['role_id'] != 4) {
+        if (! in_array((int) $validated['role_id'], [3, 4], true)) {
             $validated['class_id'] = null;
         }
 
@@ -82,7 +82,7 @@ class UserController extends Controller
             'class_id' => 'nullable|required_if:role_id,4|exists:classes,id',
         ]);
 
-        if ($validated['role_id'] != 4) {
+        if (! in_array((int) $validated['role_id'], [3, 4], true)) {
             $validated['class_id'] = null;
         }
 

@@ -33,6 +33,19 @@ class UserSeeder extends Seeder
         $classXiRpl1  = SchoolClass::where('class_name', 'XI RPL 1')->first();
         $classXiTkj1  = SchoolClass::where('class_name', 'XI TKJ 1')->first();
 
+        // 1b. Wali Kelas: tim_kesiswaan supervises the homeroom class of siswa_dina.
+        //     guru_bk has no class_id and therefore monitors every class.
+        User::where('username', 'tim_kesiswaan')->update(['class_id' => $classXiiRpl1?->id]);
+        User::firstOrCreate(
+            ['username' => 'guru_bk'],
+            [
+                'role_id'  => 3,
+                'fullname' => 'Bu Wati Guru BK',
+                'class_id' => null,
+                'password' => Hash::make('password'),
+            ]
+        );
+
         // 2. Students for XII RPL 1
         $studentsXiiRpl1 = [
             ['username' => 'siswa_dina',   'fullname' => 'Dina Permata Putri'],

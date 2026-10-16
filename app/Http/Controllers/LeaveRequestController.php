@@ -11,23 +11,15 @@ class LeaveRequestController extends Controller
 {
     /**
      * List leave requests.
-     * Role 1, 3: see all requests.
+     * Role 1 and BK: see all requests.
+     * Role 3 (Wali Kelas): only their homeroom class.
      * Role 4: see only own requests (as student or as applicant/parent).
      */
     public function index(Request $request): View
     {
         $user = $request->user();
-        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier']);
-
-        // Scope: role 4 can only see their own leave requests
-        if ($user->role_id === 4) {
-            $childrenIds = $user->children()->pluck('id')->toArray();
-            $query->where(function ($q) use ($user, $childrenIds) {
-                $q->where('student_id', $user->id)
-                  ->orWhere('applicant_id', $user->id)
-                  ->orWhereIn('student_id', $childrenIds);
-            });
-        }
+        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier'])
+            ->visibleTo($user);
 
         // Filter by status
         if ($status = $request->query('status')) {
@@ -41,23 +33,11 @@ class LeaveRequestController extends Controller
 
     /**
      * Show a single leave request.
-     * Role 4 can only see their own requests.
+     * Role 4 can only see their own requests, Wali Kelas only their homeroom class.
      */
     public function show(Request $request, LeaveRequest $leaveRequest): View
     {
-        $user = $request->user();
-
-        // Scope check for role 4
-        if ($user->role_id === 4) {
-            $childrenIds = $user->children()->pluck('id')->toArray();
-            $allowed = $leaveRequest->student_id === $user->id
-                    || $leaveRequest->applicant_id === $user->id
-                    || in_array($leaveRequest->student_id, $childrenIds);
-
-            if (! $allowed) {
-                abort(403, 'Akses ditolak.');
-            }
-        }
+        abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
 
         $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
 
@@ -130,6 +110,8 @@ class LeaveRequestController extends Controller
      */
     public function updateStatus(Request $request, LeaveRequest $leaveRequest): RedirectResponse
     {
+        abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
+
         $validated = $request->validate([
             'status_approval' => ['required', 'in:Approved,Rejected'],
         ]);
