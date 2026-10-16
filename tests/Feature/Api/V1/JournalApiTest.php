@@ -23,7 +23,7 @@ class JournalApiTest extends TestCase
         $this->seedRoles();
     }
 
-    private function makeJournal(Schedule $schedule, string $date = null, array $attrs = []): Journal
+    private function makeJournal(Schedule $schedule, ?string $date = null, array $attrs = []): Journal
     {
         return Journal::create(array_merge([
             'schedule_id'       => $schedule->id,

@@ -29,12 +29,13 @@ class LeaveRequestService
         }
 
         return LeaveRequest::create([
-            'student_id'    => $studentId,
-            'applicant_id'  => $user->id,
-            'start_date'    => $validated['start_date'],
-            'end_date'      => $validated['end_date'],
-            'reason'        => $validated['reason'],
-            'document_path' => $documentPath,
+            'student_id'      => $studentId,
+            'applicant_id'    => $user->id,
+            'start_date'      => $validated['start_date'],
+            'end_date'        => $validated['end_date'],
+            'reason'          => $validated['reason'],
+            'document_path'   => $documentPath,
+            'status_approval' => 'Pending',
         ]);
     }
 

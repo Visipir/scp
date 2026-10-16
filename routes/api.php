@@ -1,12 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\AttendanceController as V1AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\JournalController as V1JournalController;
+use App\Http\Controllers\Api\V1\LeaveRequestController as V1LeaveRequestController;
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\ScheduleController;
+use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Middleware\CheckScheduleLock;
 use App\Http\Middleware\EnsureApiPasswordIsChanged;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +63,22 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/journals', [V1JournalController::class, 'index'])->name('journals.index');
             Route::get('/journals/{journal}', [V1JournalController::class, 'show'])->name('journals.show');
             Route::get('/journals/{journal}/photo', [V1JournalController::class, 'photo'])->name('journals.photo');
+        });
+
+        Route::middleware('role:1,3,4')->group(function () {
+            Route::get('/leave-requests', [V1LeaveRequestController::class, 'index'])->name('leave-requests.index');
+            Route::get('/leave-requests/{leaveRequest}', [V1LeaveRequestController::class, 'show'])->name('leave-requests.show');
+            Route::get('/leave-requests/{leaveRequest}/document', [V1LeaveRequestController::class, 'document'])->name('leave-requests.document');
+        });
+        Route::post('/leave-requests', [V1LeaveRequestController::class, 'store'])->middleware('role:4')->name('leave-requests.store');
+        Route::patch('/leave-requests/{leaveRequest}/status', [V1LeaveRequestController::class, 'updateStatus'])->middleware('role:1,3')->name('leave-requests.update-status');
+
+        Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');
+
+        Route::middleware('role:1')->group(function () {
+            Route::patch('/system/cycle', [SystemController::class, 'cycle'])->name('system.cycle');
+            Route::patch('/system/lock', [SystemController::class, 'lock'])->name('system.lock');
+            Route::get('/system/unfilled-journals', [SystemController::class, 'unfilledJournals'])->name('system.unfilled-journals');
         });
     });
 });
