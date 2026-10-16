@@ -95,12 +95,14 @@ class DashboardController extends Controller
                     });
                 }
 
-                $attendancesToday = \App\Models\Attendance::whereDate('date', $today)->get();
-                $attendanceStats['Hadir'] = $attendancesToday->where('status', 'Hadir')->count();
-                $attendanceStats['Sakit'] = $attendancesToday->where('status', 'Sakit')->count();
-                $attendanceStats['Izin'] = $attendancesToday->where('status', 'Izin')->count();
-                $attendanceStats['Alpa'] = $attendancesToday->where('status', 'Alpa')->count();
-                $attendanceStats['Terlambat'] = $attendancesToday->where('status', 'Terlambat')->count();
+                $attendanceCounts = \App\Models\Attendance::whereDate('date', $today)
+                    ->selectRaw('status, count(*) as total')
+                    ->groupBy('status')
+                    ->pluck('total', 'status');
+
+                foreach (array_keys($attendanceStats) as $status) {
+                    $attendanceStats[$status] = (int) ($attendanceCounts[$status] ?? 0);
+                }
             }
 
             return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats'));
