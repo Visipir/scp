@@ -15,7 +15,7 @@ class BasicAuthTest extends TestCase
         $this->artisan('db:seed');
 
         $response = $this->post('/login', [
-            'username' => 'waka',
+            'username' => 'waka_kurikulum',
             'password' => 'password'
         ]);
 
@@ -23,6 +23,7 @@ class BasicAuthTest extends TestCase
         $response->assertRedirect('/dashboard');
 
         $dashboardResponse = $this->get('/dashboard');
-        $dashboardResponse->assertSee('Berhasil Login! Selamat datang Bapak Waka Kurikulum');
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertSee('Statistik Presensi Hari Ini');
     }
 }
