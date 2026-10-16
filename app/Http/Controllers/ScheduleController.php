@@ -156,8 +156,8 @@ class ScheduleController extends Controller
             return ['start_time' => 'Konflik jadwal: Guru sudah memiliki jadwal di waktu yang sama.'];
         }
 
-        // Room conflict
-        if ($baseQuery()->where('room_id', $data['room_id'])->exists()) {
+        // Room conflict (only when a room is specified; null room must not match other room-less schedules)
+        if (!empty($data['room_id']) && $baseQuery()->where('room_id', $data['room_id'])->exists()) {
             return ['room_id' => 'Konflik jadwal: Ruangan sudah digunakan di waktu yang sama.'];
         }
 
