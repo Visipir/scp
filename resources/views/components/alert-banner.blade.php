@@ -1,31 +1,31 @@
 @props(['type' => 'info'])
 
 @php
-$classes = match($type) {
-    'danger' => 'bg-rose-50/70 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800/80 dark:text-rose-200',
-    'warning' => 'bg-amber-50/70 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800/80 dark:text-amber-200',
-    'success' => 'bg-emerald-50/70 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800/80 dark:text-emerald-200',
-    default => 'bg-zinc-50 border-zinc-200 text-zinc-900 dark:bg-zinc-900/60 dark:border-zinc-800 dark:text-zinc-200',
+$borderAccent = match($type) {
+    'danger' => 'border-l-[#FD366E]',
+    'warning' => 'border-l-amber-400',
+    'success' => 'border-l-emerald-400',
+    default => 'border-l-sky-400',
 };
-$tag = match($type) {
-    'danger' => 'bg-rose-600 text-white dark:bg-rose-500',
-    'warning' => 'bg-amber-600 text-white dark:bg-amber-500',
-    'success' => 'bg-emerald-600 text-white dark:bg-emerald-500',
-    default => 'bg-zinc-800 text-white dark:bg-zinc-700',
+$tagBg = match($type) {
+    'danger' => 'bg-[#FD366E]/15 text-[#FD366E] border-[#FD366E]/30',
+    'warning' => 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+    'success' => 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+    default => 'bg-sky-500/15 text-sky-400 border-sky-500/30',
 };
 $label = match($type) {
-    'danger' => 'Error',
-    'warning' => 'Perhatian',
-    'success' => 'Berhasil',
-    default => 'Info',
+    'danger' => 'ERROR',
+    'warning' => 'WARNING',
+    'success' => 'SUCCESS',
+    default => 'INFO',
 };
 @endphp
 
-<div {{ $attributes->merge(['class' => "rounded-lg border p-4 {$classes}"]) }} role="alert">
+<div {{ $attributes->merge(['class' => "rounded-lg border border-[#2B2B30] border-l-2 bg-[#1D1D21] p-4 text-[#EDEDF0] {$borderAccent}"]) }} role="alert">
     <div class="flex items-start gap-3">
-        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 {{ $tag }}">
+        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 border mt-0.5 {{ $tagBg }}">
             {{ $label }}
         </span>
-        <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed">{{ $slot }}</div>
+        <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed text-[#EDEDF0]">{{ $slot }}</div>
     </div>
 </div>
