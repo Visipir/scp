@@ -284,7 +284,7 @@
 
                             xhr.send(formData);
                         "
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition shadow-none disabled:opacity-50"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none disabled:opacity-50 cursor-pointer"
                     >
                         <svg x-show="isUploading" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -292,7 +292,7 @@
                         </svg>
                         <span x-text="isUploading ? 'Menyimpan... ' + (uploadProgressText || '') : 'Simpan Jurnal KBM'"></span>
                     </button>
-                    <a href="{{ route('journals.index') }}" x-show="!isUploading" class="text-xs font-semibold text-zinc-500 hover:text-zinc-900">Batal</a>
+                    <a href="{{ route('journals.index') }}" x-show="!isUploading" class="text-xs font-semibold text-[#97979B] hover:text-[#EDEDF0]">Batal</a>
                 </div>
             </form>
         </div>

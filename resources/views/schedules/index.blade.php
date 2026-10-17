@@ -22,7 +22,7 @@
                     <x-ai-importer-modal type="Jadwal Pelajaran" title="Impor Jadwal (PDF AI)" />
                 @endif
                 @if($config && !$config->is_schedule_locked && auth()->user()->role_id === 2)
-                    <a href="{{ route('schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0">
+                    <a href="{{ route('schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                         Tambah Jadwal Blok
                     </a>
@@ -381,12 +381,12 @@
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
                 {{-- Siklus Putaran & Filter Waka --}}
                 <div class="flex flex-wrap items-center gap-2.5">
-                    {{-- Cycle Switcher --}}
-                    <div class="inline-flex rounded-lg border border-zinc-200 p-0.5 bg-zinc-100/80 text-xs font-semibold">
+                    {{-- Cycle Switcher (Segmented Control) --}}
+                    <div class="inline-flex rounded-lg border border-[#2B2B30] p-0.5 bg-[#19191C] text-xs font-semibold">
                         @foreach(['Putaran 1', 'Putaran 2'] as $cycle)
                             <a 
                                 href="{{ route('schedules.index', array_merge(request()->query(), ['cycle' => $cycle])) }}" 
-                                class="h-7 px-3.5 rounded-md transition cursor-pointer flex items-center justify-center {{ $cycleFilter === $cycle ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60' }}"
+                                class="h-7 px-3.5 rounded-md transition cursor-pointer flex items-center justify-center {{ $cycleFilter === $cycle ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]' }}"
                             >
                                 {{ $cycle }}
                             </a>
@@ -398,7 +398,7 @@
                         <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2">
                             <input type="hidden" name="cycle" value="{{ $cycleFilter }}">
 
-                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border-zinc-300 bg-white py-1.5 px-3 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E]">
                                 <option value="">-- Semua Guru ({{ $teachers->count() }}) --</option>
                                 @foreach($teachers as $t)
                                     <option value="{{ $t->id }}" @selected(request('teacher_id') == $t->id)>
@@ -407,7 +407,7 @@
                                 @endforeach
                             </select>
 
-                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border-zinc-300 bg-white py-1.5 px-3 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E]">
                                 <option value="">-- Semua Kelas ({{ $classes->count() }}) --</option>
                                 @foreach($classes as $c)
                                     <option value="{{ $c->id }}" @selected(request('class_id') == $c->id)>
@@ -417,7 +417,7 @@
                             </select>
 
                             @if(request('teacher_id') || request('class_id'))
-                                <a href="{{ route('schedules.index', ['cycle' => $cycleFilter]) }}" class="text-xs text-rose-600 hover:underline font-semibold ml-1">
+                                <a href="{{ route('schedules.index', ['cycle' => $cycleFilter]) }}" class="text-xs text-[#FD366E] hover:underline font-semibold ml-1">
                                     Reset Filter
                                 </a>
                             @endif
@@ -428,11 +428,11 @@
                 {{-- View Mode Toggle & Aturan Jam --}}
                 <div class="flex items-center gap-2">
                     {{-- Switcher List vs Grid --}}
-                    <div class="inline-flex rounded-lg border border-zinc-200 p-0.5 bg-zinc-100/80 text-xs font-semibold">
+                    <div class="inline-flex rounded-lg border border-[#2B2B30] p-0.5 bg-[#19191C] text-xs font-semibold">
                         <button 
                             type="button" 
                             @click="viewMode = 'list'"
-                            :class="viewMode === 'list' ? 'bg-white text-zinc-900 shadow-sm font-bold' : 'text-zinc-500 hover:text-zinc-900'"
+                            :class="viewMode === 'list' ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]'"
                             class="h-7 px-3 rounded-md flex items-center gap-1.5 transition cursor-pointer"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
@@ -441,7 +441,7 @@
                         <button 
                             type="button" 
                             @click="viewMode = 'grid'"
-                            :class="viewMode === 'grid' ? 'bg-white text-zinc-900 shadow-sm font-bold' : 'text-zinc-500 hover:text-zinc-900'"
+                            :class="viewMode === 'grid' ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]'"
                             class="h-7 px-3 rounded-md flex items-center gap-1.5 transition cursor-pointer"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
@@ -453,8 +453,8 @@
                     <button 
                         type="button"
                         @click="showMatrix = !showMatrix"
-                        class="h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium border rounded-lg transition cursor-pointer"
-                        :class="showMatrix ? 'bg-zinc-900 border-zinc-900 text-white shadow-sm' : 'bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'"
+                        class="h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium border border-[#2B2B30] rounded-lg transition cursor-pointer"
+                        :class="showMatrix ? 'bg-[#3A3A3F] text-white shadow-none' : 'bg-transparent text-[#EDEDF0] hover:bg-[#26262A]'"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -465,16 +465,16 @@
             </div>
 
             {{-- Day Pills Tab Selector --}}
-            <div class="pt-3 border-t border-zinc-100 flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <div class="pt-3 border-t border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs">
                 <button 
                     type="button" 
                     @click="activeDay = 'all'"
-                    :class="activeDay === 'all' ? 'bg-zinc-900 text-white font-semibold shadow-sm' : 'bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 font-medium'"
+                    :class="activeDay === 'all' ? 'bg-[#3A3A3F] text-white font-semibold' : 'bg-[#232327] hover:bg-[#26262A] text-[#97979B] hover:text-[#EDEDF0] font-medium border border-[#2B2B30]'"
                     class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5"
                 >
                     <span>Semua Hari</span>
                     <span 
-                        :class="activeDay === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-200 text-zinc-700'"
+                        :class="activeDay === 'all' ? 'bg-white/20 text-white' : 'bg-[#2B2B30] text-[#97979B]'"
                         class="text-[10px] font-mono px-1.5 py-0.5 rounded leading-none"
                     >
                         {{ $schedules->count() }}
@@ -489,12 +489,12 @@
                     <button 
                         type="button" 
                         @click="activeDay = '{{ $day }}'"
-                        :class="activeDay === '{{ $day }}' ? 'bg-zinc-900 text-white font-semibold shadow-sm' : 'bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 font-medium'"
+                        :class="activeDay === '{{ $day }}' ? 'bg-[#3A3A3F] text-white font-semibold' : 'bg-[#232327] hover:bg-[#26262A] text-[#97979B] hover:text-[#EDEDF0] font-medium border border-[#2B2B30]'"
                         class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5"
                     >
                         <span>{{ $day }}</span>
                         <span 
-                            :class="activeDay === '{{ $day }}' ? 'bg-white/20 text-white' : 'bg-zinc-200/90 text-zinc-700'"
+                            :class="activeDay === '{{ $day }}' ? 'bg-white/20 text-white' : 'bg-[#2B2B30] text-[#97979B]'"
                             class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded leading-none"
                         >
                             {{ $jpDay }} JP

@@ -8,7 +8,7 @@
                 <p class="text-xs text-zinc-500 font-mono mt-0.5">Daftar catatan KBM dan dokumentasi guru</p>
             </div>
             @if(auth()->user()->role_id === 2)
-                <a href="{{ route('journals.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition shadow-none">
+                <a href="{{ route('journals.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold rounded-lg transition shadow-none cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                     Isi Jurnal Baru
                 </a>
@@ -22,7 +22,7 @@
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
         @endif
 
-        <div class="bg-white border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
+        <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl divide-y divide-[#2B2B30] overflow-hidden">
             @forelse($journals as $journal)
                 <a href="{{ route('journals.show', $journal) }}" class="p-4 flex items-center justify-between hover:bg-zinc-50/70 transition group">
                     <div class="space-y-1 min-w-0 pr-4">
