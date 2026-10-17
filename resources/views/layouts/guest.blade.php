@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-zinc-50 antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full dark bg-[#19191C] text-[#EDEDF0] antialiased">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,44 +7,69 @@
 
     <title>{{ config('app.name', 'SCP - Login') }}</title>
 
-    <!-- Swiss Minimalist Typography: Inter & JetBrains Mono -->
+    <!-- Typography: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; letter-spacing: -0.011em; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            letter-spacing: -0.011em; 
+        }
+        .console-glow-bg {
+            background-image: 
+                radial-gradient(circle at 10% 90%, rgba(253, 54, 110, 0.12) 0%, rgba(253, 54, 110, 0.02) 45%, transparent 70%),
+                radial-gradient(circle at 90% 10%, rgba(107, 43, 60, 0.15) 0%, transparent 50%);
+        }
+        .console-grid-lines {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .console-glow-bg, .console-grid-lines {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
     </style>
 </head>
-<body class="h-full bg-zinc-50 text-zinc-900 selection:bg-zinc-900 selection:text-white">
-    <div class="min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-        
-        <!-- Swiss Logo Mark -->
-        <div class="mb-8 text-center">
-            <a href="/" class="inline-flex items-center gap-3 group">
-                <div class="w-10 h-10 bg-zinc-900 text-white flex items-center justify-center font-black text-base rounded tracking-tighter shadow-xs group-hover:bg-black transition">
-                    SCP
-                </div>
-                <div class="text-left">
-                    <span class="font-bold text-lg tracking-tight text-zinc-900 block leading-tight">School Class Progress<span class="text-rose-600">.</span></span>
-                    <span class="font-mono text-[10px] text-zinc-400 uppercase tracking-widest block">Sistem Kurikulum &amp; KBM</span>
-                </div>
-            </a>
-        </div>
+<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg console-grid-lines">
+    
+    <!-- Top Minimalist Brand Header -->
+    <header class="w-full px-6 py-6 flex items-center justify-between z-10">
+        <a href="/" class="flex items-center gap-2 group">
+            <span class="font-black text-xl tracking-tight text-white font-sans">
+                SCP<span class="text-[#FD366E]">.</span>
+            </span>
+            <div class="h-3.5 w-px bg-[#2B2B30]"></div>
+            <span class="text-[10px] font-mono uppercase tracking-widest text-[#97979B]">Developer Console</span>
+        </a>
 
-        <!-- Login Card -->
-        <div class="w-full sm:max-w-md px-6 py-8 sm:p-8 bg-white border border-zinc-200/80 rounded-lg shadow-xs">
+        <div class="text-[11px] font-mono text-[#5B5B61]">
+            Teaching Factory &bull; SMKN 1 Bantul
+        </div>
+    </header>
+
+    <!-- Main Central Card Area -->
+    <main class="flex-1 flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8 z-10">
+        <div class="w-full sm:max-w-md px-7 py-8 sm:p-9 bg-[#1D1D21] border border-[#2B2B30] rounded-2xl shadow-none">
             {{ $slot }}
         </div>
+    </main>
 
-        <div class="mt-8 text-center text-xs font-mono text-zinc-400">
-            School Class Progress &bull; Modern Swiss Minimalist
-        </div>
-        
-    </div>
+    <!-- Bottom Minimalist Console Footer -->
+    <footer class="w-full py-5 px-6 text-center text-xs font-mono text-[#5B5B61] z-10 border-t border-[#2B2B30]/50">
+        <span>School Class Progress &copy; {{ date('Y') }}</span>
+        <span class="mx-2">&bull;</span>
+        <span class="text-[#97979B]">Console Architecture</span>
+    </footer>
+
 </body>
 </html>
