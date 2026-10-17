@@ -1,11 +1,11 @@
-<!-- Mobile Top Header Bar (Swiss Minimalist) -->
-<div class="md:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 transition-colors duration-150">
+<!-- Mobile Top Header Bar (Dark Developer Console) -->
+<div class="md:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-[#19191C] border-b border-[#2B2B30] transition-colors duration-150">
     <div class="flex items-center gap-3">
         <!-- Hamburger Menu Button -->
         <button 
             type="button" 
             @click="sidebarOpen = true" 
-            class="p-2 -ml-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition"
+            class="p-2 -ml-2 text-[#EDEDF0] hover:text-white rounded-lg hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#FD366E] transition cursor-pointer"
             aria-label="Buka Menu"
         >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -14,11 +14,9 @@
         </button>
 
         <!-- Brand Name -->
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-            <div class="w-7 h-7 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-black text-xs rounded tracking-tighter">
-                SCP
-            </div>
-            <span class="font-bold text-base tracking-tight text-zinc-900 dark:text-white">SCP<span class="text-rose-600">.</span></span>
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 font-sans">
+            <span class="font-black text-lg tracking-tight text-white">SCP<span class="text-[#FD366E]">.</span></span>
+            <span class="text-[10px] font-mono text-[#97979B] uppercase tracking-wider ml-1">Console</span>
         </a>
     </div>
 
@@ -27,7 +25,7 @@
         <button 
             type="button" 
             @click="toggleDarkMode()" 
-            class="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+            class="p-1.5 text-[#97979B] hover:text-[#EDEDF0] rounded-lg hover:bg-[#26262A] border border-[#2B2B30] transition cursor-pointer"
             :title="darkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'"
             aria-label="Toggle Dark Mode"
         >
@@ -39,7 +37,7 @@
             </svg>
         </button>
 
-        <a href="{{ route('profile.edit') }}" class="w-7 h-7 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-800 dark:text-zinc-200 font-bold text-xs font-mono">
+        <a href="{{ route('profile.edit') }}" class="w-7 h-7 rounded-lg bg-[#232327] border border-[#2B2B30] flex items-center justify-center text-[#EDEDF0] font-bold text-xs font-mono">
             {{ strtoupper(substr(Auth::user()->fullname, 0, 1)) }}
         </a>
     </div>
@@ -62,7 +60,7 @@
         x-transition:leave="transition-opacity ease-linear duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs" 
+        class="fixed inset-0 bg-[#09090B]/80 backdrop-blur-xs" 
         @click="sidebarOpen = false"
     ></div>
 
@@ -76,14 +74,14 @@
             x-transition:leave="transition ease-in-out duration-150 transform"
             x-transition:leave-start="translate-x-0"
             x-transition:leave-end="-translate-x-full"
-            class="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800"
+            class="relative flex-1 flex flex-col max-w-xs w-full bg-[#19191C] border-r border-[#2B2B30]"
         >
             <!-- Drawer Close Button -->
             <div class="absolute top-3 right-3">
                 <button 
                     type="button" 
                     @click="sidebarOpen = false" 
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                    class="p-1.5 rounded-lg text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A] transition"
                 >
                     <span class="sr-only">Tutup menu</span>
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -93,15 +91,10 @@
             </div>
 
             <!-- Drawer Content (h-14 to match navbar height) -->
-            <div class="h-14 flex items-center px-4 border-b border-zinc-200/80 dark:border-zinc-800 shrink-0">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-black text-xs rounded tracking-tighter">
-                        SCP
-                    </div>
-                    <div>
-                        <div class="font-bold text-xs text-zinc-900 dark:text-white tracking-tight leading-none">School Class Progress<span class="text-rose-600">.</span></div>
-                        <div class="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5 uppercase tracking-wider">SMK Negeri 1 Bantul</div>
-                    </div>
+            <div class="h-14 flex items-center px-4 border-b border-[#2B2B30] shrink-0">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                    <span class="font-black text-lg tracking-tight text-white leading-none">SCP<span class="text-[#FD366E]">.</span></span>
+                    <span class="text-[10px] text-[#97979B] font-mono uppercase tracking-wider ml-1">SMK N 1 Bantul</span>
                 </a>
             </div>
 
@@ -111,38 +104,36 @@
             </nav>
 
             <!-- Mobile Drawer User Profile Footer -->
-            <div class="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+            <div class="p-3 border-t border-[#2B2B30] bg-[#19191C]">
                 @include('layouts.sidebar-user-footer')
             </div>
         </div>
     </div>
 </div>
 
-<!-- Desktop Fixed Swiss Minimalist Sidebar -->
-<aside class="hidden md:flex flex-col w-64 xl:w-72 fixed inset-y-0 left-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 z-30 select-none transition-colors duration-150">
+<!-- Desktop Fixed Developer Console Sidebar -->
+<aside class="hidden md:flex flex-col w-64 xl:w-72 fixed inset-y-0 left-0 bg-[#19191C] border-r border-[#2B2B30] z-30 select-none transition-colors duration-150">
     <!-- Brand / Monogram Header (h-14 to align precisely with top navbar border) -->
-    <div class="h-14 flex items-center px-6 border-b border-zinc-200/80 dark:border-zinc-800 shrink-0">
+    <div class="h-14 flex items-center px-6 border-b border-[#2B2B30] shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
-            <div class="w-7 h-7 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-black text-xs rounded tracking-tighter group-hover:bg-black dark:group-hover:bg-white transition">
-                SCP
+            <div class="font-black text-xl tracking-tight text-white flex items-center leading-none">
+                <span>SCP</span><span class="text-[#FD366E]">.</span>
             </div>
+            <div class="h-4 w-px bg-[#2B2B30]"></div>
             <div>
-                <div class="font-bold text-xs tracking-tight text-zinc-900 dark:text-white flex items-center gap-0.5 leading-none">
-                    SCP<span class="text-rose-600 font-black">.</span>
-                    <span class="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 ml-1">Class Progress</span>
-                </div>
-                <div class="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono tracking-widest uppercase mt-0.5">SMK Negeri 1 Bantul</div>
+                <div class="text-[11px] font-semibold text-[#EDEDF0] leading-tight">School Class Progress</div>
+                <div class="text-[9px] text-[#5B5B61] font-mono tracking-widest uppercase">SMK N 1 Bantul</div>
             </div>
         </a>
     </div>
 
     <!-- Navigation List Area -->
-    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+    <div class="flex-1 overflow-y-auto px-3.5 py-5 space-y-6">
         @include('layouts.sidebar-nav-links')
     </div>
 
     <!-- Sidebar Bottom Profile Section -->
-    <div class="p-3 border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/50 transition-colors duration-150">
+    <div class="p-3 border-t border-[#2B2B30] bg-[#19191C] transition-colors duration-150">
         @include('layouts.sidebar-user-footer')
     </div>
 </aside>

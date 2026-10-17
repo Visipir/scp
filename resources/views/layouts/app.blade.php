@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full dark bg-[#19191C] text-[#EDEDF0] antialiased">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,17 +7,19 @@
 
     <title>{{ config('app.name', 'SCP - School Class Progress') }}</title>
 
-    <!-- Swiss Minimalist Typography: Inter & JetBrains Mono -->
+    <!-- Typography: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Theme Preference Initialization (Default: Light Theme) -->
+    <!-- Theme Preference Initialization (Default: Dark Console) -->
     <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
+        if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
         }
     </script>
 
@@ -41,7 +43,7 @@
         }
     </style>
 </head>
-<body class="h-full bg-zinc-50/70 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-zinc-900 dark:selection:bg-zinc-100 selection:text-white dark:selection:text-zinc-950 transition-colors duration-150" 
+<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white transition-colors duration-150" 
       x-data="{ 
           sidebarOpen: false,
           darkMode: document.documentElement.classList.contains('dark'),
@@ -49,25 +51,27 @@
               this.darkMode = !this.darkMode;
               if (this.darkMode) {
                   document.documentElement.classList.add('dark');
+                  document.documentElement.classList.remove('light');
                   localStorage.setItem('theme', 'dark');
               } else {
                   document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
                   localStorage.setItem('theme', 'light');
               }
           }
       }">
-    <div class="min-h-screen flex flex-col md:flex-row">
-        <!-- Modern Swiss Sidebar & Navigation System -->
+    <div class="min-h-screen flex flex-col md:flex-row bg-[#19191C]">
+        <!-- Modern Developer Console Sidebar & Navigation System -->
         @include('layouts.navigation')
 
         <!-- Main Workspace Area -->
-        <div class="flex-1 flex flex-col min-w-0 md:pl-64 xl:pl-72 transition-all duration-200">
+        <div class="flex-1 flex flex-col min-w-0 md:pl-64 xl:pl-72 transition-all duration-200 bg-[#19191C]">
             <!-- Desktop Top Utility Bar -->
             @php
                 $globalConfig = \App\Models\SystemConfiguration::first();
             @endphp
-            <header class="hidden md:flex h-14 bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
-                <!-- Left: Breadcrumb / System Context -->
+            <header class="hidden md:flex h-14 bg-[#19191C]/90 backdrop-blur-sm border-b border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
+                <!-- Left: Minimalist Breadcrumb Trail -->
                 @php
                     $breadcrumbMap = [
                         'dashboard' => 'Dashboard',
@@ -87,43 +91,43 @@
                     $currentSegment = request()->segment(1) ?: 'dashboard';
                     $breadcrumbTitle = $breadcrumbMap[$currentSegment] ?? ucwords(str_replace('-', ' ', $currentSegment));
                 @endphp
-                <div class="flex items-center gap-2.5 text-xs">
-                    <span class="font-bold text-zinc-900 dark:text-white tracking-tight">SCP</span>
-                    <span class="text-zinc-300 dark:text-zinc-700">/</span>
-                    <span class="text-zinc-600 dark:text-zinc-400 font-semibold">{{ $breadcrumbTitle }}</span>
+                <div class="flex items-center gap-2.5 text-xs font-mono">
+                    <span class="font-bold text-white tracking-tight text-sm">SCP<span class="text-[#FD366E]">.</span></span>
+                    <span class="text-[#5B5B61]">/</span>
+                    <span class="text-[#97979B] font-sans font-medium text-xs">{{ $breadcrumbTitle }}</span>
                 </div>
 
                 <!-- Right: Status Indicators & Utilities -->
                 <div class="flex items-center gap-3">
                     @if($globalConfig)
                         <div class="flex items-center gap-2 font-mono text-[11px]">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 font-semibold uppercase tracking-wider">
-                                <span class="w-1.5 h-1.5 rounded-full bg-zinc-600 dark:bg-zinc-400"></span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#232327] text-[#EDEDF0] border border-[#2B2B30] font-semibold uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                 {{ $globalConfig->active_cycle }}
                             </span>
                             @if($globalConfig->is_schedule_locked)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900 font-semibold uppercase tracking-wider">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600 dark:bg-rose-400"></span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[rgba(253,54,110,0.14)] text-[#FD366E] border border-[rgba(253,54,110,0.28)] font-semibold uppercase tracking-wider">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FD366E]"></span>
                                     Jadwal Terkunci
                                 </span>
                             @endif
                         </div>
                     @endif
 
-                    <div class="h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
+                    <div class="h-4 w-px bg-[#2B2B30]"></div>
 
                     <!-- Date info -->
-                    <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-mono">
+                    <div class="text-[11px] text-[#97979B] font-mono">
                         {{ now()->translatedFormat('d M Y') }}
                     </div>
 
-                    <div class="h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
+                    <div class="h-4 w-px bg-[#2B2B30]"></div>
 
-                    <!-- Dark Mode Toggle Button (Swiss Minimalist) -->
+                    <!-- Dark Mode Toggle Button (Developer Console) -->
                     <button 
                         type="button" 
                         @click="toggleDarkMode()" 
-                        class="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+                        class="p-1.5 text-[#97979B] hover:text-[#EDEDF0] rounded-lg hover:bg-[#26262A] border border-[#2B2B30] transition cursor-pointer"
                         :title="darkMode ? 'Beralih ke Mode Terang (Light Mode)' : 'Beralih ke Mode Gelap (Dark Mode)'"
                         aria-label="Toggle Dark Mode"
                     >
@@ -139,9 +143,9 @@
                 </div>
             </header>
 
-            <!-- Page Heading Slot (Swiss Typographic Header) -->
+            <!-- Page Heading Slot -->
             @isset($header)
-                <div class="bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 px-6 lg:px-8 py-5 transition-colors duration-150">
+                <div class="bg-[#19191C] border-b border-[#2B2B30] px-6 lg:px-8 py-5 transition-colors duration-150">
                     <div class="max-w-7xl mx-auto">
                         {{ $header }}
                     </div>
@@ -149,16 +153,16 @@
             @endisset
 
             <!-- Page Content -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-[#19191C]">
                 <div class="max-w-7xl mx-auto">
                     {{ $slot }}
                 </div>
             </main>
 
-            <!-- Subtle Swiss Footer -->
-            <footer class="border-t border-zinc-200/60 dark:border-zinc-800/80 py-4 px-6 lg:px-8 text-center sm:text-left text-[11px] text-zinc-400 dark:text-zinc-500 font-mono flex flex-col sm:flex-row justify-between items-center gap-2 transition-colors duration-150">
-                <div>School Class Progress &copy; {{ date('Y') }} &bull; Swiss Minimalist Architecture</div>
-                <div class="text-zinc-400 dark:text-zinc-500">SMP/SMA Kurikulum Terintegrasi</div>
+            <!-- Console Footer -->
+            <footer class="border-t border-[#2B2B30] py-4 px-6 lg:px-8 text-center sm:text-left text-[11px] text-[#5B5B61] font-mono flex flex-col sm:flex-row justify-between items-center gap-2 bg-[#19191C] transition-colors duration-150">
+                <div>School Class Progress &copy; {{ date('Y') }} &bull; Dark Console Architecture</div>
+                <div class="text-[#5B5B61]">SMK Negeri 1 Bantul &bull; Teaching Factory</div>
             </footer>
         </div>
     </div>
