@@ -2,8 +2,11 @@
     <!-- Brand Header -->
     <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
-            <div class="font-black text-2xl tracking-tight text-white flex items-center">
-                <span>SCP</span><span class="text-[#FD366E]">.</span>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-9 h-9 object-contain shrink-0">
+                <div class="font-black text-2xl tracking-tight text-white flex items-center">
+                    <span>SCP</span><span class="text-[#FD366E]">.</span>
+                </div>
             </div>
         </div>
         <h2 class="text-lg font-bold tracking-tight text-[#EDEDF0]">Masuk ke Akun</h2>

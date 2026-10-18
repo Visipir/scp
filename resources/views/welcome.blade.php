@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SCP - School Class Progress</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +25,9 @@
     
     <!-- Top Navigation -->
     <nav class="absolute top-0 w-full px-6 py-4 flex justify-between items-center z-10">
-        <div class="font-extrabold text-2xl tracking-tighter text-indigo-600">
-            SCP.
+        <div class="flex items-center gap-2.5">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
+            <span class="font-extrabold text-2xl tracking-tighter text-indigo-600">SCP.</span>
         </div>
         @if (Route::has('login'))
             <div>

@@ -7,6 +7,10 @@
 
     <title>{{ config('app.name', 'SCP - Login') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+
     <!-- Typography: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +43,7 @@
     <!-- Top Minimalist Brand Header -->
     <header class="w-full px-6 py-6 flex items-center justify-between z-10">
         <a href="/" class="flex items-center gap-2.5 group">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
             <span class="font-black text-xl tracking-tight text-white font-sans">
                 SCP<span class="text-[#FD366E]">.</span>
             </span>

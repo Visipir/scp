@@ -7,6 +7,10 @@
 
     <title>{{ config('app.name', 'SCP - School Class Progress') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+
     <!-- Typography: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,6 +96,7 @@
                     $breadcrumbTitle = $breadcrumbMap[$currentSegment] ?? ucwords(str_replace('-', ' ', $currentSegment));
                 @endphp
                 <div class="flex items-center gap-2.5 text-xs font-mono">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-5 h-5 object-contain shrink-0">
                     <span class="font-bold text-white tracking-tight text-sm">SCP<span class="text-[#FD366E]">.</span></span>
                     <span class="text-[#5B5B61]">/</span>
                     <span class="text-[#97979B] font-sans font-medium text-xs">{{ $breadcrumbTitle }}</span>

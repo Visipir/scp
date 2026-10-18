@@ -14,7 +14,8 @@
         </button>
 
         <!-- Brand Name -->
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 font-sans">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-sans">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
             <span class="font-black text-lg tracking-tight text-white">SCP<span class="text-[#FD366E]">.</span></span>
         </a>
     </div>
@@ -91,7 +92,8 @@
 
             <!-- Drawer Content (h-14 to match navbar height) -->
             <div class="h-14 flex items-center px-4 border-b border-[#2B2B30] shrink-0">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
                     <span class="font-black text-lg tracking-tight text-white leading-none">SCP<span class="text-[#FD366E]">.</span></span>
                     <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>
                 </a>
@@ -115,6 +117,7 @@
     <!-- Brand / Monogram Header (h-14 to align precisely with top navbar border) -->
     <div class="h-14 flex items-center px-6 border-b border-[#2B2B30] shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-7 h-7 object-contain shrink-0">
             <div class="font-black text-xl tracking-tight text-white flex items-center leading-none">
                 <span>SCP</span><span class="text-[#FD366E]">.</span>
             </div>
