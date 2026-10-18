@@ -95,7 +95,6 @@ paths:
               required: [fullname]
               properties:
                 fullname: { type: string, maxLength: 255 }
-                username: { type: string, maxLength: 255 }
       responses:
         '200':
           description: Updated user

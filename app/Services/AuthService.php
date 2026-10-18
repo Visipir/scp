@@ -27,7 +27,7 @@ class AuthService
      */
     public function updateProfile(User $user, array $data): User
     {
-        $user->fill(array_intersect_key($data, array_flip(['fullname', 'username'])));
+        $user->fill(array_intersect_key($data, array_flip(['fullname'])));
         $user->save();
 
         return $user;
