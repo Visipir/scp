@@ -1,47 +1,76 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
+    <div class="mb-5">
+        <h2 class="text-base font-bold text-[#EDEDF0] tracking-tight">
+            Keamanan &amp; Kata Sandi
         </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        <p class="text-xs text-[#97979B] mt-0.5">
+            Gunakan kombinasi kata sandi yang aman dan tidak mudah ditebak untuk melindungi akun Anda.
         </p>
-    </header>
+    </div>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('password.update') }}" class="space-y-4">
         @csrf
         @method('put')
 
         <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+            <x-input-label for="update_password_current_password" value="Kata Sandi Saat Ini" />
+            <x-text-input 
+                id="update_password_current_password" 
+                name="current_password" 
+                type="password" 
+                class="mt-1 block w-full text-xs" 
+                autocomplete="current-password" 
+                placeholder="Masukkan kata sandi lama"
+            />
+            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-1.5" />
         </div>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <x-input-label for="update_password_password" value="Kata Sandi Baru" />
+                <x-text-input 
+                    id="update_password_password" 
+                    name="password" 
+                    type="password" 
+                    class="mt-1 block w-full text-xs" 
+                    autocomplete="new-password" 
+                    placeholder="Minimal 8 karakter"
+                />
+                <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-1.5" />
+            </div>
+
+            <div>
+                <x-input-label for="update_password_password_confirmation" value="Konfirmasi Kata Sandi Baru" />
+                <x-text-input 
+                    id="update_password_password_confirmation" 
+                    name="password_confirmation" 
+                    type="password" 
+                    class="mt-1 block w-full text-xs" 
+                    autocomplete="new-password" 
+                    placeholder="Ulangi kata sandi baru"
+                />
+                <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-1.5" />
+            </div>
         </div>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <div class="pt-2 flex items-center gap-3">
+            <x-secondary-button type="submit" class="!bg-[#232327] hover:!bg-[#2B2B30] !border-[#2B2B30] !text-[#EDEDF0]">
+                Perbarui Kata Sandi
+            </x-secondary-button>
 
             @if (session('status') === 'password-updated')
-                <p
+                <span
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                    x-init="setTimeout(() => show = false, 2500)"
+                    class="text-xs font-medium text-emerald-400 flex items-center gap-1.5"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Kata sandi diperbarui
+                </span>
             @endif
         </div>
     </form>
