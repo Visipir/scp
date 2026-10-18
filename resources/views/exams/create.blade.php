@@ -7,11 +7,8 @@
                 </svg>
             </a>
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
-                    Akademik &bull; SMK Negeri 1 Bantul
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
-                    Publikasi Materi, Soal &amp; Jadwal Ujian
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                    Publikasi Materi &amp; Ujian Baru
                 </h1>
             </div>
         </div>
@@ -435,7 +432,7 @@
                                 <input type="url" 
                                        name="external_link" 
                                        value="{{ old('external_link') }}" 
-                                       placeholder="https://forms.gle/... atau https://cbt.smkn1bantul.sch.id/..." 
+                                       placeholder="https://forms.gle/... atau https://cbt.sekolah.sch.id/..." 
                                        class="w-full rounded-lg border-zinc-300 bg-white pl-9 pr-4 py-2.5 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-xs font-mono placeholder:text-zinc-400">
                             </div>
                             <x-input-error :messages="$errors->get('external_link')" class="mt-1" />

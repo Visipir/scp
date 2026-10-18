@@ -1,16 +1,13 @@
 <x-guest-layout>
-    <!-- Brand / Eyebrow Header -->
+    <!-- Brand Header -->
     <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="font-black text-2xl tracking-tight text-white flex items-center">
                 <span>SCP</span><span class="text-[#FD366E]">.</span>
             </div>
-            <span class="text-[10px] font-mono text-[#97979B] uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#232327] border border-[#2B2B30]">
-                LOGIN
-            </span>
         </div>
-        <h2 class="text-lg font-bold tracking-tight text-[#EDEDF0]">Masuk ke Konsol</h2>
-        <p class="text-xs text-[#97979B] mt-1">Silakan masukkan username dan kata sandi akun Anda</p>
+        <h2 class="text-lg font-bold tracking-tight text-[#EDEDF0]">Masuk ke Akun</h2>
+        <p class="text-xs text-[#97979B] mt-1">Silakan masukkan username dan kata sandi Anda</p>
     </div>
 
     <!-- Session Status -->
@@ -64,14 +61,8 @@
 
         <div class="pt-2">
             <x-primary-button class="w-full justify-center py-2.5 text-xs font-semibold tracking-wider">
-                Masuk ke Konsol
+                Masuk
             </x-primary-button>
         </div>
     </form>
-
-    <div class="mt-6 pt-4 border-t border-[#2B2B30] text-center">
-        <p class="text-[11px] font-mono text-[#5B5B61]">
-            Teaching Factory &bull; Siklus Blok 2 Mingguan
-        </p>
-    </div>
 </x-guest-layout>

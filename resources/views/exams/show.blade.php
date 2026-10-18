@@ -9,11 +9,7 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
-                            Akademik &bull; SMK Negeri 1 Bantul
-                        </span>
-                        <span class="text-zinc-300">&bull;</span>
-                        <span class="text-[10px] font-bold font-mono text-zinc-500 uppercase">
+                        <span class="text-[10px] font-bold font-mono text-[#97979B] uppercase tracking-wider">
                             Detail Konten #{{ $exam->id }}
                         </span>
                     </div>

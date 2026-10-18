@@ -23,38 +23,28 @@
         }
         .console-glow-bg {
             background-image: 
-                radial-gradient(circle at 10% 90%, rgba(253, 54, 110, 0.12) 0%, rgba(253, 54, 110, 0.02) 45%, transparent 70%),
-                radial-gradient(circle at 90% 10%, rgba(107, 43, 60, 0.15) 0%, transparent 50%);
-        }
-        .console-grid-lines {
-            background-size: 40px 40px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                radial-gradient(circle at 10% 90%, rgba(253, 54, 110, 0.08) 0%, rgba(253, 54, 110, 0.01) 45%, transparent 70%),
+                radial-gradient(circle at 90% 10%, rgba(107, 43, 60, 0.10) 0%, transparent 50%);
         }
         @media (prefers-reduced-motion: reduce) {
-            .console-glow-bg, .console-grid-lines {
+            .console-glow-bg {
                 transition: none !important;
                 animation: none !important;
             }
         }
     </style>
 </head>
-<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg console-grid-lines">
+<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg">
     
     <!-- Top Minimalist Brand Header -->
     <header class="w-full px-6 py-6 flex items-center justify-between z-10">
-        <a href="/" class="flex items-center gap-2 group">
+        <a href="/" class="flex items-center gap-2.5 group">
             <span class="font-black text-xl tracking-tight text-white font-sans">
                 SCP<span class="text-[#FD366E]">.</span>
             </span>
             <div class="h-3.5 w-px bg-[#2B2B30]"></div>
-            <span class="text-[10px] font-mono uppercase tracking-widest text-[#97979B]">Developer Console</span>
+            <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>
         </a>
-
-        <div class="text-[11px] font-mono text-[#5B5B61]">
-            Teaching Factory &bull; SMKN 1 Bantul
-        </div>
     </header>
 
     <!-- Main Central Card Area -->
@@ -64,11 +54,9 @@
         </div>
     </main>
 
-    <!-- Bottom Minimalist Console Footer -->
+    <!-- Bottom Minimalist Footer -->
     <footer class="w-full py-5 px-6 text-center text-xs font-mono text-[#5B5B61] z-10 border-t border-[#2B2B30]/50">
         <span>School Class Progress &copy; {{ date('Y') }}</span>
-        <span class="mx-2">&bull;</span>
-        <span class="text-[#97979B]">Console Architecture</span>
     </footer>
 
 </body>

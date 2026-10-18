@@ -1,4 +1,4 @@
-<!-- Mobile Top Header Bar (Dark Developer Console) -->
+<!-- Mobile Top Header Bar -->
 <div class="md:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-[#19191C] border-b border-[#2B2B30] transition-colors duration-150">
     <div class="flex items-center gap-3">
         <!-- Hamburger Menu Button -->
@@ -16,7 +16,6 @@
         <!-- Brand Name -->
         <a href="{{ route('dashboard') }}" class="flex items-center gap-1.5 font-sans">
             <span class="font-black text-lg tracking-tight text-white">SCP<span class="text-[#FD366E]">.</span></span>
-            <span class="text-[10px] font-mono text-[#97979B] uppercase tracking-wider ml-1">Console</span>
         </a>
     </div>
 
@@ -94,7 +93,7 @@
             <div class="h-14 flex items-center px-4 border-b border-[#2B2B30] shrink-0">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                     <span class="font-black text-lg tracking-tight text-white leading-none">SCP<span class="text-[#FD366E]">.</span></span>
-                    <span class="text-[10px] text-[#97979B] font-mono uppercase tracking-wider ml-1">SMK N 1 Bantul</span>
+                    <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>
                 </a>
             </div>
 
@@ -111,7 +110,7 @@
     </div>
 </div>
 
-<!-- Desktop Fixed Developer Console Sidebar -->
+<!-- Desktop Fixed Sidebar -->
 <aside class="hidden md:flex flex-col w-64 xl:w-72 fixed inset-y-0 left-0 bg-[#19191C] border-r border-[#2B2B30] z-30 select-none transition-colors duration-150">
     <!-- Brand / Monogram Header (h-14 to align precisely with top navbar border) -->
     <div class="h-14 flex items-center px-6 border-b border-[#2B2B30] shrink-0">
@@ -120,10 +119,7 @@
                 <span>SCP</span><span class="text-[#FD366E]">.</span>
             </div>
             <div class="h-4 w-px bg-[#2B2B30]"></div>
-            <div>
-                <div class="text-[11px] font-semibold text-[#EDEDF0] leading-tight">School Class Progress</div>
-                <div class="text-[9px] text-[#5B5B61] font-mono tracking-widest uppercase">SMK N 1 Bantul</div>
-            </div>
+            <span class="text-xs font-medium text-[#97979B] tracking-tight group-hover:text-[#EDEDF0] transition-colors">School Class Progress</span>
         </a>
     </div>
 

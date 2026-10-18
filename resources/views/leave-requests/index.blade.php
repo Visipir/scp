@@ -22,7 +22,7 @@
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
         @endif
 
-        {{-- Status Filter (Developer Console Segmented Bar) --}}
+        {{-- Status Filter (Segmented Bar) --}}
         <div class="flex items-center justify-between bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-2 overflow-x-auto">
             <div class="inline-flex p-1 bg-[#19191C] rounded-lg border border-[#2B2B30] gap-1">
                 <a href="{{ route('leave-requests.index') }}" 

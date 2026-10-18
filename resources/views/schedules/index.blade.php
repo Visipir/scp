@@ -2,18 +2,11 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
                     @if(auth()->user()->role_id === 2)
-                        Akademik &amp; KBM Guru &bull; SMK Negeri 1 Bantul
+                        Jadwal Mengajar
                     @else
-                        Manajemen Kurikulum &bull; SMK Negeri 1 Bantul
-                    @endif
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
-                    @if(auth()->user()->role_id === 2)
-                        Jadwal Mengajar Saya &bull; {{ auth()->user()->fullname }}
-                    @else
-                        Jadwal Pelajaran Sekolah (Sistem Blok Jam)
+                        Jadwal Pelajaran
                     @endif
                 </h1>
             </div>

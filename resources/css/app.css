@@ -67,7 +67,7 @@ html.light, html:not(.dark) {
     --ring-focus: #FD366E;
 }
 
-/* Developer Console Custom Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -193,7 +193,7 @@ html.light, html:not(.dark) {
     color: var(--text-muted) !important; /* #5B5B61 */
 }
 
-/* 5. Action Buttons (Dark Console Accent: #FD366E) */
+/* 5. Action Buttons (Accent: #FD366E) */
 /* Primary Buttons */
 .dark button.bg-zinc-900,
 .dark a.bg-zinc-900,

@@ -1,4 +1,4 @@
-<!-- Developer Console User Profile Footer Component -->
+<!-- User Profile Footer Component -->
 <div class="flex items-center justify-between gap-3">
     <!-- User Ident & Name -->
     <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 min-w-0 flex-1 group">

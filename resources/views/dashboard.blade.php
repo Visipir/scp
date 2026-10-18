@@ -2,17 +2,18 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-[#97979B] uppercase tracking-widest">Portal Akademik</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0] mt-0.5">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0]">
                     Dashboard
                 </h1>
             </div>
-            <div class="flex items-center gap-2 font-mono text-xs text-[#97979B]">
-                <span>Status:</span>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Online
-                </span>
-            </div>
+            @if(isset($config) && $config)
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#232327] border border-[#2B2B30] text-[#EDEDF0] font-semibold text-xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        {{ $config->active_cycle }}
+                    </span>
+                </div>
+            @endif
         </div>
     </x-slot>
 
@@ -28,13 +29,12 @@
                 ));
             @endphp
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Statistik Presensi Harian (Paired-Bar Console Chart) -->
+                <!-- Statistik Presensi Harian -->
                 <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <div class="text-[10px] font-bold font-mono text-[#97979B] uppercase tracking-wider">Rekapitulasi Presensi</div>
-                                <h3 class="font-bold text-sm text-[#EDEDF0] mt-0.5">Statistik Presensi Hari Ini</h3>
+                                <h3 class="font-bold text-sm text-[#EDEDF0]">Statistik Presensi Hari Ini</h3>
                             </div>
                             <!-- Legend -->
                             <div class="flex items-center gap-3 text-[11px] font-mono text-[#97979B]">
@@ -113,13 +113,12 @@
                     </div>
                 </div>
 
-                <!-- Guru Belum Mengisi Jurnal (Console List with Hairlines) -->
+                <!-- Guru Belum Mengisi Jurnal -->
                 <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <div>
-                                <div class="text-[10px] font-bold font-mono text-[#97979B] uppercase tracking-wider">Supervisi Pembelajaran</div>
-                                <h3 class="font-bold text-sm text-[#EDEDF0] mt-0.5">Guru Belum Mengisi Jurnal</h3>
+                                <h3 class="font-bold text-sm text-[#EDEDF0]">Guru Belum Mengisi Jurnal</h3>
                             </div>
                             <span class="text-xs font-mono text-[#FD366E] bg-[#FD366E]/15 px-2.5 py-0.5 rounded-md border border-[#FD366E]/30 font-semibold">
                                 {{ $unfilledSchedules->count() ?? 0 }} Kelas Tertunda
@@ -166,20 +165,18 @@
             <x-alert-banner type="success">{{ session('leave_success') }}</x-alert-banner>
         @endif
 
-        {{-- Welcome Profile Hero Card (Dark Console Style) --}}
+        {{-- Welcome Profile Card --}}
         <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-6 sm:p-7">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="space-y-2">
-                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#232327] border border-[#2B2B30] text-[11px] font-bold font-mono uppercase tracking-wider text-[#97979B]">
-                        <span>ID: {{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</span>
-                        <span>&bull;</span>
-                        <span class="text-[#EDEDF0]">{{ $user->role->role_name ?? 'User' }}</span>
+                    <div class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#232327] border border-[#2B2B30] text-[11px] font-semibold text-[#EDEDF0]">
+                        {{ $user->role->role_name ?? 'User' }}
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#EDEDF0]">
                         {{ $user->fullname }}
                     </h2>
                     <p class="text-xs sm:text-sm text-[#97979B] max-w-2xl leading-relaxed">
-                        Selamat datang di portal School Class Progress (SCP). Platform manajemen akademik terpadu untuk monitoring jadwal, rombongan belajar, dan presensi siswa.
+                        Platform monitoring jadwal pelajaran, rombongan belajar, dan presensi siswa.
                     </p>
                 </div>
 
@@ -210,7 +207,7 @@
         {{-- Quick Action Section Heading --}}
         <div>
             <h3 class="text-xs font-bold font-mono uppercase tracking-widest text-[#97979B] mb-3">
-                Aksi Cepat Menu
+                Menu Utama
             </h3>
 
             {{-- 1. Quick Actions for WAKA KURIKULUM (role_id === 1: Konfigurasi & Manajemen Full) --}}

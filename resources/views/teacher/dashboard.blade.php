@@ -2,9 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Ruang Guru</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
-                    Dashboard Guru & Jurnal Mengajar
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                    Dashboard Guru
                 </h1>
             </div>
             <div class="flex items-center gap-3">

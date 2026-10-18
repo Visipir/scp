@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Theme Preference Initialization (Default: Dark Console) -->
+    <!-- Theme Preference Initialization (Default: Dark) -->
     <script>
         if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.remove('dark');
@@ -61,7 +61,7 @@
           }
       }">
     <div class="min-h-screen flex flex-col md:flex-row bg-[#19191C]">
-        <!-- Modern Developer Console Sidebar & Navigation System -->
+        <!-- Sidebar & Navigation System -->
         @include('layouts.navigation')
 
         <!-- Main Workspace Area -->
@@ -75,18 +75,18 @@
                 @php
                     $breadcrumbMap = [
                         'dashboard' => 'Dashboard',
-                        'schedules' => 'Jadwal Pelajaran KBM',
-                        'room-schedules' => 'Jadwal Ruang & Laboratorium',
-                        'journals' => 'Jurnal Mengajar & Presensi',
-                        'leave-requests' => 'Perizinan Siswa',
+                        'schedules' => 'Jadwal Pelajaran',
+                        'room-schedules' => 'Jadwal Ruangan',
+                        'journals' => 'Jurnal & Presensi',
+                        'leave-requests' => 'Izin Siswa',
                         'academic-calendar' => 'Kalender Akademik',
                         'ineffective-days' => 'Hari Efektif KBM',
-                        'classes' => 'Data Rombel & Kelas',
+                        'classes' => 'Data Kelas',
                         'users' => 'Manajemen Pengguna',
-                        'exams' => 'Bank Soal & Materi Ujian',
-                        'waka' => 'Pengaturan Kurikulum & Sistem',
+                        'exams' => 'Materi & Ujian',
+                        'waka' => 'Pengaturan Sistem',
                         'system-configuration' => 'Pengaturan Sistem',
-                        'profile' => 'Profil Saya',
+                        'profile' => 'Profil',
                     ];
                     $currentSegment = request()->segment(1) ?: 'dashboard';
                     $breadcrumbTitle = $breadcrumbMap[$currentSegment] ?? ucwords(str_replace('-', ' ', $currentSegment));
@@ -123,7 +123,7 @@
 
                     <div class="h-4 w-px bg-[#2B2B30]"></div>
 
-                    <!-- Dark Mode Toggle Button (Developer Console) -->
+                    <!-- Dark Mode Toggle Button -->
                     <button 
                         type="button" 
                         @click="toggleDarkMode()" 
@@ -159,10 +159,10 @@
                 </div>
             </main>
 
-            <!-- Console Footer -->
-            <footer class="border-t border-[#2B2B30] py-4 px-6 lg:px-8 text-center sm:text-left text-[11px] text-[#5B5B61] font-mono flex flex-col sm:flex-row justify-between items-center gap-2 bg-[#19191C] transition-colors duration-150">
-                <div>School Class Progress &copy; {{ date('Y') }} &bull; Dark Console Architecture</div>
-                <div class="text-[#5B5B61]">SMK Negeri 1 Bantul &bull; Teaching Factory</div>
+            <!-- Footer -->
+            <footer class="border-t border-[#2B2B30] py-4 px-6 lg:px-8 text-center sm:text-left text-xs text-[#5B5B61] flex flex-col sm:flex-row justify-between items-center gap-2 bg-[#19191C] transition-colors duration-150">
+                <div>School Class Progress &copy; {{ date('Y') }}</div>
+                <div class="text-[#5B5B61]">Sistem Informasi Presensi &amp; Jurnal Kelas</div>
             </footer>
         </div>
     </div>

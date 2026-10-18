@@ -2,14 +2,11 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
-                    Kurikulum &amp; Kesiswaan &bull; SMKN 1 Bantul
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
-                    Kalender Akademik &amp; Hari Tidak Efektif KBM
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                    Kalender Akademik
                 </h1>
                 <p class="text-xs text-zinc-500 mt-0.5">
-                    Visualisasi kalender pendidikan, penetapan hari libur nasional, dan agenda sekolah (penonaktifan alert jurnal KBM).
+                    Agenda kegiatan sekolah dan penetapan hari tidak efektif KBM.
                 </p>
             </div>
             <div class="flex items-center gap-2">

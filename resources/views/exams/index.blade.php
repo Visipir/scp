@@ -2,25 +2,22 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
-                        Akademik &bull; SMK Negeri 1 Bantul
-                    </span>
+                <div class="flex items-center gap-2 mb-1">
                     @if(auth()->user()->role_id == 2)
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#232327] text-[#EDEDF0] border border-[#2B2B30]">
                             Mode Pengajar
                         </span>
                     @elseif(auth()->user()->role_id == 4)
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                             Kelas {{ auth()->user()->schoolClass->class_name ?? 'Siswa' }}
                         </span>
                     @endif
                 </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-1">
-                    Bank Soal &amp; Materi Pembelajaran
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                    Materi &amp; Ujian
                 </h1>
                 <p class="text-xs text-zinc-500 mt-0.5">
-                    Pusat repositori modul KBM, bank soal latihan, dan jadwal asesmen akademik siswa.
+                    Modul pembelajaran, bank soal latihan, dan jadwal asesmen akademik.
                 </p>
             </div>
             
