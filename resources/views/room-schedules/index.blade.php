@@ -117,7 +117,7 @@
                                     <button 
                                         type="button" 
                                         @click="showImport = false"
-                                        class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+                                        class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                                     >
                                         <span class="sr-only">Tutup</span>
                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -211,7 +211,7 @@
                                                 "
                                             >
                                                 <div class="text-center space-y-2 pointer-events-none">
-                                                    <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200'">
+                                                    <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-[#26262A]'">
                                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                                         </svg>
@@ -273,7 +273,7 @@
                                             <button
                                                 type="button"
                                                 @click="showImport = false"
-                                                class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition cursor-pointer"
+                                                class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                                             >
                                                 Batal
                                             </button>
@@ -372,7 +372,7 @@
                             </thead>
                             <tbody class="divide-y divide-zinc-200">
                                 @foreach($periods as $period)
-                                    <tr class="hover:bg-zinc-50/50 transition">
+                                    <tr class="hover:bg-[#232327] transition">
                                         <!-- Kolom Jam Pelajaran & Waktu -->
                                         <td class="sticky left-0 z-10 bg-zinc-50/95 backdrop-blur-xs border-r border-zinc-200 p-3 text-center shadow-xs">
                                             <div class="text-xs font-bold text-zinc-900">Jam ke-{{ $period['period'] }}</div>

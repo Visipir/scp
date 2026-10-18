@@ -51,7 +51,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="space-y-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <h3 class="font-bold text-sm text-[#EDEDF0] group-hover:text-white truncate">
+                                <h3 class="font-bold text-sm text-[#EDEDF0] truncate">
                                     {{ $leave->student->fullname }}
                                 </h3>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-[#232327] border border-[#2B2B30] text-[11px] font-mono text-[#97979B]">

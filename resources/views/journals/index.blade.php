@@ -24,20 +24,20 @@
 
         <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl divide-y divide-[#2B2B30] overflow-hidden">
             @forelse($journals as $journal)
-                <a href="{{ route('journals.show', $journal) }}" class="p-4 flex items-center justify-between hover:bg-zinc-50/70 transition group">
+                <a href="{{ route('journals.show', $journal) }}" class="p-4 flex items-center justify-between hover:bg-[#232327] transition-colors group">
                     <div class="space-y-1 min-w-0 pr-4">
                         <div class="flex items-center gap-2 flex-wrap text-xs">
                             <span class="px-1.5 py-0.5 rounded bg-zinc-100 font-mono font-bold text-[11px] text-zinc-800">
                                 {{ $journal->schedule->schoolClass->class_name }}
                             </span>
-                            <span class="font-bold text-zinc-900 group-hover:text-black">
+                            <span class="font-bold text-[#EDEDF0]">
                                 {{ $journal->schedule->subject ?? 'Mata Pelajaran' }}
                             </span>
                             @if(auth()->user()->role_id !== 2)
                                 <span class="text-zinc-400 font-mono text-[11px]">&bull; {{ $journal->schedule->teacher->fullname }}</span>
                             @endif
                         </div>
-                        <p class="text-xs text-zinc-600 line-clamp-1">
+                        <p class="text-xs text-zinc-400 line-clamp-1">
                             {{ $journal->topic_description }}
                         </p>
                         @php
@@ -51,16 +51,16 @@
                             @if($totalStd > 0)
                                 <span>&bull;</span>
                                 @if($absentStd->count() > 0)
-                                    <span class="text-amber-700 font-semibold">Presensi: {{ $absentStd->count() }} Tidak Hadir ({{ $absentStd->pluck('status')->unique()->join(', ') }})</span>
+                                    <span class="text-amber-400 font-semibold">Presensi: {{ $absentStd->count() }} Tidak Hadir ({{ $absentStd->pluck('status')->unique()->join(', ') }})</span>
                                 @else
-                                    <span class="text-emerald-700">Presensi: Semua Hadir (Nihil)</span>
+                                    <span class="text-emerald-400">Presensi: Semua Hadir (Nihil)</span>
                                 @endif
                             @endif
                         </p>
                     </div>
                     <div class="text-right shrink-0 flex items-center gap-3 font-mono text-xs text-zinc-400">
                         <span>{{ $journal->created_at->diffForHumans() }}</span>
-                        <span class="group-hover:text-zinc-900 group-hover:translate-x-0.5 transition">&rarr;</span>
+                        <span class="group-hover:text-[#EDEDF0] group-hover:translate-x-0.5 transition">&rarr;</span>
                     </div>
                 </a>
             @empty

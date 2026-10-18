@@ -190,7 +190,7 @@
                             <span class="text-zinc-600 text-[11px]">
                                 Siswa otomatis berstatus <strong class="text-emerald-700">Hadir</strong>. Catat hanya siswa yang tidak hadir:
                             </span>
-                            <button type="button" @click="addAbsentStudent()" class="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-zinc-300 text-[11px] font-semibold text-zinc-700 hover:text-zinc-900 rounded hover:bg-zinc-100 transition cursor-pointer">
+                            <button type="button" @click="addAbsentStudent()" class="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-zinc-300 text-[11px] font-semibold text-zinc-700 hover:text-zinc-900 rounded hover:bg-[#26262A] transition cursor-pointer">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                 + Catat Tidak Hadir
                             </button>
@@ -234,7 +234,7 @@
                     <x-input-label for="photo" value="Dokumentasi Foto KBM (Wajib, Maks 5MB, Auto Compress) *" />
                     
                     <div class="relative">
-                        <label for="photo" class="group flex flex-col items-center justify-center w-full min-h-[120px] rounded-lg border border-dashed border-zinc-300 bg-zinc-50/50 hover:bg-zinc-100 hover:border-zinc-400 transition cursor-pointer p-4 text-center">
+                        <label for="photo" class="group flex flex-col items-center justify-center w-full min-h-[120px] rounded-lg border border-dashed border-zinc-300 bg-zinc-50/50 hover:bg-[#26262A] hover:border-zinc-400 transition cursor-pointer p-4 text-center">
                             
                             {{-- Preview Image if Selected --}}
                             <template x-if="photoPreview">

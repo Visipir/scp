@@ -119,7 +119,7 @@
                                 <button 
                                     type="button" 
                                     @click="showImport = false"
-                                    class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+                                    class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                                 >
                                     <span class="sr-only">Tutup</span>
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -213,7 +213,7 @@
                                             "
                                         >
                                             <div class="text-center space-y-2 pointer-events-none">
-                                                <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200'">
+                                                <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-[#26262A]'">
                                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                                     </svg>
@@ -275,7 +275,7 @@
                                         <button
                                             type="button"
                                             @click="showImport = false"
-                                            class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition cursor-pointer"
+                                            class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                                         >
                                             Batal
                                         </button>
@@ -719,7 +719,7 @@
                                             @if($canManageSchedule)
                                                 <a 
                                                     href="{{ route('schedules.edit', $schedule) }}" 
-                                                    class="h-8 inline-flex items-center px-3 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg transition shrink-0"
+                                                    class="h-8 inline-flex items-center px-3 bg-white border border-zinc-200 hover:bg-[#26262A] text-zinc-700 text-xs font-semibold rounded-lg transition shrink-0"
                                                 >
                                                     Edit
                                                 </a>
@@ -769,7 +769,7 @@
                                 <button 
                                     type="button" 
                                     @click="activeDay = 'all'" 
-                                    class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition cursor-pointer"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-[#26262A] rounded-lg transition cursor-pointer"
                                 >
                                     <span>Tampilkan Semua Hari</span>
                                     <span class="font-mono text-[10px] text-zinc-500">({{ $schedules->count() }} Sesi)</span>

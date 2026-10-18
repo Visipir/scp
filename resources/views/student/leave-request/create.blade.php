@@ -7,7 +7,7 @@
                     Pengajuan Izin / Sakit Siswa
                 </h1>
             </div>
-            <a href="{{ route('leave-requests.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-300 text-xs font-semibold uppercase tracking-wider text-zinc-700 rounded-md hover:bg-zinc-50 transition">
+            <a href="{{ route('leave-requests.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-300 text-xs font-semibold uppercase tracking-wider text-zinc-700 rounded-md hover:bg-[#26262A] transition">
                 &larr; Batal &amp; Kembali
             </a>
         </div>
@@ -102,7 +102,7 @@
                     <x-input-label for="document_path" value="Unggah Dokumen Bukti / Surat Dokter (Opsional)" />
 
                     <div class="relative">
-                        <label for="document_path" class="group flex flex-col items-center justify-center w-full min-h-[110px] rounded-md border border-dashed border-zinc-300 bg-zinc-50/50 hover:bg-zinc-100 hover:border-zinc-400 transition cursor-pointer p-4 text-center">
+                        <label for="document_path" class="group flex flex-col items-center justify-center w-full min-h-[110px] rounded-md border border-dashed border-zinc-300 bg-zinc-50/50 hover:bg-[#26262A] hover:border-zinc-400 transition cursor-pointer p-4 text-center">
                             
                             <div class="flex flex-col items-center">
                                 <svg class="w-6 h-6 text-zinc-400 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

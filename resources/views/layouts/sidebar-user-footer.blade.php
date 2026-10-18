@@ -6,7 +6,7 @@
             {{ strtoupper(substr(Auth::user()->fullname, 0, 1)) }}
         </div>
         <div class="min-w-0 flex-1">
-            <p class="text-xs font-semibold text-[#EDEDF0] truncate leading-tight group-hover:text-white">
+            <p class="text-xs font-semibold text-[#EDEDF0] truncate leading-tight">
                 {{ Auth::user()->fullname }}
             </p>
             <p class="text-[10px] font-mono text-[#97979B] uppercase tracking-wider truncate mt-0.5">

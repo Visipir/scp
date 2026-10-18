@@ -56,7 +56,7 @@
                         <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama/username..." class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition">
                     </div>
                     
-                    <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-zinc-100 border border-zinc-300 text-zinc-700 text-xs font-semibold rounded hover:bg-zinc-200 transition">Cari</button>
+                    <button type="submit" class="w-full sm:w-auto px-3 py-2 bg-zinc-100 border border-zinc-300 text-zinc-700 text-xs font-semibold rounded hover:bg-[#26262A] transition">Cari</button>
 
                     @if(!empty($roleFilter) || !empty($search))
                         <a href="{{ route('users.index') }}" class="px-2.5 py-2 text-xs font-mono text-zinc-500 hover:text-zinc-900 underline" title="Reset filter">Reset</a>
@@ -88,7 +88,7 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-100 text-xs">
                     @forelse($users as $user)
-                        <tr class="hover:bg-zinc-50/70 transition-colors">
+                        <tr class="hover:bg-[#232327] transition-colors">
                             <td class="px-5 py-3.5 font-bold text-zinc-900">
                                 {{ $user->fullname }}
                             </td>

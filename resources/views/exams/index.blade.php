@@ -26,7 +26,7 @@
                     {{-- Toggle Scope for Teachers: My materials vs All School --}}
                     @if(request('view_scope') === 'all')
                         <a href="{{ route('exams.index', request()->except('view_scope', 'page')) }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-lg transition shadow-xs">
+                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-[#26262A] rounded-lg transition shadow-xs">
                             <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                             </svg>
@@ -34,7 +34,7 @@
                         </a>
                     @else
                         <a href="{{ route('exams.index', array_merge(request()->except('page'), ['view_scope' => 'all'])) }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-lg transition shadow-xs">
+                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-[#26262A] rounded-lg transition shadow-xs">
                             <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                             </svg>
@@ -200,7 +200,7 @@
             {{-- Category Segmented Tabs --}}
             <div class="flex flex-wrap items-center gap-2 border-b border-zinc-100 pb-3">
                 <a href="{{ route('exams.index', request()->except('category', 'page')) }}"
-                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' }}">
+                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A]' }}">
                     <span>Semua Konten</span>
                     <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono {{ !request()->filled('category') ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600' }}">
                         {{ $stats['total'] }}
@@ -325,7 +325,7 @@
                 </p>
                 <div class="pt-2 flex items-center justify-center gap-2">
                     @if(request()->anyFilled(['search', 'class_id', 'subject', 'category']))
-                        <a href="{{ route('exams.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold rounded-lg transition">
+                        <a href="{{ route('exams.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-[#26262A] text-zinc-700 text-xs font-semibold rounded-lg transition">
                             Reset Semua Filter
                         </a>
                     @endif
@@ -429,7 +429,7 @@
                                 @if($exam->material_file_path)
                                     <a href="{{ route('exams.download', $exam) }}" 
                                        title="Unduh Berkas ({{ $exam->file_extension }} &bull; {{ $exam->formatted_file_size }})"
-                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-zinc-800 bg-white hover:bg-zinc-100 border border-zinc-200 rounded-md transition shadow-xs">
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-zinc-800 bg-white hover:bg-[#26262A] border border-zinc-200 rounded-md transition shadow-xs">
                                         <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                         </svg>
@@ -462,7 +462,7 @@
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <button type="button" 
                                         @click="openDetail({{ $exam->id }})"
-                                        class="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/60 rounded-md transition cursor-pointer" 
+                                        class="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-[#26262A] rounded-md transition cursor-pointer" 
                                         title="Lihat Detail Lengkap">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -472,7 +472,7 @@
 
                                 @if($canManage)
                                     <a href="{{ route('exams.edit', $exam) }}" 
-                                       class="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/60 rounded-md transition cursor-pointer" 
+                                       class="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-[#26262A] rounded-md transition cursor-pointer" 
                                        title="Ubah Konten">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -558,7 +558,7 @@
                                         <span x-text="activeExam?.subject"></span>
                                     </p>
                                 </div>
-                                <button type="button" @click="closeDetail()" class="p-1.5 -mr-1 -mt-1 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition shrink-0 cursor-pointer" title="Tutup">
+                                <button type="button" @click="closeDetail()" class="p-1.5 -mr-1 -mt-1 text-zinc-400 hover:text-zinc-700 hover:bg-[#26262A] rounded-lg transition shrink-0 cursor-pointer" title="Tutup">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -610,7 +610,7 @@
                                     
                                     <!-- File Download Card -->
                                     <template x-if="activeExam?.has_file">
-                                        <div class="flex items-center justify-between p-3 sm:p-3.5 bg-zinc-50/80 hover:bg-zinc-100/90 border border-zinc-200 rounded-xl transition gap-3">
+                                        <div class="flex items-center justify-between p-3 sm:p-3.5 bg-zinc-50/80 hover:bg-[#26262A] border border-zinc-200 rounded-xl transition gap-3">
                                             <div class="flex items-center gap-3 min-w-0">
                                                 <div class="w-10 h-10 rounded-lg bg-zinc-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0"
                                                      x-text="activeExam?.file_ext || 'FILE'"></div>
@@ -675,7 +675,7 @@
 
                                 <div class="flex items-center gap-2">
                                     <template x-if="activeExam?.edit_url">
-                                        <a :href="activeExam?.edit_url" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 text-xs font-semibold rounded-lg transition shadow-xs">
+                                        <a :href="activeExam?.edit_url" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 hover:bg-[#26262A] text-xs font-semibold rounded-lg transition shadow-xs">
                                             <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                             </svg>

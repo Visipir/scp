@@ -88,7 +88,7 @@
                     <div class="inline-flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shadow-2xs">
                         <a 
                             href="{{ route('academic-calendar.index', ['month' => $prevMonthDate->month, 'year' => $prevMonthDate->year]) }}" 
-                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-white transition cursor-pointer"
+                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Sebelumnya ({{ $monthNames[$prevMonthDate->month] }} {{ $prevMonthDate->year }})"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -97,7 +97,7 @@
                         </a>
                         <a 
                             href="{{ route('academic-calendar.index', ['month' => $nextMonthDate->month, 'year' => $nextMonthDate->year]) }}" 
-                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-white transition cursor-pointer"
+                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Berikutnya ({{ $monthNames[$nextMonthDate->month] }} {{ $nextMonthDate->year }})"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -141,7 +141,7 @@
                     @if($month != now()->month || $year != now()->year)
                         <a 
                             href="{{ route('academic-calendar.index') }}" 
-                            class="px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 transition shadow-2xs"
+                            class="px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:text-zinc-900 hover:bg-[#26262A] transition shadow-2xs"
                         >
                             Bulan Ini
                         </a>
@@ -266,27 +266,27 @@
                         $isToday = $day['isToday'];
                         $cat = $day['primaryCategory'];
 
-                        // High-contrast, clear holiday coloring
+                        // High-contrast, clear holiday coloring for dark console
                         if (!$isCurrent) {
-                            $cellBg = 'bg-zinc-100/60 hover:bg-zinc-100 text-zinc-300 opacity-40';
-                            $dateTextColor = 'text-zinc-400 font-normal';
+                            $cellBg = 'bg-[#19191C]/60 hover:bg-[#232327] text-zinc-500 opacity-40';
+                            $dateTextColor = 'text-zinc-500 font-normal';
                         } elseif ($cat === 'libur_nasional') {
-                            $cellBg = 'bg-rose-100/80 hover:bg-rose-100 border-t-2 border-rose-500';
-                            $dateTextColor = 'text-rose-600 font-bold';
+                            $cellBg = 'bg-rose-950/30 hover:bg-rose-950/50 border-t-2 border-rose-500';
+                            $dateTextColor = 'text-rose-400 font-bold';
                         } elseif ($cat === 'libur_bersama') {
-                            $cellBg = 'bg-amber-100/80 hover:bg-amber-100 border-t-2 border-amber-400';
-                            $dateTextColor = 'text-amber-800 font-bold';
+                            $cellBg = 'bg-amber-950/30 hover:bg-amber-950/50 border-t-2 border-amber-400';
+                            $dateTextColor = 'text-amber-400 font-bold';
                         } elseif ($cat === 'agenda_sekolah') {
                             $cellBg = $day['isKbmOff'] 
-                                ? 'bg-purple-100/80 hover:bg-purple-100 border-t-2 border-purple-500' 
-                                : 'bg-sky-100/80 hover:bg-sky-100 border-t-2 border-sky-500';
-                            $dateTextColor = $isSunday ? 'text-rose-600 font-bold' : ($day['isKbmOff'] ? 'text-purple-900 font-bold' : 'text-sky-900 font-bold');
+                                ? 'bg-purple-950/30 hover:bg-purple-950/50 border-t-2 border-purple-500' 
+                                : 'bg-sky-950/30 hover:bg-sky-950/50 border-t-2 border-sky-500';
+                            $dateTextColor = $isSunday ? 'text-rose-400 font-bold' : ($day['isKbmOff'] ? 'text-purple-300 font-bold' : 'text-sky-300 font-bold');
                         } elseif ($isSunday) {
-                            $cellBg = 'bg-rose-50/40 hover:bg-rose-100/50';
-                            $dateTextColor = 'text-rose-600 font-bold';
+                            $cellBg = 'bg-rose-950/20 hover:bg-rose-950/40';
+                            $dateTextColor = 'text-rose-400 font-bold';
                         } else {
-                            $cellBg = 'bg-white hover:bg-zinc-50/90';
-                            $dateTextColor = 'text-zinc-800 font-semibold';
+                            $cellBg = 'bg-[#1D1D21] hover:bg-[#232327]';
+                            $dateTextColor = 'text-[#EDEDF0] font-semibold';
                         }
                     @endphp
 
@@ -466,7 +466,7 @@
                         <button 
                             type="button" 
                             @click="detailModalOpen = false" 
-                            class="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                            class="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-[#26262A] transition cursor-pointer"
                         >
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -529,7 +529,7 @@
                         <button 
                             type="button" 
                             @click="prefillForm(selectedDate)"
-                            class="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded-md transition cursor-pointer inline-flex items-center gap-1"
+                            class="px-3 py-1.5 bg-zinc-100 hover:bg-[#26262A] text-zinc-800 text-xs font-semibold rounded-md transition cursor-pointer inline-flex items-center gap-1"
                         >
                             <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -661,7 +661,7 @@
                     </thead>
                     <tbody class="divide-y divide-zinc-200/60 text-xs text-zinc-700">
                         @forelse($calendars as $cal)
-                            <tr class="hover:bg-zinc-50/70 transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/30' : '' }}">
+                            <tr class="hover:bg-[#232327] transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/30' : '' }}">
                                 <td class="py-3 px-4 whitespace-nowrap font-mono">
                                     @if($cal->start_date->equalTo($cal->end_date))
                                         {{ $cal->start_date->translatedFormat('d M Y') }}

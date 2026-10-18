@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition" title="Kembali">
+            <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition" title="Kembali">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
@@ -239,7 +239,7 @@
                                             <div class="text-[11px] text-zinc-500 font-mono">{{ $exam->formatted_file_size }}</div>
                                         </div>
                                     </div>
-                                    <a href="{{ route('exams.download', $exam) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-md transition">
+                                    <a href="{{ route('exams.download', $exam) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-[#26262A] rounded-md transition">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                         </svg>
@@ -258,7 +258,7 @@
                                 <span class="text-[11px] text-zinc-400">Maks. 20MB</span>
                             </div>
 
-                            <div class="border-2 border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50/50 hover:bg-zinc-50 rounded-xl p-5 transition text-center cursor-pointer relative"
+                            <div class="border-2 border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50/50 hover:bg-[#26262A] rounded-xl p-5 transition text-center cursor-pointer relative"
                                  @click="document.getElementById('material_file').click()">
                                 <input type="file" 
                                        id="material_file" 
@@ -320,7 +320,7 @@
 
                 <!-- Form Submit Footer -->
                 <div class="px-6 sm:px-8 py-4 bg-zinc-50 border-t border-zinc-200/90 flex items-center justify-between">
-                    <a href="{{ route('exams.index') }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition">
+                    <a href="{{ route('exams.index') }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] rounded-lg transition">
                         Batal
                     </a>
                     <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs cursor-pointer">

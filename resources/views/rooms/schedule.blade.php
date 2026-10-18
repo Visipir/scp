@@ -36,7 +36,7 @@
                                     type="submit" 
                                     name="cycle" 
                                     value="{{ $cycle }}" 
-                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60' }}"
+                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A]' }}"
                                 >
                                     {{ $cycle }}
                                 </button>

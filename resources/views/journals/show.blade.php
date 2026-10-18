@@ -152,7 +152,7 @@
                         </summary>
                         <div class="mt-3 divide-y divide-zinc-100 max-h-60 overflow-y-auto border border-zinc-100 rounded-md">
                             @foreach($journal->attendances as $index => $attendance)
-                                <div class="px-3 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-zinc-50 gap-1 sm:gap-4">
+                                <div class="px-3 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-[#232327] gap-1 sm:gap-4">
                                     <div class="flex items-center gap-2 min-w-0">
                                         <span class="text-zinc-400 font-mono text-[11px] w-6 shrink-0">{{ $index + 1 }}.</span>
                                         <span class="text-zinc-800 font-medium truncate">{{ $attendance->student->fullname }}</span>

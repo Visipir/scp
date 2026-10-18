@@ -90,7 +90,7 @@
                                 $isToday = $day->date->isToday();
                                 $isFuture = $day->date->isFuture();
                             @endphp
-                            <tr class="hover:bg-zinc-50/70 transition-colors {{ $isToday ? 'bg-amber-50/30 font-medium' : '' }}">
+                            <tr class="hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 font-medium' : '' }}">
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-zinc-900 font-mono">
@@ -223,7 +223,7 @@
                         <button 
                             type="button" 
                             @click="showModal = false"
-                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                         >
                             <span class="sr-only">Tutup</span>
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -244,14 +244,14 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="!isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+                                    :class="!isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="false" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Satu Hari Saja</span>
                                 </label>
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+                                    :class="isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="true" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Rentang Hari (Libur)</span>
@@ -319,7 +319,7 @@
                             <button 
                                 type="button" 
                                 @click="showModal = false"
-                                class="px-4 py-2 border border-zinc-200 rounded-md text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition cursor-pointer"
+                                class="px-4 py-2 border border-zinc-200 rounded-md text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
                             >
                                 Batal
                             </button>

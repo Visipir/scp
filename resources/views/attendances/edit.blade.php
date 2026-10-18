@@ -7,7 +7,7 @@
                     Penyesuaian Presensi Kelas
                 </h1>
             </div>
-            <a href="{{ route('journals.show', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-300 text-xs font-semibold uppercase tracking-wider text-zinc-700 rounded-md hover:bg-zinc-50 transition">
+            <a href="{{ route('journals.show', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-300 text-xs font-semibold uppercase tracking-wider text-zinc-700 rounded-md hover:bg-[#26262A] transition">
                 &larr; Batal &amp; Kembali
             </a>
         </div>
@@ -40,7 +40,7 @@
             <button 
                 type="button" 
                 onclick="window.dispatchEvent(new CustomEvent('reset-all-hadir'))" 
-                class="px-2.5 py-1 bg-white border border-zinc-300 hover:bg-zinc-100 text-[11px] font-semibold text-zinc-700 rounded transition cursor-pointer"
+                class="px-2.5 py-1 bg-white border border-zinc-300 hover:bg-[#26262A] text-[11px] font-semibold text-zinc-700 rounded transition cursor-pointer"
             >
                 Set Semua Hadir
             </button>
@@ -57,7 +57,7 @@
                          }" 
                          @reset-all-hadir.window="currentStatus = 'Hadir'; noteText = ''"
                          class="p-4 transition space-y-2.5"
-                         :class="currentStatus !== 'Hadir' ? 'bg-amber-50/40' : 'hover:bg-zinc-50/70'">
+                         :class="currentStatus !== 'Hadir' ? 'bg-amber-50/40' : 'hover:bg-[#232327]'">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
                             <div class="flex items-center gap-2">
                                 <span class="font-mono text-zinc-400 text-[11px] w-6">{{ $i + 1 }}.</span>

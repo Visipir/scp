@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3">
-                <a href="{{ route('classes.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition" title="Kembali ke Daftar Kelas">
+                <a href="{{ route('classes.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition" title="Kembali ke Daftar Kelas">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                     </svg>
@@ -27,7 +27,7 @@
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <a href="{{ route('classes.export', ['class' => $class->id, 'start_date' => $startDate ?? now()->startOfMonth()->toDateString(), 'end_date' => $endDate ?? now()->toDateString()]) }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-md shadow-none transition">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-zinc-300 hover:bg-[#26262A] text-zinc-700 text-xs font-semibold rounded-md shadow-none transition">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
@@ -116,7 +116,7 @@
                            class="w-full rounded-md border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none">
                 </div>
 
-                <button type="submit" class="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded transition cursor-pointer">
+                <button type="submit" class="px-3 py-1.5 bg-zinc-100 hover:bg-[#26262A] text-zinc-800 text-xs font-semibold rounded transition cursor-pointer">
                     Filter
                 </button>
 
@@ -176,7 +176,7 @@
                             $tot = $stAtt->count();
                             $rate = $tot > 0 ? round(($h / $tot) * 100) : 100;
                         @endphp
-                        <tr class="hover:bg-zinc-50/70 transition-colors">
+                        <tr class="hover:bg-[#232327] transition-colors">
                             <td class="px-4 py-3 font-mono text-zinc-400 text-center">
                                 {{ $student->attendance_number ?? ($idx + 1) }}
                             </td>
@@ -244,7 +244,7 @@
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-xs">
                         @forelse($recentAbsences as $att)
-                            <tr class="hover:bg-zinc-50/70 transition-colors">
+                            <tr class="hover:bg-[#232327] transition-colors">
                                 <td class="px-4 py-3 font-mono text-zinc-600 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($att->date)->isoFormat('D MMM Y') }}
                                 </td>

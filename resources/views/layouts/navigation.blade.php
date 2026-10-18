@@ -5,7 +5,7 @@
         <button 
             type="button" 
             @click="sidebarOpen = true" 
-            class="p-2 -ml-2 text-[#EDEDF0] hover:text-white rounded-lg hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#0093dd] transition cursor-pointer"
+            class="p-2 -ml-2 text-[#EDEDF0] hover:text-[#EDEDF0] rounded-lg hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#0093dd] transition cursor-pointer"
             aria-label="Buka Menu"
         >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition" title="Kembali ke Repositori">
+            <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition" title="Kembali ke Repositori">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
@@ -201,12 +201,12 @@
                             <div class="flex items-center gap-2">
                                 <button type="button" 
                                         @click="selectAllClasses({{ json_encode($allClasses->pluck('id')) }})"
-                                        class="px-2.5 py-1 text-[11px] font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-md transition">
+                                        class="px-2.5 py-1 text-[11px] font-semibold text-zinc-700 bg-zinc-100 hover:bg-[#26262A] rounded-md transition">
                                     Pilih Semua Kelas
                                 </button>
                                 <button type="button" 
                                         @click="clearAllClasses()"
-                                        class="px-2.5 py-1 text-[11px] font-semibold text-zinc-500 hover:text-zinc-800 bg-zinc-50 hover:bg-zinc-100 rounded-md transition">
+                                        class="px-2.5 py-1 text-[11px] font-semibold text-zinc-500 hover:text-zinc-800 bg-zinc-50 hover:bg-[#26262A] rounded-md transition">
                                     Hapus Pilihan
                                 </button>
                             </div>
@@ -233,7 +233,7 @@
                                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                             @foreach($classes as $c)
                                                 <label class="flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer select-none transition"
-                                                       :class="selectedClasses.includes({{ $c->id }}) ? 'bg-zinc-900 text-white border-zinc-900 font-semibold' : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'">
+                                                       :class="selectedClasses.includes({{ $c->id }}) ? 'bg-zinc-900 text-white border-zinc-900 font-semibold' : 'bg-white text-zinc-700 border-zinc-200 hover:bg-[#26262A]'">
                                                     <input type="checkbox" 
                                                            name="class_ids[]" 
                                                            value="{{ $c->id }}" 
@@ -358,7 +358,7 @@
                                 <span class="text-[11px] text-zinc-400">PDF, Word, PPT, Excel, ZIP, Gambar maks. 20MB</span>
                             </div>
 
-                            <div class="border-2 border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50/50 hover:bg-zinc-50 rounded-xl p-6 transition text-center cursor-pointer relative"
+                            <div class="border-2 border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50/50 hover:bg-[#26262A] rounded-xl p-6 transition text-center cursor-pointer relative"
                                  @click="document.getElementById('material_file').click()"
                                  @dragover.prevent="$el.classList.add('border-zinc-900', 'bg-zinc-100')"
                                  @dragleave.prevent="$el.classList.remove('border-zinc-900', 'bg-zinc-100')"
@@ -455,7 +455,7 @@
                 <div class="px-6 sm:px-8 py-4 bg-zinc-50 border-t border-zinc-200/90 flex items-center justify-between">
                     <a href="{{ route('exams.index') }}" 
                        x-show="!isUploading" 
-                       class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition">
+                       class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] rounded-lg transition">
                         Batal
                     </a>
                     <div class="flex items-center gap-3">

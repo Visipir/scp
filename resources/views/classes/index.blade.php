@@ -126,7 +126,7 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-100 text-xs">
                     @forelse($classes as $index => $class)
-                        <tr class="hover:bg-zinc-50/70 transition-colors">
+                        <tr class="hover:bg-[#232327] transition-colors">
                             <td class="px-5 py-3.5 font-mono text-zinc-400">{{ $classes->firstItem() + $index }}</td>
                             <td class="px-5 py-3.5 font-bold text-zinc-900">
                                 <a href="{{ route('classes.show', $class) }}" class="hover:text-indigo-600 hover:underline flex items-center gap-1.5" title="Lihat isi kelas {{ $class->class_name }}">
@@ -252,7 +252,7 @@
                             >
                                 <div class="text-center space-y-2 pointer-events-none">
                                     <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                                        :class="importFileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200'">
+                                        :class="importFileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-[#26262A]'">
                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                         </svg>
@@ -292,7 +292,7 @@
                         {{-- Actions --}}
                         <div class="flex items-center justify-between gap-4 pt-1">
                             <button type="button" @click="importModalOpen = false; importFileName = ''; importFileSize = ''; importFileError = '';"
-                                class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition cursor-pointer">
+                                class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit" :disabled="isUploading || !importFileName"

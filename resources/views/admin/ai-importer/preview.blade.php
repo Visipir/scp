@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ $originUrl }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition">
+            <a href="{{ $originUrl }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
@@ -37,7 +37,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-zinc-200">
                             @forelse($data as $row)
-                                <tr class="hover:bg-zinc-50 transition">
+                                <tr class="hover:bg-[#232327] transition">
                                     @foreach($row as $value)
                                         <td class="px-4 py-3 whitespace-nowrap text-zinc-600">{{ is_array($value) ? json_encode($value) : (string)$value }}</td>
                                     @endforeach
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
-                    <a href="{{ $originUrl }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition">
+                    <a href="{{ $originUrl }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] rounded-lg transition">
                         Batal
                     </a>
                     <form action="{{ route('ai-importer.store') }}" method="POST">
