@@ -100,11 +100,6 @@
                 <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-6 sm:p-7">
                     @include('profile.partials.update-password-form')
                 </div>
-
-                <!-- Delete Account Form -->
-                <div class="bg-rose-500/[0.03] border border-rose-500/20 rounded-xl p-6 sm:p-7">
-                    @include('profile.partials.delete-user-form')
-                </div>
             </div>
 
         </div>
