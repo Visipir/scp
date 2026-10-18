@@ -8,7 +8,7 @@
                 <p class="text-xs text-zinc-500 font-mono mt-0.5">Daftar catatan KBM dan dokumentasi guru</p>
             </div>
             @if(auth()->user()->role_id === 2)
-                <a href="{{ route('journals.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold rounded-lg transition shadow-none cursor-pointer">
+                <a href="{{ route('journals.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-none cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                     Isi Jurnal Baru
                 </a>

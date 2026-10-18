@@ -5,7 +5,7 @@
         <button 
             type="button" 
             @click="sidebarOpen = true" 
-            class="p-2 -ml-2 text-[#EDEDF0] hover:text-white rounded-lg hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#FD366E] transition cursor-pointer"
+            class="p-2 -ml-2 text-[#EDEDF0] hover:text-white rounded-lg hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#0093dd] transition cursor-pointer"
             aria-label="Buka Menu"
         >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -16,7 +16,7 @@
         <!-- Brand Name -->
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-sans">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
-            <span class="font-black text-lg tracking-tight text-white">SCP<span class="text-[#FD366E]">.</span></span>
+            <span class="font-black text-lg tracking-tight text-white">SCP<span class="text-[#0093dd]">.</span></span>
         </a>
     </div>
 
@@ -94,7 +94,7 @@
             <div class="h-14 flex items-center px-4 border-b border-[#2B2B30] shrink-0">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
-                    <span class="font-black text-lg tracking-tight text-white leading-none">SCP<span class="text-[#FD366E]">.</span></span>
+                    <span class="font-black text-lg tracking-tight text-white leading-none">SCP<span class="text-[#0093dd]">.</span></span>
                     <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>
                 </a>
             </div>
@@ -119,7 +119,7 @@
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-7 h-7 object-contain shrink-0">
             <div class="font-black text-xl tracking-tight text-white flex items-center leading-none">
-                <span>SCP</span><span class="text-[#FD366E]">.</span>
+                <span>SCP</span><span class="text-[#0093dd]">.</span>
             </div>
             <div class="h-4 w-px bg-[#2B2B30]"></div>
             <span class="text-xs font-medium text-[#97979B] tracking-tight group-hover:text-[#EDEDF0] transition-colors">School Class Progress</span>

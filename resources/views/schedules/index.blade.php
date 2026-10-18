@@ -15,7 +15,7 @@
                     <x-ai-importer-modal type="Jadwal Pelajaran" title="Impor Jadwal (PDF AI)" />
                 @endif
                 @if($config && !$config->is_schedule_locked && auth()->user()->role_id === 2)
-                    <a href="{{ route('schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
+                    <a href="{{ route('schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                         Tambah Jadwal Blok
                     </a>
@@ -391,7 +391,7 @@
                         <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2">
                             <input type="hidden" name="cycle" value="{{ $cycleFilter }}">
 
-                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E]">
+                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                 <option value="">-- Semua Guru ({{ $teachers->count() }}) --</option>
                                 @foreach($teachers as $t)
                                     <option value="{{ $t->id }}" @selected(request('teacher_id') == $t->id)>
@@ -400,7 +400,7 @@
                                 @endforeach
                             </select>
 
-                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E]">
+                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                 <option value="">-- Semua Kelas ({{ $classes->count() }}) --</option>
                                 @foreach($classes as $c)
                                     <option value="{{ $c->id }}" @selected(request('class_id') == $c->id)>
@@ -410,7 +410,7 @@
                             </select>
 
                             @if(request('teacher_id') || request('class_id'))
-                                <a href="{{ route('schedules.index', ['cycle' => $cycleFilter]) }}" class="text-xs text-[#FD366E] hover:underline font-semibold ml-1">
+                                <a href="{{ route('schedules.index', ['cycle' => $cycleFilter]) }}" class="text-xs text-[#0093dd] hover:underline font-semibold ml-1">
                                     Reset Filter
                                 </a>
                             @endif

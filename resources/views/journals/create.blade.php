@@ -284,7 +284,7 @@
 
                             xhr.send(formData);
                         "
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none disabled:opacity-50 cursor-pointer"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none disabled:opacity-50 cursor-pointer"
                     >
                         <svg x-show="isUploading" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

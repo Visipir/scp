@@ -2,16 +2,16 @@
 
 @php
 $borderAccent = match($type) {
-    'danger' => 'border-l-[#FD366E]',
+    'danger' => 'border-l-rose-500',
     'warning' => 'border-l-amber-400',
     'success' => 'border-l-emerald-400',
-    default => 'border-l-sky-400',
+    default => 'border-l-[#0093dd]',
 };
 $tagBg = match($type) {
-    'danger' => 'bg-[#FD366E]/15 text-[#FD366E] border-[#FD366E]/30',
+    'danger' => 'bg-rose-500/15 text-rose-400 border-rose-500/30',
     'warning' => 'bg-amber-500/15 text-amber-400 border-amber-500/30',
     'success' => 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    default => 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+    default => 'bg-[#0093dd]/15 text-[#0093dd] border-[#0093dd]/30',
 };
 $label = match($type) {
     'danger' => 'ERROR',

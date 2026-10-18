@@ -8,7 +8,7 @@
                 </h1>
             </div>
             @if(Auth::user()->role_id === 4)
-                <a href="{{ route('leave-requests.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
+                <a href="{{ route('leave-requests.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                     Ajukan Izin
                 </a>
@@ -47,7 +47,7 @@
         {{-- List of Requests --}}
         <div class="space-y-3">
             @forelse($leaveRequests as $leave)
-                <a href="{{ route('leave-requests.show', $leave) }}" class="block bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-5 hover:border-[#FD366E]/50 transition-colors duration-150 group">
+                <a href="{{ route('leave-requests.show', $leave) }}" class="block bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-5 hover:border-[#0093dd]/50 transition-colors duration-150 group">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="space-y-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
@@ -73,7 +73,7 @@
                         <p class="text-xs text-[#97979B] line-clamp-1 leading-relaxed max-w-2xl">
                             <span class="font-semibold text-[#EDEDF0]">Keterangan:</span> {{ $leave->reason }}
                         </p>
-                        <span class="font-mono text-xs text-[#97979B] group-hover:text-[#FD366E] group-hover:translate-x-1 transition-transform">&rarr;</span>
+                        <span class="font-mono text-xs text-[#97979B] group-hover:text-[#0093dd] group-hover:translate-x-1 transition-transform">&rarr;</span>
                     </div>
                 </a>
             @empty

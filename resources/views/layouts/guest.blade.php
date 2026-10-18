@@ -27,8 +27,8 @@
         }
         .console-glow-bg {
             background-image: 
-                radial-gradient(circle at 10% 90%, rgba(253, 54, 110, 0.08) 0%, rgba(253, 54, 110, 0.01) 45%, transparent 70%),
-                radial-gradient(circle at 90% 10%, rgba(107, 43, 60, 0.10) 0%, transparent 50%);
+                radial-gradient(circle at 10% 90%, rgba(0, 147, 221, 0.08) 0%, rgba(0, 147, 221, 0.01) 45%, transparent 70%),
+                radial-gradient(circle at 90% 10%, rgba(10, 61, 94, 0.10) 0%, transparent 50%);
         }
         @media (prefers-reduced-motion: reduce) {
             .console-glow-bg {
@@ -38,14 +38,14 @@
         }
     </style>
 </head>
-<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg">
+<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg">
     
     <!-- Top Minimalist Brand Header -->
     <header class="w-full px-6 py-6 flex items-center justify-between z-10">
         <a href="/" class="flex items-center gap-2.5 group">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
             <span class="font-black text-xl tracking-tight text-white font-sans">
-                SCP<span class="text-[#FD366E]">.</span>
+                SCP<span class="text-[#0093dd]">.</span>
             </span>
             <div class="h-3.5 w-px bg-[#2B2B30]"></div>
             <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>

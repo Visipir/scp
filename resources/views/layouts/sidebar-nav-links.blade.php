@@ -364,7 +364,7 @@
                         </svg>
                         <span>Ajukan Izin</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-white text-zinc-950' : 'bg-[#FD366E]/20 text-[#FD366E] border border-[#FD366E]/30' }}">
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-white text-zinc-950' : 'bg-[#0093dd]/20 text-[#0093dd] border border-[#0093dd]/30' }}">
                         + Form
                     </span>
                 </a>

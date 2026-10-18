@@ -20,7 +20,7 @@
             @if($isParent)
                 <div class="flex-1">
                     <x-input-label for="student_id" value="Pilih Siswa" />
-                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E] shadow-none transition">
+                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition">
                         @foreach($children as $child)
                             <option value="{{ $child->id }}" @selected($student->id === $child->id)>{{ $child->fullname }}</option>
                         @endforeach
@@ -29,9 +29,9 @@
             @endif
             <div class="flex-1">
                 <x-input-label for="month" value="Bulan" />
-                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm font-mono text-[#EDEDF0] focus:border-[#FD366E] focus:ring-1 focus:ring-[#FD366E] shadow-none transition" />
+                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm font-mono text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" />
             </div>
-            <button type="submit" class="px-4 py-2 bg-[#FD366E] hover:bg-[#E0285D] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition cursor-pointer">
+            <button type="submit" class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition cursor-pointer">
                 Terapkan
             </button>
         </form>
@@ -42,7 +42,7 @@
                 'Hadir'     => 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
                 'Sakit'     => 'bg-amber-500/15 text-amber-400 border-amber-500/30',
                 'Izin'      => 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-                'Alpa'      => 'bg-[#FD366E]/15 text-[#FD366E] border-[#FD366E]/30',
+                'Alpa'      => 'bg-rose-500/15 text-rose-400 border-rose-500/30',
                 'Terlambat' => 'bg-purple-500/15 text-purple-400 border-purple-500/30',
             ];
         @endphp

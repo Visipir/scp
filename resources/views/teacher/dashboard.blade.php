@@ -41,10 +41,10 @@
         @if(!empty($alerts))
             <div class="space-y-3">
                 @foreach($alerts as $schedule)
-                    <div class="bg-[#FD366E]/10 border border-[#FD366E]/30 rounded-xl p-5">
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex items-start gap-3.5">
-                                <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-[#FD366E] text-white">
+                                <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500 text-zinc-950">
                                     PERINGATAN
                                 </span>
                                 <div>
@@ -56,12 +56,12 @@
                                         <span class="font-bold">{{ $schedule->schoolClass?->class_name ?? '-' }}</span> &bull;
                                         <span>Ruang {{ $schedule->room?->room_name ?? '-' }}</span>
                                     </p>
-                                    <p class="text-[11px] font-mono text-[#FD366E] mt-1">
+                                    <p class="text-[11px] font-mono text-amber-400 mt-1">
                                         Selesai pukul {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }} (melewati batas toleransi 30 menit)
                                     </p>
                                 </div>
                             </div>
-                            <a href="{{ route('journals.create') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#FD366E] hover:bg-[#E0285D] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer shadow-none">
+                            <a href="{{ route('journals.create') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer shadow-none">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                 Isi Sekarang
                             </a>
@@ -291,13 +291,13 @@
                             />
                         </label>
                     </div>
-                    <p class="text-xs text-[#FD366E] mt-1.5 font-medium" x-show="fileError" x-text="fileError"></p>
+                    <p class="text-xs text-rose-400 mt-1.5 font-medium" x-show="fileError" x-text="fileError"></p>
                     <x-input-error :messages="$errors->get('photo')" class="mt-1.5" />
                 </div>
 
                 {{-- Action Submit --}}
                 <div class="pt-2">
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#FD366E] hover:bg-[#E0285D] active:bg-[#C92051] text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none focus:outline-none focus:ring-2 focus:ring-[#FD366E] focus:ring-offset-2 focus:ring-offset-[#19191C] cursor-pointer">
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none focus:outline-none focus:ring-2 focus:ring-[#0093dd] focus:ring-offset-2 focus:ring-offset-[#19191C] cursor-pointer">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                         Simpan Jurnal &amp; Sinkronkan Presensi
                     </button>

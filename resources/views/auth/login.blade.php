@@ -5,7 +5,7 @@
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-9 h-9 object-contain shrink-0">
                 <div class="font-black text-2xl tracking-tight text-white flex items-center">
-                    <span>SCP</span><span class="text-[#FD366E]">.</span>
+                    <span>SCP</span><span class="text-[#0093dd]">.</span>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
                 <input 
                     id="remember_me" 
                     type="checkbox" 
-                    class="rounded border-[#2B2B30] bg-[#19191C] text-[#FD366E] shadow-none focus:ring-[#FD366E] focus:ring-offset-2 focus:ring-offset-[#19191C] cursor-pointer" 
+                    class="rounded border-[#2B2B30] bg-[#19191C] text-[#0093dd] shadow-none focus:ring-[#0093dd] focus:ring-offset-2 focus:ring-offset-[#19191C] cursor-pointer" 
                     name="remember"
                 >
                 <span class="ms-2 text-xs text-[#97979B] hover:text-[#EDEDF0] select-none">Ingat Saya</span>

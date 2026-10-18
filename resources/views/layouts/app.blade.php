@@ -47,7 +47,7 @@
         }
     </style>
 </head>
-<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#FD366E] selection:text-white transition-colors duration-150" 
+<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#0093dd] selection:text-white transition-colors duration-150" 
       x-data="{ 
           sidebarOpen: false,
           darkMode: document.documentElement.classList.contains('dark'),
@@ -97,7 +97,7 @@
                 @endphp
                 <div class="flex items-center gap-2.5 text-xs font-mono">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-5 h-5 object-contain shrink-0">
-                    <span class="font-bold text-white tracking-tight text-sm">SCP<span class="text-[#FD366E]">.</span></span>
+                    <span class="font-bold text-white tracking-tight text-sm">SCP<span class="text-[#0093dd]">.</span></span>
                     <span class="text-[#5B5B61]">/</span>
                     <span class="text-[#97979B] font-sans font-medium text-xs">{{ $breadcrumbTitle }}</span>
                 </div>
@@ -111,8 +111,8 @@
                                 {{ $globalConfig->active_cycle }}
                             </span>
                             @if($globalConfig->is_schedule_locked)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[rgba(253,54,110,0.14)] text-[#FD366E] border border-[rgba(253,54,110,0.28)] font-semibold uppercase tracking-wider">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FD366E]"></span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[rgba(0,147,221,0.14)] text-[#0093dd] border border-[rgba(0,147,221,0.28)] font-semibold uppercase tracking-wider">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#0093dd]"></span>
                                     Jadwal Terkunci
                                 </span>
                             @endif
