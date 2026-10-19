@@ -29,7 +29,7 @@ class AiChatbotService
         // Default to gemini-3.5-flash-lite for high 500 RPD quota and fast response
         $model = $config?->effective_gemini_chat_model ?: 'gemini-3.5-flash-lite';
 
-        $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+        $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
 
         $systemInstruction = $this->buildSystemPrompt();
 
@@ -69,18 +69,21 @@ class AiChatbotService
         ];
 
         try {
-            $response = Http::timeout(45)
-                ->withHeaders(['Content-Type' => 'application/json'])
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'Content-Type'   => 'application/json',
+                    'x-goog-api-key' => $apiKey,
+                ])
                 ->post($endpoint, $payload);
         } catch (\Throwable $e) {
-            Log::error('AI Chatbot Connection Error: ' . $e->getMessage());
-            throw new RuntimeException('Koneksi ke layanan AI Assistant gagal: ' . $e->getMessage());
+            Log::error('AI Chatbot request failed due to connection error or timeout.');
+            throw new RuntimeException('Koneksi ke layanan AI Assistant gagal atau waktu tunggu habis.');
         }
 
         if (!$response->successful()) {
             $errorData = $response->json('error');
             $errorMessage = $errorData['message'] ?? 'Status HTTP ' . $response->status();
-            Log::error("AI Chatbot Request Failed [{$response->status()}]: {$errorMessage}");
+            Log::error("AI Chatbot Request Failed with HTTP status: {$response->status()}");
 
             if ($response->status() === 429) {
                 throw new RuntimeException('Batas kuota harian chat tercapai (Rate Limit). Silakan coba lagi sebentar lagi.');

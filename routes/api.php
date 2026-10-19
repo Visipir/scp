@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AcademicCalendarController as V1AcademicCalendarController;
 use App\Http\Controllers\Api\V1\AttendanceController as V1AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
+use App\Http\Controllers\Api\V1\ChatController as V1ChatController;
 use App\Http\Controllers\Api\V1\ClassController as V1ClassController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
@@ -51,6 +52,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/rooms', [LookupController::class, 'rooms'])->name('rooms.index');
         Route::get('/teachers', [LookupController::class, 'teachers'])->middleware('role:1')->name('teachers.index');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/chat/message', [V1ChatController::class, 'sendMessage'])
+            ->middleware('throttle:api-chat')
+            ->name('chat.message');
 
         Route::get('/exams', [V1ExamController::class, 'index'])->name('exams.index');
         Route::get('/exams/{exam}', [V1ExamController::class, 'show'])->name('exams.show');

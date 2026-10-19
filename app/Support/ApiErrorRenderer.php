@@ -7,6 +7,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -17,8 +19,12 @@ use Throwable;
  */
 class ApiErrorRenderer
 {
-    public static function render(Throwable $e): JsonResponse
+    public static function render(Throwable $e): Response
     {
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        }
+
         if ($e instanceof ValidationException) {
             return ApiResponse::message(
                 $e->getMessage() ?: 'Data yang diberikan tidak valid.',
