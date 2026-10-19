@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\LeaveRequestController as V1LeaveRequestControll
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Controllers\Api\V1\SystemController;
+use App\Http\Controllers\Api\V1\UserController as V1UserController;
 use App\Http\Middleware\CheckScheduleLock;
 use App\Http\Middleware\EnsureApiPasswordIsChanged;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('/leave-requests/{leaveRequest}/status', [V1LeaveRequestController::class, 'updateStatus'])->middleware('role:1,3')->name('leave-requests.update-status');
 
         Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');
+
+        Route::middleware('role:1,3')->group(function () {
+            Route::get('/users', [V1UserController::class, 'index'])->name('users.index');
+            Route::post('/users', [V1UserController::class, 'store'])->name('users.store');
+            Route::get('/users/{user}', [V1UserController::class, 'show'])->name('users.show');
+            Route::put('/users/{user}', [V1UserController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [V1UserController::class, 'destroy'])->name('users.destroy');
+            Route::patch('/users/{user}/reset-password', [V1UserController::class, 'resetPassword'])->name('users.reset-password');
+        });
 
         Route::middleware('role:1')->group(function () {
             Route::patch('/system/cycle', [SystemController::class, 'cycle'])->name('system.cycle');

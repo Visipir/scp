@@ -2,39 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\SchoolClass;
+use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserService $userService
+    ) {}
+
     public function index(Request $request)
     {
         $roleFilter = $request->query('role_id');
         $search = $request->query('search');
 
-        $query = User::with('schoolClass');
+        $users = $this->userService->listUsers($request->user(), [
+            'role_id' => $roleFilter,
+            'search'  => $search,
+        ], 20);
 
-        if ($roleFilter) {
-            $query->where('role_id', $roleFilter);
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('fullname', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
-            });
-        }
-
-        $users = $query->orderBy('role_id')->orderBy('fullname')->paginate(20)->withQueryString();
-        
         $roles = [
             1 => 'Waka Kurikulum',
             2 => 'Guru',
             3 => 'Bimbingan Konseling (BK)',
-            4 => 'Siswa'
+            4 => 'Siswa',
         ];
 
         return view('users.index', compact('users', 'roles', 'roleFilter', 'search'));
@@ -51,18 +46,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'fullname' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
-            'role_id' => 'required|integer|in:1,2,3,4',
+            'role_id'  => 'required|integer|in:1,2,3,4',
             'class_id' => 'nullable|required_if:role_id,4|exists:classes,id',
             'password' => 'required|string|min:6',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-
-        if (! in_array((int) $validated['role_id'], [3, 4], true)) {
-            $validated['class_id'] = null;
+        try {
+            $this->userService->createUser($request->user(), $validated);
+        } catch (HttpException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
-
-        User::create($validated);
 
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -78,38 +71,37 @@ class UserController extends Controller
         $validated = $request->validate([
             'fullname' => 'required|string|max:255',
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role_id' => 'required|integer|in:1,2,3,4',
+            'role_id'  => 'required|integer|in:1,2,3,4',
             'class_id' => 'nullable|required_if:role_id,4|exists:classes,id',
         ]);
 
-        if (! in_array((int) $validated['role_id'], [3, 4], true)) {
-            $validated['class_id'] = null;
+        try {
+            $this->userService->updateUser($request->user(), $user, $validated);
+        } catch (HttpException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
-
-        $user->update($validated);
 
         return redirect()->route('users.index')->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
-    public function resetPassword(User $user)
+    public function resetPassword(Request $request, User $user)
     {
-        // Reset password to username by default
-        $user->update([
-            'password' => Hash::make($user->username),
-            'must_change_password' => true,
-        ]);
+        try {
+            $this->userService->resetPassword($request->user(), $user);
+        } catch (HttpException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
         return redirect()->back()->with('success', "Password pengguna {$user->fullname} berhasil di-reset menjadi username-nya. Pengguna wajib mengganti password saat login berikutnya.");
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
-        // Prevent deleting oneself
-        if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        try {
+            $this->userService->deleteUser($request->user(), $user);
+        } catch (HttpException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        $user->delete();
 
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
