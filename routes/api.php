@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\ClassController as V1ClassController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\ExamController as V1ExamController;
 use App\Http\Controllers\Api\V1\JournalController as V1JournalController;
 use App\Http\Controllers\Api\V1\LeaveRequestController as V1LeaveRequestController;
 use App\Http\Controllers\Api\V1\LookupController;
@@ -48,7 +49,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/teachers', [LookupController::class, 'teachers'])->middleware('role:1')->name('teachers.index');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('/exams', [V1ExamController::class, 'index'])->name('exams.index');
+        Route::get('/exams/{exam}', [V1ExamController::class, 'show'])->name('exams.show');
+        Route::get('/exams/{exam}/download', [V1ExamController::class, 'download'])->name('exams.download');
+
         Route::middleware('role:1,2')->group(function () {
+            Route::post('/exams', [V1ExamController::class, 'store'])->name('exams.store');
+            Route::put('/exams/{exam}', [V1ExamController::class, 'update'])->name('exams.update');
+            Route::delete('/exams/{exam}', [V1ExamController::class, 'destroy'])->name('exams.destroy');
+
             Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');
             Route::post('/schedules', [ScheduleController::class, 'store'])->middleware(CheckScheduleLock::class)->name('schedules.store');
             Route::put('/schedules/{schedule}', [ScheduleController::class, 'update'])->middleware(CheckScheduleLock::class)->name('schedules.update');
