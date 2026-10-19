@@ -1,15 +1,18 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\AcademicCalendarController as V1AcademicCalendarController;
 use App\Http\Controllers\Api\V1\AttendanceController as V1AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\ClassController as V1ClassController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\ExamController as V1ExamController;
+use App\Http\Controllers\Api\V1\IneffectiveDayController as V1IneffectiveDayController;
 use App\Http\Controllers\Api\V1\JournalController as V1JournalController;
 use App\Http\Controllers\Api\V1\LeaveRequestController as V1LeaveRequestController;
 use App\Http\Controllers\Api\V1\LookupController;
+use App\Http\Controllers\Api\V1\RoomScheduleController as V1RoomScheduleController;
 use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Controllers\Api\V1\UserController as V1UserController;
@@ -74,6 +77,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/journals', [V1JournalController::class, 'index'])->name('journals.index');
             Route::get('/journals/{journal}', [V1JournalController::class, 'show'])->name('journals.show');
             Route::get('/journals/{journal}/photo', [V1JournalController::class, 'photo'])->name('journals.photo');
+
+            Route::get('/room-schedules', [V1RoomScheduleController::class, 'index'])->name('room-schedules.index');
+            Route::post('/room-schedules', [V1RoomScheduleController::class, 'store'])->name('room-schedules.store');
+            Route::delete('/room-schedules/{roomSchedule}', [V1RoomScheduleController::class, 'destroy'])->name('room-schedules.destroy');
         });
 
         Route::middleware('role:1,3,4')->group(function () {
@@ -93,6 +100,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::delete('/classes/{class}', [V1ClassController::class, 'destroy'])->name('classes.destroy');
             Route::get('/classes/{class}/attendance', [V1ClassController::class, 'attendance'])->name('classes.attendance');
             Route::get('/classes/{class}/export', [V1ClassController::class, 'export'])->name('classes.export');
+
+            Route::get('/academic-calendar', [V1AcademicCalendarController::class, 'index'])->name('academic-calendar.index');
+            Route::post('/academic-calendar', [V1AcademicCalendarController::class, 'store'])->name('academic-calendar.store');
+            Route::delete('/academic-calendar/{academicCalendar}', [V1AcademicCalendarController::class, 'destroy'])->name('academic-calendar.destroy');
+
+            Route::get('/ineffective-days', [V1IneffectiveDayController::class, 'index'])->name('ineffective-days.index');
+            Route::post('/ineffective-days', [V1IneffectiveDayController::class, 'store'])->name('ineffective-days.store');
+            Route::delete('/ineffective-days/{ineffectiveDay}', [V1IneffectiveDayController::class, 'destroy'])->name('ineffective-days.destroy');
 
             Route::get('/users', [V1UserController::class, 'index'])->name('users.index');
             Route::post('/users', [V1UserController::class, 'store'])->name('users.store');

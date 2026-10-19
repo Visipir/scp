@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\IneffectiveDay;
-use App\Models\SystemConfiguration;
+use App\Services\IneffectiveDayService;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class IneffectiveDayController extends Controller
 {
+    public function __construct(
+        private readonly IneffectiveDayService $ineffectiveDayService
+    ) {}
+
     /**
      * Display a listing of ineffective school days (Redirected to Unified Academic Calendar).
      */
@@ -37,26 +39,12 @@ class IneffectiveDayController extends Controller
             'description.required'    => 'Keterangan atau alasan hari tidak efektif wajib diisi.',
         ]);
 
+        $created = $this->ineffectiveDayService->createIneffectiveDays($validated, $request->user()?->id);
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = !empty($validated['end_date']) ? Carbon::parse($validated['end_date']) : $startDate->copy();
-        $academicYear = $validated['academic_year'] ?? '2026/2027';
-        $userId = $request->user()?->id;
 
-        $createdCount = 0;
-        $period = CarbonPeriod::create($startDate, $endDate);
-
-        foreach ($period as $date) {
-            $formattedDate = $date->toDateString();
-            $record = IneffectiveDay::firstOrNew(['date' => $formattedDate]);
-            $record->description = $validated['description'];
-            $record->academic_year = $academicYear;
-            $record->created_by = $userId;
-            $record->save();
-            $createdCount++;
-        }
-
-        $msg = $createdCount > 1
-            ? "Berhasil menetapkan {$createdCount} hari tidak efektif KBM ({$startDate->translatedFormat('d M Y')} s/d {$endDate->translatedFormat('d M Y')})."
+        $msg = $created->count() > 1
+            ? "Berhasil menetapkan {$created->count()} hari tidak efektif KBM ({$startDate->translatedFormat('d M Y')} s/d {$endDate->translatedFormat('d M Y')})."
             : "Berhasil menetapkan hari tidak efektif KBM untuk tanggal {$startDate->translatedFormat('d M Y')}.";
 
         return redirect()->route('academic-calendar.index')->with('success', $msg);
@@ -68,7 +56,7 @@ class IneffectiveDayController extends Controller
     public function destroy(IneffectiveDay $ineffectiveDay): RedirectResponse
     {
         $dateFormatted = $ineffectiveDay->date->translatedFormat('d M Y');
-        $ineffectiveDay->delete();
+        $this->ineffectiveDayService->deleteIneffectiveDay($ineffectiveDay);
 
         return redirect()->route('academic-calendar.index')
             ->with('success', "Hari tidak efektif untuk tanggal {$dateFormatted} berhasil dihapus.");
