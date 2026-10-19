@@ -19,6 +19,13 @@ tags:
   - name: Journals
   - name: Leave Requests
   - name: Attendance
+  - name: Users
+  - name: Classes
+  - name: Exams
+  - name: Room Schedules
+  - name: Academic Calendar
+  - name: Ineffective Days
+  - name: Chat
   - name: System
 
 security:
@@ -718,6 +725,700 @@ paths:
                                   items: { $ref: '#/components/schemas/Schedule' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+
+  /api/v1/users:
+    get:
+      tags: [Users]
+      summary: List users (Role 1 or Role 3 scoped to students)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+        - name: role_id
+          in: query
+          schema: { type: integer, enum: [1, 2, 3, 4] }
+      responses:
+        '200':
+          description: Paginated users list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginated'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Users]
+      summary: Create new user (Role 1 or Role 3 creating student)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/UserDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/users/{user}:
+    parameters:
+      - name: user
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Users]
+      summary: Get user details
+      responses:
+        '200':
+          description: User detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/UserDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Users]
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/UserDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Users]
+      summary: Delete user
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/users/{user}/reset-password:
+    parameters:
+      - name: user
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      tags: [Users]
+      summary: Reset user password to default
+      responses:
+        '200':
+          description: Password reset succeeded
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          default_password: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/classes:
+    get:
+      tags: [Classes]
+      summary: List school classes (scoped for Wali Kelas)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: Paginated classes list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginated'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Class' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Classes]
+      summary: Create class (Role 1 only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClassInput' }
+      responses:
+        '201':
+          description: Class created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Class' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/classes/{class}:
+    parameters:
+      - name: class
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Classes]
+      summary: Get class detail and its students (scoped for Wali Kelas)
+      responses:
+        '200':
+          description: Class detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/ClassDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Classes]
+      summary: Update class (Role 1 only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClassInput' }
+      responses:
+        '200':
+          description: Class updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Class' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Classes]
+      summary: Delete class (Role 1 only)
+      responses:
+        '200':
+          description: Class deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/classes/{class}/attendance:
+    parameters:
+      - name: class
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Classes]
+      summary: Monthly attendance recap for a class (scoped for Wali Kelas)
+      parameters:
+        - $ref: '#/components/parameters/MonthQuery'
+      responses:
+        '200':
+          description: Class attendance recap JSON
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/ClassAttendanceRecap' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/classes/{class}/export:
+    parameters:
+      - name: class
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Classes]
+      summary: Export class attendance recap to Excel (.xlsx)
+      parameters:
+        - $ref: '#/components/parameters/MonthQuery'
+      responses:
+        '200':
+          description: Excel file stream
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/exams:
+    get:
+      tags: [Exams]
+      summary: List learning materials and exams
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+        - name: type
+          in: query
+          schema: { type: string, enum: [materi, kisi_kisi, bank_soal] }
+        - name: class_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated materials / exams list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Paginated'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/Exam' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Exams]
+      summary: Upload exam/material file (max 50 MB)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, type]
+              properties:
+                title: { type: string, maxLength: 255 }
+                type: { type: string, enum: [materi, kisi_kisi, bank_soal] }
+                class_id: { type: integer, description: "Required for materi and kisi_kisi" }
+                subject: { type: string, maxLength: 100 }
+                description: { type: string }
+                file: { type: string, format: binary, description: "Max 50MB (pdf, doc, docx, xls, xlsx, ppt, pptx, zip, rar, jpg, png)" }
+      responses:
+        '201':
+          description: Material / exam created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Exam' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/exams/{exam}:
+    parameters:
+      - name: exam
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Exams]
+      summary: Get exam / material detail
+      responses:
+        '200':
+          description: Exam detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Exam' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Exams]
+      summary: Update exam / material metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, maxLength: 255 }
+                type: { type: string, enum: [materi, kisi_kisi, bank_soal] }
+                class_id: { type: integer }
+                subject: { type: string, maxLength: 100 }
+                description: { type: string }
+      responses:
+        '200':
+          description: Exam updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Exam' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Exams]
+      summary: Delete exam / material and its file
+      responses:
+        '200':
+          description: Exam deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/exams/{exam}/download:
+    parameters:
+      - name: exam
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Exams]
+      summary: Stream download the exam / material attachment
+      responses:
+        '200':
+          description: File binary stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/room-schedules:
+    get:
+      tags: [Room Schedules]
+      summary: List room booking schedules
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+        - name: room_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Room schedules list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/RoomSchedule' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Room Schedules]
+      summary: Book a room schedule (Role 1 & 2)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [room_id, date, start_time, end_time, purpose]
+              properties:
+                room_id: { type: integer }
+                date: { type: string, format: date }
+                start_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+                end_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+                purpose: { type: string, maxLength: 255 }
+      responses:
+        '201':
+          description: Room booked
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/RoomSchedule' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/room-schedules/{roomSchedule}:
+    parameters:
+      - name: roomSchedule
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Room Schedules]
+      summary: Delete room schedule (Creator or Role 1)
+      responses:
+        '200':
+          description: Room schedule deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/academic-calendar:
+    get:
+      tags: [Academic Calendar]
+      summary: List academic calendar events
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string, enum: [kbm, libur, ujian, kegiatan, lainnya] }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Calendar events list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/AcademicCalendar' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Academic Calendar]
+      summary: Create calendar event (Role 1 only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, start_date, end_date, type]
+              properties:
+                title: { type: string, maxLength: 150 }
+                description: { type: string }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                type: { type: string, enum: [kbm, libur, ujian, kegiatan, lainnya] }
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AcademicCalendar' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/academic-calendar/{academicCalendar}:
+    parameters:
+      - name: academicCalendar
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Academic Calendar]
+      summary: Delete calendar event (Role 1 only)
+      responses:
+        '200':
+          description: Event deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/ineffective-days:
+    get:
+      tags: [Ineffective Days]
+      summary: List ineffective days
+      parameters:
+        - name: year
+          in: query
+          schema: { type: integer }
+        - name: month
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 12 }
+      responses:
+        '200':
+          description: Ineffective days list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessList'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/IneffectiveDay' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Ineffective Days]
+      summary: Create ineffective day (Role 1 only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, description]
+              properties:
+                date: { type: string, format: date }
+                description: { type: string, maxLength: 255 }
+      responses:
+        '201':
+          description: Ineffective day created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessSingle'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/IneffectiveDay' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/ineffective-days/{ineffectiveDay}:
+    parameters:
+      - name: ineffectiveDay
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Ineffective Days]
+      summary: Delete ineffective day (Role 1 only)
+      responses:
+        '200':
+          description: Ineffective day deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/chat/message:
+    post:
+      tags: [Chat]
+      summary: Send prompt to Gemini AI assistant (Throttled 10/min, 100/day)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChatMessageInput' }
+      responses:
+        '200':
+          description: Assistant response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      reply: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: AI provider error or timeout
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -726,6 +1427,14 @@ components:
       bearerFormat: Sanctum
 
   parameters:
+    Search:
+      name: search
+      in: query
+      schema: { type: string }
+    MonthQuery:
+      name: month
+      in: query
+      schema: { type: string, pattern: '^\d{4}-\d{2}$' }
     Page:
       name: page
       in: query
@@ -1144,3 +1853,169 @@ components:
             student: { $ref: '#/components/schemas/User' }
             month: { type: string, pattern: '^\d{4}-\d{2}$' }
             summary: { $ref: '#/components/schemas/AttendanceSummary' }
+
+    UserInput:
+      type: object
+      required: [username, fullname, role_id]
+      properties:
+        username: { type: string, maxLength: 50 }
+        fullname: { type: string, maxLength: 100 }
+        password: { type: string, minLength: 8 }
+        role_id: { $ref: '#/components/schemas/Role' }
+        phone_number: { type: [string, 'null'], maxLength: 20 }
+        class_id: { type: [integer, 'null'] }
+        parent_id: { type: [integer, 'null'] }
+        gender: { type: [string, 'null'], enum: [L, P] }
+        attendance_number: { type: [integer, 'null'] }
+
+    UserDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        fullname: { type: string }
+        role_id: { $ref: '#/components/schemas/Role' }
+        role: { type: [string, 'null'] }
+        phone_number: { type: [string, 'null'] }
+        class_id: { type: [integer, 'null'] }
+        class: { type: [string, 'null'] }
+        gender: { type: [string, 'null'] }
+        attendance_number: { type: [integer, 'null'] }
+        parent_id: { type: [integer, 'null'] }
+        parent:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            fullname: { type: string }
+        children:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              fullname: { type: string }
+              class_id: { type: [integer, 'null'] }
+              class: { type: [string, 'null'] }
+        must_change_password: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    ClassInput:
+      type: object
+      required: [class_name]
+      properties:
+        class_name: { type: string, maxLength: 50 }
+        academic_year: { type: [string, 'null'], maxLength: 20 }
+        grade_level: { type: [string, 'null'], maxLength: 10 }
+        major: { type: [string, 'null'], maxLength: 50 }
+
+    ClassDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        class_name: { type: string }
+        academic_year: { type: [string, 'null'] }
+        grade_level: { type: [string, 'null'] }
+        major: { type: [string, 'null'] }
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              fullname: { type: string }
+              username: { type: string }
+              gender: { type: [string, 'null'] }
+              attendance_number: { type: [integer, 'null'] }
+
+    ClassAttendanceRecap:
+      type: object
+      properties:
+        class:
+          type: object
+          properties:
+            id: { type: integer }
+            class_name: { type: string }
+        month: { type: string, pattern: '^\d{4}-\d{2}$' }
+        students:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              fullname: { type: string }
+              gender: { type: [string, 'null'] }
+              attendance_number: { type: [integer, 'null'] }
+              summary: { $ref: '#/components/schemas/AttendanceSummary' }
+
+    Exam:
+      type: object
+      properties:
+        id: { type: integer }
+        class_id: { type: [integer, 'null'] }
+        class: { type: [string, 'null'] }
+        teacher_id: { type: integer }
+        teacher: { type: [string, 'null'] }
+        type: { type: string, enum: [materi, kisi_kisi, bank_soal] }
+        title: { type: string }
+        subject: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        file_url: { type: [string, 'null'] }
+        file_name: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    RoomSchedule:
+      type: object
+      properties:
+        id: { type: integer }
+        room_id: { type: integer }
+        room: { type: [string, 'null'] }
+        teacher_id: { type: integer }
+        teacher: { type: [string, 'null'] }
+        date: { type: string, format: date }
+        start_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+        end_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+        purpose: { type: string }
+        created_at: { type: string, format: date-time }
+
+    AcademicCalendar:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        type: { type: string, enum: [kbm, libur, ujian, kegiatan, lainnya] }
+        created_by: { type: [integer, 'null'] }
+        creator: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    IneffectiveDay:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        description: { type: string }
+        created_by: { type: [integer, 'null'] }
+        creator: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    ChatMessageInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, maxLength: 1000 }
+        history:
+          type: array
+          items:
+            type: object
+            required: [role, parts]
+            properties:
+              role: { type: string, enum: [user, model] }
+              parts:
+                type: array
+                items:
+                  type: object
+                  required: [text]
+                  properties:
+                    text: { type: string }

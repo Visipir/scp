@@ -123,8 +123,155 @@ curl -s -X POST http://localhost/api/v1/leave-requests \
 Parents may only submit for their own children (`403` otherwise). New requests
 start as `Pending`.
 
-## Roles
+## Roles & Scoping
 
-`role_id`: `1` Waka Kurikulum, `2` Guru, `3` Tim Kesiswaan (Wali Kelas / BK),
-`4` Siswa/Ortu. A role 3 account with `class_id` is scoped to that homeroom
-class; a role 3 account without `class_id` is Guru BK and sees every class.
+`role_id`:
+- `1` Waka Kurikulum (Full administrative access across all endpoints)
+- `2` Guru (Subject teacher: journals, materials/exams, room bookings)
+- `3` Tim Kesiswaan (Wali Kelas / BK). A role 3 account with `class_id` is scoped strictly to that homeroom class (`User::scopedClassId`); without `class_id` is Guru BK and sees all classes. In `/users`, role 3 can only manage role 4 (Siswa/Ortu).
+- `4` Siswa / Orang Tua (Students & parents: view schedules, attendance, materials, submit leave requests).
+
+---
+
+## Users (`/api/v1/users`)
+
+Access:
+- **Role 1**: Full CRUD across all roles.
+- **Role 3**: Can only list, create, update, delete, and reset password for **role 4 (Siswa/Ortu)**. Attempting to manage roles 1–3 returns `403`.
+- Self-deletion is forbidden (`422`).
+- Deleting users with dependent records (e.g. schedules, journals, classes) is forbidden (`422`).
+- New users receive `must_change_password = 1`.
+
+### Endpoints
+- `GET /api/v1/users?role_id=&search=&page=&per_page=` — List paginated users.
+- `POST /api/v1/users` — Create user (`username`, `fullname`, `role_id`, `password`, optional `phone_number`, `class_id`, `parent_id`, `gender`, `attendance_number`).
+- `GET /api/v1/users/{id}` — Get user details (including parent and children relationships).
+- `PUT /api/v1/users/{id}` — Update user fields.
+- `DELETE /api/v1/users/{id}` — Delete user.
+- `PATCH /api/v1/users/{id}/reset-password` — Reset password to default (`***REMOVED***` or school default).
+
+---
+
+## Classes & Attendance Recap (`/api/v1/classes`)
+
+Access:
+- **Role 1**: Full CRUD.
+- **Role 3**: Read-only access to own class (Wali Kelas scoping). Attempting to access another class returns `403` or `404`.
+- **Role 2 & 4**: Forbidden.
+
+### Endpoints
+- `GET /api/v1/classes?search=&page=&per_page=` — List classes (scoped for Wali Kelas).
+- `POST /api/v1/classes` — Create class (`class_name`, `academic_year`, `grade_level`, `major`).
+- `GET /api/v1/classes/{id}` — Show class details along with enrolled students list.
+- `PUT /api/v1/classes/{id}` — Update class details.
+- `DELETE /api/v1/classes/{id}` — Delete class (fails with `422` if classes have students or schedules).
+- `GET /api/v1/classes/{id}/attendance?month=YYYY-MM` — Monthly attendance recap JSON (Hadir, Sakit, Izin, Alpa counts per student).
+- `GET /api/v1/classes/{id}/export?month=YYYY-MM` — Download monthly attendance recap as Excel (`.xlsx`) stream.
+
+---
+
+## Learning Materials, Exams & Bank Soal (`/api/v1/exams`)
+
+File attachments are stored privately and streamed via authenticated endpoints.
+- Max file size: **50 MB** (`51200` KB).
+- Allowed MIME types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, RAR, JPG, PNG.
+- Nginx & PHP are configured with `client_max_body_size 50m`.
+
+Access:
+- **Role 1**: View all, create, update, delete, download any.
+- **Role 2 (Guru)**: View all, create, update/delete own uploads, download.
+- **Role 3 & 4**: View and download materials assigned to their class (bank soal is hidden from role 4).
+
+### Endpoints
+- `GET /api/v1/exams?type=&class_id=&search=&page=&per_page=` — List materials/exams.
+- `POST /api/v1/exams` — Upload material/exam (`multipart/form-data`: `title`, `type`, `class_id`, `subject`, `description`, `file`).
+- `GET /api/v1/exams/{id}` — View material/exam metadata.
+- `PUT /api/v1/exams/{id}` — Update metadata (`title`, `type`, `class_id`, `subject`, `description`).
+- `DELETE /api/v1/exams/{id}` — Delete record and remove attachment from storage.
+- `GET /api/v1/exams/{id}/download` — Stream download file (`Accept: application/octet-stream` with Bearer token).
+
+---
+
+## Room Booking (`/api/v1/room-schedules`)
+
+Allows booking school rooms/laboratories without schedule conflicts.
+
+Access:
+- **Role 1 & 2**: Create booking, view.
+- **Role 3 & 4**: View only.
+- Delete: Creator or Role 1 only.
+
+### Endpoints
+- `GET /api/v1/room-schedules?date=YYYY-MM-DD&room_id=` — List room schedules.
+- `POST /api/v1/room-schedules` — Book room (`room_id`, `date`, `start_time`, `end_time`, `purpose`). Fails on time overlap with existing booking (`422`).
+- `DELETE /api/v1/room-schedules/{id}` — Delete booking.
+
+---
+
+## Academic Calendar (`/api/v1/academic-calendar`)
+
+School agenda and academic calendar events.
+
+Access:
+- **Role 1**: Create and delete events.
+- **Role 2, 3, 4**: Read-only.
+
+### Endpoints
+- `GET /api/v1/academic-calendar?type=&start_date=&end_date=` — List calendar events.
+- `POST /api/v1/academic-calendar` — Create event (`title`, `description`, `start_date`, `end_date`, `type`: `kbm|libur|ujian|kegiatan|lainnya`).
+- `DELETE /api/v1/academic-calendar/{id}` — Delete calendar event.
+
+---
+
+## Ineffective Days (`/api/v1/ineffective-days`)
+
+Days marked as non-effective school days (holidays, special off-days) for attendance calculations.
+
+Access:
+- **Role 1**: Create and delete.
+- **Role 2, 3, 4**: Read-only.
+
+### Endpoints
+- `GET /api/v1/ineffective-days?year=YYYY&month=M` — List ineffective days.
+- `POST /api/v1/ineffective-days` — Create entry (`date`, `description`).
+- `DELETE /api/v1/ineffective-days/{id}` — Delete ineffective day.
+
+---
+
+## AI Assistant Chat (`/api/v1/chat/message`)
+
+Integrates Google Gemini AI Assistant with contextual school data awareness.
+
+### Security & Rate Limiting
+- **Throttling**: Dual-tier limiter per authenticated user:
+  - Max **10 requests per minute**
+  - Max **100 requests per day**
+  - Exceeding limit returns `429 Too Many Requests` with Indonesian explanation.
+- **Input Validation**: Message max length **1,000 characters**; conversation history max **20 messages**.
+- **Credentials & Privacy**: Gemini API key is passed securely via `x-goog-api-key` header (never exposed in URL query parameters). Request/response bodies and user prompts are never logged.
+- **Timeout**: Strict 30-second timeout. Provider downtime or timeout returns `502 Bad Gateway` in uniform error envelope `{message, errors}`.
+
+### Endpoint
+```bash
+curl -s -X POST http://localhost/api/v1/chat/message \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "message": "Kapan jadwal KBM semester genap dimulai?",
+    "history": [
+      {"role": "user", "parts": [{"text": "Halo"}]},
+      {"role": "model", "parts": [{"text": "Halo! Ada yang bisa saya bantu terkait jadwal sekolah?"}]}
+    ]
+  }'
+```
+
+Response `200 OK`:
+```json
+{
+  "data": {
+    "reply": "Berdasarkan kalender akademik sekolah, KBM semester genap dimulai pada..."
+  }
+}
+```
+
