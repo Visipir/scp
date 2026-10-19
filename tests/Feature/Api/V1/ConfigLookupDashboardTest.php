@@ -42,7 +42,7 @@ class ConfigLookupDashboardTest extends TestCase
 
         $this->apiAs($user)->getJson('/api/v1/classes')
             ->assertOk()
-            ->assertJsonStructure(['data' => [['id', 'class_name', 'academic_year']]]);
+            ->assertJsonStructure(['data' => [['id', 'class_name']]]);
 
         $this->apiAs($user)->getJson('/api/v1/rooms')
             ->assertOk()

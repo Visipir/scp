@@ -330,4 +330,37 @@ class ClassApiTest extends TestCase
 
         $this->assertDatabaseMissing('classes', ['id' => $emptyClass->id]);
     }
+
+    public function test_classes_lookup_returns_only_id_and_class_name_for_roles_2_and_4(): void
+    {
+        $admin = $this->makeUser(1);
+        $guru = $this->makeUser(2);
+        $wali = $this->makeUser(3);
+        $siswa = $this->makeUser(4);
+        $this->makeClass('X PPLG 1', '2026/2027');
+
+        // Roles 2 & 4 get strictly id and class_name
+        $resGuru = $this->apiAs($guru)->getJson('/api/v1/classes')->assertOk()->json('data');
+        $this->assertNotEmpty($resGuru);
+        $this->assertSame(['id', 'class_name'], array_keys($resGuru[0]));
+
+        $resSiswa = $this->apiAs($siswa)->getJson('/api/v1/classes')->assertOk()->json('data');
+        $this->assertNotEmpty($resSiswa);
+        $this->assertSame(['id', 'class_name'], array_keys($resSiswa[0]));
+
+        // Roles 1 & 3 retain full payload
+        $resAdmin = $this->apiAs($admin)->getJson('/api/v1/classes')->assertOk()->json('data');
+        $this->assertNotEmpty($resAdmin);
+        $this->assertEqualsCanonicalizing(
+            ['id', 'class_name', 'academic_year', 'grade_level', 'major', 'students_count'],
+            array_keys($resAdmin[0])
+        );
+
+        $resWali = $this->apiAs($wali)->getJson('/api/v1/classes')->assertOk()->json('data');
+        $this->assertNotEmpty($resWali);
+        $this->assertEqualsCanonicalizing(
+            ['id', 'class_name', 'academic_year', 'grade_level', 'major', 'students_count'],
+            array_keys($resWali[0])
+        );
+    }
 }

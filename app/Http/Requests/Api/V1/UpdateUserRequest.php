@@ -9,7 +9,35 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array((int) $this->user()?->role_id, [1, 3], true);
+        $actor = $this->user();
+        if (!$actor) {
+            return false;
+        }
+
+        $target = $this->route('user');
+        if (!$target instanceof \App\Models\User) {
+            $target = \App\Models\User::find($target);
+        }
+
+        if (!$target) {
+            return true;
+        }
+
+        if (!app(\App\Services\UserService::class)->canManageUser($actor, $target)) {
+            return false;
+        }
+
+        if ((int) $actor->role_id === 3) {
+            if ($this->has('role_id') && (int) $this->input('role_id') !== 4) {
+                return false;
+            }
+            $scopedClassId = $actor->scopedClassId();
+            if ($scopedClassId !== null && $this->has('class_id') && (int) $this->input('class_id') !== $scopedClassId) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function rules(): array

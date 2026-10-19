@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\DeleteUserRequest;
+use App\Http\Requests\Api\V1\ResetUserPasswordRequest;
 use App\Http\Requests\Api\V1\StoreUserRequest;
 use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\Api\V1\UserResource;
@@ -73,7 +75,7 @@ class UserController extends Controller
     /**
      * Remove the specified user from storage.
      */
-    public function destroy(Request $request, User $user): JsonResponse
+    public function destroy(DeleteUserRequest $request, User $user): JsonResponse
     {
         $this->userService->deleteUser($request->user(), $user);
 
@@ -85,7 +87,7 @@ class UserController extends Controller
     /**
      * Reset user password to their username.
      */
-    public function resetPassword(Request $request, User $user): UserResource
+    public function resetPassword(ResetUserPasswordRequest $request, User $user): UserResource
     {
         $reset = $this->userService->resetPassword($request->user(), $user);
 

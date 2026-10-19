@@ -186,4 +186,31 @@ class UserService
 
         return $target;
     }
+
+    /**
+     * Check whether an actor is authorized to manage (update, delete, reset-password) a target user.
+     */
+    public function canManageUser(User $actor, User $target): bool
+    {
+        $actorRole = (int) $actor->role_id;
+
+        if ($actorRole === 1) {
+            return true;
+        }
+
+        if ($actorRole === 3) {
+            if ((int) $target->role_id !== 4) {
+                return false;
+            }
+
+            $scopedClassId = $actor->scopedClassId();
+            if ($scopedClassId !== null && (int) $target->class_id !== $scopedClassId) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }

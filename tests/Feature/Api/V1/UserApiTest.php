@@ -247,4 +247,45 @@ class UserApiTest extends TestCase
         $resetRes = $this->apiAs($bk)->patchJson("/api/v1/users/{$guru->id}/reset-password");
         $resetRes->assertStatus(403);
     }
+
+    public function test_authorization_runs_before_validation_for_role_3_against_roles_1_to_3(): void
+    {
+        $bk = $this->makeUser(3);
+        $waka = $this->makeUser(1);
+        $guru = $this->makeUser(2);
+        $otherBk = $this->makeUser(3);
+
+        $validPayload = [
+            'fullname' => 'Updated Name',
+            'username' => 'updateduser',
+            'role_id'  => 4,
+            'class_id' => $this->makeClass('X PPLG 1')->id,
+        ];
+
+        foreach ([$waka, $guru, $otherBk] as $target) {
+            // PUT /users/{user} - empty body must be 403 (not 422 validation failure)
+            $this->apiAs($bk)->putJson("/api/v1/users/{$target->id}", [])
+                ->assertStatus(403);
+
+            // PUT /users/{user} - valid body must be 403
+            $this->apiAs($bk)->putJson("/api/v1/users/{$target->id}", $validPayload)
+                ->assertStatus(403);
+
+            // PATCH /users/{user}/reset-password - empty body must be 403
+            $this->apiAs($bk)->patchJson("/api/v1/users/{$target->id}/reset-password", [])
+                ->assertStatus(403);
+
+            // PATCH /users/{user}/reset-password - non-empty body must be 403
+            $this->apiAs($bk)->patchJson("/api/v1/users/{$target->id}/reset-password", ['dummy' => 'value'])
+                ->assertStatus(403);
+
+            // DELETE /users/{user} - empty body must be 403
+            $this->apiAs($bk)->deleteJson("/api/v1/users/{$target->id}", [])
+                ->assertStatus(403);
+
+            // DELETE /users/{user} - non-empty body must be 403
+            $this->apiAs($bk)->deleteJson("/api/v1/users/{$target->id}", ['reason' => 'test'])
+                ->assertStatus(403);
+        }
+    }
 }

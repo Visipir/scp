@@ -12,6 +12,14 @@ class ClassResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = $request->user();
+        if ($user && in_array((int) $user->role_id, [2, 4], true)) {
+            return [
+                'id'         => (int) $this->id,
+                'class_name' => $this->class_name,
+            ];
+        }
+
         return [
             'id'             => (int) $this->id,
             'class_name'     => $this->class_name,
