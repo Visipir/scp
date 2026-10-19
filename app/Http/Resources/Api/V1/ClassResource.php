@@ -13,11 +13,15 @@ class ClassResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => (int) $this->id,
-            'class_name'    => $this->class_name,
-            'academic_year' => $this->academic_year,
-            'grade_level'   => $this->grade_level,
-            'major'         => $this->major,
+            'id'             => (int) $this->id,
+            'class_name'     => $this->class_name,
+            'academic_year'  => $this->academic_year,
+            'grade_level'    => $this->grade_level,
+            'major'          => $this->major,
+            'students_count' => $this->when(
+                isset($this->students_count) || $this->relationLoaded('users'),
+                fn () => (int) ($this->students_count ?? $this->users_count ?? 0)
+            ),
         ];
     }
 }

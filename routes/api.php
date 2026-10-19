@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AttendanceController as V1AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController as V1AuthController;
+use App\Http\Controllers\Api\V1\ClassController as V1ClassController;
 use App\Http\Controllers\Api\V1\ConfigController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\JournalController as V1JournalController;
@@ -42,7 +43,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/auth/change-password', [V1AuthController::class, 'changePassword'])->name('auth.change-password');
 
         Route::get('/config', [ConfigController::class, 'index'])->name('config');
-        Route::get('/classes', [LookupController::class, 'classes'])->name('classes.index');
+        Route::get('/classes', [V1ClassController::class, 'index'])->name('classes.index');
         Route::get('/rooms', [LookupController::class, 'rooms'])->name('rooms.index');
         Route::get('/teachers', [LookupController::class, 'teachers'])->middleware('role:1')->name('teachers.index');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -77,6 +78,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');
 
         Route::middleware('role:1,3')->group(function () {
+            Route::post('/classes', [V1ClassController::class, 'store'])->name('classes.store');
+            Route::get('/classes/{class}', [V1ClassController::class, 'show'])->name('classes.show');
+            Route::put('/classes/{class}', [V1ClassController::class, 'update'])->name('classes.update');
+            Route::delete('/classes/{class}', [V1ClassController::class, 'destroy'])->name('classes.destroy');
+            Route::get('/classes/{class}/attendance', [V1ClassController::class, 'attendance'])->name('classes.attendance');
+            Route::get('/classes/{class}/export', [V1ClassController::class, 'export'])->name('classes.export');
+
             Route::get('/users', [V1UserController::class, 'index'])->name('users.index');
             Route::post('/users', [V1UserController::class, 'store'])->name('users.store');
             Route::get('/users/{user}', [V1UserController::class, 'show'])->name('users.show');
