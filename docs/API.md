@@ -240,16 +240,32 @@ Access:
 
 ## AI Assistant Chat (`/api/v1/chat/message`)
 
-Integrates Google Gemini AI Assistant with contextual school data awareness.
+Integrates Google Gemini AI Assistant with contextual school data awareness via server-side read-only tool calling.
+
+### Privacy & Data Minimization
+- **External Provider Transmission**: To answer questions regarding personal school data (e.g. absences, teaching schedules, unfilled journals), the server executes scoped read-only tools and sends the minimal school data (status counts, schedule slots, journal status, leave approval status, exam titles/dates) to Google Gemini.
+- **Strict PII Protection**: No passwords, usernames/NIS, email addresses, phone numbers, tokens, internal database IDs, or file paths are ever transmitted to the AI provider.
+- **Telemetry Logging**: Request bodies, user messages, tool arguments, tool results, and assistant replies are never logged. The application records only operational telemetry metrics (user ID, tool call rounds, latency in milliseconds, and status code).
 
 ### Security & Rate Limiting
+- **Identity Scope**: User identity is derived strictly from the Sanctum bearer token (`$request->user()`). Identity fields passed in request bodies or message prompts are completely ignored.
+- **Prompt Injection Defense**: User-written content (leave reasons, exam descriptions, journal notes) is enclosed within `[DATA: ...]` tags. Tools are strictly read-only and cannot mutate data.
 - **Throttling**: Dual-tier limiter per authenticated user:
   - Max **10 requests per minute**
   - Max **100 requests per day**
   - Exceeding limit returns `429 Too Many Requests` with Indonesian explanation.
-- **Input Validation**: Message max length **1,000 characters**; conversation history max **20 messages**.
-- **Credentials & Privacy**: Gemini API key is passed securely via `x-goog-api-key` header (never exposed in URL query parameters). Request/response bodies and user prompts are never logged.
-- **Timeout**: Strict 30-second timeout. Provider downtime or timeout returns `502 Bad Gateway` in uniform error envelope `{message, errors}`.
+- **Input Validation & Formatting**: User message max length **1,000 characters**; conversation history max **20 messages**; total timeout **45 seconds**; max **3 tool rounds** per message. Output is delivered in clean plain text with all markdown syntax stripped.
+- **Credentials**: Gemini API key is passed securely via `x-goog-api-key` header (never exposed in URL query parameters).
+
+### Server-Side Read-Only Tools
+1. `get_attendance_summary`: Monthly/all-time attendance counts and non-Hadir dates (Siswa & Ortu only).
+2. `get_schedule`: Daily schedule with cycle and holiday/ineffective day status (Guru, Siswa, Ortu, Waka, BK).
+3. `get_my_journal_status`: Journal completion and late alerts for teaching schedule (Guru only).
+4. `get_leave_requests`: Scoped leave requests with status and wrapped reasons (Siswa, Ortu, Wali Kelas, BK, Waka).
+5. `get_exams`: Published exams, materials, and question banks (scoped like API).
+6. `get_class_attendance_summary`: Monthly class attendance recap and Alpa student names (Waka & Tim Kesiswaan/Wali Kelas).
+7. `get_unfilled_journals_today`: School-wide unfilled journals for today (Waka only).
+8. `get_system_info`: Active cycle, schedule lock status, current time, user role/class.
 
 ### Endpoint
 ```bash

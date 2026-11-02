@@ -21,6 +21,7 @@ class ChatController extends Controller
     {
         try {
             $reply = $this->chatService->sendMessage(
+                $request->user(),
                 $request->input('message'),
                 $request->input('history', [])
             );
