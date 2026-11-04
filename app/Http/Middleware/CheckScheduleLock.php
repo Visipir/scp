@@ -13,8 +13,8 @@ class CheckScheduleLock
     {
         $config = SystemConfiguration::first();
 
-        if ($config && $config->is_schedule_locked && $request->user()?->role_id !== 1) {
-            if ($request->expectsJson()) {
+        if ($config && $config->is_schedule_locked) {
+            if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json(['message' => 'Jadwal sedang dikunci oleh Waka Kurikulum.', 'errors' => null], 403);
             }
 

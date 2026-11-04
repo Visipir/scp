@@ -134,17 +134,19 @@ class ScheduleApiTest extends TestCase
         ]))->assertStatus(201);
     }
 
-    public function test_lock_blocks_guru_but_allows_waka(): void
+    public function test_lock_blocks_guru_and_waka(): void
     {
         $this->makeConfig(['is_schedule_locked' => true]);
         $guru = $this->makeUser(2);
+        $waka = $this->makeUser(1);
 
         $this->apiAs($guru)->postJson('/api/v1/schedules', $this->payload())
             ->assertStatus(403)
             ->assertJson(['errors' => null]);
 
-        $this->apiAs($this->makeUser(1))->postJson('/api/v1/schedules', $this->payload())
-            ->assertStatus(201);
+        $this->apiAs($waka)->postJson('/api/v1/schedules', $this->payload())
+            ->assertStatus(403)
+            ->assertJson(['errors' => null]);
     }
 
     public function test_guru_cannot_update_others_schedule(): void

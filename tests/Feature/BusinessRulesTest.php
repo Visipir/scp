@@ -39,7 +39,7 @@ class BusinessRulesTest extends TestCase
         $this->assertSame('Putaran 1', $config->fresh()->active_cycle);
     }
 
-    public function test_schedule_lock_blocks_teacher_but_not_waka(): void
+    public function test_schedule_lock_blocks_teacher_and_waka(): void
     {
         $this->makeConfig(['is_schedule_locked' => true]);
         $teacher = $this->makeUser(2);
@@ -51,8 +51,11 @@ class BusinessRulesTest extends TestCase
         $this->actingAs($teacher)->put(route('schedules.update', $schedule), ['subject' => 'Uji'])->assertRedirect(route('schedules.index'));
         $this->actingAs($teacher)->delete(route('schedules.destroy', $schedule))->assertRedirect(route('schedules.index'));
 
-        // Waka Kurikulum bypasses the lock
-        $this->actingAs($waka)->get(route('schedules.create'))->assertOk();
+        // Waka Kurikulum is also blocked when schedule is locked
+        $this->actingAs($waka)->get(route('schedules.create'))->assertRedirect(route('schedules.index'));
+        $this->actingAs($waka)->get(route('schedules.edit', $schedule))->assertRedirect(route('schedules.index'));
+        $this->actingAs($waka)->put(route('schedules.update', $schedule), ['subject' => 'Uji'])->assertRedirect(route('schedules.index'));
+        $this->actingAs($waka)->delete(route('schedules.destroy', $schedule))->assertRedirect(route('schedules.index'));
     }
 
     public function test_journal_creation_syncs_class_attendance(): void
