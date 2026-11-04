@@ -232,4 +232,225 @@ class JournalApiTest extends TestCase
             'attendances' => [['student_id' => $student->id, 'status' => 'Bolos']],
         ])->assertStatus(422)->assertJsonStructure(['errors' => ['attendances.0.status']]);
     }
+
+    public function test_available_schedules_returns_today_schedules_including_finished_and_late(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        // 1. Ongoing schedule
+        $sched1 = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'start_time'  => '07:15',
+            'end_time'    => '09:45',
+            'subject'     => 'Bahasa Inggris',
+        ]);
+
+        // 2. Finished schedule (> 30 min late)
+        $sched2 = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'start_time'  => '10:00',
+            'end_time'    => '11:30',
+            'subject'     => 'Bahasa Indonesia',
+        ]);
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => ['schedule_id', 'subject', 'class', 'room', 'start_time', 'end_time', 'is_substitute', 'label'],
+            ],
+        ]);
+
+        $ids = collect($response->json('data'))->pluck('schedule_id')->all();
+        $this->assertContains($sched1->id, $ids);
+        $this->assertContains($sched2->id, $ids);
+    }
+
+    public function test_available_schedules_excludes_schedule_with_existing_journal(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        $sched1 = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Bahasa Inggris',
+        ]);
+        $sched2 = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Matematika',
+        ]);
+
+        // Create journal for sched1 on today
+        Journal::create([
+            'schedule_id'       => $sched1->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Materi Inggris',
+            'teacher_id'        => $guru->id,
+        ]);
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($sched2->id, $response->json('data.0.schedule_id'));
+    }
+
+    public function test_available_schedules_swapped_in_appears_and_swapped_out_disappears(): void
+    {
+        $guru1 = $this->makeUser(2);
+        $guru2 = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        $sched1 = $this->makeSchedule([
+            'teacher_id'  => $guru1->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Fisika',
+        ]);
+        $sched2 = $this->makeSchedule([
+            'teacher_id'  => $guru2->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Kimia',
+        ]);
+
+        \App\Models\ScheduleSwap::create([
+            'requester_id'          => $guru1->id,
+            'target_id'             => $guru2->id,
+            'requester_schedule_id' => $sched1->id,
+            'target_schedule_id'    => $sched2->id,
+            'cycle'                 => 'Putaran 1',
+            'swap_date'             => $today->toDateString(),
+            'status'                => 'approved',
+            'responded_at'          => now(),
+        ]);
+
+        // Guru 1 (original teacher of sched1) sees only swapped-in sched2 (Kimia)
+        $res1 = $this->apiAs($guru1)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $res1->assertOk();
+        $res1->assertJsonCount(1, 'data');
+        $this->assertEquals($sched2->id, $res1->json('data.0.schedule_id'));
+        $this->assertTrue($res1->json('data.0.is_substitute'));
+        $this->assertStringContainsString('(Pengganti)', $res1->json('data.0.label'));
+
+        // Guru 2 (substitute for sched1) sees swapped-in sched1 (Fisika)
+        $res2 = $this->apiAs($guru2)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $res2->assertOk();
+        $res2->assertJsonCount(1, 'data');
+        $this->assertEquals($sched1->id, $res2->json('data.0.schedule_id'));
+        $this->assertTrue($res2->json('data.0.is_substitute'));
+    }
+
+    public function test_available_schedules_works_while_schedule_is_locked(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        $sched = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Biologi',
+        ]);
+
+        \App\Models\SystemConfiguration::updateOrCreate([], ['is_schedule_locked' => true]);
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($sched->id, $response->json('data.0.schedule_id'));
+    }
+
+    public function test_available_schedules_weekday_mapping_for_sunday_and_monday(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+
+        $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => 'Senin',
+            'subject'     => 'Sejarah',
+        ]);
+
+        // Find last Monday and last Sunday
+        $lastMonday = \Carbon\Carbon::now('Asia/Jakarta')->previous(\Carbon\Carbon::MONDAY)->toDateString();
+        $lastSunday = \Carbon\Carbon::now('Asia/Jakarta')->previous(\Carbon\Carbon::SUNDAY)->toDateString();
+
+        // Monday returns the schedule
+        $resMon = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$lastMonday);
+        $resMon->assertOk();
+        $resMon->assertJsonCount(1, 'data');
+
+        // Sunday returns empty list (no KBM)
+        $resSun = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$lastSunday);
+        $resSun->assertOk();
+        $resSun->assertJsonCount(0, 'data');
+    }
+
+    public function test_available_schedules_rejects_future_dates(): void
+    {
+        $guru = $this->makeUser(2);
+        $tomorrow = \Carbon\Carbon::tomorrow('Asia/Jakarta')->toDateString();
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$tomorrow);
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', 'Tanggal tidak boleh di masa depan.');
+    }
+
+    public function test_another_teacher_cannot_journal_foreign_schedule(): void
+    {
+        $guru1 = $this->makeUser(2);
+        $guru2 = $this->makeUser(2);
+        $schedule = $this->makeSchedule(['teacher_id' => $guru1->id]);
+        $date = \Carbon\Carbon::today('Asia/Jakarta')->toDateString();
+
+        // Prepare forbidden
+        $this->apiAs($guru2)
+            ->getJson("/api/v1/journals/prepare?schedule_id={$schedule->id}&date={$date}")
+            ->assertStatus(403);
+
+        // Store forbidden
+        Storage::fake('local');
+        $this->apiAs($guru2)->post('/api/v1/journals', [
+            'schedule_id'       => $schedule->id,
+            'date'              => $date,
+            'topic_description' => 'Materi Ilegal',
+            'photo'             => UploadedFile::fake()->image('foto.jpg'),
+        ])->assertStatus(403);
+    }
 }

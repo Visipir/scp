@@ -33,20 +33,27 @@ class JournalController extends Controller
     public function create(Request $request): View
     {
         $user = $request->user();
-        $schedules = Schedule::with(['schoolClass', 'room'])
-            ->where('teacher_id', $user->id)
-            ->get();
-
-        $defaultDate = $request->query('date', \Carbon\Carbon::now()->format('Y-m-d'));
+        $defaultDate = $request->query('date', \Carbon\Carbon::today('Asia/Jakarta')->format('Y-m-d'));
         $swapService = app(\App\Services\ScheduleSwapService::class);
-        $effectiveSchedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $defaultDate);
-        if ($effectiveSchedules->isNotEmpty()) {
-            $schedules = $effectiveSchedules;
+        $schedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $defaultDate);
+
+        if ($schedules->isEmpty()) {
+            $schedules = Schedule::with(['schoolClass', 'room'])
+                ->where('teacher_id', $user->id)
+                ->get();
         }
 
-        $kbmSuspendedEvent = \App\Services\AcademicCalendarService::isKbmSuspendedToday(\Carbon\Carbon::today()->toDateString());
+        // Exclude schedules that already have a journal on defaultDate
+        $filledScheduleIds = Journal::whereDate('date', $defaultDate)
+            ->whereIn('schedule_id', $schedules->pluck('id'))
+            ->pluck('schedule_id')
+            ->toArray();
 
-        $now = \Carbon\Carbon::now();
+        $schedules = $schedules->reject(fn ($s) => in_array($s->id, $filledScheduleIds))->values();
+
+        $kbmSuspendedEvent = \App\Services\AcademicCalendarService::isKbmSuspendedToday(\Carbon\Carbon::today('Asia/Jakarta')->toDateString());
+
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
         $dayMap = [
             'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
             'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
@@ -64,7 +71,7 @@ class JournalController extends Controller
 
         // Default schedule: query parameter -> current ongoing -> next upcoming -> first today -> first overall
         $targetScheduleId = $request->query('schedule_id');
-        $defaultSchedule = ($targetScheduleId ? $schedules->firstWhere('id', $targetScheduleId) : null)
+        $defaultSchedule = ($targetScheduleId ? $schedules->firstWhere('id', (int) $targetScheduleId) : null)
             ?? $currentSchedule 
             ?? $todaySchedules->first(fn ($sched) => $sched->start_time >= $currentTime)
             ?? $todaySchedules->first()

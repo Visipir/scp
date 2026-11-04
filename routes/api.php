@@ -48,6 +48,8 @@ Route::middleware(['auth:sanctum', EnsureApiPasswordIsChanged::class])->group(fu
     Route::get('/notifications', [\App\Http\Controllers\Api\V1\NotificationController::class, 'index']);
     Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead']);
+
+    Route::middleware('role:2')->get('/journals/available-schedules', [V1JournalController::class, 'availableSchedules']);
 });
 
 // Versioned API for the native iOS client
@@ -92,6 +94,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
 
         Route::middleware('role:2')->group(function () {
+            Route::get('/journals/available-schedules', [V1JournalController::class, 'availableSchedules'])->name('journals.available-schedules');
             Route::get('/journals/prepare', [V1JournalController::class, 'prepare'])->name('journals.prepare');
             Route::post('/journals', [V1JournalController::class, 'store'])->name('journals.store');
             Route::put('/journals/{journal}/attendances', [V1JournalController::class, 'updateAttendances'])->name('journals.attendances.update');
