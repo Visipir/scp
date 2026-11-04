@@ -63,15 +63,22 @@ class ScheduleSwapController extends Controller
             'schedule_id' => ['required', 'integer'],
         ]);
 
-        $candidates = $this->swapService->getCandidates(
-            $request->user(),
-            (int) $request->input('schedule_id'),
-            (string) $request->input('date')
-        );
+        try {
+            $candidates = $this->swapService->getCandidates(
+                $request->user(),
+                (int) $request->input('schedule_id'),
+                (string) $request->input('date')
+            );
 
-        return response()->json([
-            'candidates' => $candidates,
-        ]);
+            return response()->json([
+                'candidates' => $candidates,
+            ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json([
+                'message'    => $e->getMessage(),
+                'candidates' => [],
+            ], $e->getStatusCode());
+        }
     }
 
     public function store(StoreScheduleSwapRequest $request): RedirectResponse

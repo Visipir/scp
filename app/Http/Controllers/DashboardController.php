@@ -27,6 +27,7 @@ class DashboardController extends Controller
         // Only Guru (role 2) gets the teacher dashboard with journal input form and late alerts
         if ($user->role_id === 2) {
             $swapService = app(ScheduleSwapService::class);
+            $swapService->autoExpirePendingSwaps();
             $pendingSwapCount = ScheduleSwap::where('target_id', $user->id)
                 ->where('status', 'pending')
                 ->where('swap_date', '>=', $today)

@@ -31,16 +31,6 @@
         }
     }">
 
-        @if($isScheduleLocked)
-            <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-3">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <div class="text-xs text-amber-900 dark:text-amber-200">
-                    <span class="font-bold">Jadwal Sedang Dikunci:</span> Guru tidak dapat mengajukan atau menyetujui pertukaran jadwal baru saat jadwal dalam status terkunci oleh Waka Kurikulum.
-                </div>
-            </div>
-        @endif
 
         {{-- Filter & Search Header --}}
         <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">

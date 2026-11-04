@@ -24,6 +24,7 @@
         selectedTargetScheduleId: '',
         loadingCandidates: false,
         candidateError: '',
+        isSubmitting: false,
         fetchCandidates() {
             if (!this.selectedDate || !this.selectedScheduleId) {
                 this.candidates = [];
@@ -33,13 +34,18 @@
             this.candidateError = '';
             this.selectedTeacherId = '';
             this.selectedTargetScheduleId = '';
-            fetch(`{{ route('schedule-swaps.candidates') }}?date=${this.selectedDate}&schedule_id=${this.selectedScheduleId}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Gagal memuat kandidat guru');
-                    return res.json();
+            fetch(`{{ route('schedule-swaps.candidates') }}?date=${this.selectedDate}&schedule_id=${this.selectedScheduleId}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Gagal memuat kandidat guru');
+                    }
+                    return data;
                 })
                 .then(data => {
-                    this.candidates = data.candidates || [];
+                    this.candidates = data.candidates || (data.data && data.data.candidates) || [];
                     this.loadingCandidates = false;
                 })
                 .catch(err => {
@@ -55,15 +61,13 @@
         @if(session('error'))
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>
         @endif
-
-        @if($isScheduleLocked)
-            <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-3">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <div class="text-xs text-amber-800 dark:text-amber-200">
-                    <strong class="font-semibold">Jadwal Sedang Dikunci:</strong> Waka Kurikulum sedang mengunci jadwal. Anda tidak dapat mengajukan atau menyetujui pertukaran jadwal saat ini.
-                </div>
+        @if($errors->any())
+            <div class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-700 dark:text-rose-300">
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -92,19 +96,17 @@
                 Permintaan Keluar / Riwayat
             </button>
 
-            @if(!$isScheduleLocked)
-                <button
-                    type="button"
-                    @click="activeTab = 'create'"
-                    :class="activeTab === 'create' ? 'bg-blue-600 text-white shadow-xs' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-blue-200 dark:border-blue-800'"
-                    class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition min-h-[44px] ml-auto inline-flex items-center gap-1.5"
-                >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>Ajukan Tukar Jadwal</span>
-                </button>
-            @endif
+            <button
+                type="button"
+                @click="activeTab = 'create'"
+                :class="activeTab === 'create' ? 'bg-blue-600 text-white shadow-xs' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-blue-200 dark:border-blue-800'"
+                class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition min-h-[44px] ml-auto inline-flex items-center gap-1.5"
+            >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Ajukan Tukar Jadwal</span>
+            </button>
         </div>
 
         {{-- TAB 1: INBOX (Permintaan Masuk) --}}
@@ -190,23 +192,25 @@
                                 </div>
                             @endif
 
-                            @if($swap->status === 'pending' && !$isScheduleLocked)
-                                <div class="flex items-center justify-end gap-3 pt-2">
-                                    <form method="POST" action="{{ route('schedule-swaps.reject', $swap) }}" onsubmit="return confirm('Tolak permintaan tukar jadwal ini?');">
+                            @if($swap->status === 'pending')
+                                <div class="flex items-center justify-end gap-3 pt-2" x-data="{ actionLoading: false }">
+                                    <form method="POST" action="{{ route('schedule-swaps.reject', $swap) }}" @submit="if(actionLoading) { $event.preventDefault(); return false; } if(!confirm('Tolak permintaan tukar jadwal ini?')) { $event.preventDefault(); return false; } actionLoading = true;">
                                         @csrf
                                         <button
                                             type="submit"
-                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition min-h-[44px]"
+                                            :disabled="actionLoading"
+                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 rounded-lg border border-rose-200 transition min-h-[44px]"
                                         >
                                             Tolak
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('schedule-swaps.approve', $swap) }}" onsubmit="return confirm('Setujui pertukaran jadwal ini? Anda akan mengajar kelas pemohon pada tanggal tersebut.');">
+                                    <form method="POST" action="{{ route('schedule-swaps.approve', $swap) }}" @submit="if(actionLoading) { $event.preventDefault(); return false; } if(!confirm('Setujui pertukaran jadwal ini? Anda akan mengajar kelas pemohon pada tanggal tersebut.')) { $event.preventDefault(); return false; } actionLoading = true;">
                                         @csrf
                                         <button
                                             type="submit"
-                                            class="px-5 py-2 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition min-h-[44px]"
+                                            :disabled="actionLoading"
+                                            class="px-5 py-2 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg shadow-xs transition min-h-[44px]"
                                         >
                                             Setujui Pertukaran
                                         </button>
@@ -298,11 +302,12 @@
 
                             @if($swap->status === 'pending')
                                 <div class="flex items-center justify-end pt-2">
-                                    <form method="POST" action="{{ route('schedule-swaps.cancel', $swap) }}" onsubmit="return confirm('Batalkan permintaan tukar jadwal ini?');">
+                                    <form method="POST" action="{{ route('schedule-swaps.cancel', $swap) }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } if(!confirm('Batalkan permintaan tukar jadwal ini?')) { $event.preventDefault(); return false; } isSubmitting = true;">
                                         @csrf
                                         <button
                                             type="submit"
-                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition min-h-[44px]"
+                                            :disabled="isSubmitting"
+                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 rounded-lg transition min-h-[44px]"
                                         >
                                             Batalkan Permintaan
                                         </button>
@@ -316,17 +321,16 @@
         </div>
 
         {{-- TAB 3: FORM AJUKAN PERTUKARAN --}}
-        @if(!$isScheduleLocked)
-            <div x-show="activeTab === 'create'" class="bg-white dark:bg-[#1C1C1E] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-xs">
-                <div class="border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-5">
-                    <h2 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Formulir Pengajuan Tukar Jadwal</h2>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                        Pilih tanggal dan jadwal Anda, lalu sistem akan mencari guru dan jadwal yang cocok untuk ditukar pada hari tersebut.
-                    </p>
-                </div>
+        <div x-show="activeTab === 'create'" class="bg-white dark:bg-[#1C1C1E] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-xs">
+            <div class="border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-5">
+                <h2 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Formulir Pengajuan Tukar Jadwal</h2>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    Pilih tanggal dan jadwal Anda, lalu sistem akan mencari guru dan jadwal yang cocok untuk ditukar pada hari tersebut.
+                </p>
+            </div>
 
-                <form method="POST" action="{{ route('schedule-swaps.store') }}" class="space-y-5">
-                    @csrf
+            <form method="POST" action="{{ route('schedule-swaps.store') }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;" class="space-y-5">
+                @csrf
 
                     {{-- Step 1: Tanggal Berlaku --}}
                     <div>
@@ -448,15 +452,15 @@
                         </button>
                         <button
                             type="submit"
-                            :disabled="!selectedTargetScheduleId"
+                            :disabled="!selectedTargetScheduleId || isSubmitting"
                             class="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-xs transition min-h-[44px]"
                         >
-                            Kirim Permintaan Tukar
+                            <span x-show="!isSubmitting">Kirim Permintaan Tukar</span>
+                            <span x-show="isSubmitting">Mengirim...</span>
                         </button>
                     </div>
                 </form>
             </div>
-        @endif
 
     </div>
 </x-app-layout>

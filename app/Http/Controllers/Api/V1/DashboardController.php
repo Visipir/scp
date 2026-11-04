@@ -38,6 +38,7 @@ class DashboardController extends Controller
         $activeCycle = $config?->active_cycle ?? 'Putaran 1';
 
         $swapService = app(\App\Services\ScheduleSwapService::class);
+        $swapService->autoExpirePendingSwaps();
         $schedules = collect();
         if ($day !== null) {
             $schedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $today, $activeCycle);
