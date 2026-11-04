@@ -14,19 +14,26 @@ class PasswordResetService
     ) {}
 
     /**
-     * Generate 6-digit code and send email if user exists.
-     * Always returns generic response to prevent email enumeration.
+     * Generate 6-digit code and send email if user exists and has a verified email.
+     * Accepts either an email or login ID (username/NIS).
+     * Always returns generic response to prevent account enumeration.
      */
-    public function requestResetCode(string $email): array
+    public function requestResetCode(string $identifier): array
     {
-        $normalizedEmail = strtolower(trim($email));
-        $user = User::where('email', $normalizedEmail)->first();
+        $trimmed = trim($identifier);
+        $normalized = strtolower($trimmed);
 
-        if ($user) {
+        // Find user by email or username
+        $user = User::where('email', $normalized)
+            ->orWhere('username', $trimmed)
+            ->first();
+
+        if ($user && ! empty($user->email) && $user->email_verified_at !== null) {
+            $userEmail = strtolower(trim($user->email));
             $code = sprintf('%06d', random_int(100000, 999999));
 
             PasswordResetCode::updateOrCreate(
-                ['email' => $normalizedEmail],
+                ['email' => $userEmail],
                 [
                     'code_hash'  => Hash::make($code),
                     'attempts'   => 0,
@@ -34,24 +41,32 @@ class PasswordResetService
                 ]
             );
 
-            $this->mailConfig->sendPasswordResetCode($normalizedEmail, $code);
+            $this->mailConfig->sendPasswordResetCode($userEmail, $code);
         }
 
         return [
             'success' => true,
-            'message' => 'Jika email terdaftar, kode verifikasi 6 digit telah dikirimkan ke email Anda.',
+            'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
         ];
     }
 
     /**
      * Verify code and update password.
+     * Accepts email or login ID (username/NIS) for the account.
      *
      * @throws ValidationException
      */
-    public function verifyAndReset(string $email, string $code, string $newPassword): array
+    public function verifyAndReset(string $identifier, string $code, string $newPassword): array
     {
-        $normalizedEmail = strtolower(trim($email));
-        $record = PasswordResetCode::where('email', $normalizedEmail)->first();
+        $trimmed = trim($identifier);
+        $normalized = strtolower($trimmed);
+
+        $user = User::where('email', $normalized)
+            ->orWhere('username', $trimmed)
+            ->first();
+
+        $targetEmail = $user?->email ? strtolower(trim($user->email)) : $normalized;
+        $record = PasswordResetCode::where('email', $targetEmail)->first();
 
         if (! $record || $record->isExpired()) {
             throw ValidationException::withMessages([
@@ -74,10 +89,9 @@ class PasswordResetService
             ]);
         }
 
-        $user = User::where('email', $normalizedEmail)->first();
         if (! $user) {
             throw ValidationException::withMessages([
-                'email' => ['Pengguna dengan email tersebut tidak ditemukan.'],
+                'identifier' => ['Pengguna tidak ditemukan.'],
             ]);
         }
 

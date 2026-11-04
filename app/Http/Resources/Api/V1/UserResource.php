@@ -17,6 +17,8 @@ class UserResource extends JsonResource
             'username'             => $this->username,
             'fullname'             => $this->fullname,
             'email'                => $this->email,
+            'email_verified_at'    => $this->email_verified_at?->toIso8601String(),
+            'is_email_verified'    => $this->isEmailVerified(),
             'role_id'              => (int) $this->role_id,
             'role'                 => $this->whenLoaded('role', fn () => $this->role?->role_name),
             'class_id'             => $this->class_id !== null ? (int) $this->class_id : null,

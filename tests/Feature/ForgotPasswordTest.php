@@ -31,19 +31,44 @@ class ForgotPasswordTest extends TestCase
 
         $response->assertOk()
             ->assertJson([
-                'message' => 'Jika email terdaftar, kode verifikasi 6 digit telah dikirimkan ke email Anda.',
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
             ]);
 
         Mail::assertNothingSent();
         Mail::assertNothingQueued();
     }
 
-    public function test_forgot_password_sends_email_and_stores_hash_for_registered_user(): void
+    public function test_forgot_password_does_not_send_email_if_email_is_unverified(): void
     {
         Mail::fake();
 
         $user = $this->makeUser(2, [
-            'email' => 'guru.test@example.com',
+            'email'             => 'unverified@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->postJson('/api/forgot-password', [
+            'email' => 'unverified@example.com',
+        ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
+            ]);
+
+        Mail::assertNothingSent();
+        $this->assertDatabaseMissing('password_reset_codes', [
+            'email' => 'unverified@example.com',
+        ]);
+    }
+
+    public function test_forgot_password_sends_email_for_verified_user_by_email(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUser(2, [
+            'email'             => 'guru.test@example.com',
+            'email_verified_at' => now(),
         ]);
 
         $response = $this->postJson('/api/forgot-password', [
@@ -52,7 +77,7 @@ class ForgotPasswordTest extends TestCase
 
         $response->assertOk()
             ->assertJson([
-                'message' => 'Jika email terdaftar, kode verifikasi 6 digit telah dikirimkan ke email Anda.',
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
             ]);
 
         $this->assertDatabaseHas('password_reset_codes', [
@@ -65,11 +90,59 @@ class ForgotPasswordTest extends TestCase
         $this->assertTrue($record->expires_at->isFuture());
     }
 
+    public function test_forgot_password_accepts_username_or_nis_identifier(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUser(4, [
+            'username'          => '12345678',
+            'email'             => 'siswa.nis@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/forgot-password', [
+            'identifier' => '12345678',
+        ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
+            ]);
+
+        $this->assertDatabaseHas('password_reset_codes', [
+            'email' => 'siswa.nis@example.com',
+        ]);
+    }
+
+    public function test_forgot_password_is_rate_limited_to_5_per_hour(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUser(2, [
+            'email'             => 'throttled@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        for ($i = 0; $i < 5; $i++) {
+            $res = $this->postJson('/api/forgot-password', [
+                'identifier' => 'throttled@example.com',
+            ]);
+            $res->assertOk();
+        }
+
+        // 6th attempt should be blocked with 429
+        $blocked = $this->postJson('/api/forgot-password', [
+            'identifier' => 'throttled@example.com',
+        ]);
+        $blocked->assertStatus(429);
+    }
+
     public function test_reset_password_fails_with_invalid_code(): void
     {
         $user = $this->makeUser(2, [
-            'email' => 'guru.reset@example.com',
-            'password' => Hash::make('old***REMOVED***'),
+            'email'             => 'guru.reset@example.com',
+            'email_verified_at' => now(),
+            'password'          => Hash::make('old***REMOVED***'),
         ]);
 
         PasswordResetCode::create([
@@ -96,7 +169,8 @@ class ForgotPasswordTest extends TestCase
     public function test_reset_password_locks_out_after_max_attempts(): void
     {
         $user = $this->makeUser(2, [
-            'email' => 'guru.locked@example.com',
+            'email'             => 'guru.locked@example.com',
+            'email_verified_at' => now(),
         ]);
 
         $record = PasswordResetCode::create([
@@ -130,7 +204,8 @@ class ForgotPasswordTest extends TestCase
     public function test_reset_password_fails_if_expired(): void
     {
         $user = $this->makeUser(2, [
-            'email' => 'guru.expired@example.com',
+            'email'             => 'guru.expired@example.com',
+            'email_verified_at' => now(),
         ]);
 
         PasswordResetCode::create([
@@ -154,8 +229,10 @@ class ForgotPasswordTest extends TestCase
     public function test_reset_password_success_revokes_tokens_and_updates_password(): void
     {
         $user = $this->makeUser(2, [
-            'email'    => 'guru.success@example.com',
-            'password' => Hash::make('old***REMOVED***'),
+            'username'          => 'guru_success',
+            'email'             => 'guru.success@example.com',
+            'email_verified_at' => now(),
+            'password'          => Hash::make('old***REMOVED***'),
         ]);
 
         // Create Sanctum personal access token
@@ -169,8 +246,9 @@ class ForgotPasswordTest extends TestCase
             'expires_at' => now()->addMinutes(15),
         ]);
 
+        // Can reset using username identifier instead of raw email
         $response = $this->postJson('/api/reset-password', [
-            'email'                 => 'guru.success@example.com',
+            'identifier'            => 'guru_success',
             'code'                  => '654321',
             'password'              => '***REMOVED***',
             'password_confirmation' => '***REMOVED***',
@@ -198,15 +276,18 @@ class ForgotPasswordTest extends TestCase
         Mail::fake();
 
         $user = $this->makeUser(2, [
-            'email'    => 'web.user@example.com',
-            'password' => Hash::make('old***REMOVED***'),
+            'username'          => 'web_teacher',
+            'email'             => 'web.user@example.com',
+            'email_verified_at' => now(),
+            'password'          => Hash::make('old***REMOVED***'),
         ]);
 
-        // Step 1: Request code
+        // Step 1: Request code using username
         $postResponse = $this->post('/forgot-password', [
-            'email' => 'web.user@example.com',
+            'identifier' => 'web_teacher',
         ]);
-        $postResponse->assertRedirect('/reset-password?email=web.user%40example.com');
+        $postResponse->assertRedirect();
+        $this->assertStringContainsString('/reset-password', $postResponse->headers->get('Location'));
 
         // Manually retrieve code hash to test reset
         $record = PasswordResetCode::where('email', 'web.user@example.com')->first();
@@ -217,7 +298,7 @@ class ForgotPasswordTest extends TestCase
 
         // Step 2: Submit code & new password
         $resetResponse = $this->post('/reset-password', [
-            'email'                 => 'web.user@example.com',
+            'identifier'            => 'web_teacher',
             'code'                  => '112233',
             'password'              => '***REMOVED***',
             'password_confirmation' => '***REMOVED***',
@@ -225,5 +306,13 @@ class ForgotPasswordTest extends TestCase
 
         $resetResponse->assertRedirect('/login');
         $this->assertTrue(Hash::check('***REMOVED***', $user->fresh()->password));
+    }
+
+    public function test_login_page_renders_forgot_password_link(): void
+    {
+        $response = $this->get('/login');
+        $response->assertOk()
+            ->assertSee('Lupa password?')
+            ->assertSee(route('password.request'));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\EmailVerificationCodeMail;
 use App\Mail\PasswordResetCodeMail;
 use App\Mail\TestMail;
 use App\Models\SystemConfiguration;
@@ -95,6 +96,26 @@ class MailConfigService
         } catch (Throwable $e) {
             // Log safely without password
             Log::error('Failed to send password reset email: ' . $e->getMessage(), [
+                'email' => $email,
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Send 6-digit verification code to confirm ownership of an email address.
+     */
+    public function sendEmailVerificationCode(string $email, string $code): bool
+    {
+        $this->applyRuntimeConfig();
+
+        try {
+            Mail::to($email)->send(new EmailVerificationCodeMail($code));
+
+            return true;
+        } catch (Throwable $e) {
+            Log::warning('Failed to send email verification code: ' . $e->getMessage(), [
                 'email' => $email,
             ]);
 

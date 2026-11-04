@@ -41,9 +41,9 @@ class SystemEmailController extends Controller
     {
         $user = $request->user();
 
-        if (empty($user->email)) {
+        if (empty($user->email) || empty($user->email_verified_at)) {
             return ApiResponse::message(
-                'Akun Anda belum memiliki alamat email terdaftar untuk menerima email tes.',
+                'Akun Anda belum memiliki alamat email yang terverifikasi untuk menerima email tes. Silakan verifikasi email di menu Profil terlebih dahulu.',
                 422
             );
         }

@@ -47,9 +47,9 @@ class SystemEmailController extends Controller
     {
         $user = $request->user();
 
-        if (empty($user->email)) {
+        if (empty($user->email) || empty($user->email_verified_at)) {
             return redirect()->route('system-configuration.email')
-                ->with('error', 'Gagal mengirim email tes: Akun Anda (' . $user->username . ') belum memiliki alamat email. Silakan isi email di menu Profil terlebih dahulu.');
+                ->with('error', 'Gagal mengirim email tes: Akun Anda (' . $user->username . ') belum memiliki alamat email yang terverifikasi. Silakan tambahkan dan verifikasi email di menu Profil terlebih dahulu.');
         }
 
         try {

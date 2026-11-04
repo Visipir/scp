@@ -67,6 +67,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/auth/logout', [V1AuthController::class, 'logout'])->name('auth.logout');
         Route::get('/auth/me', [V1AuthController::class, 'me'])->name('auth.me');
         Route::patch('/auth/profile', [V1AuthController::class, 'updateProfile'])->name('auth.profile');
+        Route::post('/auth/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'requestChange'])->name('auth.email.request');
+        Route::post('/auth/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify'])->name('auth.email.verify');
+        Route::delete('/auth/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'remove'])->name('auth.email.remove');
+        Route::post('/profile/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'requestChange']);
+        Route::post('/profile/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify']);
+        Route::delete('/profile/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'remove']);
         Route::post('/auth/change-password', [V1AuthController::class, 'changePassword'])->name('auth.change-password');
 
         Route::get('/config', [ConfigController::class, 'index'])->name('config');

@@ -3,10 +3,10 @@
         ? \App\Models\LeaveRequest::where('status_approval', 'Menunggu')->count() 
         : 0;
     
-    $navActive = 'bg-[#3A3A3F] text-white font-medium rounded-lg';
-    $navInactive = 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A] rounded-lg';
-    $iconActive = 'text-white';
-    $iconInactive = 'text-[#97979B]';
+    $navActive = 'bg-sky-50 text-[#0093dd] dark:bg-[#3A3A3F] dark:text-white font-medium rounded-lg border border-sky-100 dark:border-transparent';
+    $navInactive = 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A] rounded-lg border border-transparent';
+    $iconActive = 'text-[#0093dd] dark:text-white';
+    $iconInactive = 'text-zinc-400 group-hover:text-zinc-600 dark:text-[#97979B] dark:group-hover:text-[#EDEDF0]';
 @endphp
 
 <!-- Navigation Groups -->
@@ -14,7 +14,7 @@
 
     <!-- ================= GROUP 1: MAIN (Semua Role) ================= -->
     <div>
-        <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+        <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
             MAIN
         </div>
         <div class="space-y-1">
@@ -34,7 +34,7 @@
     @if(Auth::user()->role_id === 1)
         <!-- Sub-group 1: AKADEMIK -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 AKADEMIK
             </div>
             <div class="space-y-1">
@@ -75,7 +75,7 @@
 
         <!-- Sub-group 2: KESISWAAN -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 KESISWAAN
             </div>
             <div class="space-y-1">
@@ -123,7 +123,7 @@
 
         <!-- Sub-group 3: PENGATURAN -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 PENGATURAN
             </div>
             <div class="space-y-1">
@@ -152,12 +152,23 @@
                 <!-- Pengaturan Sistem -->
                 <a 
                     href="{{ route('waka.settings') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('system-configuration.*') || request()->routeIs('waka.*') ? $navActive : $navInactive }}"
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('waka.*') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*')) ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('system-configuration.*') || request()->routeIs('waka.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.*') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*')) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                     </svg>
-                    <span>Pengaturan Sistem</span>
+                    <span>Pengaturan Kurikulum</span>
+                </a>
+
+                <!-- Pengaturan Email -->
+                <a 
+                    href="{{ route('system-configuration.email') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('system-configuration.email*') ? $navActive : $navInactive }}"
+                >
+                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('system-configuration.email*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>Pengaturan Email</span>
                 </a>
             </div>
         </div>
@@ -167,7 +178,7 @@
     @if(Auth::user()->role_id === 2)
         <!-- Sub-group 1: AKADEMIK -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 AKADEMIK
             </div>
             <div class="space-y-1">
@@ -202,7 +213,7 @@
 
         <!-- Sub-group 2: JADWAL -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 JADWAL
             </div>
             <div class="space-y-1">
@@ -246,7 +257,7 @@
     @if(Auth::user()->role_id === 3)
         <!-- Sub-group 1: KESISWAAN -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 KESISWAAN
             </div>
             <div class="space-y-1">
@@ -283,7 +294,7 @@
 
         <!-- Sub-group 2: AKADEMIK -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 AKADEMIK
             </div>
             <div class="space-y-1">
@@ -349,7 +360,7 @@
     @if(Auth::user()->role_id === 4)
         <!-- Sub-group 1: PORTAL SISWA -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 PORTAL SISWA
             </div>
             <div class="space-y-1">
@@ -395,7 +406,7 @@
 
         <!-- Sub-group 2: AKADEMIK -->
         <div>
-            <div class="px-3 mb-2 text-[10px] font-bold text-[#5B5B61] uppercase tracking-widest font-mono">
+            <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
                 AKADEMIK
             </div>
             <div class="space-y-1">

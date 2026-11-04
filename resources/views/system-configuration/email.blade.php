@@ -8,7 +8,7 @@
                 </h1>
             </div>
             <div>
-                <a href="{{ route('system-configuration.edit') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 transition">
+                <a href="{{ route('waka.settings') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 transition">
                     &larr; Kembali ke Pengaturan Sistem
                 </a>
             </div>
@@ -185,16 +185,24 @@
             <div>
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Uji Coba Pengiriman Email</h3>
                 <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-0.5">
-                    Kirim email tes menggunakan konfigurasi di atas ke alamat email akun Anda saat ini: 
-                    <strong class="text-zinc-800 dark:text-zinc-200">{{ auth()->user()->email ?: '(Email belum diisi pada profil Anda)' }}</strong>
+                    Kirim email tes menggunakan konfigurasi di atas ke alamat email akun Anda: 
+                    @if(empty(auth()->user()->email))
+                        <span class="text-rose-500 font-semibold">(Email belum diisi pada profil Anda)</span>
+                    @elseif(empty(auth()->user()->email_verified_at))
+                        <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ auth()->user()->email }}</span>
+                        <span class="text-amber-500 font-semibold">(Belum diverifikasi di profil)</span>
+                    @else
+                        <strong class="font-mono text-zinc-800 dark:text-zinc-200">{{ auth()->user()->email }}</strong>
+                        <span class="text-emerald-600 font-semibold">(Terverifikasi)</span>
+                    @endif
                 </p>
             </div>
             <form method="POST" action="{{ route('system-configuration.email.test') }}" class="shrink-0">
                 @csrf
                 <button
                     type="submit"
-                    class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
-                    {{ empty(auth()->user()->email) ? 'disabled title="Harap isi email di profil terlebih dahulu"' : '' }}
+                    class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    {{ (empty(auth()->user()->email) || empty(auth()->user()->email_verified_at)) ? 'disabled title="Harap verifikasi email di profil terlebih dahulu"' : '' }}
                 >
                     Kirim Email Tes
                 </button>

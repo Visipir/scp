@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Sistem Konfigurasi</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Sistem Konfigurasi</div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Pengaturan Kurikulum &amp; Jadwal
                 </h1>
             </div>
             <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-100 text-zinc-800 border border-zinc-200 text-xs font-mono font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Waka Kurikulum
+                <span class="inline-flex items-center px-2.5 py-1 rounded bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30] text-xs font-mono font-semibold">
+                    Waka Kurikulum
                 </span>
             </div>
         </div>
@@ -261,7 +261,38 @@
                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md uppercase tracking-wider transition shrink-0 shadow-none"
             >
                 <span>Buka Menu Jadwal</span>
-                <span class="font-mono">&rarr;</span>
+            </a>
+        </div>
+
+        {{-- EMAIL CONFIGURATION CARD & NOTICE --}}
+        <div class="bg-white border border-zinc-200/80 rounded-lg p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div class="space-y-1 max-w-xl">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        Pengaturan Email (SMTP Server)
+                    </h3>
+                    @if(!empty($config->mail_host))
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                            Terkonfigurasi
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">
+                            Email belum dikonfigurasi
+                        </span>
+                    @endif
+                </div>
+                <p class="text-xs text-zinc-500 leading-relaxed">
+                    Atur host SMTP, port, enkripsi, dan kredensial pengirim untuk reset password mandiri dan verifikasi akun pengguna.
+                </p>
+            </div>
+            <a 
+                href="{{ route('system-configuration.email') }}" 
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md uppercase tracking-wider transition shrink-0 shadow-none"
+            >
+                <span>Kelola Email SMTP</span>
             </a>
         </div>
 

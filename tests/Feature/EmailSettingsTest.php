@@ -126,7 +126,10 @@ class EmailSettingsTest extends TestCase
     {
         Mail::fake();
 
-        $waka = $this->makeUser(1, ['email' => 'waka.test@sekolah.sch.id']);
+        $waka = $this->makeUser(1, [
+            'email'             => 'waka.test@sekolah.sch.id',
+            'email_verified_at' => now(),
+        ]);
         $this->makeConfig([
             'mail_host'         => 'smtp.test.com',
             'mail_port'         => 587,
@@ -146,5 +149,23 @@ class EmailSettingsTest extends TestCase
         Mail::assertSent(\App\Mail\TestMail::class, function ($mail) {
             return $mail->hasTo('waka.test@sekolah.sch.id');
         });
+    }
+
+    public function test_waka_without_verified_email_cannot_send_test_email(): void
+    {
+        Mail::fake();
+
+        $wakaUnverified = $this->makeUser(1, [
+            'email'             => 'waka.unverified@sekolah.sch.id',
+            'email_verified_at' => null,
+        ]);
+        $this->makeConfig([
+            'mail_host' => 'smtp.test.com',
+        ]);
+
+        $response = $this->apiAs($wakaUnverified)->postJson('/api/v1/system/email-settings/test');
+        $response->assertStatus(422);
+
+        Mail::assertNothingSent();
     }
 }

@@ -16,14 +16,16 @@ class ForgotPasswordController extends Controller
 
     public function forgotPassword(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'email'      => ['required_without:identifier', 'nullable', 'string'],
+            'identifier' => ['required_without:email', 'nullable', 'string'],
         ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email'    => 'Format email tidak valid.',
+            'email.required_without'      => 'Email atau Nama Pengguna / NIS wajib diisi.',
+            'identifier.required_without' => 'Email atau Nama Pengguna / NIS wajib diisi.',
         ]);
 
-        $result = $this->resetService->requestResetCode($validated['email']);
+        $identifier = (string) ($request->input('identifier') ?: $request->input('email'));
+        $result = $this->resetService->requestResetCode($identifier);
 
         return ApiResponse::message($result['message']);
     }
@@ -31,21 +33,24 @@ class ForgotPasswordController extends Controller
     public function resetPassword(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email'    => ['required', 'email'],
-            'code'     => ['required', 'string', 'size:6'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'email'      => ['required_without:identifier', 'nullable', 'string'],
+            'identifier' => ['required_without:email', 'nullable', 'string'],
+            'code'       => ['required', 'string', 'size:6'],
+            'password'   => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'email.required'     => 'Email wajib diisi.',
-            'email.email'        => 'Format email tidak valid.',
-            'code.required'      => 'Kode verifikasi 6 digit wajib diisi.',
-            'code.size'          => 'Kode verifikasi harus berupa 6 digit angka.',
-            'password.required'  => 'Kata sandi baru wajib diisi.',
-            'password.min'       => 'Kata sandi minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'email.required_without'      => 'Email atau Nama Pengguna / NIS wajib diisi.',
+            'identifier.required_without' => 'Email atau Nama Pengguna / NIS wajib diisi.',
+            'code.required'               => 'Kode verifikasi 6 digit wajib diisi.',
+            'code.size'                   => 'Kode verifikasi harus berupa 6 digit angka.',
+            'password.required'           => 'Kata sandi baru wajib diisi.',
+            'password.min'                => 'Kata sandi minimal 8 karakter.',
+            'password.confirmed'          => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
+        $identifier = (string) ($request->input('identifier') ?: $request->input('email'));
+
         $result = $this->resetService->verifyAndReset(
-            $validated['email'],
+            $identifier,
             $validated['code'],
             $validated['password']
         );

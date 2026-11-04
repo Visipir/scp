@@ -4,13 +4,13 @@
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-9 h-9 object-contain shrink-0">
-                <div class="font-black text-2xl tracking-tight text-white flex items-center">
-                    <span>SCP</span><span class="text-[#0093dd]">.</span>
+                <div class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">
+                    School Class Progress
                 </div>
             </div>
         </div>
-        <h2 class="text-lg font-bold tracking-tight text-[#EDEDF0]">Masuk ke Akun</h2>
-        <p class="text-xs text-[#97979B] mt-1">Silakan masukkan username dan kata sandi Anda</p>
+        <h2 class="text-lg font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0]">Masuk ke Akun</h2>
+        <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-1">Silakan masukkan username dan kata sandi Anda</p>
     </div>
 
     <!-- Session Status -->
@@ -49,17 +49,26 @@
             <x-input-error :messages="$errors->get('password')" class="mt-1.5" />
         </div>
 
-        <!-- Remember Me -->
+        <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between pt-1">
             <label for="remember_me" class="inline-flex items-center cursor-pointer">
                 <input 
                     id="remember_me" 
                     type="checkbox" 
-                    class="rounded border-[#2B2B30] bg-[#19191C] text-[#0093dd] shadow-none focus:ring-[#0093dd] focus:ring-offset-2 focus:ring-offset-[#19191C] cursor-pointer" 
+                    class="rounded border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-[#0093dd] shadow-none focus:ring-[#0093dd] focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#19191C] cursor-pointer" 
                     name="remember"
                 >
-                <span class="ms-2 text-xs text-[#97979B] hover:text-[#EDEDF0] select-none">Ingat Saya</span>
+                <span class="ms-2 text-xs text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] select-none">Ingat Saya</span>
             </label>
+
+            @if (Route::has('password.request'))
+                <a 
+                    href="{{ route('password.request') }}" 
+                    class="text-xs font-medium text-[#0093dd] hover:underline hover:text-[#007bbd] transition-colors"
+                >
+                    Lupa password?
+                </a>
+            @endif
         </div>
 
         <div class="pt-2">

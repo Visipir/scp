@@ -93,7 +93,17 @@
                                 {{ $user->fullname }}
                             </td>
                             <td class="px-5 py-3.5 font-mono text-zinc-500">
-                                {{ $user->username }}
+                                <div>{{ $user->username }}</div>
+                                @if($user->email)
+                                    <div class="text-[10px] text-zinc-400 flex items-center gap-1 mt-0.5">
+                                        <span>{{ $user->email }}</span>
+                                        @if($user->email_verified_at)
+                                            <span class="inline-flex items-center text-emerald-600 font-semibold" title="Email terverifikasi">✓</span>
+                                        @else
+                                            <span class="inline-flex items-center text-amber-500 font-normal" title="Belum diverifikasi">(belum verif)</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-5 py-3.5">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider 

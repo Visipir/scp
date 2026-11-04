@@ -124,6 +124,16 @@ class UserService
             $data['class_id'] = null;
         }
 
+        // Reset verification status if email is changed or cleared by manager
+        if (array_key_exists('email', $data)) {
+            $normalizedNew = $data['email'] ? strtolower(trim($data['email'])) : null;
+            $normalizedOld = $target->email ? strtolower(trim($target->email)) : null;
+            if ($normalizedNew !== $normalizedOld) {
+                $data['email'] = $normalizedNew;
+                $data['email_verified_at'] = null;
+            }
+        }
+
         $target->update($data);
 
         return $target->fresh(['role', 'schoolClass']);

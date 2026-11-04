@@ -50,10 +50,10 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
-        // Forgot password: 5 requests per hour per email + IP
+        // Forgot password: 5 requests per hour per identifier/email + IP
         RateLimiter::for('forgot-password', function (Request $request) {
-            $email = strtolower(trim((string) $request->input('email')));
-            $key = Str::transliterate($email) . '|' . $request->ip();
+            $identifier = strtolower(trim((string) ($request->input('identifier') ?: $request->input('email'))));
+            $key = Str::transliterate($identifier) . '|' . $request->ip();
 
             return Limit::perHour(5)->by($key)->response(function () {
                 return response()->json([

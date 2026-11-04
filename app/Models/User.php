@@ -18,6 +18,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function isEmailVerified(): bool
+    {
+        return !empty($this->email) && $this->email_verified_at !== null;
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');

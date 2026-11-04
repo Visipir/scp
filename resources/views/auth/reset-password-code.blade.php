@@ -12,11 +12,11 @@
     <form method="POST" action="{{ route('password.reset.update') }}" class="space-y-4">
         @csrf
 
-        <!-- Email Address -->
+        <!-- Identifier (Email or Username) -->
         <div>
-            <x-input-label for="email" :value="__('Alamat Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $email)" required />
-            <x-input-error :messages="$errors->get('email')" class="mt-1" />
+            <x-input-label for="identifier" value="Email atau Nama Pengguna / NIS" />
+            <x-text-input id="identifier" class="block mt-1 w-full" type="text" name="identifier" :value="old('identifier', $identifier ?? ($email ?? ''))" required />
+            <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-1" />
         </div>
 
         <!-- 6-digit Code -->

@@ -2,7 +2,7 @@
     <div class="mb-4">
         <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">Lupa Kata Sandi?</h2>
         <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-            Masukkan alamat email yang terdaftar pada akun Anda. Kami akan mengirimkan kode verifikasi 6 digit untuk mengatur ulang kata sandi.
+            Masukkan alamat email terdaftar atau Nama Pengguna / NIS akun Anda. Jika akun memiliki email terverifikasi, kami akan mengirimkan kode verifikasi 6 digit untuk mengatur ulang kata sandi.
         </p>
     </div>
 
@@ -17,11 +17,11 @@
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <!-- Email Address -->
+        <!-- Email or Username/NIS -->
         <div>
-            <x-input-label for="email" :value="__('Alamat Email Terdaftar')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" placeholder="nama@sekolah.sch.id" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-input-label for="identifier" value="Email atau Nama Pengguna / NIS" />
+            <x-text-input id="identifier" class="block mt-1 w-full" type="text" name="identifier" :value="old('identifier', old('email'))" placeholder="nama@sekolah.sch.id atau NIS/Username" required autofocus />
+            <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-between mt-6">
