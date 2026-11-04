@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'id'                   => (int) $this->id,
             'username'             => $this->username,
             'fullname'             => $this->fullname,
+            'email'                => $this->email,
             'role_id'              => (int) $this->role_id,
             'role'                 => $this->whenLoaded('role', fn () => $this->role?->role_name),
             'class_id'             => $this->class_id !== null ? (int) $this->class_id : null,

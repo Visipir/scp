@@ -37,6 +37,13 @@ class JournalController extends Controller
             ->where('teacher_id', $user->id)
             ->get();
 
+        $defaultDate = $request->query('date', \Carbon\Carbon::now()->format('Y-m-d'));
+        $swapService = app(\App\Services\ScheduleSwapService::class);
+        $effectiveSchedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $defaultDate);
+        if ($effectiveSchedules->isNotEmpty()) {
+            $schedules = $effectiveSchedules;
+        }
+
         $kbmSuspendedEvent = \App\Services\AcademicCalendarService::isKbmSuspendedToday(\Carbon\Carbon::today()->toDateString());
 
         $now = \Carbon\Carbon::now();
@@ -78,14 +85,16 @@ class JournalController extends Controller
     public function store(StoreJournalRequest $request, JournalService $journals): RedirectResponse
     {
         $validated = $request->validated();
-
-        // Verify teacher owns this schedule
         $schedule = Schedule::findOrFail($validated['schedule_id']);
-        if ($schedule->teacher_id !== $request->user()->id) {
-            abort(403, 'Anda tidak memiliki akses ke jadwal ini.');
+        $date = $validated['date'];
+
+        $swapService = app(\App\Services\ScheduleSwapService::class);
+        $check = $swapService->canTeacherFillJournal($request->user()->id, $schedule->id, $date);
+        if (! $check['allowed']) {
+            abort(403, 'Anda bukan guru pengajar efektif untuk jadwal ini pada tanggal tersebut.');
         }
 
-        $journals->create($schedule, $validated, $request->file('photo'));
+        $journals->create($schedule, $validated, $request->file('photo'), $request->user()->id, $check['swap_id']);
 
         return redirect()->route('journals.index')
             ->with('success', 'Jurnal berhasil dibuat dan presensi otomatis telah diisi.');
@@ -96,8 +105,10 @@ class JournalController extends Controller
         $journal->load(['schedule.schoolClass', 'schedule.room', 'attendances.student']);
         $user = $request->user();
 
-        // Guru (role 2) only sees their own journals. Waka (role 1) and BK (role 3) can monitor all
-        if ($user->role_id === 2 && $journal->schedule->teacher_id !== $user->id) {
+        // Guru (role 2) only sees their own journals (master teacher or effective substitute teacher)
+        if ($user->role_id === 2 
+            && (int) $journal->schedule->teacher_id !== (int) $user->id 
+            && (int) $journal->teacher_id !== (int) $user->id) {
             abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
         }
 

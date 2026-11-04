@@ -49,5 +49,18 @@ class AppServiceProvider extends ServiceProvider
                 }),
             ];
         });
+
+        // Forgot password: 5 requests per hour per email + IP
+        RateLimiter::for('forgot-password', function (Request $request) {
+            $email = strtolower(trim((string) $request->input('email')));
+            $key = Str::transliterate($email) . '|' . $request->ip();
+
+            return Limit::perHour(5)->by($key)->response(function () {
+                return response()->json([
+                    'message' => 'Terlalu banyak permintaan reset kata sandi. Silakan coba lagi dalam 1 jam.',
+                    'errors'  => null,
+                ], 429);
+            });
+        });
     }
 }

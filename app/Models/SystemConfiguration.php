@@ -38,4 +38,14 @@ class SystemConfiguration extends Model
         if (strlen($key) <= 10) return str_repeat('*', strlen($key));
         return substr($key, 0, 6) . '...' . substr($key, -4);
     }
+
+    public function getMaskedMailPasswordAttribute(): ?string
+    {
+        return !empty($this->mail_password) ? '••••••' : null;
+    }
+
+    public function hasCustomMailConfig(): bool
+    {
+        return !empty($this->mail_host);
+    }
 }

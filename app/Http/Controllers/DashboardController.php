@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemConfiguration;
+use App\Models\ScheduleSwap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Services\AcademicCalendarService;
 use App\Services\DashboardService;
+use App\Services\ScheduleSwapService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -24,15 +26,31 @@ class DashboardController extends Controller
 
         // Only Guru (role 2) gets the teacher dashboard with journal input form and late alerts
         if ($user->role_id === 2) {
+            $swapService = app(ScheduleSwapService::class);
+            $pendingSwapCount = ScheduleSwap::where('target_id', $user->id)
+                ->where('status', 'pending')
+                ->where('swap_date', '>=', $today)
+                ->count();
+
             // If today KBM is suspended, no journal is required (suppress late alerts)
             if (!$kbmSuspendedEvent) {
                 $alerts = $dashboards->unfilledJournalAlerts($user->id, $config);
                 $journalLateAlert = !empty($alerts);
             }
 
-            $schedules = Schedule::with(['schoolClass', 'room'])
+            // Effective schedules for today taking approved swaps into account
+            $effectiveToday = $swapService->getEffectiveSchedulesForTeacher($user->id, $today, $config?->active_cycle);
+
+            $masterSchedules = Schedule::with(['schoolClass', 'room'])
                 ->where('teacher_id', $user->id)
                 ->get();
+
+            $schedules = $masterSchedules;
+            foreach ($effectiveToday as $eff) {
+                if (($eff->is_substitute ?? false) && !$schedules->contains('id', $eff->id)) {
+                    $schedules->push($eff);
+                }
+            }
 
             $now = Carbon::now();
             $dayMap = [
@@ -42,7 +60,7 @@ class DashboardController extends Controller
             $todayName = $dayMap[$now->format('l')] ?? 'Senin';
             $currentTime = $now->format('H:i:s');
 
-            $todaySchedules = $schedules->where('day_of_week', $todayName);
+            $todaySchedules = $effectiveToday->isNotEmpty() ? $effectiveToday : $schedules->where('day_of_week', $todayName);
             $currentSchedule = $todaySchedules->first(function ($sched) use ($currentTime) {
                 return $sched->start_time <= $currentTime && $sched->end_time >= $currentTime;
             });
@@ -65,7 +83,7 @@ class DashboardController extends Controller
 
             return view('teacher.dashboard', compact(
                 'user', 'config', 'alerts', 'journalLateAlert', 'schedules', 'kbmSuspendedEvent',
-                'defaultSchedule', 'defaultDate', 'studentsByClass'
+                'defaultSchedule', 'defaultDate', 'studentsByClass', 'pendingSwapCount'
             ));
         }
 

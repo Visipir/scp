@@ -37,14 +37,10 @@ class DashboardController extends Controller
         $day = $dashboards->indonesianDay($today);
         $activeCycle = $config?->active_cycle ?? 'Putaran 1';
 
+        $swapService = app(\App\Services\ScheduleSwapService::class);
         $schedules = collect();
         if ($day !== null) {
-            $schedules = Schedule::with(['schoolClass', 'room'])
-                ->where('teacher_id', $user->id)
-                ->where('day_of_week', $day)
-                ->where('cycle_type', $activeCycle)
-                ->orderBy('start_time')
-                ->get();
+            $schedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $today, $activeCycle);
         }
 
         $filled = Journal::whereDate('date', $today->toDateString())
@@ -53,16 +49,34 @@ class DashboardController extends Controller
             ->flip();
 
         $todaySchedules = $schedules->map(function (Schedule $schedule) use ($filled) {
-            return (new ScheduleResource($schedule))->resolve() + ['journal_filled' => $filled->has($schedule->id)];
+            $item = (new ScheduleResource($schedule))->resolve() + ['journal_filled' => $filled->has($schedule->id)];
+            if (!empty($schedule->is_swapped)) {
+                $item['is_swapped'] = true;
+                $item['partner_teacher'] = $schedule->partner_teacher?->fullname;
+                $item['swap_id'] = $schedule->swap_id;
+            }
+            return $item;
         })->values()->all();
 
         $alerts = collect($dashboards->unfilledJournalAlerts($user->id, $config))
             ->map(fn (Schedule $schedule) => (new ScheduleResource($schedule))->resolve())
             ->values()->all();
 
+        $pendingSwaps = \App\Models\ScheduleSwap::with(['requester', 'requesterSchedule.schoolClass', 'targetSchedule.schoolClass'])
+            ->where('target_id', $user->id)
+            ->where('status', 'pending')
+            ->whereDate('swap_date', '>=', \Carbon\Carbon::today())
+            ->get();
+
+        $unreadNotifications = \App\Models\Notification::where('user_id', $user->id)
+            ->whereNull('read_at')
+            ->count();
+
         return ApiResponse::data([
-            'today_schedules'     => $todaySchedules,
-            'late_journal_alerts' => $alerts,
+            'today_schedules'        => $todaySchedules,
+            'late_journal_alerts'    => $alerts,
+            'pending_swap_requests'  => $pendingSwaps,
+            'unread_notifications'   => $unreadNotifications,
         ]);
     }
 

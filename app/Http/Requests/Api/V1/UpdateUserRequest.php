@@ -48,6 +48,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'fullname'          => ['required', 'string', 'max:255'],
             'username'          => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($userId)],
+            'email'             => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'role_id'           => ['required', 'integer', 'in:1,2,3,4'],
             'class_id'          => ['nullable', 'required_if:role_id,4', 'exists:classes,id'],
             'gender'            => ['nullable', 'string', 'in:L,P'],

@@ -15,7 +15,8 @@ class AttendanceController extends Controller
      */
     public function edit(Request $request, Journal $journal): View
     {
-        if ($journal->schedule->teacher_id !== $request->user()?->id) {
+        $userId = (int) $request->user()?->id;
+        if ((int) $journal->schedule->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
             abort(403);
         }
 
@@ -29,7 +30,8 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, Journal $journal, AttendanceService $attendance): RedirectResponse
     {
-        if ($journal->schedule->teacher_id !== $request->user()->id) {
+        $userId = (int) $request->user()->id;
+        if ((int) $journal->schedule->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
             abort(403);
         }
 

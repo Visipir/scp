@@ -12,7 +12,17 @@
             </div>
             <div class="flex items-center gap-2">
                 @if(auth()->user()->role_id === 1)
+                    <a href="{{ route('schedule-swaps.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer border border-zinc-200 dark:border-zinc-700">
+                        <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+                        Monitoring Tukar Jadwal
+                    </a>
                     <x-ai-importer-modal type="Jadwal Pelajaran" title="Impor Jadwal (PDF AI)" />
+                @endif
+                @if(auth()->user()->role_id === 2)
+                    <a href="{{ route('schedule-swaps.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer border border-zinc-200 dark:border-zinc-700">
+                        <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+                        Tukar Jadwal
+                    </a>
                 @endif
                 @if($config && !$config->is_schedule_locked && auth()->user()->role_id === 2)
                     <a href="{{ route('schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none shrink-0 cursor-pointer">
@@ -285,8 +295,8 @@
                                             :disabled="isUploading"
                                             @click="if (!fileName) { $refs.pdfInput.click(); }"
                                         >
-                                            <svg x-show="!isUploading" class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+                                            <svg x-show="!isUploading" class="w-4 h-4 text-[#0093dd]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                             </svg>
                                             <svg x-show="isUploading" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -319,7 +329,7 @@
                     JP
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Total Beban</div>
+                    <div class="text-[10px] font-mono font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Total Beban</div>
                     <div class="text-base sm:text-lg font-bold text-zinc-900 font-mono tracking-tight mt-0.5">
                         {{ $totalJp }} <span class="text-xs font-normal text-zinc-500 font-sans">JP / pekan</span>
                     </div>
@@ -333,7 +343,7 @@
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Total Sesi KBM</div>
+                    <div class="text-[10px] font-mono font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Total Sesi KBM</div>
                     <div class="text-base sm:text-lg font-bold text-zinc-900 font-mono tracking-tight mt-0.5">
                         {{ $totalSessions }} <span class="text-xs font-normal text-zinc-500 font-sans">jadwal</span>
                     </div>
@@ -347,7 +357,7 @@
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Kelas Terhubung</div>
+                    <div class="text-[10px] font-mono font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Kelas Terhubung</div>
                     <div class="text-base sm:text-lg font-bold text-zinc-900 font-mono tracking-tight mt-0.5">
                         {{ $totalClasses }} <span class="text-xs font-normal text-zinc-500 font-sans">rombel</span>
                     </div>
@@ -361,7 +371,7 @@
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Hari Aktif Mengajar</div>
+                    <div class="text-[10px] font-mono font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Hari Aktif Mengajar</div>
                     <div class="text-base sm:text-lg font-bold text-zinc-900 font-mono tracking-tight mt-0.5">
                         {{ $activeDays }} <span class="text-xs font-normal text-zinc-500 font-sans">hari / pekan</span>
                     </div>
@@ -375,11 +385,11 @@
                 {{-- Siklus Putaran & Filter Waka --}}
                 <div class="flex flex-wrap items-center gap-2.5">
                     {{-- Cycle Switcher (Segmented Control) --}}
-                    <div class="inline-flex rounded-lg border border-[#2B2B30] p-0.5 bg-[#19191C] text-xs font-semibold">
+                    <div class="inline-flex rounded-lg border border-zinc-200 dark:border-[#2B2B30] p-0.5 bg-zinc-100 dark:bg-[#19191C] text-xs font-semibold">
                         @foreach(['Putaran 1', 'Putaran 2'] as $cycle)
                             <a 
                                 href="{{ route('schedules.index', array_merge(request()->query(), ['cycle' => $cycle])) }}" 
-                                class="h-7 px-3.5 rounded-md transition cursor-pointer flex items-center justify-center {{ $cycleFilter === $cycle ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]' }}"
+                                class="h-7 px-3.5 rounded-md transition cursor-pointer flex items-center justify-center {{ $cycleFilter === $cycle ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                             >
                                 {{ $cycle }}
                             </a>
@@ -391,7 +401,7 @@
                         <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2">
                             <input type="hidden" name="cycle" value="{{ $cycleFilter }}">
 
-                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                            <select name="teacher_id" onchange="this.form.submit()" class="rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                 <option value="">-- Semua Guru ({{ $teachers->count() }}) --</option>
                                 @foreach($teachers as $t)
                                     <option value="{{ $t->id }}" @selected(request('teacher_id') == $t->id)>
@@ -400,7 +410,7 @@
                                 @endforeach
                             </select>
 
-                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border border-[#2B2B30] bg-[#19191C] py-1.5 px-3 text-xs text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                            <select name="class_id" onchange="this.form.submit()" class="rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                 <option value="">-- Semua Kelas ({{ $classes->count() }}) --</option>
                                 @foreach($classes as $c)
                                     <option value="{{ $c->id }}" @selected(request('class_id') == $c->id)>
@@ -421,11 +431,11 @@
                 {{-- View Mode Toggle & Aturan Jam --}}
                 <div class="flex items-center gap-2">
                     {{-- Switcher List vs Grid --}}
-                    <div class="inline-flex rounded-lg border border-[#2B2B30] p-0.5 bg-[#19191C] text-xs font-semibold">
+                    <div class="inline-flex rounded-lg border border-zinc-200 dark:border-[#2B2B30] p-0.5 bg-zinc-100 dark:bg-[#19191C] text-xs font-semibold">
                         <button 
                             type="button" 
                             @click="viewMode = 'list'"
-                            :class="viewMode === 'list' ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]'"
+                            :class="viewMode === 'list' ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
                             class="h-7 px-3 rounded-md flex items-center gap-1.5 transition cursor-pointer"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
@@ -434,7 +444,7 @@
                         <button 
                             type="button" 
                             @click="viewMode = 'grid'"
-                            :class="viewMode === 'grid' ? 'bg-[#3A3A3F] text-white shadow-none font-semibold' : 'text-[#97979B] hover:text-[#EDEDF0] hover:bg-[#26262A]'"
+                            :class="viewMode === 'grid' ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
                             class="h-7 px-3 rounded-md flex items-center gap-1.5 transition cursor-pointer"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
@@ -446,8 +456,8 @@
                     <button 
                         type="button"
                         @click="showMatrix = !showMatrix"
-                        class="h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium border border-[#2B2B30] rounded-lg transition cursor-pointer"
-                        :class="showMatrix ? 'bg-[#3A3A3F] text-white shadow-none' : 'bg-transparent text-[#EDEDF0] hover:bg-[#26262A]'"
+                        class="h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium border border-zinc-200 dark:border-[#2B2B30] rounded-lg transition cursor-pointer"
+                        :class="showMatrix ? 'bg-[#0093dd] text-white shadow-xs' : 'bg-white dark:bg-transparent text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -458,16 +468,16 @@
             </div>
 
             {{-- Day Pills Tab Selector --}}
-            <div class="pt-3 border-t border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <div class="pt-3 border-t border-zinc-200 dark:border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs">
                 <button 
                     type="button" 
                     @click="activeDay = 'all'"
-                    :class="activeDay === 'all' ? 'bg-[#3A3A3F] text-white font-semibold' : 'bg-[#232327] hover:bg-[#26262A] text-[#97979B] hover:text-[#EDEDF0] font-medium border border-[#2B2B30]'"
+                    :class="activeDay === 'all' ? 'bg-[#0093dd] text-white font-semibold shadow-xs' : 'bg-white dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
                     class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5"
                 >
                     <span>Semua Hari</span>
                     <span 
-                        :class="activeDay === 'all' ? 'bg-white/20 text-white' : 'bg-[#2B2B30] text-[#97979B]'"
+                        :class="activeDay === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-100 text-zinc-700 dark:bg-[#2B2B30] dark:text-[#97979B]'"
                         class="text-[10px] font-mono px-1.5 py-0.5 rounded leading-none"
                     >
                         {{ $schedules->count() }}
@@ -482,18 +492,18 @@
                     <button 
                         type="button" 
                         @click="activeDay = '{{ $day }}'"
-                        :class="activeDay === '{{ $day }}' ? 'bg-[#3A3A3F] text-white font-semibold' : 'bg-[#232327] hover:bg-[#26262A] text-[#97979B] hover:text-[#EDEDF0] font-medium border border-[#2B2B30]'"
+                        :class="activeDay === '{{ $day }}' ? 'bg-[#0093dd] text-white font-semibold shadow-xs' : 'bg-white dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
                         class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5"
                     >
                         <span>{{ $day }}</span>
                         <span 
-                            :class="activeDay === '{{ $day }}' ? 'bg-white/20 text-white' : 'bg-[#2B2B30] text-[#97979B]'"
+                            :class="activeDay === '{{ $day }}' ? 'bg-white/20 text-white' : 'bg-zinc-100 text-zinc-700 dark:bg-[#2B2B30] dark:text-[#97979B]'"
                             class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded leading-none"
                         >
                             {{ $jpDay }} JP
                         </span>
                         @if($isToday)
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Hari Ini"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Hari Ini"></span>
                         @endif
                     </button>
                 @endforeach
@@ -719,7 +729,7 @@
                                             @if($canManageSchedule)
                                                 <a 
                                                     href="{{ route('schedules.edit', $schedule) }}" 
-                                                    class="h-8 inline-flex items-center px-3 bg-white border border-zinc-200 hover:bg-[#26262A] text-zinc-700 text-xs font-semibold rounded-lg transition shrink-0"
+                                                    class="h-8 inline-flex items-center px-3 bg-white border border-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 text-xs font-semibold rounded-lg transition shrink-0"
                                                 >
                                                     Edit
                                                 </a>
@@ -769,7 +779,7 @@
                                 <button 
                                     type="button" 
                                     @click="activeDay = 'all'" 
-                                    class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-[#26262A] rounded-lg transition cursor-pointer"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:hover:bg-[#26262A] rounded-lg transition cursor-pointer"
                                 >
                                     <span>Tampilkan Semua Hari</span>
                                     <span class="font-mono text-[10px] text-zinc-500">({{ $schedules->count() }} Sesi)</span>
@@ -837,14 +847,14 @@
                                                     href="{{ route('journals.create', ['schedule_id' => $schedule->id]) }}" 
                                                     class="block text-center py-1.5 bg-zinc-900 hover:bg-black text-white text-[10px] font-semibold rounded-md transition shadow-none"
                                                 >
-                                                    Isi Jurnal &rarr;
+                                                    Isi Jurnal
                                                 </a>
                                             </div>
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="py-10 text-center text-xs font-mono text-zinc-400">
-                                        Tidak ada jadwal
+                                    <div class="py-10 text-center text-xs text-zinc-500 dark:text-[#97979B]">
+                                        Tidak ada alokasi jadwal pelajaran pada hari ini.
                                     </div>
                                 @endforelse
                             </div>

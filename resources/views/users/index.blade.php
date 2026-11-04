@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Master Data</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Master Data</div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Manajemen Pengguna
                 </h1>
             </div>
             <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-100 text-zinc-800 border border-zinc-200 text-xs font-mono font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Akses: Waka &amp; BK
+                <span class="inline-flex items-center px-2.5 py-1 rounded bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30] text-xs font-mono font-semibold">
+                    Akses: Waka &amp; BK
                 </span>
             </div>
         </div>
@@ -18,7 +18,7 @@
     <div class="space-y-6" x-data="{ 
         addModalOpen: false, 
         editModalOpen: false, 
-        editUser: { id: null, fullname: '', username: '', role_id: '', class_id: '' }
+        editUser: { id: null, fullname: '', username: '', email: '', role_id: '', class_id: '' }
     }">
 
         {{-- Alerts --}}
@@ -118,7 +118,7 @@
                                 <div class="inline-flex items-center gap-3">
                                     <button 
                                         type="button" 
-                                        @click="editUser = { id: {{ $user->id }}, fullname: '{{ addslashes($user->fullname) }}', username: '{{ addslashes($user->username) }}', role_id: '{{ $user->role_id }}', class_id: '{{ $user->class_id ?? '' }}' }; editModalOpen = true"
+                                        @click="editUser = { id: {{ $user->id }}, fullname: '{{ addslashes($user->fullname) }}', username: '{{ addslashes($user->username) }}', email: '{{ addslashes($user->email ?? '') }}', role_id: '{{ $user->role_id }}', class_id: '{{ $user->class_id ?? '' }}' }; editModalOpen = true"
                                         class="text-zinc-900 hover:underline font-semibold"
                                     >
                                         Edit
@@ -193,6 +193,10 @@
                             <x-text-input id="add_username" name="username" type="text" required />
                         </div>
                         <div>
+                            <x-input-label for="add_email" value="Alamat Email (Opsional)" />
+                            <x-text-input id="add_email" name="email" type="email" placeholder="nama@sekolah.sch.id" />
+                        </div>
+                        <div>
                             <x-input-label for="add_password" value="Password Awal" />
                             <x-text-input id="add_password" name="password" type="password" required />
                         </div>
@@ -258,6 +262,10 @@
                         <div>
                             <x-input-label for="edit_username" value="Username (Unik)" />
                             <x-text-input id="edit_username" name="username" type="text" x-model="editUser.username" required />
+                        </div>
+                        <div>
+                            <x-input-label for="edit_email" value="Alamat Email (Opsional)" />
+                            <x-text-input id="edit_email" name="email" type="email" x-model="editUser.email" placeholder="nama@sekolah.sch.id" />
                         </div>
                         <div>
                             <x-input-label for="edit_role_id" value="Peran (Role)" />

@@ -30,6 +30,9 @@ Route::middleware(['auth', 'role:1'])->group(function () {
         Route::get('/', [SystemConfigurationController::class, 'edit'])->name('edit');
         Route::patch('/toggle-cycle', [SystemConfigurationController::class, 'toggleCycle'])->name('toggle-cycle');
         Route::patch('/toggle-lock', [SystemConfigurationController::class, 'toggleLock'])->name('toggle-lock');
+        Route::get('/email', [\App\Http\Controllers\SystemEmailController::class, 'edit'])->name('email');
+        Route::post('/email', [\App\Http\Controllers\SystemEmailController::class, 'update'])->name('email.update');
+        Route::post('/email/test', [\App\Http\Controllers\SystemEmailController::class, 'sendTest'])->name('email.test');
     });
 
     Route::prefix('waka')->name('waka.')->group(function () {
@@ -118,6 +121,20 @@ Route::middleware(["auth", "role:1,2,3"])->group(function () {
     Route::post("/room-schedules", [\App\Http\Controllers\RoomScheduleController::class, "store"])->name("room-schedules.store");
     Route::delete("/room-schedules/{roomSchedule}", [\App\Http\Controllers\RoomScheduleController::class, "destroy"])->name("room-schedules.destroy");
     Route::post("/room-schedules/import", [\App\Http\Controllers\RoomScheduleController::class, "import"])->name("room-schedules.import");
+});
+
+Route::middleware(['auth', 'role:1,2'])->prefix('schedule-swaps')->name('schedule-swaps.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ScheduleSwapController::class, 'index'])->name('index');
+    Route::get('/candidates', [\App\Http\Controllers\ScheduleSwapController::class, 'candidates'])->name('candidates');
+    Route::post('/', [\App\Http\Controllers\ScheduleSwapController::class, 'store'])->name('store');
+    Route::post('/{scheduleSwap}/approve', [\App\Http\Controllers\ScheduleSwapController::class, 'approve'])->name('approve');
+    Route::post('/{scheduleSwap}/reject', [\App\Http\Controllers\ScheduleSwapController::class, 'reject'])->name('reject');
+    Route::post('/{scheduleSwap}/cancel', [\App\Http\Controllers\ScheduleSwapController::class, 'cancel'])->name('cancel');
+});
+
+Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
+    Route::post('/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('read-all');
 });
 
 require __DIR__.'/auth.php';

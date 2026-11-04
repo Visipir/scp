@@ -22,6 +22,11 @@ class Journal extends Model
         return $this->belongsTo(Schedule::class, 'schedule_id');
     }
 
+    public function swap()
+    {
+        return $this->belongsTo(ScheduleSwap::class, 'swap_id');
+    }
+
     public function attendances()
     {
         return $this->hasMany(Attendance::class, 'journal_id');

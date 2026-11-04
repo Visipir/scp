@@ -16,6 +16,7 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'fullname' => ['required', 'string', 'max:255'],
+            'email'    => ['nullable', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($this->user()?->id)],
         ];
     }
 }

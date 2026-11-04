@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Sistem Konfigurasi</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Sistem Konfigurasi</div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Pengaturan Sistem
                 </h1>
             </div>
@@ -87,6 +87,25 @@
                         {{ ($config->is_schedule_locked ?? false) ? 'Jadwal Terkunci' : 'Kunci Jadwal' }}
                     </button>
                 </form>
+            </div>
+
+            {{-- Email Configuration Link --}}
+            <div class="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div class="space-y-1">
+                    <label class="text-sm font-bold text-zinc-900 tracking-tight block">
+                        Pengaturan Email (SMTP)
+                    </label>
+                    <p class="text-xs text-zinc-500 max-w-sm leading-relaxed">
+                        Konfigurasi server SMTP untuk pengiriman reset password dan email tes.
+                    </p>
+                </div>
+
+                <a
+                    href="{{ route('system-configuration.email') }}"
+                    class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 text-center shrink-0"
+                >
+                    Buka Pengaturan Email &rarr;
+                </a>
             </div>
         </div>
 

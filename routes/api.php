@@ -29,10 +29,25 @@ use Illuminate\Support\Facades\Route;
 
 // Legacy endpoints (kept unchanged for existing clients)
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'forgotPassword'])->middleware('throttle:forgot-password');
+Route::post('/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::middleware(['auth:sanctum', EnsureApiPasswordIsChanged::class])->group(function () {
+    Route::get('/schedule-swaps', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'index']);
+    Route::get('/schedule-swaps/candidates', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'candidates']);
+    Route::post('/schedule-swaps', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'store']);
+    Route::post('/schedule-swaps/{scheduleSwap}/approve', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'approve']);
+    Route::post('/schedule-swaps/{scheduleSwap}/reject', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'reject']);
+    Route::post('/schedule-swaps/{scheduleSwap}/cancel', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'cancel']);
+
+    Route::get('/notifications', [\App\Http\Controllers\Api\V1\NotificationController::class, 'index']);
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead']);
 });
 
 // Versioned API for the native iOS client
@@ -40,6 +55,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('/auth/login', [V1AuthController::class, 'login'])
         ->middleware('throttle:api-login')
         ->name('auth.login');
+    Route::post('/auth/forgot-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'forgotPassword'])
+        ->middleware('throttle:forgot-password')
+        ->name('auth.forgot-password');
+    Route::post('/auth/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword'])
+        ->name('auth.reset-password');
 
     Route::middleware(['auth:sanctum', EnsureApiPasswordIsChanged::class])->group(function () {
         Route::post('/auth/logout', [V1AuthController::class, 'logout'])->name('auth.logout');
@@ -125,6 +145,22 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::patch('/system/cycle', [SystemController::class, 'cycle'])->name('system.cycle');
             Route::patch('/system/lock', [SystemController::class, 'lock'])->name('system.lock');
             Route::get('/system/unfilled-journals', [SystemController::class, 'unfilledJournals'])->name('system.unfilled-journals');
+            Route::get('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'show'])->name('system.email-settings.show');
+            Route::post('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'update'])->name('system.email-settings.update');
+            Route::post('/system/email-settings/test', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'sendTest'])->name('system.email-settings.test');
         });
+
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Api\V1\NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
+        // Schedule Swaps
+        Route::get('/schedule-swaps', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'index'])->name('schedule-swaps.index');
+        Route::get('/schedule-swaps/candidates', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'candidates'])->name('schedule-swaps.candidates');
+        Route::post('/schedule-swaps', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'store'])->name('schedule-swaps.store');
+        Route::post('/schedule-swaps/{scheduleSwap}/approve', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'approve'])->name('schedule-swaps.approve');
+        Route::post('/schedule-swaps/{scheduleSwap}/reject', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'reject'])->name('schedule-swaps.reject');
+        Route::post('/schedule-swaps/{scheduleSwap}/cancel', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'cancel'])->name('schedule-swaps.cancel');
     });
 });

@@ -37,9 +37,8 @@ class JournalController extends Controller
     public function prepare(PrepareJournalRequest $request, JournalService $journals): JsonResponse
     {
         $schedule = Schedule::findOrFail($request->input('schedule_id'));
-        $this->authorizeOwner($request, $schedule);
-
         $date = (string) $request->input('date');
+        $this->authorizeOwner($request, $schedule, $date);
 
         return ApiResponse::data([
             'schedule' => (new ScheduleResource($schedule->load(['schoolClass', 'room'])))->resolve(),
@@ -53,9 +52,10 @@ class JournalController extends Controller
         $validated = $request->validated();
 
         $schedule = Schedule::findOrFail($validated['schedule_id']);
-        $this->authorizeOwner($request, $schedule);
+        $date = (string) $validated['date'];
+        $swapId = $this->authorizeOwner($request, $schedule, $date);
 
-        $journal = $journals->create($schedule, $validated, $request->file('photo'));
+        $journal = $journals->create($schedule, $validated, $request->file('photo'), $request->user()->id, $swapId);
         $journal->load(['schedule.schoolClass'])->loadCount(self::countSelects());
 
         return ApiResponse::item(new JournalResource($journal), 201);
@@ -89,7 +89,8 @@ class JournalController extends Controller
     {
         $journal->loadMissing('schedule');
 
-        if ((int) $journal->schedule?->teacher_id !== (int) $request->user()->id) {
+        $userId = (int) $request->user()->id;
+        if ((int) $journal->schedule?->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -100,11 +101,17 @@ class JournalController extends Controller
         return ApiResponse::item(new JournalDetailResource($journal));
     }
 
-    private function authorizeOwner(Request $request, Schedule $schedule): void
+    private function authorizeOwner(Request $request, Schedule $schedule, ?string $date = null): ?int
     {
-        if ((int) $schedule->teacher_id !== (int) $request->user()->id) {
-            abort(403, 'Anda tidak memiliki akses ke jadwal ini.');
+        $checkDate = $date ?? now()->toDateString();
+        $swapService = app(\App\Services\ScheduleSwapService::class);
+        $check = $swapService->canTeacherFillJournal($request->user()->id, $schedule->id, $checkDate);
+
+        if (! $check['allowed']) {
+            abort(403, 'Anda bukan guru pengajar efektif untuk jadwal ini pada tanggal tersebut.');
         }
+
+        return $check['swap_id'];
     }
 
     /**

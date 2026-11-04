@@ -402,8 +402,14 @@ class AiChatbotTools
 
             $query->where('class_id', $classId);
         } elseif ($roleId === 2) {
-            // Guru: own schedule
-            $query->where('teacher_id', $user->id);
+            // Guru: effective schedule for date
+            if ($dateForCheck !== null) {
+                $swapService = app(ScheduleSwapService::class);
+                $effective = $swapService->getEffectiveSchedulesForTeacher($user->id, $dateForCheck, $targetCycle);
+                $schedules = $effective;
+            } else {
+                $query->where('teacher_id', $user->id);
+            }
         } elseif ($roleId === 1) {
             // Waka: can filter by teacher or class
             if (!empty($args['teacher'])) {
@@ -538,12 +544,8 @@ class AiChatbotTools
         $config = SystemConfiguration::first();
         $activeCycle = $config?->active_cycle ?? 'Putaran 1';
 
-        $schedules = Schedule::with(['schoolClass', 'room'])
-            ->where('teacher_id', $user->id)
-            ->where('day_of_week', $dayName)
-            ->where('cycle_type', $activeCycle)
-            ->orderBy('start_time')
-            ->get();
+        $swapService = app(ScheduleSwapService::class);
+        $schedules = $swapService->getEffectiveSchedulesForTeacher($user->id, $targetDate, $activeCycle);
 
         if ($schedules->isEmpty()) {
             return [

@@ -6,11 +6,20 @@ use App\Models\Attendance;
 use App\Models\Journal;
 use App\Models\Schedule;
 use App\Models\SystemConfiguration;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class DashboardService
 {
+    public function __construct(
+        private readonly ?ScheduleSwapService $swapService = null
+    ) {}
+
+    private function getSwapService(): ScheduleSwapService
+    {
+        return $this->swapService ?? app(ScheduleSwapService::class);
+    }
     /**
      * Schedules whose journal is still missing after end_time + 30 minutes today.
      * Shared by the web teacher dashboard and the API.
@@ -38,11 +47,7 @@ class DashboardService
 
         $activeCycle = $config?->active_cycle ?? 'Putaran 1';
 
-        $schedules = Schedule::with(['teacher', 'schoolClass', 'room'])
-            ->where('teacher_id', $teacherId)
-            ->where('day_of_week', $todayDay)
-            ->where('cycle_type', $activeCycle)
-            ->get();
+        $schedules = $this->getSwapService()->getEffectiveSchedulesForTeacher($teacherId, $today, $activeCycle);
 
         if ($schedules->isEmpty()) {
             return [];
@@ -91,6 +96,16 @@ class DashboardService
             ->where('day_of_week', $todayDay)
             ->where('cycle_type', $activeCycle)
             ->get();
+
+        $swapService = $this->getSwapService();
+        foreach ($allSchedules as $sched) {
+            $effective = $swapService->getEffectiveTeacherForSchedule($sched->id, $today);
+            if ($effective['is_swapped']) {
+                $sched->teacher_id = $effective['teacher_id'];
+                $sched->swap_id = $effective['swap_id'];
+                $sched->setRelation('teacher', User::find($effective['teacher_id']));
+            }
+        }
 
         $filledScheduleIds = Journal::whereDate('date', $today)->pluck('schedule_id')->toArray();
 

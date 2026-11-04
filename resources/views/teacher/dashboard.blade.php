@@ -7,8 +7,8 @@
                 </h1>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ route('journals.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#2B2B30] text-xs font-semibold uppercase tracking-wider text-[#EDEDF0] rounded-lg hover:bg-[#26262A] transition">
-                    <svg class="w-3.5 h-3.5 text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                <a href="{{ route('journals.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-transparent border border-zinc-200 dark:border-[#2B2B30] text-xs font-semibold uppercase tracking-wider text-zinc-800 dark:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
+                    <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
                     Riwayat Jurnal
                 </a>
             </div>
@@ -17,18 +17,42 @@
 
     <div class="space-y-6 max-w-4xl">
 
+        {{-- PENDING SCHEDULE SWAP REQUESTS ALERT --}}
+        @if(($pendingSwapCount ?? 0) > 0)
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3.5">
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-[#0093dd] text-white">
+                            TUKAR JADWAL
+                        </span>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-950 dark:text-blue-300 tracking-tight">
+                                Ada {{ $pendingSwapCount }} Permintaan Tukar Jadwal Menunggu Konfirmasi
+                            </h3>
+                            <p class="text-xs text-blue-900/80 dark:text-blue-200/80 mt-1">
+                                Rekan guru telah mengajukan pertukaran jadwal mengajar dengan Anda. Harap tinjau dan konfirmasi.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('schedule-swaps.index') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer shadow-none">
+                        Tinjau Sekarang &rarr;
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- KBM DILIBURKAN BANNER --}}
         @if($kbmSuspendedEvent ?? false)
             <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5">
                 <div class="flex items-start gap-3.5">
-                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                         KBM DILIBURKAN
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-300 tracking-tight">
+                        <h3 class="text-sm font-bold text-amber-950 dark:text-amber-300 tracking-tight">
                             Hari ini: {{ ucwords(str_replace("_", " ", $kbmSuspendedEvent->category)) }} - {{ $kbmSuspendedEvent->title }}
                         </h3>
-                        <p class="text-xs text-amber-200/80 mt-1">
+                        <p class="text-xs text-amber-900/80 dark:text-amber-200/80 mt-1">
                             Keterangan: <span class="font-semibold">{{ $kbmSuspendedEvent->description ?? "Tidak ada pembelajaran reguler." }}</span>.
                             Guru tidak diwajibkan mengirimkan jurnal pembelajaran harian untuk hari ini.
                         </p>
@@ -48,15 +72,15 @@
                                     PERINGATAN
                                 </span>
                                 <div>
-                                    <h3 class="text-sm font-bold text-white tracking-tight">
+                                    <h3 class="text-sm font-bold text-amber-950 dark:text-white tracking-tight">
                                         Jurnal KBM Belum Diisi!
                                     </h3>
-                                    <p class="text-xs text-[#EDEDF0] mt-1 font-medium">
+                                    <p class="text-xs text-amber-900 dark:text-[#EDEDF0] mt-1 font-medium">
                                         <span>{{ $schedule->subject }}</span> &mdash;
                                         <span class="font-bold">{{ $schedule->schoolClass?->class_name ?? '-' }}</span> &bull;
                                         <span>Ruang {{ $schedule->room?->room_name ?? '-' }}</span>
                                     </p>
-                                    <p class="text-[11px] font-mono text-amber-400 mt-1">
+                                    <p class="text-[11px] font-mono text-amber-800 dark:text-amber-400 mt-1">
                                         Selesai pukul {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }} (melewati batas toleransi 30 menit)
                                     </p>
                                 </div>
@@ -153,7 +177,7 @@
                                         <option value="" disabled>-- Pilih Jadwal Pembelajaran --</option>
                                         @foreach($schedules as $sched)
                                             <option value="{{ $sched->id }}">
-                                                {{ $sched->day_of_week }} | {{ $sched->schoolClass->class_name ?? 'Kelas' }} &mdash; {{ $sched->subject }} ({{ $sched->period_label }})
+                                                {{ $sched->day_of_week }} | {{ $sched->schoolClass->class_name ?? 'Kelas' }} &mdash; {{ $sched->subject }} ({{ $sched->period_label }}){{ ($sched->is_substitute ?? false) ? ' [Jadwal Tukar / Pengganti]' : '' }}
                                             </option>
                                         @endforeach
                                     </select>

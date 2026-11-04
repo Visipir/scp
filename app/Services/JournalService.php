@@ -20,18 +20,25 @@ class JournalService
     /**
      * Create a journal and sync the class attendance in one transaction.
      */
-    public function create(Schedule $schedule, array $validated, ?UploadedFile $photo): Journal
+    public function create(Schedule $schedule, array $validated, ?UploadedFile $photo, ?int $effectiveTeacherId = null, ?int $swapId = null): Journal
     {
-        return DB::transaction(function () use ($schedule, $validated, $photo) {
+        return DB::transaction(function () use ($schedule, $validated, $photo, $effectiveTeacherId, $swapId) {
             // Handle photo upload INSIDE transaction to prevent orphaned files (auto compress)
             $photoPath = null;
             if ($photo !== null) {
                 $photoPath = $this->compressAndStorePhoto($photo);
             }
 
+            $swapService = app(ScheduleSwapService::class);
+            $check = $swapService->getEffectiveTeacherForSchedule($schedule->id, $validated['date']);
+            $finalTeacherId = $effectiveTeacherId ?? $check['teacher_id'];
+            $finalSwapId = $swapId ?? $check['swap_id'];
+
             // 1. Create journal
             $journal = Journal::create([
                 'schedule_id'       => $schedule->id,
+                'teacher_id'        => $finalTeacherId,
+                'swap_id'           => $finalSwapId,
                 'date'              => $validated['date'],
                 'topic_description' => $validated['topic_description'],
                 'photo_path'        => $photoPath,
@@ -134,7 +141,10 @@ class JournalService
     public function scopeForUser(User $user, $query)
     {
         if ((int) $user->role_id === 2) {
-            $query->whereHas('schedule', fn ($q) => $q->where('teacher_id', $user->id));
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('schedule', fn ($sq) => $sq->where('teacher_id', $user->id))
+                  ->orWhere('teacher_id', $user->id);
+            });
         } elseif ((int) $user->role_id === 3) {
             $classId = $user->scopedClassId();
             if ($classId !== null) {
@@ -155,7 +165,8 @@ class JournalService
         }
 
         if ((int) $user->role_id === 2) {
-            return (int) $journal->schedule?->teacher_id === (int) $user->id;
+            return (int) $journal->schedule?->teacher_id === (int) $user->id
+                || (int) $journal->teacher_id === (int) $user->id;
         }
 
         if ((int) $user->role_id === 3) {
