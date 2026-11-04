@@ -11,4 +11,14 @@ class SchedulePageTest extends TestCase {
         $response = $this->actingAs($user)->get('/schedules');
         $response->assertOk();
     }
+
+    public function test_web_schedules_defaults_to_active_cycle() {
+        $this->artisan('db:seed');
+        \App\Models\SystemConfiguration::first()->update(['active_cycle' => 'Putaran 2']);
+        $user = User::where('username', 'waka_kurikulum')->first();
+
+        $response = $this->actingAs($user)->get('/schedules');
+        $response->assertOk();
+        $response->assertViewHas('cycleFilter', 'Putaran 2');
+    }
 }

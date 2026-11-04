@@ -19,7 +19,24 @@ class RoomScheduleController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['day_of_week', 'cycle_type', 'room_id', 'class_id']);
+        $validated = $request->validate([
+            'cycle'       => ['nullable', 'string', 'in:Putaran 1,Putaran 2'],
+            'cycle_type'  => ['nullable', 'string', 'in:Putaran 1,Putaran 2'],
+            'day_of_week' => ['nullable', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'],
+            'room_id'     => ['nullable', 'integer', 'exists:rooms,id'],
+            'class_id'    => ['nullable', 'integer', 'exists:classes,id'],
+        ], [
+            'cycle.in'      => 'Putaran jadwal tidak valid. Pilihan yang tersedia: Putaran 1 atau Putaran 2.',
+            'cycle_type.in' => 'Putaran jadwal tidak valid. Pilihan yang tersedia: Putaran 1 atau Putaran 2.',
+        ]);
+
+        $filters = $request->only(['day_of_week', 'room_id', 'class_id']);
+        if (!empty($validated['cycle_type'])) {
+            $filters['cycle_type'] = $validated['cycle_type'];
+        } elseif (!empty($validated['cycle'])) {
+            $filters['cycle_type'] = $validated['cycle'];
+        }
+
         $schedules = $this->roomScheduleService->listRoomSchedules($filters);
 
         return ApiResponse::list($schedules, RoomScheduleResource::class);

@@ -33,7 +33,7 @@ class RoomScheduleController extends Controller
         }
 
         // Cycle filter
-        $cycleFilter = $request->query('cycle', $config?->active_cycle ?? 'Putaran 2');
+        $cycleFilter = $request->filled('cycle') ? $request->query('cycle') : ($config?->active_cycle ?? 'Putaran 1');
 
         // Fetch schedules
         $schedules = RoomSchedule::with(['schoolClass', 'teacher', 'room'])

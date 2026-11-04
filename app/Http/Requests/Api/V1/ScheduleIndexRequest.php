@@ -17,10 +17,20 @@ class ScheduleIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cycle'      => ['nullable', 'in:Putaran 1,Putaran 2'],
+            'cycle'      => ['nullable', 'string', 'in:Putaran 1,Putaran 2'],
             'day'        => ['nullable', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
             'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
             'class_id'   => ['nullable', 'integer', 'exists:classes,id'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'cycle.in' => 'Putaran jadwal tidak valid. Pilihan yang tersedia: Putaran 1 atau Putaran 2.',
         ];
     }
 }

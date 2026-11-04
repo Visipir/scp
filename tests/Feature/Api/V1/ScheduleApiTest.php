@@ -168,4 +168,45 @@ class ScheduleApiTest extends TestCase
             ->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['class_id', 'subject', 'day_of_week']]);
     }
+
+    public function test_index_defaults_to_active_cycle_when_omitted(): void
+    {
+        $this->makeConfig(['active_cycle' => 'Putaran 2']);
+        $guru = $this->makeUser(2);
+
+        $schedPutaran1 = $this->makeSchedule([
+            'teacher_id' => $guru->id,
+            'cycle_type' => 'Putaran 1',
+            'subject'    => 'PBO Putaran 1',
+        ]);
+
+        $schedPutaran2 = $this->makeSchedule([
+            'teacher_id' => $guru->id,
+            'cycle_type' => 'Putaran 2',
+            'subject'    => 'PBO Putaran 2',
+        ]);
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/schedules');
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $schedPutaran2->id);
+        $response->assertJsonPath('data.0.subject', 'PBO Putaran 2');
+
+        // Explicit cycle=Putaran 1 retrieves Putaran 1
+        $responseP1 = $this->apiAs($guru)->getJson('/api/v1/schedules?cycle=Putaran%201');
+        $responseP1->assertOk();
+        $responseP1->assertJsonCount(1, 'data');
+        $responseP1->assertJsonPath('data.0.id', $schedPutaran1->id);
+    }
+
+    public function test_index_returns_422_with_readable_message_on_invalid_cycle(): void
+    {
+        $this->makeConfig(['active_cycle' => 'Putaran 1']);
+        $guru = $this->makeUser(2);
+
+        $response = $this->apiAs($guru)->getJson('/api/v1/schedules?cycle=Putaran%2099');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['cycle']);
+        $response->assertSee('Putaran 1 atau Putaran 2');
+    }
 }

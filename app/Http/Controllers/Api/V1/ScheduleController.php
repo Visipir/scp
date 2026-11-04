@@ -19,7 +19,7 @@ class ScheduleController extends Controller
     {
         $user = $request->user();
         $config = SystemConfiguration::first();
-        $cycle = $request->input('cycle', $config?->active_cycle ?? 'Putaran 1');
+        $cycle = $request->filled('cycle') ? $request->input('cycle') : ($config?->active_cycle ?? 'Putaran 1');
 
         $query = Schedule::with(['teacher', 'schoolClass', 'room'])
             ->where('cycle_type', $cycle);

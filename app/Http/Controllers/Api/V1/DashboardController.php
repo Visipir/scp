@@ -26,8 +26,8 @@ class DashboardController extends Controller
         return match ((int) $user->role_id) {
             1       => $this->waka($config, $dashboards),
             2       => $this->guru($user, $config, $dashboards),
-            3       => $this->kesiswaan($user),
-            default => $this->studentOrParent($user, $attendance),
+            3       => $this->kesiswaan($user, $config),
+            default => $this->studentOrParent($user, $config, $attendance),
         };
     }
 
@@ -78,6 +78,8 @@ class DashboardController extends Controller
             'late_journal_alerts'    => $alerts,
             'pending_swap_requests'  => $pendingSwaps,
             'unread_notifications'   => $unreadNotifications,
+            'active_cycle'           => $activeCycle,
+            'is_schedule_locked'     => (bool) ($config?->is_schedule_locked ?? false),
         ]);
     }
 
@@ -98,21 +100,27 @@ class DashboardController extends Controller
             ->values()->all();
 
         return ApiResponse::data([
-            'attendance_today'  => $dashboards->attendanceTodayCounts(),
-            'unfilled_journals' => $unfilled,
+            'attendance_today'   => $dashboards->attendanceTodayCounts(),
+            'unfilled_journals'  => $unfilled,
+            'active_cycle'       => $config?->active_cycle ?? 'Putaran 1',
+            'is_schedule_locked' => (bool) ($config?->is_schedule_locked ?? false),
         ]);
     }
 
-    private function kesiswaan(User $user): JsonResponse
+    private function kesiswaan(User $user, ?SystemConfiguration $config): JsonResponse
     {
         $count = LeaveRequest::visibleTo($user)
             ->where('status_approval', 'Pending')
             ->count();
 
-        return ApiResponse::data(['pending_leave_count' => $count]);
+        return ApiResponse::data([
+            'pending_leave_count' => $count,
+            'active_cycle'        => $config?->active_cycle ?? 'Putaran 1',
+            'is_schedule_locked'  => (bool) ($config?->is_schedule_locked ?? false),
+        ]);
     }
 
-    private function studentOrParent(User $user, AttendanceSummaryService $attendance): JsonResponse
+    private function studentOrParent(User $user, ?SystemConfiguration $config, AttendanceSummaryService $attendance): JsonResponse
     {
         $target = $attendance->resolveTargetStudent($user, null);
         $month = now()->format('Y-m');
@@ -120,9 +128,11 @@ class DashboardController extends Controller
         ['summary' => $summary] = $attendance->forStudent($target['student_id'], $month);
 
         return ApiResponse::data([
-            'student' => (new UserResource($target['student']))->resolve(),
-            'month'   => $month,
-            'summary' => $summary,
+            'student'            => (new UserResource($target['student']))->resolve(),
+            'month'              => $month,
+            'summary'            => $summary,
+            'active_cycle'       => $config?->active_cycle ?? 'Putaran 1',
+            'is_schedule_locked' => (bool) ($config?->is_schedule_locked ?? false),
         ]);
     }
 }
