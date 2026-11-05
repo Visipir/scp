@@ -11,6 +11,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Environment-gate: Only seed test/dummy accounts in local or testing environments
+        if (!app()->environment('local', 'testing')) {
+            $this->command?->warn('UserSeeder: Skipping dummy test data in non-local environment.');
+            return;
+        }
+
         // 1. Staff & Teachers
         $staffUsers = [
             ['role_id' => 1, 'username' => 'waka_kurikulum', 'fullname' => 'waka_kurikulum, M.Pd'],
