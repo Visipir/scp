@@ -29,6 +29,18 @@ class StoreJournalRequest extends FormRequest
                 'required',
                 'date',
                 function ($attribute, $value, $fail) {
+                    $today = \Carbon\Carbon::today('Asia/Jakarta');
+                    try {
+                        $parsed = \Carbon\Carbon::createFromFormat('Y-m-d', $value, 'Asia/Jakarta')->startOfDay();
+                        if ($parsed->greaterThan($today)) {
+                            $fail('Jurnal KBM tidak dapat dibuat untuk tanggal masa depan.');
+                            return;
+                        }
+                    } catch (\Throwable $e) {
+                        $fail('Format tanggal tidak valid.');
+                        return;
+                    }
+
                     $exists = \App\Models\Journal::where('schedule_id', $this->input('schedule_id'))
                         ->whereDate('date', $value)
                         ->exists();

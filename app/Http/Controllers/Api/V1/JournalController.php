@@ -37,7 +37,7 @@ class JournalController extends Controller
         }
 
         if ($date->greaterThan($today)) {
-            return ApiResponse::message('Tanggal tidak boleh di masa depan.', 422);
+            return ApiResponse::message('Jurnal KBM tidak dapat dibuat untuk tanggal masa depan.', 422);
         }
 
         if ($date->lessThan($today->copy()->subDays(90))) {
@@ -79,7 +79,13 @@ class JournalController extends Controller
             ];
         })->all();
 
-        return ApiResponse::data($data);
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'total_schedules' => $schedules->count(),
+                'filled'          => count($filledScheduleIds),
+            ],
+        ]);
     }
     public function index(Request $request, JournalService $journals): JsonResponse
     {

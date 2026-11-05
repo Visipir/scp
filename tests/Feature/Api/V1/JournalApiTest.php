@@ -429,7 +429,152 @@ class JournalApiTest extends TestCase
 
         $response = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$tomorrow);
         $response->assertStatus(422);
-        $response->assertJsonPath('message', 'Tanggal tidak boleh di masa depan.');
+        $response->assertJsonPath('message', 'Jurnal KBM tidak dapat dibuat untuk tanggal masa depan.');
+    }
+
+    public function test_available_schedules_metadata_distinguishes_empty_states(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        // Case 1: 0 total schedules for this teacher
+        $res0 = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $res0->assertOk();
+        $res0->assertJsonCount(0, 'data');
+        $res0->assertJsonPath('meta.total_schedules', 0);
+        $res0->assertJsonPath('meta.filled', 0);
+
+        // Case 2: 1 schedule, not filled yet
+        $sched = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Fisika Terapan',
+            'start_time'  => '13:00',
+            'end_time'    => '14:30',
+        ]);
+
+        $res1 = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $res1->assertOk();
+        $res1->assertJsonCount(1, 'data');
+        $res1->assertJsonPath('meta.total_schedules', 1);
+        $res1->assertJsonPath('meta.filled', 0);
+
+        // Case 3: 1 schedule, already filled
+        Journal::create([
+            'schedule_id'       => $sched->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Materi Fisika',
+            'teacher_id'        => $guru->id,
+        ]);
+
+        $resFilled = $this->apiAs($guru)->getJson('/api/v1/journals/available-schedules?date='.$today->toDateString());
+        $resFilled->assertOk();
+        $resFilled->assertJsonCount(0, 'data');
+        $resFilled->assertJsonPath('meta.total_schedules', 1);
+        $resFilled->assertJsonPath('meta.filled', 1);
+    }
+
+    public function test_create_journal_before_schedule_start_time_succeeds(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        // Schedule at 14:00 - 15:30
+        $sched = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+            'subject'     => 'Kimia Analitik',
+            'start_time'  => '14:00',
+            'end_time'    => '15:30',
+        ]);
+
+        // Teacher submits journal early in the morning (06:30)
+        $this->travelTo($today->copy()->setTime(6, 30, 0));
+        Storage::fake('local');
+
+        $response = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $sched->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Persiapan Praktikum Kimia',
+            'photo'             => UploadedFile::fake()->image('foto_lab.jpg'),
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('journals', [
+            'schedule_id'       => $sched->id,
+            'topic_description' => 'Persiapan Praktikum Kimia',
+        ]);
+    }
+
+    public function test_create_journal_rejects_future_date(): void
+    {
+        $guru = $this->makeUser(2);
+        $sched = $this->makeSchedule(['teacher_id' => $guru->id]);
+        $tomorrow = \Carbon\Carbon::tomorrow('Asia/Jakarta')->toDateString();
+        Storage::fake('local');
+
+        $response = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $sched->id,
+            'date'              => $tomorrow,
+            'topic_description' => 'Materi Besok',
+            'photo'             => UploadedFile::fake()->image('foto.jpg'),
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['date']);
+        $this->assertStringContainsString('Jurnal KBM tidak dapat dibuat untuk tanggal masa depan', $response->json('message') ?? json_encode($response->json('errors')));
+    }
+
+    public function test_create_journal_rejects_duplicate_entry(): void
+    {
+        $guru = $this->makeUser(2);
+        $class = $this->makeClass('XI BR 2');
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $dayMap = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $todayName = $dayMap[$today->format('l')] ?? 'Senin';
+
+        $sched = $this->makeSchedule([
+            'teacher_id'  => $guru->id,
+            'class_id'    => $class->id,
+            'day_of_week' => $todayName,
+        ]);
+        Storage::fake('local');
+
+        // First journal succeeds
+        $res1 = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $sched->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Materi Pertama',
+            'photo'             => UploadedFile::fake()->image('foto1.jpg'),
+        ]);
+        $res1->assertStatus(201);
+
+        // Duplicate journal fails with 422
+        $res2 = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $sched->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Materi Kedua',
+            'photo'             => UploadedFile::fake()->image('foto2.jpg'),
+        ]);
+        $res2->assertStatus(422);
+        $res2->assertJsonValidationErrors(['date']);
     }
 
     public function test_another_teacher_cannot_journal_foreign_schedule(): void
