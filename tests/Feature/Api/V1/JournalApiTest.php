@@ -598,4 +598,62 @@ class JournalApiTest extends TestCase
             'photo'             => UploadedFile::fake()->image('foto.jpg'),
         ])->assertStatus(403);
     }
+
+    public function test_journal_edit_only_allowed_on_same_day_and_by_owner(): void
+    {
+        $guru1 = $this->makeUser(2);
+        $guru2 = $this->makeUser(2);
+        $class = $this->makeClass('XII RPL 1');
+        $student = $this->makeUser(4, ['class_id' => $class->id]);
+        $schedule = $this->makeSchedule(['teacher_id' => $guru1->id, 'class_id' => $class->id]);
+
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $yesterday = $today->copy()->subDay();
+
+        $todayJournal = $this->makeJournal($schedule, $today->toDateString());
+        Attendance::create(['journal_id' => $todayJournal->id, 'student_id' => $student->id, 'status' => 'Hadir', 'date' => $today->toDateString()]);
+
+        $yesterdayJournal = $this->makeJournal($schedule, $yesterday->toDateString());
+        Attendance::create(['journal_id' => $yesterdayJournal->id, 'student_id' => $student->id, 'status' => 'Hadir', 'date' => $yesterday->toDateString()]);
+
+        // 1. Today update attendance -> 200
+        $resToday = $this->apiAs($guru1)->putJson("/api/v1/journals/{$todayJournal->id}/attendances", [
+            'attendances' => [
+                ['student_id' => $student->id, 'status' => 'Izin', 'notes' => 'Surat masuk'],
+            ],
+        ]);
+        $resToday->assertOk();
+
+        // 2. Yesterday update attendance -> 422
+        $resYesterday = $this->apiAs($guru1)->putJson("/api/v1/journals/{$yesterdayJournal->id}/attendances", [
+            'attendances' => [
+                ['student_id' => $student->id, 'status' => 'Izin'],
+            ],
+        ]);
+        $resYesterday->assertStatus(422);
+
+        // 3. Other teacher editing today -> 403
+        $resOther = $this->apiAs($guru2)->putJson("/api/v1/journals/{$todayJournal->id}/attendances", [
+            'attendances' => [
+                ['student_id' => $student->id, 'status' => 'Alpa'],
+            ],
+        ]);
+        $resOther->assertStatus(403);
+
+        // 4. Update journal topic_description: today -> 200, yesterday -> 422, other teacher -> 403
+        $resUpdateToday = $this->apiAs($guru1)->putJson("/api/v1/journals/{$todayJournal->id}", [
+            'topic_description' => 'Topik Baru',
+        ]);
+        $resUpdateToday->assertOk();
+
+        $resUpdateYesterday = $this->apiAs($guru1)->putJson("/api/v1/journals/{$yesterdayJournal->id}", [
+            'topic_description' => 'Topik Kemarin',
+        ]);
+        $resUpdateYesterday->assertStatus(422);
+
+        $resUpdateOther = $this->apiAs($guru2)->putJson("/api/v1/journals/{$todayJournal->id}", [
+            'topic_description' => 'Topik Ilegal',
+        ]);
+        $resUpdateOther->assertStatus(403);
+    }
 }

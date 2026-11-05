@@ -152,6 +152,35 @@ class JournalController extends Controller
         return $disk->response($journal->photo_path);
     }
 
+    public function update(Request $request, Journal $journal, JournalService $journals): JsonResponse
+    {
+        $journal->loadMissing('schedule');
+
+        $userId = (int) $request->user()->id;
+        if ((int) $journal->schedule?->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        if (! Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta'))) {
+            abort(422, 'Jurnal hanya dapat diubah pada hari yang sama.');
+        }
+
+        $validated = $request->validate([
+            'topic_description' => ['sometimes', 'required', 'string', 'max:5000'],
+            'photo'             => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+        ]);
+
+        if (isset($validated['topic_description'])) {
+            $journal->topic_description = $validated['topic_description'];
+        }
+        if ($request->hasFile('photo')) {
+            $journal->photo_path = $journals->compressAndStorePhoto($request->file('photo'));
+        }
+        $journal->save();
+
+        return ApiResponse::item(new JournalDetailResource($journal->load('attendances.student')->loadCount(self::countSelects())));
+    }
+
     public function updateAttendances(UpdateAttendancesRequest $request, Journal $journal, AttendanceService $attendance): JsonResponse
     {
         $journal->loadMissing('schedule');
@@ -159,6 +188,10 @@ class JournalController extends Controller
         $userId = (int) $request->user()->id;
         if ((int) $journal->schedule?->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
             abort(403, 'Akses ditolak.');
+        }
+
+        if (! Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta'))) {
+            abort(422, 'Jurnal hanya dapat diubah pada hari yang sama.');
         }
 
         $attendance->updateForJournalByStudent($journal, $request->validated()['attendances']);

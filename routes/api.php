@@ -103,6 +103,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/journals/available-schedules', [V1JournalController::class, 'availableSchedules'])->name('journals.available-schedules');
             Route::get('/journals/prepare', [V1JournalController::class, 'prepare'])->name('journals.prepare');
             Route::post('/journals', [V1JournalController::class, 'store'])->name('journals.store');
+            Route::put('/journals/{journal}', [V1JournalController::class, 'update'])->name('journals.update');
             Route::put('/journals/{journal}/attendances', [V1JournalController::class, 'updateAttendances'])->name('journals.attendances.update');
         });
 

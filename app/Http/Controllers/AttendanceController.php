@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Journal;
 use App\Services\AttendanceService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,6 +21,10 @@ class AttendanceController extends Controller
             abort(403);
         }
 
+        if (! Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta'))) {
+            abort(422, 'Jurnal hanya dapat diubah pada hari yang sama.');
+        }
+
         $journal->load(['schedule.schoolClass', 'attendances.student']);
 
         return view('attendances.edit', compact('journal'));
@@ -33,6 +38,10 @@ class AttendanceController extends Controller
         $userId = (int) $request->user()->id;
         if ((int) $journal->schedule->teacher_id !== $userId && (int) $journal->teacher_id !== $userId) {
             abort(403);
+        }
+
+        if (! Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta'))) {
+            abort(422, 'Jurnal hanya dapat diubah pada hari yang sama.');
         }
 
         $validated = $request->validate([

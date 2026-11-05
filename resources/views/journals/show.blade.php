@@ -13,7 +13,7 @@
                 <a href="{{ route('journals.index') }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-zinc-200 text-xs font-semibold text-zinc-600 hover:text-zinc-900 rounded-md transition">
                     &larr; Kembali
                 </a>
-                @if(auth()->user()->role_id === 2)
+                @if(auth()->user()->role_id === 2 && \Carbon\Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta')))
                     <a href="{{ route('attendances.edit', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition">
                         Edit Presensi
                     </a>
