@@ -38,7 +38,11 @@ class NormalizeTeacherUsernamesCommand extends Command
             : 'Running in DRY-RUN mode (default). No changes will be made to database.'
         );
 
-        $teachers = User::where('role_id', 2)->orderBy('id')->get();
+        // Exclude dummy teachers ID 2 and 3
+        $teachers = User::where('role_id', 2)
+            ->whereNotIn('id', [2, 3])
+            ->orderBy('id')
+            ->get();
         if ($teachers->isEmpty()) {
             $this->warn('No teachers found in the database.');
             return Command::SUCCESS;

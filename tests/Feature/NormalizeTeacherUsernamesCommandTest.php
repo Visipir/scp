@@ -22,6 +22,7 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
     public function test_dry_run_does_not_modify_database(): void
     {
         $teacher = $this->makeUser(2, [
+            'id' => 100,
             'username' => 'guru_6aa0e473a0ac6',
             'fullname' => 'RUSDIYANTO, S.Pd',
         ]);
@@ -35,11 +36,18 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
 
     public function test_apply_mode_updates_usernames_and_creates_backup(): void
     {
+        $dummyTeacher = $this->makeUser(2, [
+            'id' => 2,
+            'username' => 'guru_andi',
+            'fullname' => 'Pak Andi Guru',
+        ]);
         $teacher1 = $this->makeUser(2, [
+            'id' => 101,
             'username' => 'guru_6aa0e473a0ac6',
             'fullname' => 'RUSDIYANTO, S.Pd',
         ]);
         $teacher2 = $this->makeUser(2, [
+            'id' => 102,
             'username' => 'guru_6aa0e473df9dd',
             'fullname' => 'RUSDIYANTO, M.Pd', // Duplicate name
         ]);
@@ -53,6 +61,7 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
 
         $this->assertSame('rusdiyanto', $teacher1->fresh()->username);
         $this->assertSame('rusdiyanto-2', $teacher2->fresh()->username);
+        $this->assertSame('guru_andi', $dummyTeacher->fresh()->username); // Preserved
 
         // Tokens should be revoked
         $this->assertCount(0, $teacher1->fresh()->tokens);
