@@ -112,6 +112,18 @@ class PrivateFileAccessTest extends TestCase
         $this->get('/storage/journals/foto.txt')->assertStatus(403);
     }
 
+    public function test_unauthenticated_storage_put_is_rejected(): void
+    {
+        Storage::fake('local');
+        $this->put('/storage/leave-documents/hack.txt', ['content' => 'evil'])->assertStatus(403);
+    }
+
+    public function test_storage_path_traversal_is_blocked(): void
+    {
+        Storage::fake('local');
+        $this->get('/storage/../secrets.txt')->assertForbidden();
+    }
+
     public function test_journal_photo_access_is_scoped(): void
     {
         Storage::fake('local');
