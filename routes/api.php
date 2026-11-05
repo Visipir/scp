@@ -122,7 +122,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/leave-requests/{leaveRequest}', [V1LeaveRequestController::class, 'show'])->name('leave-requests.show');
             Route::get('/leave-requests/{leaveRequest}/document', [V1LeaveRequestController::class, 'document'])->name('leave-requests.document');
         });
-        Route::post('/leave-requests', [V1LeaveRequestController::class, 'store'])->middleware('role:4')->name('leave-requests.store');
+        Route::post('/leave-requests', [V1LeaveRequestController::class, 'store'])->middleware(['role:4', 'throttle:10,1'])->name('leave-requests.store');
         Route::patch('/leave-requests/{leaveRequest}/status', [V1LeaveRequestController::class, 'updateStatus'])->middleware('role:1,3')->name('leave-requests.update-status');
 
         Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');

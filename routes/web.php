@@ -110,7 +110,7 @@ Route::middleware(['auth'])->prefix('leave-requests')->name('leave-requests.')->
     Route::middleware('role:1,3,4')->group(function () {
         Route::get('/', [LeaveRequestController::class, 'index'])->name('index');
         Route::get('/create', [LeaveRequestController::class, 'create'])->name('create')->middleware('role:4');
-        Route::post('/', [LeaveRequestController::class, 'store'])->name('store')->middleware('role:4');
+        Route::post('/', [LeaveRequestController::class, 'store'])->name('store')->middleware(['role:4', 'throttle:10,1']);
         Route::get('/{leaveRequest}', [LeaveRequestController::class, 'show'])->name('show');
         Route::get('/{leaveRequest}/document', [LeaveRequestController::class, 'document'])->name('document');
     });

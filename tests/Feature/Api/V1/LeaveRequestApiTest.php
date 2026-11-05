@@ -108,6 +108,29 @@ class LeaveRequestApiTest extends TestCase
             ->assertOk()->assertJsonCount(0, 'data');
     }
 
+    public function test_leave_submission_is_rate_limited(): void
+    {
+        $student = $this->makeUser(4, ['class_id' => $this->makeClass()->id]);
+
+        for ($i = 0; $i < 10; $i++) {
+            $this->apiAs($student)->postJson('/api/v1/leave-requests', [
+                'student_id' => $student->id,
+                'start_date' => '2026-11-20',
+                'end_date'   => '2026-11-21',
+                'reason'     => 'Izin urusan keluarga ' . $i,
+            ]);
+        }
+
+        $response = $this->apiAs($student)->postJson('/api/v1/leave-requests', [
+            'student_id' => $student->id,
+            'start_date' => '2026-11-20',
+            'end_date'   => '2026-11-21',
+            'reason'     => 'Izin urusan keluarga 11',
+        ]);
+
+        $response->assertStatus(429);
+    }
+
     public function test_student_can_submit_own_leave_with_document(): void
     {
         Storage::fake('local');
