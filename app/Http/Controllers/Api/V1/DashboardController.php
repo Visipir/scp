@@ -76,7 +76,8 @@ class DashboardController extends Controller
         return ApiResponse::data([
             'today_schedules'        => $todaySchedules,
             'late_journal_alerts'    => $alerts,
-            'pending_swap_requests'  => $pendingSwaps,
+            'pending_swap_requests'  => $pendingSwaps->count(),
+            'pending_swaps'          => \App\Http\Resources\Api\V1\ScheduleSwapResource::collection($pendingSwaps)->resolve(),
             'unread_notifications'   => $unreadNotifications,
             'active_cycle'           => $activeCycle,
             'is_schedule_locked'     => (bool) ($config?->is_schedule_locked ?? false),

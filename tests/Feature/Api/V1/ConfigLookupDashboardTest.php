@@ -82,6 +82,9 @@ class ConfigLookupDashboardTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.today_schedules.0.id', $schedule->id);
         $response->assertJsonPath('data.today_schedules.0.journal_filled', false);
+        $this->assertIsInt($response->json('data.pending_swap_requests'));
+        $this->assertIsInt($response->json('data.unread_notifications'));
+        $this->assertIsArray($response->json('data.pending_swaps'));
         // ended more than 30 minutes ago -> alert
         $response->assertJsonPath('data.late_journal_alerts.0.id', $schedule->id);
 
