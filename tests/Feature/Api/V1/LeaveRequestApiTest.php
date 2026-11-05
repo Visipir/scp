@@ -168,4 +168,68 @@ class LeaveRequestApiTest extends TestCase
             ->assertStatus(422)
             ->assertJsonStructure(['errors' => ['status_approval']]);
     }
+
+    public function test_leave_status_change_re_syncs_existing_attendance(): void
+    {
+        Storage::fake('local');
+        $class = $this->makeClass('Kelas XI');
+        $student = $this->makeUser(4, ['class_id' => $class->id]);
+        $guru = $this->makeUser(2);
+        $wali = $this->makeUser(3, ['class_id' => $class->id]);
+
+        $schedule = $this->makeSchedule(['teacher_id' => $guru->id, 'class_id' => $class->id]);
+        $today = now('Asia/Jakarta')->toDateString();
+
+        $leave = $this->makeLeave($student, [
+            'start_date' => $today,
+            'end_date'   => $today,
+            'reason'     => 'Izin urusan keluarga',
+        ]);
+
+        // 1. Approve leave
+        $this->apiAs($wali)->patchJson('/api/v1/leave-requests/'.$leave->id.'/status', ['status_approval' => 'Approved'])
+            ->assertOk();
+        $this->assertSame('Approved', $leave->fresh()->status_approval);
+        $this->assertSame(0, Attendance::count()); // No attendance created yet (A.d)
+
+        // 2. Guru creates journal -> student attendance auto-filled as Izin
+        $resJournal = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $schedule->id,
+            'date'              => $today,
+            'topic_description' => 'Materi KBM Hari Ini',
+            'photo'             => UploadedFile::fake()->image('foto.jpg'),
+        ]);
+        $resJournal->assertStatus(201);
+        $this->assertDatabaseHas('attendances', [
+            'student_id' => $student->id,
+            'status'     => 'Izin',
+        ]);
+
+        // 3. Wali rejects leave -> existing attendance reverts to Alpa
+        $this->apiAs($wali)->patchJson('/api/v1/leave-requests/'.$leave->id.'/status', ['status_approval' => 'Rejected'])
+            ->assertOk();
+        $this->assertSame('Rejected', $leave->fresh()->status_approval);
+        $this->assertDatabaseHas('attendances', [
+            'student_id' => $student->id,
+            'status'     => 'Alpa',
+        ]);
+
+        // 4. Wali re-approves leave -> existing attendance re-syncs to Izin
+        $this->apiAs($wali)->patchJson('/api/v1/leave-requests/'.$leave->id.'/status', ['status_approval' => 'Approved'])
+            ->assertOk();
+        $this->assertSame('Approved', $leave->fresh()->status_approval);
+        $this->assertDatabaseHas('attendances', [
+            'student_id' => $student->id,
+            'status'     => 'Izin',
+        ]);
+
+        // 5. Wali sets back to Pending -> existing attendance reverts to Alpa
+        $this->apiAs($wali)->patchJson('/api/v1/leave-requests/'.$leave->id.'/status', ['status_approval' => 'Pending'])
+            ->assertOk();
+        $this->assertSame('Pending', $leave->fresh()->status_approval);
+        $this->assertDatabaseHas('attendances', [
+            'student_id' => $student->id,
+            'status'     => 'Alpa',
+        ]);
+    }
 }

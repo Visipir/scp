@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 class LeaveRequestService
 {
@@ -40,15 +43,49 @@ class LeaveRequestService
     }
 
     /**
-     * Approve or reject a leave request. Does NOT touch attendances.
+     * Approve, reject, or set pending for a leave request.
+     * Re-syncs attendances that already exist within the leave dates.
+     * Does NOT create attendance rows when no journal exists.
      */
     public function updateStatus(LeaveRequest $leaveRequest, string $status, User $verifier): LeaveRequest
     {
-        $leaveRequest->update([
-            'status_approval' => $status,
-            'verified_by'     => $verifier->id,
-        ]);
+        return DB::transaction(function () use ($leaveRequest, $status, $verifier) {
+            $leaveRequest->update([
+                'status_approval' => $status,
+                'verified_by'     => $verifier->id,
+            ]);
 
-        return $leaveRequest;
+            $startDate = Carbon::parse($leaveRequest->start_date)->toDateString();
+            $endDate = Carbon::parse($leaveRequest->end_date)->toDateString();
+
+            $attendances = Attendance::where('student_id', $leaveRequest->student_id)
+                ->whereDate('date', '>=', $startDate)
+                ->whereDate('date', '<=', $endDate)
+                ->get();
+
+            if ($attendances->isNotEmpty()) {
+                $targetStatus = (stripos($leaveRequest->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
+
+                foreach ($attendances as $attendance) {
+                    if ($status === 'Approved') {
+                        if (in_array($attendance->status, ['Alpa', 'Hadir'])) {
+                            $attendance->update([
+                                'status' => $targetStatus,
+                                'notes'  => 'Izin resmi (Pengajuan surat izin disetujui)',
+                            ]);
+                        }
+                    } else { // Pending or Rejected
+                        if (in_array($attendance->status, ['Izin', 'Sakit'])) {
+                            $attendance->update([
+                                'status' => 'Alpa',
+                                'notes'  => $status === 'Rejected' ? 'Pengajuan izin ditolak' : 'Pengajuan izin menunggu persetujuan',
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return $leaveRequest;
+        });
     }
 }

@@ -109,12 +109,17 @@ class LeaveRequestController extends Controller
         abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
 
         $validated = $request->validate([
-            'status_approval' => ['required', 'in:Approved,Rejected'],
+            'status_approval' => ['required', 'in:Pending,Approved,Rejected'],
         ]);
 
         $service->updateStatus($leaveRequest, $validated['status_approval'], $request->user());
 
-        $statusText = $validated['status_approval'] === 'Approved' ? 'disetujui' : 'ditolak';
+        $statusMap = [
+            'Approved' => 'disetujui',
+            'Rejected' => 'ditolak',
+            'Pending'  => 'diubah menjadi status menunggu persetujuan',
+        ];
+        $statusText = $statusMap[$validated['status_approval']] ?? 'diperbarui';
 
         return redirect()->route('leave-requests.show', $leaveRequest)
             ->with('success', "Permohonan izin telah {$statusText}.");

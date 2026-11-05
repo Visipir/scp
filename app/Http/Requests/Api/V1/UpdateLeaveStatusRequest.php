@@ -17,7 +17,7 @@ class UpdateLeaveStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status_approval' => ['required', 'in:Approved,Rejected'],
+            'status_approval' => ['required', 'in:Pending,Approved,Rejected'],
         ];
     }
 }

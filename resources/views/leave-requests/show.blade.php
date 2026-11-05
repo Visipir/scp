@@ -73,30 +73,45 @@
         </div>
 
         {{-- Verification Action (Tim Kesiswaan / Waka) --}}
-        @if(in_array(auth()->user()->role_id, [1, 3]) && $leaveRequest->status_approval === 'Pending')
+        @if(in_array(auth()->user()->role_id, [1, 3]))
             <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-6 sm:p-8 space-y-4">
                 <div>
                     <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">Keputusan Verifikasi Kesiswaan</h3>
-                    <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-0.5">Tentukan persetujuan izin siswa ini. Status yang disetujui akan otomatis tersinkronisasi pada absensi kelas.</p>
+                    <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-0.5">Ubah status persetujuan izin siswa ini. Status yang disetujui akan otomatis tersinkronisasi pada absensi kelas.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    @if($leaveRequest->status_approval !== 'Approved')
                     <form method="POST" action="{{ route('leave-requests.update-status', $leaveRequest) }}">
                         @csrf @method('PATCH')
                         <input type="hidden" name="status_approval" value="Approved">
                         <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:active:bg-emerald-500/35 dark:border-emerald-500/30 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                            Setujui Permohonan
+                            Setujui
                         </button>
                     </form>
+                    @endif
 
+                    @if($leaveRequest->status_approval !== 'Rejected')
                     <form method="POST" action="{{ route('leave-requests.update-status', $leaveRequest) }}">
                         @csrf @method('PATCH')
                         <input type="hidden" name="status_approval" value="Rejected">
                         <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 border border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 dark:active:bg-rose-500/35 dark:border-rose-500/30 dark:text-rose-400 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                            Tolak Permohonan
+                            Tolak
                         </button>
                     </form>
+                    @endif
+
+                    @if($leaveRequest->status_approval !== 'Pending')
+                    <form method="POST" action="{{ route('leave-requests.update-status', $leaveRequest) }}">
+                        @csrf @method('PATCH')
+                        <input type="hidden" name="status_approval" value="Pending">
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 border border-amber-200 text-amber-700 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 dark:active:bg-amber-500/35 dark:border-amber-500/30 dark:text-amber-400 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Set Pending
+                        </button>
+                    </form>
+                    @endif
                 </div>
             </div>
         @endif
