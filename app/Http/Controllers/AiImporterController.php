@@ -13,6 +13,7 @@ use App\Models\Room;
 use App\Models\RoomSchedule;
 use App\Models\AcademicCalendar;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AiImporterController extends Controller
@@ -101,9 +102,10 @@ class AiImporterController extends Controller
                             $teacher = User::firstOrCreate(
                                 ['username' => 'guru_' . uniqid()],
                                 [
-                                    'fullname' => $row['teacher_name'],
-                                    'password' => Hash::make('password'),
-                                    'role_id' => 2
+                                    'fullname'             => $row['teacher_name'],
+                                    'password'             => Hash::make(Str::random(24)),
+                                    'must_change_password' => true,
+                                    'role_id'              => 2
                                 ]
                             );
                         }

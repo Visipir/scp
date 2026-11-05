@@ -228,9 +228,10 @@ class ScheduleImportController extends Controller
                     $teacher = User::firstOrCreate(
                         ['username' => "guru_{$slug}"],
                         [
-                            'fullname' => $teacherName ?: "Guru {$teacherCode}",
-                            'password' => bcrypt('***REMOVED***'),
-                            'role_id'  => 2,
+                            'fullname'             => $teacherName ?: "Guru {$teacherCode}",
+                            'password'             => bcrypt(Str::random(24)),
+                            'must_change_password' => true,
+                            'role_id'              => 2,
                         ]
                     );
                 }
