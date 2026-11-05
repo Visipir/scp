@@ -227,7 +227,7 @@
                             <div class="space-y-4">
                                 @foreach($groupedClasses as $gradeTitle => $classes)
                                     <div>
-                                        <div class="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest mb-2">
+                                        <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                                             {{ $gradeTitle }}
                                         </div>
                                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">

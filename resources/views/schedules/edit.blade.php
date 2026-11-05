@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Manajemen Jadwal</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Manajemen Jadwal</div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Edit Jadwal Pelajaran (Sistem Blok Jam)
                 </h1>
             </div>
@@ -89,7 +89,6 @@
         <div class="bg-zinc-50 border border-zinc-200/80 rounded-lg p-4 font-mono text-xs text-zinc-700">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-200/60 pb-2.5 mb-2.5">
                 <span class="font-bold text-zinc-900 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-zinc-900"></span>
                     <span>Struktur Waktu Operasional: <span class="text-zinc-900 font-extrabold" x-text="cycle + ' — Hari ' + day"></span></span>
                 </span>
                 <span class="text-[11px] text-zinc-500 font-semibold" x-show="cycle === 'Putaran 2'">

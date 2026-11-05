@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-6">
         <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-mono font-semibold mb-3">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
             Aktivasi Akun Siswa
         </div>
         <h2 class="text-xl font-bold tracking-tight text-zinc-900">Ganti Password Wajib</h2>

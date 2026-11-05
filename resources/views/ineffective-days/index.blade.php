@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
                     Kurikulum &amp; Kesiswaan
                 </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Hari Tidak Efektif KBM
                 </h1>
                 <p class="text-xs text-zinc-500 mt-0.5">

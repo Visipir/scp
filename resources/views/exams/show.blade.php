@@ -90,19 +90,19 @@
                 <!-- Schedule & Teacher Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-zinc-50/80 rounded-xl border border-zinc-100 font-mono text-xs">
                     <div>
-                        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Tanggal Pelaksanaan</div>
+                        <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Tanggal Pelaksanaan</div>
                         <div class="font-bold text-zinc-900">
                             {{ \Carbon\Carbon::parse($exam->exam_date)->translatedFormat('l, d F Y') }}
                         </div>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Rentang Waktu</div>
+                        <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Rentang Waktu</div>
                         <div class="font-bold text-zinc-900">
                             {{ $exam->time_window ?? 'Fleksibel / Penugasan' }}
                         </div>
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Pengajar Pengampu</div>
+                        <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Pengajar Pengampu</div>
                         <div class="font-bold text-zinc-900 truncate">
                             {{ $exam->teacher->fullname ?? 'Guru Pengampu' }}
                         </div>
@@ -112,7 +112,7 @@
                 <!-- Instructions / Description -->
                 @if($exam->description)
                     <div class="space-y-2">
-                        <label class="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                             Instruksi &amp; Petunjuk Pembelajaran
                         </label>
                         <div class="p-5 rounded-xl bg-zinc-50 border border-zinc-200/70 text-sm text-zinc-700 whitespace-pre-line leading-relaxed">
@@ -123,7 +123,7 @@
 
                 <!-- Attachments Section -->
                 <div class="space-y-3 pt-2">
-                    <label class="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                         Akses Berkas &amp; Tautan Ujian
                     </label>
 

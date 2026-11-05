@@ -7,10 +7,10 @@
                 </svg>
             </a>
             <div>
-                <div class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
                     AI Importer Preview
                 </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Preview Data {{ $type }}
                 </h1>
             </div>

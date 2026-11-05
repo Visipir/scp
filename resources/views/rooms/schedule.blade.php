@@ -1,16 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-lg font-bold text-zinc-900 leading-tight flex items-center gap-2">
-            <svg class="w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v2H9V7zm0 4h1v2H9v-2zm0 4h1v2H9v-2zm3-8h1v2h-1V7zm0 4h1v2h-1v-2zm0 4h1v2h-1v-2zm3-8h1v2h-1V7zm0 4h1v2h-1v-2zm0 4h1v2h-1v-2z" />
-            </svg>
-            Jadwal Ruangan & Lab
-        </h2>
+        <x-page-header title="Jadwal Ruangan" subtitle="Pemetaan pemakaian ruang kelas, laboratorium, dan fasilitas sekolah" />
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-            
+    <div class="space-y-4">
             <!-- Filter Header -->
             <div class="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <form method="GET" action="{{ route('room-schedules.index') }}" class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full" id="roomFilterForm">
@@ -91,23 +84,20 @@
                                         
                                         @if($occupiedBy)
                                             <!-- Occupied Slot -->
-                                            <div class="p-2 rounded-lg border border-indigo-200 bg-indigo-50/50 relative overflow-hidden group">
-                                                <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                                                <div class="pl-2">
-                                                    <div class="text-[10px] font-mono text-indigo-500 font-semibold mb-0.5">
-                                                        P{{ $period['period'] }} &bull; {{ $period['start_time'] }}-{{ $period['end_time'] }}
-                                                    </div>
-                                                    <div class="text-xs font-bold text-zinc-900 leading-tight">
-                                                        {{ $occupiedBy->subject }}
-                                                    </div>
-                                                    <div class="mt-1 flex flex-wrap items-center gap-1">
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700">
-                                                            {{ $occupiedBy->schoolClass->class_name ?? 'Kelas' }}
-                                                        </span>
-                                                        <span class="text-[10px] text-zinc-600 truncate">
-                                                            {{ $occupiedBy->teacher->fullname ?? 'Guru' }}
-                                                        </span>
-                                                    </div>
+                                            <div class="p-2.5 rounded-lg border border-[#0093dd]/30 bg-[#0093dd]/5 dark:bg-[#0093dd]/10 relative group transition-colors">
+                                                <div class="text-[10px] font-mono text-[#0093dd] font-semibold mb-0.5">
+                                                    P{{ $period['period'] }} &bull; {{ $period['start_time'] }}-{{ $period['end_time'] }}
+                                                </div>
+                                                <div class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] leading-tight">
+                                                    {{ $occupiedBy->subject }}
+                                                </div>
+                                                <div class="mt-1.5 flex flex-wrap items-center gap-1">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#0093dd]/15 text-[#0093dd]">
+                                                        {{ $occupiedBy->schoolClass->class_name ?? 'Kelas' }}
+                                                    </span>
+                                                    <span class="text-[10px] text-zinc-600 dark:text-[#97979B] truncate">
+                                                        {{ $occupiedBy->teacher->fullname ?? 'Guru' }}
+                                                    </span>
                                                 </div>
                                             </div>
                                         @else
@@ -201,7 +191,6 @@
                 </div>
             @endif
         </div>
-    </div>
     
     <style>
         .hide-scrollbar::-webkit-scrollbar {

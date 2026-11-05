@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full dark bg-[#19191C] text-[#EDEDF0] antialiased">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full antialiased">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'SCP - Login') }}</title>
+    <title>{{ config('app.name', 'School Class Progress - Login') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
@@ -16,6 +16,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Theme Preference Initialization (Auto Device Detection / Stored) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'system';
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const isDark = savedTheme === 'dark' || (savedTheme === 'system' && prefersDark);
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                }
+            } catch (e) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -25,42 +45,30 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             letter-spacing: -0.011em; 
         }
-        .console-glow-bg {
-            background-image: 
-                radial-gradient(circle at 10% 90%, rgba(0, 147, 221, 0.08) 0%, rgba(0, 147, 221, 0.01) 45%, transparent 70%),
-                radial-gradient(circle at 90% 10%, rgba(10, 61, 94, 0.10) 0%, transparent 50%);
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .console-glow-bg {
-                transition: none !important;
-                animation: none !important;
-            }
-        }
     </style>
 </head>
-<body class="h-full bg-[#19191C] text-[#EDEDF0] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between console-glow-bg">
+<body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between transition-colors duration-150">
     
     <!-- Top Minimalist Brand Header -->
     <header class="w-full px-6 py-6 flex items-center justify-between z-10">
         <a href="/" class="flex items-center gap-2.5 group">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
-            <span class="font-black text-xl tracking-tight text-white font-sans">
-                SCP<span class="text-[#0093dd]">.</span>
-            </span>
-            <div class="h-3.5 w-px bg-[#2B2B30]"></div>
-            <span class="text-xs text-[#97979B] font-medium">School Class Progress</span>
+            <span class="text-base font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>
         </a>
+
+        <!-- Theme Preference Dropdown -->
+        <x-theme-dropdown align="right" />
     </header>
 
     <!-- Main Central Card Area -->
     <main class="flex-1 flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8 z-10">
-        <div class="w-full sm:max-w-md px-7 py-8 sm:p-9 bg-[#1D1D21] border border-[#2B2B30] rounded-2xl shadow-none">
+        <div class="w-full sm:max-w-md px-7 py-8 sm:p-9 bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-2xl shadow-xl dark:shadow-none transition-colors duration-150">
             {{ $slot }}
         </div>
     </main>
 
     <!-- Bottom Minimalist Footer -->
-    <footer class="w-full py-5 px-6 text-center text-xs font-mono text-[#5B5B61] z-10 border-t border-[#2B2B30]/50">
+    <footer class="w-full py-5 px-6 text-center text-xs font-mono text-zinc-400 dark:text-[#5B5B61] z-10 border-t border-zinc-200/80 dark:border-[#2B2B30]/50">
         <span>School Class Progress &copy; {{ date('Y') }}</span>
     </footer>
 

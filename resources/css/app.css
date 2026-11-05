@@ -78,27 +78,28 @@ html.light, html:not(.dark) {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #2B2B30;
+    background: #D4D4D8;
     border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #A1A1AA;
 }
 
 .dark ::-webkit-scrollbar-thumb {
     background: #2B2B30;
 }
 
-::-webkit-scrollbar-thumb:hover,
 .dark ::-webkit-scrollbar-thumb:hover {
     background: #3A3A3F;
 }
 
 /* ==========================================================================
-   Dark Developer-Console Structural Overrides
+   Base Layout & Canvas
    ========================================================================== */
-
-/* 1. Base Layout & Canvas */
-.dark body {
-    background-color: var(--bg-page) !important; /* #19191C near-black graphite */
-    color: var(--text-primary) !important; /* #EDEDF0 */
+body {
+    background-color: var(--bg-page) !important;
+    color: var(--text-primary) !important;
 }
 
 /* 2. Cards, Surfaces & Panels (Flat, 1px Hairline #2B2B30, No Drop Shadows) */
@@ -526,18 +527,6 @@ html.light, html:not(.dark) {
     color: #c084fc !important;
 }
 
-/* 9. Console Glow & Grid Utility Effects */
-.console-glow {
-    background-image: radial-gradient(circle at 10% 90%, rgba(0, 147, 221, 0.12) 0%, rgba(0, 147, 221, 0.03) 40%, transparent 70%);
-}
-
-.console-grid {
-    background-size: 32px 32px;
-    background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-}
-
 /* 9. Pagination Styling */
 .dark nav[role="navigation"] {
     color: var(--text-secondary) !important;
@@ -576,10 +565,207 @@ html.light, html:not(.dark) {
     border-color: var(--border-hairline) !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .console-glow,
-    .console-grid {
-        transition: none !important;
-        animation: none !important;
-    }
+/* ==========================================================================
+   LIGHT MODE OPTIMIZATION (Clean, Crisp, Modern UI)
+   ========================================================================== */
+
+/* Hardcoded Dark Console Tokens -> Light Theme Mapping */
+html.light .bg-\[\#19191C\],
+html:not(.dark) .bg-\[\#19191C\] {
+    background-color: var(--bg-page) !important;
 }
+
+html.light .bg-\[\#1D1D21\],
+html:not(.dark) .bg-\[\#1D1D21\] {
+    background-color: var(--surface-card) !important;
+}
+
+html.light .bg-\[\#232327\],
+html:not(.dark) .bg-\[\#232327\] {
+    background-color: var(--surface-nested) !important;
+}
+
+html.light .bg-\[\#26262A\],
+html:not(.dark) .bg-\[\#26262A\] {
+    background-color: var(--surface-hover) !important;
+}
+
+html.light .hover\:bg-\[\#26262A\]:hover,
+html:not(.dark) .hover\:bg-\[\#26262A\]:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+html.light .hover\:bg-\[\#232327\]:hover,
+html:not(.dark) .hover\:bg-\[\#232327\]:hover,
+html.light .group:hover .group-hover\:bg-\[\#26262A\],
+html:not(.dark) .group:hover .group-hover\:bg-\[\#26262A\],
+html.light .group:hover .group-hover\:bg-\[\#232327\],
+html:not(.dark) .group:hover .group-hover\:bg-\[\#232327\] {
+    background-color: var(--surface-hover) !important;
+}
+
+html.light .bg-\[\#3A3A3F\],
+html:not(.dark) .bg-\[\#3A3A3F\] {
+    background-color: var(--nav-active) !important;
+    color: var(--accent) !important;
+}
+
+html.light .border-\[\#2B2B30\],
+html:not(.dark) .border-\[\#2B2B30\],
+html.light .border-\[\#2B2B30\]\/50,
+html:not(.dark) .border-\[\#2B2B30\]\/50,
+html.light .divide-\[\#2B2B30\] > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .divide-\[\#2B2B30\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-hairline) !important;
+}
+
+html.light .text-\[\#EDEDF0\],
+html:not(.dark) .text-\[\#EDEDF0\] {
+    color: var(--text-primary) !important;
+}
+
+html.light .text-\[\#97979B\],
+html:not(.dark) .text-\[\#97979B\] {
+    color: var(--text-secondary) !important;
+}
+
+html.light .text-\[\#5B5B61\],
+html:not(.dark) .text-\[\#5B5B61\] {
+    color: var(--text-muted) !important;
+}
+
+/* Light Mode Card Shadows */
+html.light .rounded-xl.border,
+html.light .rounded-2xl.border,
+html:not(.dark) .rounded-xl.border,
+html:not(.dark) .rounded-2xl.border {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* Light Mode Inputs, Selects & Textareas */
+html.light input[type="text"],
+html.light input[type="search"],
+html.light input[type="date"],
+html.light input[type="time"],
+html.light input[type="month"],
+html.light input[type="url"],
+html.light input[type="email"],
+html.light input[type="password"],
+html.light select,
+html.light textarea,
+html:not(.dark) input[type="text"],
+html:not(.dark) input[type="search"],
+html:not(.dark) input[type="date"],
+html:not(.dark) input[type="time"],
+html:not(.dark) input[type="month"],
+html:not(.dark) input[type="url"],
+html:not(.dark) input[type="email"],
+html:not(.dark) input[type="password"],
+html:not(.dark) select,
+html:not(.dark) textarea {
+    background-color: #FFFFFF !important;
+    border-color: #D4D4D8 !important;
+    color: #18181B !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder,
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+    color: #A1A1AA !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus,
+html:not(.dark) input:focus,
+html:not(.dark) select:focus,
+html:not(.dark) textarea:focus {
+    background-color: #FFFFFF !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(0, 147, 221, 0.2) !important;
+}
+
+/* Light Mode Tables */
+html.light table,
+html:not(.dark) table {
+    border-color: var(--border-hairline) !important;
+}
+
+html.light th,
+html:not(.dark) th {
+    background-color: #F4F4F6 !important;
+    color: #52525B !important;
+    border-color: var(--border-hairline) !important;
+}
+
+html.light td,
+html:not(.dark) td {
+    border-color: var(--border-hairline) !important;
+}
+
+html.light tr:hover td,
+html:not(.dark) tr:hover td {
+    background-color: #F8F9FA !important;
+}
+
+/* Light Mode Status Badges (Soft Tints + Crisp Text) */
+html.light .bg-emerald-500\/15,
+html:not(.dark) .bg-emerald-500\/15 {
+    background-color: #ECFDF5 !important;
+    color: #047857 !important;
+    border-color: #A7F3D0 !important;
+}
+
+html.light .bg-rose-500\/15,
+html:not(.dark) .bg-rose-500\/15 {
+    background-color: #FFF1F2 !important;
+    color: #BE123C !important;
+    border-color: #FECDD3 !important;
+}
+
+html.light .bg-amber-500\/15,
+html:not(.dark) .bg-amber-500\/15 {
+    background-color: #FFFBEB !important;
+    color: #B45309 !important;
+    border-color: #FDE68A !important;
+}
+
+html.light .bg-sky-500\/15,
+html:not(.dark) .bg-sky-500\/15 {
+    background-color: #F0F9FF !important;
+    color: #0369A1 !important;
+    border-color: #BAE6FD !important;
+}
+
+html.light .bg-purple-500\/15,
+html:not(.dark) .bg-purple-500\/15 {
+    background-color: #FAF5FF !important;
+    color: #6D28D9 !important;
+    border-color: #DDD6FE !important;
+}
+
+/* Light Mode Pagination */
+html.light nav[role="navigation"] a,
+html:not(.dark) nav[role="navigation"] a {
+    background-color: #FFFFFF !important;
+    color: #52525B !important;
+    border-color: #E2E2E8 !important;
+}
+
+html.light nav[role="navigation"] a:hover,
+html:not(.dark) nav[role="navigation"] a:hover {
+    background-color: #F4F4F6 !important;
+    color: #18181B !important;
+    border-color: #D4D4D8 !important;
+}
+
+html.light nav[role="navigation"] span[aria-current="page"] > span,
+html:not(.dark) nav[role="navigation"] span[aria-current="page"] > span,
+html.light nav[role="navigation"] span[aria-current="page"],
+html:not(.dark) nav[role="navigation"] span[aria-current="page"] {
+    background-color: var(--accent) !important;
+    color: #FFFFFF !important;
+    border-color: var(--accent) !important;
+}
+

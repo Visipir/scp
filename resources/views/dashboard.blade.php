@@ -1,10 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0]">
-                Dashboard
-            </h1>
-        </div>
+        <x-page-header title="Dashboard" subtitle="Ringkasan aktivitas akademik dan informasi presensi sekolah" />
     </x-slot>
 
     <div class="space-y-6">

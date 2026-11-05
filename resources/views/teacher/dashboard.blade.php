@@ -1,21 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-                    Dashboard Guru
-                </h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('journals.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-transparent border border-zinc-200 dark:border-[#2B2B30] text-xs font-semibold uppercase tracking-wider text-zinc-800 dark:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
-                    <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
-                    Riwayat Jurnal
-                </a>
-            </div>
-        </div>
+        <x-page-header 
+            title="Dashboard" 
+            subtitle="Ringkasan jadwal mengajar hari ini dan pengisian jurnal KBM"
+        >
+            <a href="{{ route('journals.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] text-xs font-semibold text-zinc-800 dark:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
+                <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                Riwayat Jurnal
+            </a>
+        </x-page-header>
     </x-slot>
 
-    <div class="space-y-6 max-w-4xl">
+    <div class="space-y-6">
 
         {{-- PENDING SCHEDULE SWAP REQUESTS ALERT --}}
         @if(($pendingSwapCount ?? 0) > 0)

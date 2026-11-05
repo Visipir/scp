@@ -9,11 +9,11 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest">Master Data Akademik</span>
-                        <span class="text-zinc-300">&bull;</span>
-                        <span class="text-[10px] font-bold font-mono text-indigo-600 uppercase tracking-widest">Detail Rombel</span>
+                        <span class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Master Data Akademik</span>
+                        <span class="text-zinc-300 dark:text-[#5B5B61]">&bull;</span>
+                        <span class="text-xs font-semibold text-[#0093dd] uppercase tracking-wider">Detail Rombel</span>
                     </div>
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5 flex items-center gap-2 flex-wrap">
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5 flex items-center gap-2 flex-wrap">
                         {{ $class->class_name }}
                         @if($class->grade_level)
                             <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-mono text-xs font-bold">{{ $class->grade_level }}</span>
@@ -244,7 +244,7 @@
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-xs">
                         @forelse($recentAbsences as $att)
-                            <tr class="hover:bg-[#232327] transition-colors">
+                            <tr class="hover:bg-zinc-50 dark:hover:bg-[#232327] transition-colors">
                                 <td class="px-4 py-3 font-mono text-zinc-600 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($att->date)->isoFormat('D MMM Y') }}
                                 </td>

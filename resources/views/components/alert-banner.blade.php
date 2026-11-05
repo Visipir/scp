@@ -21,11 +21,11 @@ $label = match($type) {
 };
 @endphp
 
-<div {{ $attributes->merge(['class' => "rounded-lg border border-[#2B2B30] border-l-2 bg-[#1D1D21] p-4 text-[#EDEDF0] {$borderAccent}"]) }} role="alert">
+<div {{ $attributes->merge(['class' => "rounded-lg border border-zinc-200 dark:border-[#2B2B30] border-l-2 bg-white dark:bg-[#1D1D21] p-4 text-zinc-800 dark:text-[#EDEDF0] shadow-xs dark:shadow-none {$borderAccent}"]) }} role="alert">
     <div class="flex items-start gap-3">
         <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 border mt-0.5 {{ $tagBg }}">
             {{ $label }}
         </span>
-        <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed text-[#EDEDF0]">{{ $slot }}</div>
+        <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed text-zinc-800 dark:text-[#EDEDF0]">{{ $slot }}</div>
     </div>
 </div>

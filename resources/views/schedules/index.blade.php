@@ -1,25 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="space-y-1">
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0]">
-                    @if(auth()->user()->role_id === 2)
-                        Jadwal Mengajar
-                    @else
-                        Jadwal Pelajaran
-                    @endif
-                </h1>
-                <p class="text-xs text-zinc-500 dark:text-[#97979B]">
-                    @if(auth()->user()->role_id === 2)
-                        Alokasi waktu tatap muka mengajar Anda pada siklus {{ $cycleFilter }}.
-                    @else
-                        Manajemen alokasi mata pelajaran, kelas, ruang, dan guru pengampu KBM.
-                    @endif
-                </p>
-            </div>
-
-            {{-- Action Buttons --}}
-            <div class="flex flex-wrap items-center gap-2.5 sm:self-center shrink-0">
+        <x-page-header 
+            title="Jadwal Pelajaran" 
+            :subtitle="auth()->user()->role_id === 2 ? 'Alokasi waktu tatap muka mengajar Anda' : 'Manajemen alokasi mata pelajaran, kelas, ruang, dan guru pengampu KBM'"
+        >
+            <x-slot:actions>
                 @if(auth()->user()->role_id === 1)
                     <a 
                         href="{{ route('schedule-swaps.index') }}" 
@@ -67,8 +52,8 @@
                         </a>
                     @endif
                 @endif
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-page-header>
     </x-slot>
 
     @php

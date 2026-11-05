@@ -1,22 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-                    Kalender Akademik
-                </h1>
-                <p class="text-xs text-zinc-500 mt-0.5">
-                    Agenda kegiatan sekolah dan penetapan hari tidak efektif KBM.
-                </p>
-            </div>
-            <div class="flex items-center gap-2">
-                <x-ai-importer-modal type="Kalender Pendidikan" title="Import via AI (PDF)" />
-            </div>
-        </div>
+        <x-page-header 
+            title="Kalender Akademik" 
+            subtitle="Agenda kegiatan sekolah dan penetapan hari tidak efektif KBM"
+        >
+            <x-ai-importer-modal type="Kalender Pendidikan" title="Import via AI (PDF)" />
+        </x-page-header>
     </x-slot>
 
     <div 
-        class="space-y-6 max-w-6xl"
+        class="space-y-6"
         x-data="{
             detailModalOpen: false,
             selectedDate: '',
@@ -85,10 +78,10 @@
             <div class="p-4 sm:p-5 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
                 {{-- Month Title & Previous / Next Controls --}}
                 <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shadow-2xs">
+                    <div class="inline-flex items-center rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] p-0.5 shadow-2xs">
                         <a 
                             href="{{ route('academic-calendar.index', ['month' => $prevMonthDate->month, 'year' => $prevMonthDate->year]) }}" 
-                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
+                            class="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-900 dark:text-[#97979B] dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Sebelumnya ({{ $monthNames[$prevMonthDate->month] }} {{ $prevMonthDate->year }})"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -97,7 +90,7 @@
                         </a>
                         <a 
                             href="{{ route('academic-calendar.index', ['month' => $nextMonthDate->month, 'year' => $nextMonthDate->year]) }}" 
-                            class="p-1.5 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
+                            class="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-900 dark:text-[#97979B] dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Berikutnya ({{ $monthNames[$nextMonthDate->month] }} {{ $nextMonthDate->year }})"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -460,13 +453,13 @@
                 >
                     <div class="flex items-start justify-between gap-3 border-b border-zinc-100 pb-3 mb-4">
                         <div>
-                            <span class="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Detail Agenda / Tanggal</span>
+                            <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Detail Agenda / Tanggal</span>
                             <h3 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight mt-0.5" x-text="selectedFormattedDate"></h3>
                         </div>
                         <button 
                             type="button" 
                             @click="detailModalOpen = false" 
-                            class="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-[#26262A] transition cursor-pointer"
+                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                         >
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

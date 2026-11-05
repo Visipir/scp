@@ -54,9 +54,9 @@
         </div>
 
         <div class="pt-2 flex items-center gap-3">
-            <x-secondary-button type="submit" class="!bg-[#232327] hover:!bg-[#2B2B30] !border-[#2B2B30] !text-[#EDEDF0]">
+            <x-primary-button>
                 Perbarui Kata Sandi
-            </x-secondary-button>
+            </x-primary-button>
 
             @if (session('status') === 'password-updated')
                 <span

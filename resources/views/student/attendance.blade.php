@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="text-[10px] font-bold font-mono text-[#97979B] uppercase tracking-widest">Presensi</div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0] mt-0.5">
+                <div class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Presensi</div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                     Rekap Kehadiran
                 </h1>
             </div>
-            <a href="{{ route('leave-requests.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-[#2B2B30] text-xs font-semibold uppercase tracking-wider text-[#EDEDF0] rounded-lg hover:bg-[#26262A] transition">
+            <a href="{{ route('leave-requests.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-transparent border border-zinc-200 dark:border-[#2B2B30] text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
                 Izin &amp; Sakit
             </a>
         </div>
@@ -16,11 +16,11 @@
     <div class="space-y-4 sm:space-y-6 max-w-3xl">
 
         {{-- Filter: child (parent only) + month --}}
-        <form method="GET" action="{{ route('student.attendance.index') }}" class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-end gap-3">
+        <form method="GET" action="{{ route('student.attendance.index') }}" class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-end gap-3">
             @if($isParent)
                 <div class="flex-1">
                     <x-input-label for="student_id" value="Pilih Siswa" />
-                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition">
+                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition">
                         @foreach($children as $child)
                             <option value="{{ $child->id }}" @selected($student->id === $child->id)>{{ $child->fullname }}</option>
                         @endforeach
@@ -29,7 +29,7 @@
             @endif
             <div class="flex-1">
                 <x-input-label for="month" value="Bulan" />
-                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-[#2B2B30] bg-[#19191C] px-3 py-2 text-sm font-mono text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" />
+                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" />
             </div>
             <button type="submit" class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition cursor-pointer">
                 Terapkan
@@ -39,11 +39,11 @@
         {{-- Summary chips --}}
         @php
             $chips = [
-                'Hadir'     => 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-                'Sakit'     => 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-                'Izin'      => 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-                'Alpa'      => 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-                'Terlambat' => 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+                'Hadir'     => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30',
+                'Sakit'     => 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30',
+                'Izin'      => 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-500/30',
+                'Alpa'      => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30',
+                'Terlambat' => 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-500/30',
             ];
         @endphp
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -59,22 +59,22 @@
         <div class="space-y-2">
             @forelse($records as $record)
                 @php $schedule = $record->journal?->schedule; @endphp
-                <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-4 flex items-start justify-between gap-3">
+                <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 flex items-start justify-between gap-3">
                     <div class="min-w-0 space-y-1">
-                        <div class="font-mono text-xs text-[#97979B]">
+                        <div class="font-mono text-xs text-zinc-500 dark:text-[#97979B]">
                             {{ \Carbon\Carbon::parse($record->date)->translatedFormat('l, d F Y') }}
                         </div>
-                        <div class="font-bold text-sm text-[#EDEDF0] truncate">
+                        <div class="font-bold text-sm text-zinc-900 dark:text-[#EDEDF0] truncate">
                             {{ $schedule?->subject ?? 'KBM' }}
                         </div>
-                        <div class="font-mono text-[11px] text-[#97979B]">
+                        <div class="font-mono text-[11px] text-zinc-500 dark:text-[#97979B]">
                             {{ $schedule?->period_label ?? '-' }}
                             @if($schedule)
                                 &bull; {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}&ndash;{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                             @endif
                         </div>
                         @if($record->notes)
-                            <p class="text-xs text-[#97979B] leading-relaxed">{{ $record->notes }}</p>
+                            <p class="text-xs text-zinc-500 dark:text-[#97979B] leading-relaxed">{{ $record->notes }}</p>
                         @endif
                     </div>
                     <div class="shrink-0">
@@ -82,8 +82,8 @@
                     </div>
                 </div>
             @empty
-                <div class="bg-[#1D1D21] border border-[#2B2B30] rounded-xl p-12 text-center">
-                    <p class="text-xs font-mono text-[#97979B] uppercase tracking-wider">Belum ada data presensi pada bulan ini.</p>
+                <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-12 text-center">
+                    <p class="text-xs font-medium text-zinc-600 dark:text-[#97979B]">Belum ada data presensi pada bulan ini. Data kehadiran dicatat dan disinkronkan langsung dari pengisian jurnal guru pengajar di kelas.</p>
                 </div>
             @endforelse
         </div>

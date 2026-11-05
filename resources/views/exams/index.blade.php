@@ -1,58 +1,39 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-1">
-                    @if(auth()->user()->role_id == 2)
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#232327] text-[#EDEDF0] border border-[#2B2B30]">
-                            Mode Pengajar
-                        </span>
-                    @elseif(auth()->user()->role_id == 4)
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                            Kelas {{ auth()->user()->schoolClass->class_name ?? 'Siswa' }}
-                        </span>
-                    @endif
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-                    Materi &amp; Ujian
-                </h1>
-                <p class="text-xs text-zinc-500 mt-0.5">
-                    Modul pembelajaran, bank soal latihan, dan jadwal asesmen akademik.
-                </p>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-2">
-                @if(auth()->user()->role_id == 2)
-                    {{-- Toggle Scope for Teachers: My materials vs All School --}}
-                    @if(request('view_scope') === 'all')
-                        <a href="{{ route('exams.index', request()->except('view_scope', 'page')) }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-[#26262A] rounded-lg transition shadow-xs">
-                            <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                            </svg>
-                            Tampilkan Materi Saya
-                        </a>
-                    @else
-                        <a href="{{ route('exams.index', array_merge(request()->except('page'), ['view_scope' => 'all'])) }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-[#26262A] rounded-lg transition shadow-xs">
-                            <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                            </svg>
-                            Lihat Semua Konten Sekolah
-                        </a>
-                    @endif
-                @endif
-
-                @if(in_array(auth()->user()->role_id, [1, 2]))
-                    <a href="{{ route('exams.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        <x-page-header 
+            title="Materi & Ujian" 
+            subtitle="Modul pembelajaran, bank soal latihan, dan jadwal asesmen akademik"
+        >
+            @if(auth()->user()->role_id == 2)
+                {{-- Toggle Scope for Teachers: My materials vs All School --}}
+                @if(request('view_scope') === 'all')
+                    <a href="{{ route('exams.index', request()->except('view_scope', 'page')) }}" 
+                       class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] hover:bg-zinc-50 dark:hover:bg-[#26262A] rounded-lg transition shadow-xs">
+                        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
-                        Unggah Konten Baru
+                        Tampilkan Materi Saya
+                    </a>
+                @else
+                    <a href="{{ route('exams.index', array_merge(request()->except('page'), ['view_scope' => 'all'])) }}" 
+                       class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] hover:bg-zinc-50 dark:hover:bg-[#26262A] rounded-lg transition shadow-xs">
+                        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        Lihat Semua Konten Sekolah
                     </a>
                 @endif
-            </div>
-        </div>
+            @endif
+
+            @if(in_array(auth()->user()->role_id, [1, 2]))
+                <a href="{{ route('exams.create') }}" class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-none shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                    </svg>
+                    Unggah Konten Baru
+                </a>
+            @endif
+        </x-page-header>
     </x-slot>
 
     @php
@@ -114,7 +95,7 @@
             <!-- Total Konten -->
             <div class="bg-white border border-zinc-200/90 rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Total Repositori</span>
+                    <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Repositori</span>
                     <span class="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-600">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
@@ -135,7 +116,7 @@
             <a href="{{ route('exams.index', array_merge(request()->except('category', 'page'), ['category' => 'materi'])) }}" 
                class="bg-white border {{ request('category') === 'materi' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-zinc-200/90' }} rounded-xl p-4 sm:p-5 shadow-xs hover:border-emerald-300 transition group">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-emerald-700 uppercase tracking-widest">Materi Belajar</span>
+                    <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Materi Belajar</span>
                     <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -156,7 +137,7 @@
             <a href="{{ route('exams.index', array_merge(request()->except('category', 'page'), ['category' => 'bank_soal'])) }}" 
                class="bg-white border {{ request('category') === 'bank_soal' ? 'border-sky-500 ring-2 ring-sky-500/20' : 'border-zinc-200/90' }} rounded-xl p-4 sm:p-5 shadow-xs hover:border-sky-300 transition group">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest">Bank Soal &amp; LKPD</span>
+                    <span class="text-xs font-semibold text-sky-700 uppercase tracking-wider">Bank Soal &amp; LKPD</span>
                     <span class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -177,7 +158,7 @@
             <a href="{{ route('exams.index', array_merge(request()->except('category', 'page'), ['category' => 'ujian'])) }}" 
                class="bg-white border {{ request('category') === 'ujian' ? 'border-rose-500 ring-2 ring-rose-500/20' : 'border-zinc-200/90' }} rounded-xl p-4 sm:p-5 shadow-xs hover:border-rose-300 transition group">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-rose-700 uppercase tracking-widest">Ujian &amp; Asesmen</span>
+                    <span class="text-xs font-semibold text-rose-700 uppercase tracking-wider">Ujian &amp; Asesmen</span>
                     <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
