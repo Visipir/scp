@@ -363,6 +363,8 @@ class ScheduleSwapTest extends TestCase
 
     public function test_substitute_teacher_can_fill_journal_and_original_teacher_cannot(): void
     {
+        $this->travelTo(Carbon::parse($this->swapDate)->setTime(9, 0, 0));
+
         $swap = ScheduleSwap::create([
             'requester_id'          => $this->guru1->id,
             'target_id'             => $this->guru2->id,

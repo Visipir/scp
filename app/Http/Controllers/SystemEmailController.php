@@ -17,8 +17,9 @@ class SystemEmailController extends Controller
     public function edit(): View
     {
         $settings = $this->mailService->getSafeSettings();
+        $mailLogs = \App\Models\MailSendLog::latest('id')->limit(20)->get();
 
-        return view('system-configuration.email', compact('settings'));
+        return view('system-configuration.email', compact('settings', 'mailLogs'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -31,6 +32,7 @@ class SystemEmailController extends Controller
             'mail_password'     => ['nullable', 'string', 'max:255'],
             'mail_from_address' => ['nullable', 'email', 'max:255'],
             'mail_from_name'    => ['nullable', 'string', 'max:255'],
+            'mail_ignore_cert'  => ['nullable'],
         ], [
             'mail_port.between'      => 'Port email harus di antara 1 dan 65535.',
             'mail_encryption.in'     => 'Enkripsi harus salah satu dari: tls, ssl, atau none.',
@@ -57,7 +59,7 @@ class SystemEmailController extends Controller
 
             return redirect()->route('system-configuration.email')
                 ->with('success', 'Email tes berhasil dikirimkan ke: ' . $user->email);
-        } catch (RuntimeException $e) {
+        } catch (\Throwable $e) {
             return redirect()->route('system-configuration.email')
                 ->with('error', $e->getMessage());
         }

@@ -163,6 +163,24 @@
                         </div>
                     </div>
 
+                    <div class="pt-2 border-t border-zinc-100 dark:border-[#2B2B30]">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="mail_ignore_cert"
+                                value="1"
+                                {{ old('mail_ignore_cert', $settings['mail_ignore_cert'] ?? false) ? 'checked' : '' }}
+                                class="rounded border-zinc-300 dark:border-zinc-700 text-[#0093dd] focus:ring-[#0093dd] bg-white dark:bg-[#26262A]"
+                            >
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                Abaikan verifikasi sertifikat SSL (self-signed)
+                            </span>
+                        </label>
+                        <p class="text-[11px] text-zinc-500 dark:text-[#97979B] mt-0.5 ml-6">
+                            Centang opsi ini jika server mail lokal / sekolah menggunakan sertifikat self-signed tanpa validasi CA publik.
+                        </p>
+                    </div>
+
                     <div class="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-zinc-100 dark:border-[#2B2B30]">
                         <span class="text-xs text-zinc-500 dark:text-[#97979B]">
                             Biarkan kosong untuk menggunakan konfigurasi bawaan .env
@@ -221,6 +239,84 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- PANEL RIWAYAT PENGIRIMAN EMAIL (20 Terakhir) --}}
+        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
+            <div class="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-base font-semibold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
+                        Riwayat Pengiriman Email
+                    </h3>
+                    <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-0.5">
+                        Log 20 pengiriman email terakhir (alamat penerima disamarkan demi privasi).
+                    </p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-zinc-100 dark:bg-[#26262A] text-zinc-700 dark:text-zinc-300">
+                    {{ count($mailLogs ?? []) }} Catatan
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs divide-y divide-zinc-200 dark:divide-[#2B2B30]">
+                    <thead class="bg-zinc-50 dark:bg-[#26262A] text-zinc-500 dark:text-[#97979B] font-mono text-[11px] uppercase tracking-wider">
+                        <tr>
+                            <th class="px-5 py-3 font-semibold">Waktu</th>
+                            <th class="px-5 py-3 font-semibold">Tipe Email</th>
+                            <th class="px-5 py-3 font-semibold">Penerima</th>
+                            <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 font-semibold">Keterangan / Error</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-200 dark:divide-[#2B2B30] font-sans">
+                        @forelse($mailLogs ?? [] as $log)
+                            <tr class="hover:bg-zinc-50/50 dark:hover:bg-[#26262A]/50 transition">
+                                <td class="px-5 py-3 font-mono text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                                    {{ $log->created_at ? $log->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i:s') : '-' }}
+                                </td>
+                                <td class="px-5 py-3 whitespace-nowrap">
+                                    @php
+                                        $typeLabels = [
+                                            'test'               => ['label' => 'Tes Email', 'color' => 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800'],
+                                            'password_reset'     => ['label' => 'Reset Kata Sandi', 'color' => 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800'],
+                                            'email_verification' => ['label' => 'Verifikasi Email', 'color' => 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800'],
+                                        ];
+                                        $typeInfo = $typeLabels[$log->mail_type] ?? ['label' => ucfirst($log->mail_type), 'color' => 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'];
+                                    @endphp
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border {{ $typeInfo['color'] }}">
+                                        {{ $typeInfo['label'] }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 font-mono text-zinc-800 dark:text-[#EDEDF0] whitespace-nowrap">
+                                    {{ $log->recipient }}
+                                </td>
+                                <td class="px-5 py-3 whitespace-nowrap">
+                                    @if($log->status === 'success')
+                                        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                            Terkirim
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-semibold text-[11px]">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            Gagal
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3 text-zinc-600 dark:text-zinc-400 max-w-md truncate" title="{{ $log->error_message }}">
+                                    {{ $log->error_message ?: '-' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-8 text-center text-zinc-400 dark:text-zinc-500">
+                                    Belum ada riwayat pengiriman email yang tercatat.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>

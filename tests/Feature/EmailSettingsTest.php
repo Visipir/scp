@@ -168,4 +168,71 @@ class EmailSettingsTest extends TestCase
 
         Mail::assertNothingSent();
     }
+
+    public function test_smtp_scheme_and_verify_peer_configuration(): void
+    {
+        $service = app(\App\Services\MailConfigService::class);
+
+        // 1. SSL on port 465 -> smtps scheme
+        $this->makeConfig([
+            'mail_host'        => 'smtp.gmail.com',
+            'mail_port'        => 465,
+            'mail_encryption'  => 'ssl',
+            'mail_verify_peer' => false,
+        ]);
+
+        $service->applyRuntimeConfig(force: true);
+        $this->assertSame('smtps', \Illuminate\Support\Facades\Config::get('mail.mailers.smtp.scheme'));
+        $this->assertFalse(\Illuminate\Support\Facades\Config::get('mail.mailers.smtp.verify_peer'));
+        $this->assertFalse(\Illuminate\Support\Facades\Config::get('mail.mailers.smtp.stream.ssl.verify_peer'));
+
+        // 2. TLS on port 587 -> smtp scheme
+        SystemConfiguration::first()->update([
+            'mail_port'        => 587,
+            'mail_encryption'  => 'tls',
+            'mail_verify_peer' => true,
+        ]);
+
+        $service->applyRuntimeConfig(force: true);
+        $this->assertSame('smtp', \Illuminate\Support\Facades\Config::get('mail.mailers.smtp.scheme'));
+        $this->assertTrue(\Illuminate\Support\Facades\Config::get('mail.mailers.smtp.verify_peer'));
+    }
+
+    public function test_corrupted_password_decrypt_returns_readable_error(): void
+    {
+        $this->makeConfig([
+            'mail_host'     => 'smtp.test.com',
+            'mail_password' => 'invalid_ciphertext_not_decryptable',
+        ]);
+
+        $service = app(\App\Services\MailConfigService::class);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Gagal membaca password email. Silakan simpan ulang password email di Pengaturan Email.');
+
+        $service->sendTestEmail('user@test.com', 'User Test');
+    }
+
+    public function test_mail_send_logs_recorded_with_masked_email(): void
+    {
+        Mail::fake();
+
+        $waka = $this->makeUser(1, [
+            'email'             => 'fikricavan13@gmail.com',
+            'email_verified_at' => now(),
+        ]);
+        $this->makeConfig([
+            'mail_host'     => 'smtp.test.com',
+            'mail_password' => Crypt::encryptString('secret'),
+        ]);
+
+        $service = app(\App\Services\MailConfigService::class);
+        $service->sendTestEmail($waka->email, $waka->fullname);
+
+        $this->assertDatabaseHas('mail_send_logs', [
+            'mail_type' => 'test',
+            'recipient' => 'f***3@gmail.com',
+            'status'    => 'success',
+        ]);
+    }
 }
