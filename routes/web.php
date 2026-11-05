@@ -129,6 +129,9 @@ Route::middleware(["auth", "role:1,2,3"])->group(function () {
 Route::middleware(['auth', 'role:1,2'])->prefix('schedule-swaps')->name('schedule-swaps.')->group(function () {
     Route::get('/', [\App\Http\Controllers\ScheduleSwapController::class, 'index'])->name('index');
     Route::get('/candidates', [\App\Http\Controllers\ScheduleSwapController::class, 'candidates'])->name('candidates');
+    Route::get('/export-csv', [\App\Http\Controllers\ScheduleSwapController::class, 'exportCsv'])->name('export-csv');
+    Route::get('/print', [\App\Http\Controllers\ScheduleSwapController::class, 'printReport'])->name('print');
+    Route::get('/{scheduleSwap}', [\App\Http\Controllers\ScheduleSwapController::class, 'show'])->name('show');
     Route::post('/', [\App\Http\Controllers\ScheduleSwapController::class, 'store'])->name('store');
     Route::post('/{scheduleSwap}/approve', [\App\Http\Controllers\ScheduleSwapController::class, 'approve'])->name('approve');
     Route::post('/{scheduleSwap}/reject', [\App\Http\Controllers\ScheduleSwapController::class, 'reject'])->name('reject');

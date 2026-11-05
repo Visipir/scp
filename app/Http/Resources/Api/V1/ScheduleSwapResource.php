@@ -48,8 +48,11 @@ class ScheduleSwapResource extends JsonResource
             'swap_date'             => $this->swap_date?->format('Y-m-d'),
             'status'                => $this->status,
             'note'                  => $this->note,
+            'journal_filled'        => $this->isJournalFilled(),
+            'journal_id'            => $this->relationLoaded('journals') ? $this->journals->first()?->id : null,
             'responded_at'          => $this->responded_at?->toIso8601String(),
             'created_at'            => $this->created_at?->toIso8601String(),
+            'logs'                  => ScheduleSwapLogResource::collection($this->whenLoaded('logs')),
         ];
     }
 }

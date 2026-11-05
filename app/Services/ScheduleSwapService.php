@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
+use App\Exceptions\ScheduleSwapConflictException;
 use App\Models\Journal;
 use App\Models\Notification;
 use App\Models\Schedule;
 use App\Models\ScheduleSwap;
+use App\Models\ScheduleSwapLog;
 use App\Models\SystemConfiguration;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -57,15 +60,104 @@ class ScheduleSwapService
     }
 
     /**
-     * Automatically mark pending swaps whose swap_date has passed as expired.
+     * Build snapshot array for schedule swap log.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildSnapshot(ScheduleSwap $swap): array
+    {
+        if (! $swap->relationLoaded('requester') || ! $swap->relationLoaded('target')) {
+            $swap->loadMissing([
+                'requester',
+                'target',
+                'requesterSchedule.schoolClass',
+                'requesterSchedule.room',
+                'targetSchedule.schoolClass',
+                'targetSchedule.room',
+            ]);
+        }
+
+        $reqSched = $swap->requesterSchedule;
+        $tarSched = $swap->targetSchedule;
+
+        return [
+            'swap_date'          => Carbon::parse($swap->swap_date)->toDateString(),
+            'cycle'              => $swap->cycle,
+            'requester'          => [
+                'id'   => (int) $swap->requester_id,
+                'name' => $swap->requester?->fullname ?? 'Guru #' . $swap->requester_id,
+            ],
+            'target'             => [
+                'id'   => (int) $swap->target_id,
+                'name' => $swap->target?->fullname ?? 'Guru #' . $swap->target_id,
+            ],
+            'requester_schedule' => [
+                'id'      => $reqSched?->id,
+                'subject' => $reqSched?->subject,
+                'class'   => $reqSched?->schoolClass?->class_name,
+                'room'    => $reqSched?->room?->room_name,
+                'day'     => $reqSched?->day_of_week,
+                'start'   => $reqSched?->start_time ? substr($reqSched->start_time, 0, 5) : null,
+                'end'     => $reqSched?->end_time ? substr($reqSched->end_time, 0, 5) : null,
+            ],
+            'target_schedule'    => [
+                'id'      => $tarSched?->id,
+                'subject' => $tarSched?->subject,
+                'class'   => $tarSched?->schoolClass?->class_name,
+                'room'    => $tarSched?->room?->room_name,
+                'day'     => $tarSched?->day_of_week,
+                'start'   => $tarSched?->start_time ? substr($tarSched->start_time, 0, 5) : null,
+                'end'     => $tarSched?->end_time ? substr($tarSched->end_time, 0, 5) : null,
+            ],
+            'note'               => $swap->note,
+        ];
+    }
+
+    /**
+     * Append an immutable log row for the swap.
+     */
+    public function logEvent(
+        ScheduleSwap $swap,
+        string $event,
+        ?int $actorId,
+        string $actorRole = 'guru',
+        ?string $message = null,
+        ?array $snapshot = null
+    ): ScheduleSwapLog {
+        return ScheduleSwapLog::create([
+            'swap_id'    => $swap->id,
+            'event'      => $event,
+            'actor_id'   => $actorId,
+            'actor_role' => $actorRole,
+            'message'    => $message,
+            'snapshot'   => $snapshot ?? $this->buildSnapshot($swap),
+            'created_at' => now(),
+        ]);
+    }
+
+    /**
+     * Automatically mark pending swaps whose swap_date has passed as expired and log the event.
      */
     public function autoExpirePendingSwaps(): void
     {
         $today = Carbon::today('Asia/Jakarta');
 
-        ScheduleSwap::where('status', 'pending')
+        $expiredSwaps = ScheduleSwap::where('status', 'pending')
             ->whereDate('swap_date', '<', $today)
-            ->update(['status' => 'expired']);
+            ->get();
+
+        foreach ($expiredSwaps as $swap) {
+            DB::transaction(function () use ($swap) {
+                $swap->update(['status' => 'expired']);
+                $this->logEvent(
+                    $swap,
+                    'expired',
+                    null,
+                    'system',
+                    'Kedaluwarsa otomatis karena tanggal pelaksanaan telah terlewati.'
+                );
+            });
+        }
     }
 
     /**
@@ -248,30 +340,40 @@ class ScheduleSwapService
             abort(422, 'Sudah ada permintaan tukar jadwal yang masih berstatus pending atau telah disetujui untuk jadwal dan tanggal tersebut.');
         }
 
-        $swap = ScheduleSwap::create([
-            'requester_id'          => $requester->id,
-            'target_id'             => $targetId,
-            'requester_schedule_id' => $reqSchedule->id,
-            'target_schedule_id'    => $targetSchedule->id,
-            'cycle'                 => $activeCycle,
-            'swap_date'             => $swapDate,
-            'status'                => 'pending',
-            'note'                  => $data['note'] ?? null,
-        ]);
+        return DB::transaction(function () use ($requester, $targetId, $reqSchedule, $targetSchedule, $activeCycle, $swapDate, $data) {
+            $swap = ScheduleSwap::create([
+                'requester_id'          => $requester->id,
+                'target_id'             => $targetId,
+                'requester_schedule_id' => $reqSchedule->id,
+                'target_schedule_id'    => $targetSchedule->id,
+                'cycle'                 => $activeCycle,
+                'swap_date'             => $swapDate,
+                'status'                => 'pending',
+                'note'                  => $data['note'] ?? null,
+            ]);
 
-        Notification::create([
-            'user_id' => $targetId,
-            'type'    => 'schedule_swap_request',
-            'data'    => [
-                'title'       => 'Permintaan Tukar Jadwal',
-                'message'     => "{$requester->fullname} mengajukan pertukaran jadwal untuk tanggal {$swapDate}.",
-                'swap_id'     => (int) $swap->id,
-                'requester'   => $requester->fullname,
-                'swap_date'   => $swapDate,
-            ],
-        ]);
+            Notification::create([
+                'user_id' => $targetId,
+                'type'    => 'schedule_swap_request',
+                'data'    => [
+                    'title'       => 'Permintaan Tukar Jadwal',
+                    'message'     => "{$requester->fullname} mengajukan pertukaran jadwal untuk tanggal {$swapDate}.",
+                    'swap_id'     => (int) $swap->id,
+                    'requester'   => $requester->fullname,
+                    'swap_date'   => $swapDate,
+                ],
+            ]);
 
-        return $swap->load(['requester', 'target', 'requesterSchedule.schoolClass', 'targetSchedule.schoolClass']);
+            $this->logEvent(
+                $swap,
+                'requested',
+                $requester->id,
+                'guru',
+                'Permintaan tukar jadwal diajukan.'
+            );
+
+            return $swap->load(['requester', 'target', 'requesterSchedule.schoolClass', 'targetSchedule.schoolClass']);
+        });
     }
 
     /**
@@ -283,175 +385,196 @@ class ScheduleSwapService
     {
         $this->autoExpirePendingSwaps();
 
-        return DB::transaction(function () use ($target, $swap) {
-            // Lock swap record for update
-            $swap = ScheduleSwap::where('id', $swap->id)->lockForUpdate()->firstOrFail();
+        try {
+            return DB::transaction(function () use ($target, $swap) {
+                // Lock swap record for update
+                $swap = ScheduleSwap::where('id', $swap->id)->lockForUpdate()->firstOrFail();
 
-            if ((int) $swap->target_id !== (int) $target->id) {
-                abort(403, 'Akses ditolak. Anda bukan guru target untuk permintaan pertukaran ini.');
-            }
-
-            if ($swap->status !== 'pending') {
-                abort(422, 'Permintaan pertukaran ini sudah tidak berstatus pending.');
-            }
-
-            $swapDateNorm = $this->normalizeDate($swap->swap_date);
-            if ($swapDateNorm->lt(Carbon::today('Asia/Jakarta'))) {
-                $swap->update(['status' => 'expired']);
-                abort(422, 'Permintaan pertukaran sudah kedaluwarsa karena tanggal telah lewat.');
-            }
-
-            // Lock and re-validate schedules
-            $reqSched = Schedule::with(['schoolClass', 'room'])
-                ->where('id', $swap->requester_schedule_id)
-                ->lockForUpdate()
-                ->first();
-
-            $targetSched = Schedule::with(['schoolClass', 'room'])
-                ->where('id', $swap->target_schedule_id)
-                ->lockForUpdate()
-                ->first();
-
-            if (! $reqSched || (int) $reqSched->teacher_id !== (int) $swap->requester_id) {
-                abort(422, 'Persetujuan gagal: Jadwal pemohon sudah tidak valid atau berubah kepemilikan.');
-            }
-
-            if (! $targetSched || (int) $targetSched->teacher_id !== (int) $swap->target_id) {
-                abort(422, 'Persetujuan gagal: Jadwal target sudah tidak valid atau berubah kepemilikan.');
-            }
-
-            // Check if any journal was created while request was pending
-            if (Journal::whereDate('date', $swap->swap_date)->whereIn('schedule_id', [$reqSched->id, $targetSched->id])->exists()) {
-                abort(422, 'Tidak dapat menyetujui pertukaran: salah satu jadwal sudah memiliki jurnal pada tanggal tersebut.');
-            }
-
-            $startReq = $this->parseTime($reqSched->start_time);
-            $endReq = $this->parseTime($reqSched->end_time);
-
-            $startTarget = $this->parseTime($targetSched->start_time);
-            $endTarget = $this->parseTime($targetSched->end_time);
-
-            $dayName = $reqSched->day_of_week;
-            $cycle = $swap->cycle;
-
-            // 1. Conflict Check: Requester (A) taking Target Slot [startTarget, endTarget]
-            $reqOtherSchedules = Schedule::where('teacher_id', $swap->requester_id)
-                ->where('day_of_week', $dayName)
-                ->where('cycle_type', $cycle)
-                ->whereNotIn('id', [$reqSched->id, $targetSched->id])
-                ->get();
-
-            foreach ($reqOtherSchedules as $other) {
-                $sOther = $this->parseTime($other->start_time);
-                $eOther = $this->parseTime($other->end_time);
-
-                if ($startTarget->lt($eOther) && $endTarget->gt($sOther)) {
-                    abort(422, "Persetujuan gagal: Terdapat bentrok jadwal mengajar untuk guru pemohon ({$swap->requester->fullname}) pada jam {$other->start_time} - {$other->end_time}.");
+                if ((int) $swap->target_id !== (int) $target->id) {
+                    abort(403, 'Akses ditolak. Anda bukan guru target untuk permintaan pertukaran ini.');
                 }
-            }
 
-            // 2. Conflict Check: Target (B) taking Requester Slot [startReq, endReq]
-            $targetOtherSchedules = Schedule::where('teacher_id', $swap->target_id)
-                ->where('day_of_week', $dayName)
-                ->where('cycle_type', $cycle)
-                ->whereNotIn('id', [$reqSched->id, $targetSched->id])
-                ->get();
-
-            foreach ($targetOtherSchedules as $other) {
-                $sOther = $this->parseTime($other->start_time);
-                $eOther = $this->parseTime($other->end_time);
-
-                if ($startReq->lt($eOther) && $endReq->gt($sOther)) {
-                    abort(422, "Persetujuan gagal: Terdapat bentrok jadwal mengajar untuk guru Anda pada jam {$other->start_time} - {$other->end_time}.");
+                if ($swap->status !== 'pending') {
+                    abort(422, 'Permintaan pertukaran ini sudah tidak berstatus pending.');
                 }
-            }
 
-            // 3. Conflict Check: Room conflicts
-            if ($targetSched->room_id) {
-                $roomOtherSchedules = Schedule::where('room_id', $targetSched->room_id)
+                $swapDateNorm = $this->normalizeDate($swap->swap_date);
+                if ($swapDateNorm->lt(Carbon::today('Asia/Jakarta'))) {
+                    $swap->update(['status' => 'expired']);
+                    $this->logEvent($swap, 'expired', null, 'system', 'Kedaluwarsa otomatis karena tanggal pelaksanaan telah terlewati.');
+                    abort(422, 'Permintaan pertukaran sudah kedaluwarsa karena tanggal telah lewat.');
+                }
+
+                // Lock and re-validate schedules
+                $reqSched = Schedule::with(['schoolClass', 'room'])
+                    ->where('id', $swap->requester_schedule_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                $targetSched = Schedule::with(['schoolClass', 'room'])
+                    ->where('id', $swap->target_schedule_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $reqSched || (int) $reqSched->teacher_id !== (int) $swap->requester_id) {
+                    throw new ScheduleSwapConflictException('Persetujuan gagal: Jadwal pemohon sudah tidak valid atau berubah kepemilikan.');
+                }
+
+                if (! $targetSched || (int) $targetSched->teacher_id !== (int) $swap->target_id) {
+                    throw new ScheduleSwapConflictException('Persetujuan gagal: Jadwal target sudah tidak valid atau berubah kepemilikan.');
+                }
+
+                // Check if any journal was created while request was pending
+                if (Journal::whereDate('date', $swap->swap_date)->whereIn('schedule_id', [$reqSched->id, $targetSched->id])->exists()) {
+                    throw new ScheduleSwapConflictException('Tidak dapat menyetujui pertukaran: salah satu jadwal sudah memiliki jurnal pada tanggal tersebut.');
+                }
+
+                $startReq = $this->parseTime($reqSched->start_time);
+                $endReq = $this->parseTime($reqSched->end_time);
+
+                $startTarget = $this->parseTime($targetSched->start_time);
+                $endTarget = $this->parseTime($targetSched->end_time);
+
+                $dayName = $reqSched->day_of_week;
+                $cycle = $swap->cycle;
+
+                // 1. Conflict Check: Requester (A) taking Target Slot [startTarget, endTarget]
+                $reqOtherSchedules = Schedule::where('teacher_id', $swap->requester_id)
                     ->where('day_of_week', $dayName)
                     ->where('cycle_type', $cycle)
                     ->whereNotIn('id', [$reqSched->id, $targetSched->id])
                     ->get();
 
-                foreach ($roomOtherSchedules as $other) {
+                foreach ($reqOtherSchedules as $other) {
                     $sOther = $this->parseTime($other->start_time);
                     $eOther = $this->parseTime($other->end_time);
 
                     if ($startTarget->lt($eOther) && $endTarget->gt($sOther)) {
-                        abort(422, "Persetujuan gagal: Ruangan {$targetSched->room?->room_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        throw new ScheduleSwapConflictException("Persetujuan gagal: Terdapat bentrok jadwal mengajar untuk guru pemohon ({$swap->requester->fullname}) pada jam {$other->start_time} - {$other->end_time}.");
                     }
                 }
-            }
 
-            if ($reqSched->room_id) {
-                $roomOtherSchedules = Schedule::where('room_id', $reqSched->room_id)
+                // 2. Conflict Check: Target (B) taking Requester Slot [startReq, endReq]
+                $targetOtherSchedules = Schedule::where('teacher_id', $swap->target_id)
                     ->where('day_of_week', $dayName)
                     ->where('cycle_type', $cycle)
                     ->whereNotIn('id', [$reqSched->id, $targetSched->id])
                     ->get();
 
-                foreach ($roomOtherSchedules as $other) {
+                foreach ($targetOtherSchedules as $other) {
                     $sOther = $this->parseTime($other->start_time);
                     $eOther = $this->parseTime($other->end_time);
 
                     if ($startReq->lt($eOther) && $endReq->gt($sOther)) {
-                        abort(422, "Persetujuan gagal: Ruangan {$reqSched->room?->room_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        throw new ScheduleSwapConflictException("Persetujuan gagal: Terdapat bentrok jadwal mengajar untuk guru Anda pada jam {$other->start_time} - {$other->end_time}.");
                     }
                 }
-            }
 
-            // 4. Conflict Check: Class conflicts
-            $classTargetOther = Schedule::where('class_id', $targetSched->class_id)
-                ->where('day_of_week', $dayName)
-                ->where('cycle_type', $cycle)
-                ->whereNotIn('id', [$reqSched->id, $targetSched->id])
-                ->get();
+                // 3. Conflict Check: Room conflicts
+                if ($targetSched->room_id) {
+                    $roomOtherSchedules = Schedule::where('room_id', $targetSched->room_id)
+                        ->where('day_of_week', $dayName)
+                        ->where('cycle_type', $cycle)
+                        ->whereNotIn('id', [$reqSched->id, $targetSched->id])
+                        ->get();
 
-            foreach ($classTargetOther as $other) {
-                $sOther = $this->parseTime($other->start_time);
-                $eOther = $this->parseTime($other->end_time);
+                    foreach ($roomOtherSchedules as $other) {
+                        $sOther = $this->parseTime($other->start_time);
+                        $eOther = $this->parseTime($other->end_time);
 
-                if ($startTarget->lt($eOther) && $endTarget->gt($sOther)) {
-                    abort(422, "Persetujuan gagal: Kelas {$targetSched->schoolClass?->class_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        if ($startTarget->lt($eOther) && $endTarget->gt($sOther)) {
+                            throw new ScheduleSwapConflictException("Persetujuan gagal: Ruangan {$targetSched->room?->room_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        }
+                    }
                 }
-            }
 
-            $classReqOther = Schedule::where('class_id', $reqSched->class_id)
-                ->where('day_of_week', $dayName)
-                ->where('cycle_type', $cycle)
-                ->whereNotIn('id', [$reqSched->id, $targetSched->id])
-                ->get();
+                if ($reqSched->room_id) {
+                    $roomOtherSchedules = Schedule::where('room_id', $reqSched->room_id)
+                        ->where('day_of_week', $dayName)
+                        ->where('cycle_type', $cycle)
+                        ->whereNotIn('id', [$reqSched->id, $targetSched->id])
+                        ->get();
 
-            foreach ($classReqOther as $other) {
-                $sOther = $this->parseTime($other->start_time);
-                $eOther = $this->parseTime($other->end_time);
+                    foreach ($roomOtherSchedules as $other) {
+                        $sOther = $this->parseTime($other->start_time);
+                        $eOther = $this->parseTime($other->end_time);
 
-                if ($startReq->lt($eOther) && $endReq->gt($sOther)) {
-                    abort(422, "Persetujuan gagal: Kelas {$reqSched->schoolClass?->class_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        if ($startReq->lt($eOther) && $endReq->gt($sOther)) {
+                            throw new ScheduleSwapConflictException("Persetujuan gagal: Ruangan {$reqSched->room?->room_name} bentrok dengan jadwal lain pada jam tersebut.");
+                        }
+                    }
                 }
-            }
 
-            $swap->update([
-                'status'       => 'approved',
-                'responded_at' => now(),
-            ]);
+                // 4. Conflict Check: Class conflicts
+                $classTargetOther = Schedule::where('class_id', $targetSched->class_id)
+                    ->where('day_of_week', $dayName)
+                    ->where('cycle_type', $cycle)
+                    ->whereNotIn('id', [$reqSched->id, $targetSched->id])
+                    ->get();
 
-            $dateFormatted = Carbon::parse($swap->swap_date)->format('Y-m-d');
+                foreach ($classTargetOther as $other) {
+                    $sOther = $this->parseTime($other->start_time);
+                    $eOther = $this->parseTime($other->end_time);
 
-            Notification::create([
-                'user_id' => $swap->requester_id,
-                'type'    => 'schedule_swap_approved',
-                'data'    => [
-                    'title'     => 'Pertukaran Jadwal Disetujui',
-                    'message'   => "Permintaan tukar jadwal Anda dengan {$swap->target->fullname} untuk tanggal {$dateFormatted} telah disetujui.",
-                    'swap_id'   => (int) $swap->id,
-                    'swap_date' => $dateFormatted,
-                ],
-            ]);
+                    if ($startTarget->lt($eOther) && $endTarget->gt($sOther)) {
+                        throw new ScheduleSwapConflictException("Persetujuan gagal: Kelas {$targetSched->schoolClass?->class_name} bentrok dengan jadwal lain pada jam tersebut.");
+                    }
+                }
 
-            return $swap->fresh(['requester', 'target', 'requesterSchedule.schoolClass', 'targetSchedule.schoolClass']);
-        });
+                $classReqOther = Schedule::where('class_id', $reqSched->class_id)
+                    ->where('day_of_week', $dayName)
+                    ->where('cycle_type', $cycle)
+                    ->whereNotIn('id', [$reqSched->id, $targetSched->id])
+                    ->get();
+
+                foreach ($classReqOther as $other) {
+                    $sOther = $this->parseTime($other->start_time);
+                    $eOther = $this->parseTime($other->end_time);
+
+                    if ($startReq->lt($eOther) && $endReq->gt($sOther)) {
+                        throw new ScheduleSwapConflictException("Persetujuan gagal: Kelas {$reqSched->schoolClass?->class_name} bentrok dengan jadwal lain pada jam tersebut.");
+                    }
+                }
+
+                $swap->update([
+                    'status'       => 'approved',
+                    'responded_at' => now(),
+                ]);
+
+                $this->logEvent(
+                    $swap,
+                    'approved',
+                    $target->id,
+                    'guru',
+                    'Pertukaran jadwal disetujui.'
+                );
+
+                $dateFormatted = Carbon::parse($swap->swap_date)->format('Y-m-d');
+
+                Notification::create([
+                    'user_id' => $swap->requester_id,
+                    'type'    => 'schedule_swap_approved',
+                    'data'    => [
+                        'title'     => 'Pertukaran Jadwal Disetujui',
+                        'message'   => "Permintaan tukar jadwal Anda dengan {$swap->target->fullname} untuk tanggal {$dateFormatted} telah disetujui.",
+                        'swap_id'   => (int) $swap->id,
+                        'swap_date' => $dateFormatted,
+                    ],
+                ]);
+
+                return $swap->fresh(['requester', 'target', 'requesterSchedule.schoolClass', 'targetSchedule.schoolClass']);
+            });
+        } catch (ScheduleSwapConflictException $e) {
+            $this->logEvent(
+                $swap,
+                'conflict_blocked',
+                $target->id,
+                'guru',
+                $e->getMessage()
+            );
+
+            abort(422, $e->getMessage());
+        }
     }
 
     /**
@@ -476,6 +599,14 @@ class ScheduleSwapService
                 'status'       => 'rejected',
                 'responded_at' => now(),
             ]);
+
+            $this->logEvent(
+                $swap,
+                'rejected',
+                $target->id,
+                'guru',
+                $reason ?: 'Pertukaran jadwal ditolak.'
+            );
 
             $dateFormatted = Carbon::parse($swap->swap_date)->format('Y-m-d');
 
@@ -517,6 +648,14 @@ class ScheduleSwapService
                 'status'       => 'cancelled',
                 'responded_at' => now(),
             ]);
+
+            $this->logEvent(
+                $swap,
+                'cancelled',
+                $requester->id,
+                'guru',
+                'Permintaan tukar jadwal dibatalkan oleh pemohon.'
+            );
 
             $dateFormatted = Carbon::parse($swap->swap_date)->format('Y-m-d');
 
@@ -713,5 +852,263 @@ class ScheduleSwapService
             ->orderByDesc('swap_date')
             ->orderByDesc('id')
             ->get();
+    }
+
+    /**
+     * Get Waka Swap Report with summary metrics, eager loading, and filtering.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array{
+     *     summary: array{total: int, approved: int, pending: int, rejected_cancelled_expired: int},
+     *     swaps: LengthAwarePaginator,
+     *     filters: array<string, mixed>
+     * }
+     */
+    public function getWakaSwapReport(array $filters = [], int $perPage = 25): array
+    {
+        $this->autoExpirePendingSwaps();
+
+        $config = SystemConfiguration::first();
+        $defaultCycle = $config?->active_cycle ?? 'Putaran 1';
+
+        // Default date range: current month in Asia/Jakarta
+        $now = Carbon::now('Asia/Jakarta');
+        $startDate = !empty($filters['start_date'])
+            ? $this->normalizeDate($filters['start_date'])->toDateString()
+            : $now->copy()->startOfMonth()->toDateString();
+        $endDate = !empty($filters['end_date'])
+            ? $this->normalizeDate($filters['end_date'])->toDateString()
+            : $now->copy()->endOfMonth()->toDateString();
+
+        $status = $filters['status'] ?? 'all';
+        $cycle = !empty($filters['cycle']) && $filters['cycle'] !== 'all' ? $filters['cycle'] : null;
+        $teacherId = !empty($filters['teacher_id']) ? (int) $filters['teacher_id'] : null;
+        $classId = !empty($filters['class_id']) ? (int) $filters['class_id'] : null;
+        $search = !empty($filters['search']) ? trim((string) $filters['search']) : null;
+
+        // Base query with eager loading to prevent N+1
+        $baseQuery = ScheduleSwap::with([
+            'requester',
+            'target',
+            'requesterSchedule.schoolClass',
+            'requesterSchedule.room',
+            'targetSchedule.schoolClass',
+            'targetSchedule.room',
+            'journals.user',
+            'logs.actor',
+        ])
+        ->whereBetween('swap_date', [$startDate, $endDate]);
+
+        if ($cycle) {
+            $baseQuery->where('cycle', $cycle);
+        }
+
+        if ($teacherId) {
+            $baseQuery->where(function ($q) use ($teacherId) {
+                $q->where('requester_id', $teacherId)
+                  ->orWhere('target_id', $teacherId);
+            });
+        }
+
+        if ($classId) {
+            $baseQuery->where(function ($q) use ($classId) {
+                $q->whereHas('requesterSchedule', fn ($s) => $s->where('class_id', $classId))
+                  ->orWhereHas('targetSchedule', fn ($s) => $s->where('class_id', $classId));
+            });
+        }
+
+        if ($search) {
+            $baseQuery->where(function ($q) use ($search) {
+                $q->whereHas('requester', fn ($u) => $u->where('fullname', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%"))
+                  ->orWhereHas('target', fn ($u) => $u->where('fullname', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%"))
+                  ->orWhereHas('requesterSchedule', fn ($s) => $s->where('subject', 'like', "%{$search}%"))
+                  ->orWhereHas('targetSchedule', fn ($s) => $s->where('subject', 'like', "%{$search}%"))
+                  ->orWhere('note', 'like', "%{$search}%");
+            });
+        }
+
+        // Summary strip calculated on the filtered base query (before status filtering)
+        $summaryQuery = clone $baseQuery;
+        $allMatching = $summaryQuery->get();
+
+        $summary = [
+            'total'                      => $allMatching->count(),
+            'approved'                   => $allMatching->where('status', 'approved')->count(),
+            'pending'                    => $allMatching->where('status', 'pending')->count(),
+            'rejected_cancelled_expired' => $allMatching->whereIn('status', ['rejected', 'cancelled', 'expired'])->count(),
+        ];
+
+        // Apply status filter for list
+        $listQuery = clone $baseQuery;
+        if ($status !== 'all' && !empty($status)) {
+            $listQuery->where('status', $status);
+        }
+
+        $swaps = $listQuery->orderByDesc('swap_date')
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
+        return [
+            'summary' => $summary,
+            'swaps'   => $swaps,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+                'status'     => $status,
+                'cycle'      => $cycle ?? $defaultCycle,
+                'teacher_id' => $teacherId,
+                'class_id'   => $classId,
+                'search'     => $search,
+            ],
+        ];
+    }
+
+    /**
+     * Get Teacher Recap aggregation for Waka report.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function getWakaTeacherRecap(array $filters = []): Collection
+    {
+        $this->autoExpirePendingSwaps();
+
+        $now = Carbon::now('Asia/Jakarta');
+        $startDate = !empty($filters['start_date'])
+            ? $this->normalizeDate($filters['start_date'])->toDateString()
+            : $now->copy()->startOfMonth()->toDateString();
+        $endDate = !empty($filters['end_date'])
+            ? $this->normalizeDate($filters['end_date'])->toDateString()
+            : $now->copy()->endOfMonth()->toDateString();
+
+        $swaps = ScheduleSwap::whereBetween('swap_date', [$startDate, $endDate])->get();
+
+        $teachers = User::where('role_id', 2)->orderBy('fullname')->get();
+
+        $recap = $teachers->map(function (User $teacher) use ($swaps) {
+            $requested = $swaps->where('requester_id', $teacher->id);
+            $received  = $swaps->where('target_id', $teacher->id);
+
+            $approved = $requested->where('status', 'approved')->count() + $received->where('status', 'approved')->count();
+            $rejected = $requested->where('status', 'rejected')->count() + $received->where('status', 'rejected')->count();
+
+            $allTeacherSwaps = $requested->concat($received)->sortByDesc('swap_date');
+            $lastSwapDate = $allTeacherSwaps->first()?->swap_date?->format('Y-m-d');
+
+            $total = $requested->count() + $received->count();
+
+            return [
+                'teacher'         => $teacher,
+                'requested_count' => $requested->count(),
+                'received_count'  => $received->count(),
+                'approved_count'  => $approved,
+                'rejected_count'  => $rejected,
+                'total_swaps'     => $total,
+                'last_swap_date'  => $lastSwapDate,
+                'is_top_5'        => false,
+            ];
+        });
+
+        // Sort by total swaps desc, then approved desc
+        $sorted = $recap->sortByDesc('total_swaps')->values()->all();
+
+        // Mark top 5 if total_swaps > 0
+        $topCount = 0;
+        foreach ($sorted as $index => $item) {
+            if ($item['total_swaps'] > 0 && $topCount < 5) {
+                $sorted[$index]['is_top_5'] = true;
+                $topCount++;
+            }
+        }
+
+        return collect($sorted);
+    }
+
+    /**
+     * Get Chronological Activity Logs for Waka report.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getWakaSwapLogs(array $filters = [], int $perPage = 25): LengthAwarePaginator
+    {
+        $query = ScheduleSwapLog::with([
+            'swap.requester',
+            'swap.target',
+            'swap.requesterSchedule.schoolClass',
+            'swap.targetSchedule.schoolClass',
+            'actor',
+        ]);
+
+        if (!empty($filters['event']) && $filters['event'] !== 'all') {
+            $query->where('event', $filters['event']);
+        }
+
+        if (!empty($filters['swap_id'])) {
+            $query->where('swap_id', (int) $filters['swap_id']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = trim((string) $filters['search']);
+            $query->where(function ($q) use ($search) {
+                $q->where('message', 'like', "%{$search}%")
+                  ->orWhereHas('actor', fn ($u) => $u->where('fullname', 'like', "%{$search}%"));
+            });
+        }
+
+        return $query->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Get single swap detail with timeline and substitute journal info.
+     */
+    public function getWakaSwapDetail(int $swapId): ScheduleSwap
+    {
+        return ScheduleSwap::with([
+            'requester',
+            'target',
+            'requesterSchedule.schoolClass',
+            'requesterSchedule.room',
+            'targetSchedule.schoolClass',
+            'targetSchedule.room',
+            'journals.user',
+            'logs.actor',
+        ])->findOrFail($swapId);
+    }
+
+    /**
+     * Today's approved swaps for Waka dashboard card.
+     *
+     * @return array{today_date: string, approved: Collection<int, ScheduleSwap>, today_count: int, pending_count: int}
+     */
+    public function getTodayApprovedSwapsForDashboard(): array
+    {
+        $today = Carbon::today('Asia/Jakarta')->toDateString();
+
+        $approved = ScheduleSwap::with([
+            'requester',
+            'target',
+            'requesterSchedule.schoolClass',
+            'requesterSchedule.room',
+            'targetSchedule.schoolClass',
+            'targetSchedule.room',
+            'journals',
+        ])
+        ->whereDate('swap_date', $today)
+        ->where('status', 'approved')
+        ->orderBy('id')
+        ->get();
+
+        $pendingCount = ScheduleSwap::where('status', 'pending')
+            ->whereDate('swap_date', '>=', $today)
+            ->count();
+
+        return [
+            'today_date'    => $today,
+            'approved'      => $approved,
+            'today_count'   => $approved->count(),
+            'pending_count' => $pendingCount,
+        ];
     }
 }

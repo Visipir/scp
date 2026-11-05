@@ -38,6 +38,18 @@ class ScheduleSwap extends Model
         return $this->hasMany(Journal::class, 'swap_id');
     }
 
+    public function logs()
+    {
+        return $this->hasMany(ScheduleSwapLog::class, 'swap_id')->orderBy('created_at', 'asc')->orderBy('id', 'asc');
+    }
+
+    public function isJournalFilled(): bool
+    {
+        return $this->relationLoaded('journals')
+            ? $this->journals->isNotEmpty()
+            : $this->journals()->exists();
+    }
+
     public function isPending(): bool
     {
         return $this->status === 'pending';

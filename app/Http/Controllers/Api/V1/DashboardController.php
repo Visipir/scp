@@ -99,9 +99,16 @@ class DashboardController extends Controller
             })
             ->values()->all();
 
+        $todaySwaps = app(\App\Services\ScheduleSwapService::class)->getTodayApprovedSwapsForDashboard();
+
         return ApiResponse::data([
             'attendance_today'   => $dashboards->attendanceTodayCounts(),
             'unfilled_journals'  => $unfilled,
+            'today_swaps'        => [
+                'today_count'   => $todaySwaps['today_count'],
+                'pending_count' => $todaySwaps['pending_count'],
+                'approved'      => \App\Http\Resources\Api\V1\ScheduleSwapResource::collection($todaySwaps['approved'])->resolve(),
+            ],
             'active_cycle'       => $config?->active_cycle ?? 'Putaran 1',
             'is_schedule_locked' => (bool) ($config?->is_schedule_locked ?? false),
         ]);

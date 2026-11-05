@@ -157,6 +157,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'show'])->name('system.email-settings.show');
             Route::post('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'update'])->name('system.email-settings.update');
             Route::post('/system/email-settings/test', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'sendTest'])->name('system.email-settings.test');
+            Route::get('/waka/swap-report', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaReport'])->name('waka.swap-report');
+            Route::get('/waka/swap-report/{id}', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaShow'])->name('waka.swap-report.show');
+            Route::get('/waka/swap-logs', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaLogs'])->name('waka.swap-logs');
         });
 
         // Notifications

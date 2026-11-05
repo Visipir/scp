@@ -97,7 +97,9 @@ class DashboardController extends Controller
                 $attendanceStats = $dashboards->attendanceTodayCounts();
             }
 
-            return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats'));
+            $todaySwaps = app(\App\Services\ScheduleSwapService::class)->getTodayApprovedSwapsForDashboard();
+
+            return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats', 'todaySwaps'));
         }
 
         return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent'));

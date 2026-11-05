@@ -459,7 +459,7 @@ class ScheduleSwapTest extends TestCase
         // Waka view monitoring web
         $webResponse = $this->actingAs($this->waka)->get('/schedule-swaps');
         $webResponse->assertOk();
-        $webResponse->assertSee('Monitoring Tukar Jadwal Guru');
+        $webResponse->assertSee('Laporan Tukar Jadwal');
         $webResponse->assertSee('Budi Santoso');
         $webResponse->assertSee('Siti Rahma');
 
@@ -507,5 +507,149 @@ class ScheduleSwapTest extends TestCase
         $this->assertEquals('pending', $outboxItem['status']);
         $this->assertArrayHasKey('requester_schedule', $outboxItem);
         $this->assertArrayHasKey('target_schedule', $outboxItem);
+    }
+
+    public function test_swap_logs_are_append_only_and_record_events_correctly(): void
+    {
+        // 1. Request logs 'requested'
+        $createRes = $this->apiAs($this->guru1)->postJson('/api/v1/schedule-swaps', [
+            'target_id'             => $this->guru2->id,
+            'requester_schedule_id' => $this->sched1->id,
+            'target_schedule_id'    => $this->sched2->id,
+            'swap_date'             => $this->swapDate,
+            'note'                  => 'Mohon bantuan tukar jadwal KBM.',
+        ]);
+        $createRes->assertStatus(201);
+        $swapId = $createRes->json('data.id');
+
+        $this->assertDatabaseHas('schedule_swap_logs', [
+            'swap_id'    => $swapId,
+            'event'      => 'requested',
+            'actor_id'   => $this->guru1->id,
+            'actor_role' => 'guru',
+        ]);
+
+        $log = \App\Models\ScheduleSwapLog::where('swap_id', $swapId)->first();
+        $this->assertNotNull($log);
+        $this->assertIsArray($log->snapshot);
+        $this->assertEquals($this->swapDate, $log->snapshot['swap_date']);
+
+        // Check immutability
+        try {
+            $log->update(['message' => 'Hacked log message']);
+            $this->fail('ScheduleSwapLog must be immutable on update');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('append-only', $e->getMessage());
+        }
+
+        try {
+            $log->delete();
+            $this->fail('ScheduleSwapLog must be immutable on delete');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('append-only', $e->getMessage());
+        }
+
+        // 2. Conflict blocked event logging
+        // Create an overlapping schedule for guru1 to simulate conflict during guru2 approval
+        Schedule::create([
+            'teacher_id'  => $this->guru1->id,
+            'subject'     => 'Fisika Bentrok',
+            'class_id'    => $this->sched2->class_id,
+            'day_of_week' => $this->sched2->day_of_week,
+            'cycle_type'  => 'Putaran 1',
+            'start_time'  => '10:00:00',
+            'end_time'    => '11:00:00',
+        ]);
+
+        $approveRes = $this->apiAs($this->guru2)->postJson("/api/v1/schedule-swaps/{$swapId}/approve");
+        $approveRes->assertStatus(422);
+
+        $this->assertDatabaseHas('schedule_swap_logs', [
+            'swap_id' => $swapId,
+            'event'   => 'conflict_blocked',
+        ]);
+
+        // Swap remains pending
+        $this->assertDatabaseHas('schedule_swaps', [
+            'id'     => $swapId,
+            'status' => 'pending',
+        ]);
+    }
+
+    public function test_waka_swap_report_api_and_role_protection(): void
+    {
+        $swap = ScheduleSwap::create([
+            'requester_id'          => $this->guru1->id,
+            'target_id'             => $this->guru2->id,
+            'requester_schedule_id' => $this->sched1->id,
+            'target_schedule_id'    => $this->sched2->id,
+            'cycle'                 => 'Putaran 1',
+            'swap_date'             => $this->swapDate,
+            'status'                => 'approved',
+            'note'                  => 'Waka report test',
+        ]);
+
+        // Role 2 (Guru) forbidden from Waka report endpoints
+        $this->apiAs($this->guru1)->getJson('/api/v1/waka/swap-report')->assertStatus(403);
+        $this->apiAs($this->guru1)->getJson("/api/v1/waka/swap-report/{$swap->id}")->assertStatus(403);
+        $this->apiAs($this->guru1)->getJson('/api/v1/waka/swap-logs')->assertStatus(403);
+
+        // Role 1 (Waka) allowed
+        $reportRes = $this->apiAs($this->waka)->getJson('/api/v1/waka/swap-report');
+        $reportRes->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'summary' => ['total', 'approved', 'pending', 'rejected_cancelled_expired'],
+                    'filters',
+                    'swaps',
+                    'pagination',
+                ],
+            ]);
+
+        $showRes = $this->apiAs($this->waka)->getJson("/api/v1/waka/swap-report/{$swap->id}");
+        $showRes->assertOk()
+            ->assertJsonPath('data.id', $swap->id)
+            ->assertJsonPath('data.requester_name', 'Budi Santoso');
+
+        $logsRes = $this->apiAs($this->waka)->getJson('/api/v1/waka/swap-logs');
+        $logsRes->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'logs',
+                    'pagination',
+                ],
+            ]);
+    }
+
+    public function test_waka_web_report_pages_and_exports(): void
+    {
+        $swap = ScheduleSwap::create([
+            'requester_id'          => $this->guru1->id,
+            'target_id'             => $this->guru2->id,
+            'requester_schedule_id' => $this->sched1->id,
+            'target_schedule_id'    => $this->sched2->id,
+            'cycle'                 => 'Putaran 1',
+            'swap_date'             => $this->swapDate,
+            'status'                => 'approved',
+            'note'                  => 'Web view test',
+        ]);
+
+        // Waka visits web index -> renders report view with 'Laporan Tukar Jadwal'
+        $response = $this->actingAs($this->waka)->get('/schedule-swaps');
+        $response->assertOk();
+        $response->assertSee('Laporan Tukar Jadwal');
+        $response->assertSee('Rekap per Guru');
+        $response->assertSee('Log Aktivitas');
+
+        // CSV export
+        $csvRes = $this->actingAs($this->waka)->get('/schedule-swaps/export-csv');
+        $csvRes->assertOk();
+        $this->assertStringContainsString('text/csv', $csvRes->headers->get('content-type'));
+
+        // Print view
+        $printRes = $this->actingAs($this->waka)->get('/schedule-swaps/print');
+        $printRes->assertOk();
+        $printRes->assertSee('SMA PGRI 1 KUDUS');
+        $printRes->assertSee('Laporan Pertukaran Jadwal Mengajar Guru');
     }
 }

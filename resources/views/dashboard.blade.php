@@ -1,19 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0]">
-                    Dashboard
-                </h1>
-            </div>
-            @if(isset($config) && $config)
-                <div class="flex items-center gap-2 font-mono text-xs">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#232327] border border-[#2B2B30] text-[#EDEDF0] font-semibold text-xs">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        {{ $config->active_cycle }}
-                    </span>
-                </div>
-            @endif
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#EDEDF0]">
+                Dashboard
+            </h1>
         </div>
     </x-slot>
 
@@ -146,9 +136,67 @@
                             @endforelse
                         </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-[#2B2B30] flex items-center justify-between text-xs font-mono text-[#97979B]">
-                        <span>Sinkronisasi Otomatis Siklus</span>
+                    <div class="mt-4 pt-3 border-t border-[#2B2B30] flex items-center justify-end text-xs">
                         <a href="{{ route('journals.index') }}" class="text-[#0093dd] hover:underline font-sans font-semibold">Lihat Semua &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Tukar Jadwal Hari Ini -->
+                <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 flex flex-col justify-between shadow-xs col-span-1 lg:col-span-2">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-sm text-zinc-900 dark:text-[#EDEDF0]">Tukar Jadwal Hari Ini</h3>
+                                @if(!empty($todaySwaps['pending_count']) && $todaySwaps['pending_count'] > 0)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                        {{ $todaySwaps['pending_count'] }} Butuh Keputusan
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-xs font-mono text-[#0093dd] bg-[#0093dd]/15 px-2.5 py-0.5 rounded-md border border-[#0093dd]/30 font-semibold self-start sm:self-auto">
+                                {{ $todaySwaps['today_count'] ?? 0 }} Pertukaran Aktif Hari Ini
+                            </span>
+                        </div>
+
+                        <div class="divide-y divide-zinc-200 dark:divide-[#2B2B30] max-h-48 overflow-y-auto mt-2">
+                            @forelse($todaySwaps['approved'] ?? [] as $swap)
+                                <div class="py-2.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-zinc-50 dark:hover:bg-[#232327]/60 px-2 rounded-md transition-colors">
+                                    <div>
+                                        <div class="font-semibold text-xs text-zinc-900 dark:text-[#EDEDF0] flex items-center gap-1.5">
+                                            <span>{{ $swap->target?->fullname }}</span>
+                                            <span class="text-zinc-400">&larr;</span>
+                                            <span class="text-zinc-500 dark:text-zinc-400 font-normal">Gantikan {{ $swap->requester?->fullname }}</span>
+                                        </div>
+                                        <div class="text-zinc-500 dark:text-[#97979B] font-mono text-[11px] mt-0.5">
+                                            {{ $swap->requesterSchedule?->subject }} &bull; {{ $swap->requesterSchedule?->schoolClass?->class_name }}
+                                            (Ruang: {{ $swap->requesterSchedule?->room?->room_name ?? '-' }})
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 self-start sm:self-auto">
+                                        @if($swap->isJournalFilled())
+                                            <span class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                                Jurnal Terisi
+                                            </span>
+                                        @else
+                                            <span class="font-mono text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                                                Belum Jurnal
+                                            </span>
+                                        @endif
+                                        <span class="font-mono text-[11px] text-[#0093dd] bg-[#0093dd]/10 px-2 py-0.5 rounded border border-[#0093dd]/20">
+                                            {{ substr($swap->requesterSchedule?->start_time, 0, 5) }} - {{ substr($swap->requesterSchedule?->end_time, 0, 5) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-xs text-zinc-500 dark:text-[#97979B] text-center py-6">
+                                    Tidak ada pertukaran jadwal mengajar yang berlaku hari ini.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-zinc-200 dark:border-[#2B2B30] flex items-center justify-between text-xs">
+                        <span class="text-zinc-500 dark:text-zinc-400 text-[11px]">Memantau pelaksanaan jadwal pengganti secara langsung</span>
+                        <a href="{{ route('schedule-swaps.index') }}" class="text-[#0093dd] hover:underline font-sans font-semibold">Buka Laporan Tukar Jadwal &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -181,24 +229,15 @@
                 </div>
 
                 {{-- Status Pills --}}
-                @if($config)
+                @if($config && $config->is_schedule_locked)
                     <div class="flex flex-row md:flex-col gap-3 shrink-0">
-                        <div class="p-3 bg-[#232327] border border-[#2B2B30] rounded-lg min-w-[140px]">
-                            <div class="text-[10px] font-mono text-[#97979B] uppercase tracking-wider">Siklus Aktif</div>
-                            <div class="font-bold font-mono text-sm text-[#EDEDF0] mt-0.5 flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                {{ $config->active_cycle }}
+                        <div class="p-3 bg-[#0093dd]/10 border border-[#0093dd]/30 rounded-lg min-w-[140px]">
+                            <div class="text-[10px] font-mono text-[#0093dd] uppercase tracking-wider">Akses Jadwal</div>
+                            <div class="font-bold font-mono text-sm mt-0.5 text-[#0093dd] flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#0093dd]"></span>
+                                Terkunci
                             </div>
                         </div>
-                        @if($config->is_schedule_locked)
-                            <div class="p-3 bg-[#0093dd]/10 border border-[#0093dd]/30 rounded-lg min-w-[140px]">
-                                <div class="text-[10px] font-mono text-[#0093dd] uppercase tracking-wider">Akses Jadwal</div>
-                                <div class="font-bold font-mono text-sm mt-0.5 text-[#0093dd] flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#0093dd]"></span>
-                                    Terkunci
-                                </div>
-                            </div>
-                        @endif
                     </div>
                 @endif
             </div>
@@ -220,7 +259,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
                             </div>
                             <h4 class="font-bold text-sm text-[#EDEDF0]">Konfigurasi Sistem &amp; AI</h4>
-                            <p class="text-xs text-[#97979B] mt-1 leading-relaxed">Atur siklus aktif (Putaran 1/2), kunci jadwal, dan impor jadwal FET PDF dengan Gemini AI.</p>
+                            <p class="text-xs text-[#97979B] mt-1 leading-relaxed">Atur konfigurasi sistem, kunci jadwal, dan impor jadwal FET PDF dengan Gemini AI.</p>
                         </div>
                         <div class="mt-4 pt-3 border-t border-[#2B2B30] flex items-center justify-between text-xs font-semibold text-[#EDEDF0]">
                             <span>Kelola Sistem &amp; AI</span>
