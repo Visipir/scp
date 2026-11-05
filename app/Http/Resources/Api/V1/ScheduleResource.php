@@ -23,6 +23,8 @@ class ScheduleResource extends JsonResource
             'start_period' => $this->start_period !== null ? (int) $this->start_period : null,
             'end_period'   => $this->end_period !== null ? (int) $this->end_period : null,
             'period_label' => $this->period_label,
+            'alert_status' => $this->alert_status ?? null,
+            'alert_badge'  => $this->alert_badge ?? null,
             'teacher'      => $this->whenLoaded('teacher', fn () => $this->teacher ? [
                 'id'       => (int) $this->teacher->id,
                 'fullname' => $this->teacher->fullname,

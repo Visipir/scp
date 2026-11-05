@@ -78,13 +78,13 @@ class DashboardService
      */
     public function wakaUnfilledSchedules(?SystemConfiguration $config): Collection
     {
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Jakarta');
         if (AcademicCalendarService::isKbmSuspendedToday($today->toDateString())) {
             return collect();
         }
 
-        $now = Carbon::now();
-        $todayDay = $this->indonesianDay($now) ;
+        $now = Carbon::now('Asia/Jakarta');
+        $todayDay = $this->indonesianDay($now);
 
         if (! $todayDay) {
             return collect();
@@ -114,7 +114,23 @@ class DashboardService
                 return false;
             }
 
-            return $this->parseScheduleTime($sched->end_time)->lt($now);
+            $endTime = $this->parseScheduleTime($sched->end_time);
+            $warnTime = $endTime->copy()->subMinutes(30);
+
+            // Alert triggers 30 minutes before class end time
+            if ($now->lt($warnTime)) {
+                return false;
+            }
+
+            if ($now->gte($endTime)) {
+                $sched->alert_status = 'terlambat';
+                $sched->alert_badge = 'Terlambat';
+            } else {
+                $sched->alert_status = 'segera_berakhir';
+                $sched->alert_badge = 'Segera Berakhir';
+            }
+
+            return true;
         })->values();
     }
 
@@ -141,26 +157,19 @@ class DashboardService
     }
 
     /**
-     * Teachers that still have unfilled journals today (end_time + 30 min rule).
+     * Teachers that still have unfilled journals today (end_time - 30 min rule for Waka).
      *
      * @return array<int, array<string, mixed>>
      */
     public function unfilledJournalsForTeachers(?SystemConfiguration $config): array
     {
-        $teacherIds = Schedule::whereNotNull('teacher_id')
-            ->distinct()
-            ->pluck('teacher_id');
+        $schedules = $this->wakaUnfilledSchedules($config);
 
         $result = [];
-        foreach ($teacherIds as $teacherId) {
-            $alerts = $this->unfilledJournalAlerts((int) $teacherId, $config);
-            if (empty($alerts)) {
-                continue;
-            }
-
+        foreach ($schedules->groupBy('teacher_id') as $teacherId => $teacherSchedules) {
             $result[] = [
                 'teacher_id' => (int) $teacherId,
-                'schedules'  => $alerts,
+                'schedules'  => $teacherSchedules->all(),
             ];
         }
 
@@ -179,8 +188,10 @@ class DashboardService
 
     private function parseScheduleTime(string $raw): Carbon
     {
+        $todayStr = Carbon::today('Asia/Jakarta')->toDateString();
+
         return strlen($raw) === 5
-            ? Carbon::createFromFormat('H:i', $raw)
-            : Carbon::createFromFormat('H:i:s', $raw);
+            ? Carbon::createFromFormat('Y-m-d H:i', "{$todayStr} {$raw}", 'Asia/Jakarta')
+            : Carbon::createFromFormat('Y-m-d H:i:s', "{$todayStr} {$raw}", 'Asia/Jakarta');
     }
 }

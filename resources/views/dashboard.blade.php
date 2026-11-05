@@ -119,7 +119,16 @@
                                             Kelas {{ $sched->schoolClass->class_name ?? '-' }} &bull; {{ $sched->subject ?? 'KBM' }}
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right flex items-center gap-2">
+                                        @if(($sched->alert_status ?? '') === 'segera_berakhir')
+                                            <span class="text-[10px] font-mono text-amber-400 bg-amber-400/15 px-2 py-0.5 rounded border border-amber-400/30 font-semibold">
+                                                Segera Berakhir
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] font-mono text-rose-400 bg-rose-400/15 px-2 py-0.5 rounded border border-rose-400/30 font-semibold">
+                                                Terlambat
+                                            </span>
+                                        @endif
                                         <span class="font-mono text-[11px] text-[#0093dd] bg-[#0093dd]/10 px-2 py-0.5 rounded border border-[#0093dd]/20">
                                             {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
                                         </span>
