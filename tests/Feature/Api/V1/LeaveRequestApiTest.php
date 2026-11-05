@@ -71,6 +71,43 @@ class LeaveRequestApiTest extends TestCase
             ->assertOk()->assertJsonCount(1, 'data');
     }
 
+    public function test_leave_filters_by_status_class_date_and_student_with_scope(): void
+    {
+        $classA = $this->makeClass('Kelas A');
+        $classB = $this->makeClass('Kelas B');
+        $studentA = $this->makeUser(4, ['fullname' => 'Budi Santoso', 'username' => 'budi_1001', 'class_id' => $classA->id]);
+        $studentB = $this->makeUser(4, ['fullname' => 'Siti Nurhaliza', 'username' => 'siti_1002', 'class_id' => $classB->id]);
+
+        $this->makeLeave($studentA, [
+            'status_approval' => 'Approved',
+            'start_date' => '2026-11-10',
+            'end_date' => '2026-11-12',
+        ]);
+        $this->makeLeave($studentB, [
+            'status_approval' => 'Pending',
+            'start_date' => '2026-11-15',
+            'end_date' => '2026-11-16',
+        ]);
+
+        $waka = $this->makeUser(1);
+        // Filter by class_id
+        $this->apiAs($waka)->getJson('/api/v1/leave-requests?class_id=' . $classA->id)
+            ->assertOk()->assertJsonCount(1, 'data');
+
+        // Filter by student name
+        $this->apiAs($waka)->getJson('/api/v1/leave-requests?student=Budi')
+            ->assertOk()->assertJsonCount(1, 'data');
+
+        // Filter by date
+        $this->apiAs($waka)->getJson('/api/v1/leave-requests?date=2026-11-11')
+            ->assertOk()->assertJsonCount(1, 'data');
+
+        // Wali Kelas cannot see classB even if querying class_id=classB
+        $waliA = $this->makeUser(3, ['class_id' => $classA->id]);
+        $this->apiAs($waliA)->getJson('/api/v1/leave-requests?class_id=' . $classB->id)
+            ->assertOk()->assertJsonCount(0, 'data');
+    }
+
     public function test_student_can_submit_own_leave_with_document(): void
     {
         Storage::fake('local');

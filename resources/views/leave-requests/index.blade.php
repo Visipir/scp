@@ -21,26 +21,55 @@
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
         @endif
 
-        {{-- Status Filter (Segmented Bar) --}}
-        <div class="flex items-center justify-between bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-2 overflow-x-auto">
-            <div class="inline-flex p-1 bg-zinc-100 dark:bg-[#19191C] rounded-lg border border-zinc-200 dark:border-[#2B2B30] gap-1">
-                <a href="{{ route('leave-requests.index') }}" 
-                   class="px-3.5 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap {{ !request('status') ? 'bg-[#0093dd] text-white shadow-none' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A]' }}">
-                    Semua
-                </a>
-                <a href="{{ route('leave-requests.index', ['status' => 'Pending']) }}" 
-                   class="px-3.5 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap {{ request('status') === 'Pending' ? 'bg-[#0093dd] text-white shadow-none' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A]' }}">
-                    Pending
-                </a>
-                <a href="{{ route('leave-requests.index', ['status' => 'Approved']) }}" 
-                   class="px-3.5 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap {{ request('status') === 'Approved' ? 'bg-[#0093dd] text-white shadow-none' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A]' }}">
-                    Disetujui
-                </a>
-                <a href="{{ route('leave-requests.index', ['status' => 'Rejected']) }}" 
-                   class="px-3.5 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap {{ request('status') === 'Rejected' ? 'bg-[#0093dd] text-white shadow-none' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A]' }}">
-                    Ditolak
-                </a>
-            </div>
+        {{-- Filter Bar --}}
+        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 space-y-3">
+            <form method="GET" action="{{ route('leave-requests.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {{-- Status --}}
+                <div>
+                    <label class="block text-[11px] font-mono font-medium text-zinc-500 dark:text-[#97979B] mb-1">Status</label>
+                    <select name="status" class="w-full text-xs rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:ring-[#0093dd] focus:border-[#0093dd]">
+                        <option value="">Semua Status</option>
+                        <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+                </div>
+
+                {{-- Kelas (hanya untuk staff/kesiswaan) --}}
+                @if($classes->isNotEmpty())
+                <div>
+                    <label class="block text-[11px] font-mono font-medium text-zinc-500 dark:text-[#97979B] mb-1">Kelas</label>
+                    <select name="class_id" class="w-full text-xs rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:ring-[#0093dd] focus:border-[#0093dd]">
+                        <option value="">Semua Kelas</option>
+                        @foreach($classes as $c)
+                            <option value="{{ $c->id }}" {{ request('class_id') == $c->id ? 'selected' : '' }}>{{ $c->class_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
+                {{-- Tanggal Izin --}}
+                <div>
+                    <label class="block text-[11px] font-mono font-medium text-zinc-500 dark:text-[#97979B] mb-1">Tanggal</label>
+                    <input type="date" name="date" value="{{ request('date') }}" class="w-full text-xs rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:ring-[#0093dd] focus:border-[#0093dd]">
+                </div>
+
+                {{-- Cari Siswa (Nama / NIS) --}}
+                <div>
+                    <label class="block text-[11px] font-mono font-medium text-zinc-500 dark:text-[#97979B] mb-1">Siswa (Nama / NIS)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" name="student" value="{{ request('student', request('search')) }}" placeholder="Cari nama / NIS..." class="w-full text-xs rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] placeholder-zinc-400 focus:ring-[#0093dd] focus:border-[#0093dd]">
+                        <button type="submit" class="px-3 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-lg shrink-0 transition">
+                            Filter
+                        </button>
+                        @if(request()->hasAny(['status', 'class_id', 'date', 'student', 'search']))
+                            <a href="{{ route('leave-requests.index') }}" class="px-2.5 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-[#232327] dark:hover:bg-[#2B2B30] dark:text-[#97979B] text-xs rounded-lg shrink-0 transition">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </form>
         </div>
 
         {{-- List of Requests --}}

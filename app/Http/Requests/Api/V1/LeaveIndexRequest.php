@@ -17,7 +17,14 @@ class LeaveIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status_approval' => ['nullable', 'in:Pending,Approved,Rejected'],
+            'status'          => ['nullable', 'string', 'in:Pending,Approved,Rejected'],
+            'status_approval' => ['nullable', 'string', 'in:Pending,Approved,Rejected'],
+            'class_id'        => ['nullable', 'integer', 'exists:classes,id'],
+            'date'            => ['nullable', 'date'],
+            'date_from'       => ['nullable', 'date'],
+            'date_to'         => ['nullable', 'date'],
+            'student'         => ['nullable', 'string', 'max:100'],
+            'search'          => ['nullable', 'string', 'max:100'],
             'per_page'        => ['nullable', 'integer', 'min:1', 'max:50'],
         ];
     }

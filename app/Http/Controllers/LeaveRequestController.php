@@ -24,13 +24,37 @@ class LeaveRequestController extends Controller
             ->visibleTo($user);
 
         // Filter by status
-        if ($status = $request->query('status')) {
+        $status = $request->query('status') ?: $request->query('status_approval');
+        if (! empty($status) && $status !== 'Semua') {
             $query->where('status_approval', $status);
         }
 
-        $leaveRequests = $query->latest()->paginate(15);
+        // Filter by class
+        if ($classId = $request->query('class_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', (int) $classId));
+        }
 
-        return view('leave-requests.index', compact('leaveRequests'));
+        // Filter by date
+        if ($date = $request->query('date')) {
+            $query->whereDate('start_date', '<=', $date)->whereDate('end_date', '>=', $date);
+        }
+
+        // Filter by student name / NIS
+        $studentSearch = trim((string) ($request->query('student') ?: $request->query('search')));
+        if ($studentSearch !== '') {
+            $query->whereHas('student', function ($q) use ($studentSearch) {
+                $q->where('fullname', 'like', "%{$studentSearch}%")
+                  ->orWhere('username', 'like', "%{$studentSearch}%");
+            });
+        }
+
+        $classes = (in_array((int) $user->role_id, [1, 3]))
+            ? \App\Models\SchoolClass::orderBy('class_name')->get()
+            : collect();
+
+        $leaveRequests = $query->latest()->paginate(15)->withQueryString();
+
+        return view('leave-requests.index', compact('leaveRequests', 'classes', 'status', 'studentSearch'));
     }
 
     /**

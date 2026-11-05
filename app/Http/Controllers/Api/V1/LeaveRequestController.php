@@ -23,8 +23,35 @@ class LeaveRequestController extends Controller
         $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier'])
             ->visibleTo($request->user());
 
-        if ($request->filled('status_approval')) {
-            $query->where('status_approval', $request->input('status_approval'));
+        $status = $request->input('status') ?: $request->input('status_approval');
+        if (! empty($status) && $status !== 'Semua') {
+            $query->where('status_approval', $status);
+        }
+
+        if ($request->filled('class_id')) {
+            $classId = (int) $request->input('class_id');
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $classId));
+        }
+
+        if ($request->filled('date')) {
+            $date = $request->input('date');
+            $query->whereDate('start_date', '<=', $date)->whereDate('end_date', '>=', $date);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('end_date', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('start_date', '<=', $request->input('date_to'));
+        }
+
+        $studentSearch = trim((string) ($request->input('student') ?: $request->input('search')));
+        if ($studentSearch !== '') {
+            $query->whereHas('student', function ($q) use ($studentSearch) {
+                $q->where('fullname', 'like', "%{$studentSearch}%")
+                  ->orWhere('username', 'like', "%{$studentSearch}%");
+            });
         }
 
         $paginator = $query->latest()->paginate($perPage);
