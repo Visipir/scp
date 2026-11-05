@@ -9,7 +9,7 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Master Data Akademik</span>
+                        <span class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">Manajemen Data Akademik</span>
                         <span class="text-zinc-300 dark:text-[#5B5B61]">&bull;</span>
                         <span class="text-xs font-semibold text-[#0093dd] uppercase tracking-wider">Detail Rombel</span>
                     </div>
