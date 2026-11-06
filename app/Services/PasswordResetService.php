@@ -23,10 +23,17 @@ class PasswordResetService
         $trimmed = trim($identifier);
         $normalized = strtolower($trimmed);
 
-        // Find user by email or username
+        // Find user by email, username, or NIP
         $user = User::where('email', $normalized)
             ->orWhere('username', $trimmed)
+            ->orWhere('nip', $trimmed)
             ->first();
+
+        if ($user && empty($user->email)) {
+            throw ValidationException::withMessages([
+                'email' => 'Email belum terdaftar. Hubungi Waka Kurikulum.',
+            ]);
+        }
 
         if ($user && ! empty($user->email) && $user->email_verified_at !== null) {
             $userEmail = strtolower(trim($user->email));

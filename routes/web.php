@@ -51,6 +51,7 @@ Route::middleware(['auth', 'role:1'])->group(function () {
         Route::get('/import-wali-bk', [\App\Http\Controllers\HomeroomImportController::class, 'index'])->name('import-wali-bk.index');
         Route::post('/import-wali-bk/preview', [\App\Http\Controllers\HomeroomImportController::class, 'preview'])->name('import-wali-bk.preview');
         Route::post('/import-wali-bk/commit', [\App\Http\Controllers\HomeroomImportController::class, 'commit'])->name('import-wali-bk.commit');
+        Route::post('/import-email', [\App\Http\Controllers\TeacherEmailImportController::class, 'preview'])->name('import-email');
     });
 });
 
