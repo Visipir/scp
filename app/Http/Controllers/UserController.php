@@ -21,8 +21,10 @@ class UserController extends Controller
         $search = $request->query('search');
 
         $users = $this->userService->listUsers($request->user(), [
-            'role_id' => $roleFilter,
-            'search'  => $search,
+            'role_id'    => $roleFilter,
+            'class_id'   => $request->query('class_id'),
+            'student_id' => $request->query('student_id'),
+            'search'     => $search,
         ], 20);
 
         $roles = [
@@ -61,8 +63,9 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
-    public function edit(User $user)
+    public function edit(Request $request, User $user)
     {
+        abort_unless($this->userService->canManageUser($request->user(), $user), 403, 'Akses ditolak.');
         $classes = SchoolClass::orderBy('class_name')->get();
         return view('users.edit', compact('user', 'classes'));
     }

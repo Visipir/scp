@@ -20,6 +20,7 @@ class LeaveIndexRequest extends FormRequest
             'status'          => ['nullable', 'string', 'in:Pending,Approved,Rejected'],
             'status_approval' => ['nullable', 'string', 'in:Pending,Approved,Rejected'],
             'class_id'        => ['nullable', 'integer', 'exists:classes,id'],
+            'student_id'      => ['nullable', 'integer', 'exists:users,id'],
             'date'            => ['nullable', 'date'],
             'date_from'       => ['nullable', 'date'],
             'date_to'         => ['nullable', 'date'],

@@ -14,20 +14,28 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class SchoolClassService
 {
     /**
-     * List classes with student counts, filters, and homeroom scoping.
+     * List classes with student counts, filters, and centralized authorizedClassIds scoping.
      */
     public function listClasses(User $actor, array $filters = [], ?int $perPage = null): Collection|LengthAwarePaginator
     {
+        // Paginated class management list requires kesiswaan/waka access
+        if ($perPage !== null && !$actor->hasKesiswaanAccess()) {
+            abort(403, 'Akses ditolak.');
+        }
+
         $query = SchoolClass::withCount('users as students_count')
             ->with(['homeroomAssignment.user', 'counselorAssignments.user']);
 
-        // Scoping: Wali Kelas sees only their homeroom class; Counselor sees only their assigned classes
-        $scopedClassId = $actor->scopedClassId();
-        if ($scopedClassId !== null) {
-            $query->where('id', $scopedClassId);
-        } elseif ($actor->isCounselor() && $actor->counselorAssignments()->exists()) {
-            $allowedClassIds = $actor->counselorAssignments()->pluck('class_id')->all();
-            $query->whereIn('id', $allowedClassIds);
+        // Centralized scoping: Waka (null) sees all; BK & Wali Kelas see union of authorizedClassIds
+        if ($actor->hasKesiswaanAccess()) {
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null) {
+                $query->whereIn('id', $allowedClassIds);
+            }
+        }
+
+        if (!empty($filters['class_id'])) {
+            $query->where('id', (int) $filters['class_id']);
         }
 
         if (!empty($filters['academic_year']) && $filters['academic_year'] !== 'all') {
@@ -85,13 +93,7 @@ class SchoolClassService
         ?string $endDate = null,
         ?string $search = null
     ): array {
-        $scopedClassId = $actor->scopedClassId();
-        if ($scopedClassId !== null) {
-            abort_if((int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
-        } elseif ($actor->isCounselor() && $actor->counselorAssignments()->exists()) {
-            $allowed = $actor->counselorAssignments()->pluck('class_id')->all();
-            abort_unless(in_array((int) $class->id, $allowed, true), 403, 'Akses ditolak.');
-        }
+        $actor->authorizeClassAccess($class);
 
         $class->load(['homeroomAssignment.user', 'counselorAssignments.user']);
         $teachers = ((int) $actor->role_id === 1) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
@@ -174,8 +176,7 @@ class SchoolClassService
      */
     public function updateClass(User $actor, SchoolClass $class, array $data): SchoolClass
     {
-        $scopedClassId = $actor->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        $actor->authorizeClassAccess($class);
 
         $className = trim($data['class_name']);
         $academicYear = trim($data['academic_year']);
@@ -213,8 +214,7 @@ class SchoolClassService
      */
     public function deleteClass(User $actor, SchoolClass $class): void
     {
-        $scopedClassId = $actor->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        $actor->authorizeClassAccess($class);
 
         if ($err = $this->checkDeletable($class)) {
             abort(422, $err);
@@ -228,8 +228,7 @@ class SchoolClassService
      */
     public function getMonthlyRecap(User $actor, SchoolClass $class, string $month): array
     {
-        $scopedClassId = $actor->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        $actor->authorizeClassAccess($class);
 
         $dt = Carbon::createFromFormat('Y-m', $month) ?: Carbon::now();
         $startDate = $dt->copy()->startOfMonth()->toDateString();
@@ -312,8 +311,7 @@ class SchoolClassService
      */
     public function exportAttendanceStream(User $actor, SchoolClass $class, string $startDate, string $endDate): StreamedResponse
     {
-        $scopedClassId = $actor->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        $actor->authorizeClassAccess($class);
 
         $students = $class->students()->orderBy('fullname', 'asc')->get();
 

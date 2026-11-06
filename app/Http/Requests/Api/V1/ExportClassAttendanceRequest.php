@@ -8,7 +8,30 @@ class ExportClassAttendanceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array((int) $this->user()?->role_id, [1, 3], true);
+        $user = $this->user();
+        if (!$user) {
+            return false;
+        }
+
+        $class = $this->route('class');
+        return $class ? $user->canAccessClass($class) : $user->hasKesiswaanAccess();
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('month') && !$this->filled('start_date') && !$this->filled('end_date')) {
+            try {
+                $dt = \Carbon\Carbon::createFromFormat('Y-m', $this->input('month'));
+                if ($dt) {
+                    $this->merge([
+                        'start_date' => $dt->copy()->startOfMonth()->toDateString(),
+                        'end_date'   => $dt->copy()->endOfMonth()->toDateString(),
+                    ]);
+                }
+            } catch (\Throwable) {
+                // Let standard validation handle invalid month/dates
+            }
+        }
     }
 
     public function rules(): array

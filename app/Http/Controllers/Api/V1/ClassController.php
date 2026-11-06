@@ -23,7 +23,7 @@ class ClassController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['academic_year', 'grade_level', 'major', 'search']);
+        $filters = $request->only(['academic_year', 'grade_level', 'major', 'search', 'class_id']);
 
         if ($request->has('page') || $request->has('per_page')) {
             $classes = $this->classService->listClasses(

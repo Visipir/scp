@@ -28,6 +28,7 @@ class SchoolClassController extends Controller
                 'academic_year' => $selectedYear,
                 'grade_level'   => $selectedGrade,
                 'major'         => $selectedMajor,
+                'class_id'      => $request->query('class_id'),
             ],
             15
         );
@@ -90,8 +91,7 @@ class SchoolClassController extends Controller
 
     public function destroy(Request $request, SchoolClass $class): RedirectResponse
     {
-        $scopedClassId = $request->user()?->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        $request->user()?->authorizeClassAccess($class);
 
         if ($error = $this->classService->checkDeletable($class)) {
             return back()->with('error', $error);

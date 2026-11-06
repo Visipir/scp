@@ -92,8 +92,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Union of class IDs the user is authorized to supervise for kesiswaan / leave requests.
-     * Null return means unrestricted (all classes, e.g. Waka or unassigned Counselor).
+     * Union of class IDs the user is authorized to supervise for kesiswaan / leave requests / class recaps.
+     * Null return means unrestricted (all classes, e.g. Waka or legacy unassigned Role 3).
+     * Empty array [] means no class access.
      */
     public function authorizedClassIds(): ?array
     {
@@ -101,26 +102,43 @@ class User extends Authenticatable
             return null; // Unrestricted (all classes)
         }
 
-        // Legacy Role 3 support
-        if ((int) $this->role_id === 3 && !$this->homeroomAssignment()->exists() && !$this->counselorAssignments()->exists()) {
+        $homeroomClassIds = $this->homeroomAssignment()->pluck('class_id')->map(fn ($id) => (int) $id)->all();
+        $counselorClassIds = $this->counselorAssignments()->pluck('class_id')->map(fn ($id) => (int) $id)->all();
+        $ids = array_values(array_unique(array_merge($homeroomClassIds, $counselorClassIds)));
+
+        if (!empty($ids)) {
+            return $ids;
+        }
+
+        // Legacy Role 3 support when no assignment rows exist
+        if ((int) $this->role_id === 3) {
             return $this->class_id !== null ? [(int) $this->class_id] : null;
         }
 
-        $ids = [];
-        $homeroom = $this->homeroomAssignment;
-        if ($homeroom) {
-            $ids[] = (int) $homeroom->class_id;
+        return [];
+    }
+
+    /**
+     * Centralized policy check whether the user can access a given class for kesiswaan/wali/BK endpoints.
+     */
+    public function canAccessClass(int|SchoolClass $class): bool
+    {
+        if (!$this->hasKesiswaanAccess()) {
+            return false;
         }
 
-        foreach ($this->counselorAssignments as $counselor) {
-            $ids[] = (int) $counselor->class_id;
-        }
+        $classId = $class instanceof SchoolClass ? (int) $class->id : (int) $class;
+        $allowed = $this->authorizedClassIds();
 
-        if (empty($ids) && (int) $this->role_id === 3) {
-            return null;
-        }
+        return $allowed === null || in_array($classId, $allowed, true);
+    }
 
-        return array_values(array_unique($ids));
+    /**
+     * Abort with 403 unless the user is authorized to access the given class.
+     */
+    public function authorizeClassAccess(int|SchoolClass $class): void
+    {
+        abort_unless($this->canAccessClass($class), 403, 'Akses ditolak.');
     }
 
     /**
@@ -128,8 +146,9 @@ class User extends Authenticatable
      */
     public function scopedClassId(): ?int
     {
-        if ($this->homeroomAssignment) {
-            return (int) $this->homeroomAssignment->class_id;
+        $homeroomId = $this->homeroomAssignment()->value('class_id');
+        if ($homeroomId !== null) {
+            return (int) $homeroomId;
         }
 
         if ((int) $this->role_id === 3) {

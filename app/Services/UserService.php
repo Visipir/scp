@@ -16,25 +16,33 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class UserService
 {
     /**
-     * Get paginated user list with role & scoping filters.
+     * Get paginated user list with role & centralized authorizedClassIds scoping filters.
      */
     public function listUsers(User $actor, array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
+        if (!$actor->hasKesiswaanAccess()) {
+            abort(403, 'Akses ditolak.');
+        }
+
         $query = User::with(['role', 'schoolClass']);
 
-        // Role 3 (Tim Kesiswaan / BK / Wali Kelas) may only view students (role_id 4)
-        if ((int) $actor->role_id === 3) {
+        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only view students (role_id 4) in their authorizedClassIds
+        if ((int) $actor->role_id !== 1) {
             $query->where('role_id', 4);
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null) {
-                $query->where('class_id', $scopedClassId);
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null) {
+                $query->whereIn('class_id', $allowedClassIds);
             }
         } elseif (!empty($filters['role_id'])) {
             $query->where('role_id', $filters['role_id']);
         }
 
         if (!empty($filters['class_id'])) {
-            $query->where('class_id', $filters['class_id']);
+            $query->where('class_id', (int) $filters['class_id']);
+        }
+
+        if (!empty($filters['student_id'])) {
+            $query->where('id', (int) $filters['student_id']);
         }
 
         if (!empty($filters['search'])) {
@@ -58,13 +66,17 @@ class UserService
      */
     public function createUser(User $actor, array $data): User
     {
-        // Role 3 may only create students (role 4)
-        if ((int) $actor->role_id === 3) {
+        if (!$actor->hasKesiswaanAccess()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only create students (role 4) in their authorizedClassIds
+        if ((int) $actor->role_id !== 1) {
             if ((int) ($data['role_id'] ?? 0) !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk menambahkan akun siswa.');
             }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && isset($data['class_id']) && (int) $data['class_id'] !== $scopedClassId) {
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null && isset($data['class_id']) && !in_array((int) $data['class_id'], $allowedClassIds, true)) {
                 abort(403, 'Akses ditolak. Anda hanya dapat mendaftarkan siswa ke kelas binaan Anda.');
             }
         }
@@ -80,18 +92,12 @@ class UserService
     }
 
     /**
-     * Retrieve single user detail respecting role-3 scoping.
+     * Retrieve single user detail respecting centralized authorizedClassIds scoping.
      */
     public function getUser(User $actor, User $target): User
     {
-        if ((int) $actor->role_id === 3) {
-            if ((int) $target->role_id !== 4) {
-                abort(403, 'Akses ditolak. Anda hanya dapat melihat data siswa.');
-            }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && (int) $target->class_id !== $scopedClassId) {
-                abort(403, 'Akses ditolak. Siswa bukan anggota kelas binaan Anda.');
-            }
+        if (!$this->canManageUser($actor, $target)) {
+            abort(403, 'Akses ditolak.');
         }
 
         return $target->load(['role', 'schoolClass', 'children.schoolClass']);
@@ -102,18 +108,17 @@ class UserService
      */
     public function updateUser(User $actor, User $target, array $data): User
     {
-        if ((int) $actor->role_id === 3) {
-            if ((int) $target->role_id !== 4 || (isset($data['role_id']) && (int) $data['role_id'] !== 4)) {
+        if (!$this->canManageUser($actor, $target)) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        if ((int) $actor->role_id !== 1) {
+            if (isset($data['role_id']) && (int) $data['role_id'] !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk mengubah data siswa.');
             }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null) {
-                if ((int) $target->class_id !== $scopedClassId) {
-                    abort(403, 'Akses ditolak. Siswa bukan anggota kelas binaan Anda.');
-                }
-                if (isset($data['class_id']) && (int) $data['class_id'] !== $scopedClassId) {
-                    abort(403, 'Akses ditolak. Anda tidak dapat memindahkan siswa ke luar kelas binaan Anda.');
-                }
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null && isset($data['class_id']) && !in_array((int) $data['class_id'], $allowedClassIds, true)) {
+                abort(403, 'Akses ditolak. Anda tidak dapat memindahkan siswa ke luar kelas binaan Anda.');
             }
         }
 
@@ -151,14 +156,8 @@ class UserService
             abort(422, 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        if ((int) $actor->role_id === 3) {
-            if ((int) $target->role_id !== 4) {
-                abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk menghapus akun siswa.');
-            }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && (int) $target->class_id !== $scopedClassId) {
-                abort(403, 'Akses ditolak. Siswa bukan anggota kelas binaan Anda.');
-            }
+        if (!$this->canManageUser($actor, $target)) {
+            abort(403, 'Akses ditolak.');
         }
 
         // Dependency checks
@@ -182,14 +181,8 @@ class UserService
      */
     public function resetPassword(User $actor, User $target): User
     {
-        if ((int) $actor->role_id === 3) {
-            if ((int) $target->role_id !== 4) {
-                abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk me-reset kata sandi siswa.');
-            }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && (int) $target->class_id !== $scopedClassId) {
-                abort(403, 'Akses ditolak. Siswa bukan anggota kelas binaan Anda.');
-            }
+        if (!$this->canManageUser($actor, $target)) {
+            abort(403, 'Akses ditolak.');
         }
 
         $target->update([
@@ -326,24 +319,24 @@ class UserService
     }
 
     /**
-     * Check whether an actor is authorized to manage (update, delete, reset-password) a target user.
+     * Check whether an actor is authorized to manage (view, update, delete, reset-password) a target user.
      */
     public function canManageUser(User $actor, User $target): bool
     {
-        $actorRole = (int) $actor->role_id;
-
-        if ($actorRole === 1) {
+        if ((int) $actor->role_id === 1) {
             return true;
         }
 
-        if ($actorRole === 3) {
+        if ($actor->hasKesiswaanAccess()) {
             if ((int) $target->role_id !== 4) {
                 return false;
             }
 
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && (int) $target->class_id !== $scopedClassId) {
-                return false;
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null) {
+                if ($target->class_id === null || !in_array((int) $target->class_id, $allowedClassIds, true)) {
+                    return false;
+                }
             }
 
             return true;

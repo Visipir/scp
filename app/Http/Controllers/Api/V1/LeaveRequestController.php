@@ -33,6 +33,10 @@ class LeaveRequestController extends Controller
             $query->whereHas('student', fn ($q) => $q->where('class_id', $classId));
         }
 
+        if ($request->filled('student_id')) {
+            $query->where('student_id', (int) $request->input('student_id'));
+        }
+
         if ($request->filled('date')) {
             $date = $request->input('date');
             $query->whereDate('start_date', '<=', $date)->whereDate('end_date', '>=', $date);

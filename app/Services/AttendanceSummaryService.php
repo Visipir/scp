@@ -27,6 +27,7 @@ class AttendanceSummaryService
 
             $student = $children->firstWhere('id', $studentId);
         } else {
+            abort_if($studentId !== null && (int) $studentId !== (int) $user->id, 403, 'Akses ditolak.');
             $studentId = (int) $user->id;
             $student = $user;
         }

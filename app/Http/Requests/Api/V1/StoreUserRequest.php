@@ -8,7 +8,7 @@ class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array((int) $this->user()?->role_id, [1, 3], true);
+        return $this->user()?->hasKesiswaanAccess() ?? false;
     }
 
     public function rules(): array

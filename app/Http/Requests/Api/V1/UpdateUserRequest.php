@@ -27,12 +27,12 @@ class UpdateUserRequest extends FormRequest
             return false;
         }
 
-        if ((int) $actor->role_id === 3) {
+        if ((int) $actor->role_id !== 1) {
             if ($this->has('role_id') && (int) $this->input('role_id') !== 4) {
                 return false;
             }
-            $scopedClassId = $actor->scopedClassId();
-            if ($scopedClassId !== null && $this->has('class_id') && (int) $this->input('class_id') !== $scopedClassId) {
+            $allowedClassIds = $actor->authorizedClassIds();
+            if ($allowedClassIds !== null && $this->has('class_id') && !in_array((int) $this->input('class_id'), $allowedClassIds, true)) {
                 return false;
             }
         }

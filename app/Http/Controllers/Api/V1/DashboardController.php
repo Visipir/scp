@@ -73,12 +73,54 @@ class DashboardController extends Controller
             ->whereNull('read_at')
             ->count();
 
+        $pendingLeaveCount = $user->hasKesiswaanAccess()
+            ? LeaveRequest::visibleTo($user)->whereIn('status_approval', ['Pending', 'Menunggu'])->count()
+            : 0;
+
+        $homeroomClass = null;
+        $homeroomStats = null;
+        if ($user->isHomeroomTeacher()) {
+            $homeroomAssignment = $user->homeroomAssignment()->with('schoolClass')->first();
+            if ($homeroomAssignment && $homeroomAssignment->schoolClass) {
+                $homeroomClass = [
+                    'id'            => (int) $homeroomAssignment->schoolClass->id,
+                    'class_name'    => $homeroomAssignment->schoolClass->class_name,
+                    'academic_year' => $homeroomAssignment->schoolClass->academic_year,
+                ];
+                $studentIds = User::where('class_id', $homeroomAssignment->schoolClass->id)
+                    ->where('role_id', 4)
+                    ->pluck('id');
+                $todayAttendances = \App\Models\Attendance::whereIn('student_id', $studentIds)
+                    ->whereDate('date', $today->toDateString())
+                    ->get();
+                $homeroomStats = [
+                    'total_students' => $studentIds->count(),
+                    'leaves' => [
+                        'pending'  => LeaveRequest::whereIn('student_id', $studentIds)->whereIn('status_approval', ['Pending', 'Menunggu'])->count(),
+                        'approved' => LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Approved')->count(),
+                        'rejected' => LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Rejected')->count(),
+                        'total'    => LeaveRequest::whereIn('student_id', $studentIds)->count(),
+                    ],
+                    'attendance_summary' => [
+                        'hadir'     => $todayAttendances->where('status', 'Hadir')->count(),
+                        'sakit'     => $todayAttendances->where('status', 'Sakit')->count(),
+                        'izin'      => $todayAttendances->where('status', 'Izin')->count(),
+                        'alpa'      => $todayAttendances->where('status', 'Alpa')->count(),
+                        'terlambat' => $todayAttendances->where('status', 'Terlambat')->count(),
+                    ],
+                ];
+            }
+        }
+
         return ApiResponse::data([
             'today_schedules'        => $todaySchedules,
             'late_journal_alerts'    => $alerts,
             'pending_swap_requests'  => $pendingSwaps->count(),
             'pending_swaps'          => \App\Http\Resources\Api\V1\ScheduleSwapResource::collection($pendingSwaps)->resolve(),
             'unread_notifications'   => $unreadNotifications,
+            'pending_leave_count'    => $pendingLeaveCount,
+            'homeroom_class'         => $homeroomClass,
+            'homeroom_stats'         => $homeroomStats,
             'active_cycle'           => $activeCycle,
             'is_schedule_locked'     => (bool) ($config?->is_schedule_locked ?? false),
         ]);
@@ -101,11 +143,13 @@ class DashboardController extends Controller
             ->values()->all();
 
         $todaySwaps = app(\App\Services\ScheduleSwapService::class)->getTodayApprovedSwapsForDashboard();
+        $pendingLeaveCount = LeaveRequest::whereIn('status_approval', ['Pending', 'Menunggu'])->count();
 
         return ApiResponse::data([
-            'attendance_today'   => $dashboards->attendanceTodayCounts(),
-            'unfilled_journals'  => $unfilled,
-            'today_swaps'        => [
+            'attendance_today'    => $dashboards->attendanceTodayCounts(),
+            'unfilled_journals'   => $unfilled,
+            'pending_leave_count' => $pendingLeaveCount,
+            'today_swaps'         => [
                 'today_count'   => $todaySwaps['today_count'],
                 'pending_count' => $todaySwaps['pending_count'],
                 'approved'      => \App\Http\Resources\Api\V1\ScheduleSwapResource::collection($todaySwaps['approved'])->resolve(),

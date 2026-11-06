@@ -27,9 +27,10 @@ class UserController extends Controller
     {
         $perPage = (int) $request->query('per_page', 20);
         $filters = [
-            'role_id'  => $request->query('role_id'),
-            'class_id' => $request->query('class_id'),
-            'search'   => $request->query('search'),
+            'role_id'    => $request->query('role_id'),
+            'class_id'   => $request->query('class_id'),
+            'student_id' => $request->query('student_id'),
+            'search'     => $request->query('search'),
         ];
 
         $users = $this->userService->listUsers($request->user(), $filters, $perPage);

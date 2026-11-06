@@ -8,7 +8,13 @@ class UpdateClassRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return in_array((int) $this->user()?->role_id, [1, 3], true);
+        $user = $this->user();
+        if (!$user) {
+            return false;
+        }
+
+        $class = $this->route('class');
+        return $class ? $user->canAccessClass($class) : $user->hasKesiswaanAccess();
     }
 
     public function rules(): array
