@@ -160,6 +160,17 @@
                     <span>Manajemen Pengguna</span>
                 </a>
 
+                <!-- Import Data Pegawai -->
+                <a 
+                    href="{{ route('waka.import-pegawai.index') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('waka.import-pegawai.*') ? $navActive : $navInactive }}"
+                >
+                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.import-pegawai.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span>Import Pegawai</span>
+                </a>
+
                 <!-- Pengaturan Sistem -->
                 <a 
                     href="{{ route('waka.settings') }}" 

@@ -42,6 +42,9 @@ Route::middleware(['auth', 'role:1'])->group(function () {
         Route::get('/settings', [SystemConfigurationController::class, 'edit'])->name('settings');
         Route::post('/settings/gemini', [SystemConfigurationController::class, 'updateGeminiConfig'])->name('settings.gemini');
         Route::post('/schedules/import-pdf', [ScheduleImportController::class, 'import'])->name('schedules.import');
+        Route::get('/import-pegawai', [\App\Http\Controllers\EmployeeImportController::class, 'index'])->name('import-pegawai.index');
+        Route::post('/import-pegawai/preview', [\App\Http\Controllers\EmployeeImportController::class, 'preview'])->name('import-pegawai.preview');
+        Route::post('/import-pegawai/commit', [\App\Http\Controllers\EmployeeImportController::class, 'commit'])->name('import-pegawai.commit');
     });
 });
 
