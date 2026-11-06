@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\SchoolClass;
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\RealAccountsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Tests\Support\ScpTestHelpers;
 use Tests\TestCase;
 
@@ -14,23 +15,44 @@ class RealAccountsSeederTest extends TestCase
     use RefreshDatabase;
     use ScpTestHelpers;
 
+    private ?string $originalCsvContent = null;
+    private string $csvPath;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->seedRoles();
+
+        $seedDir = storage_path('app/seed');
+        if (!File::exists($seedDir)) {
+            File::makeDirectory($seedDir, 0755, true);
+        }
+        $this->csvPath = $seedDir . '/accounts.csv';
+        if (File::exists($this->csvPath)) {
+            $this->originalCsvContent = File::get($this->csvPath);
+        }
     }
 
-    public function test_real_accounts_seeder_creates_production_accounts_and_requires_password_change(): void
+    protected function tearDown(): void
+    {
+        if ($this->originalCsvContent !== null) {
+            File::put($this->csvPath, $this->originalCsvContent);
+        }
+        parent::tearDown();
+    }
+
+    public function test_real_accounts_seeder_creates_only_waka_and_kesiswaan_and_ignores_wali_placeholders(): void
     {
         $classA = $this->makeClass('X RPL 1');
         putenv('SEED_DEFAULT_PASSWORD=***REMOVED***');
 
-        $seedDir = storage_path('app/seed');
-        if (!\Illuminate\Support\Facades\File::exists($seedDir)) {
-            \Illuminate\Support\Facades\File::makeDirectory($seedDir, 0755, true);
-        }
-        $csvPath = $seedDir . '/accounts.csv';
-        \Illuminate\Support\Facades\File::put($csvPath, "username,name,role,class_id,email\nwaka.kurikulum,Waka Kurikulum,1,,waka@sekolah.sch.id\nguru.bk,Guru BK,3,,bk@sekolah.sch.id\nwali.x.rpl.1,Wali X RPL 1,3,{$classA->id},wali@sekolah.sch.id\n");
+        File::put(
+            $this->csvPath,
+            "username,name,role,class_id,email\n" .
+            "waka.kurikulum,Waka Kurikulum,1,,waka@sekolah.sch.id\n" .
+            "tim.kesiswaan,Tim Kesiswaan,3,,kesiswaan@sekolah.sch.id\n" .
+            "wali.x.rpl.1,Wali X RPL 1,3,{$classA->id},wali@sekolah.sch.id\n"
+        );
 
         $this->seed(RealAccountsSeeder::class);
 
@@ -40,19 +62,18 @@ class RealAccountsSeederTest extends TestCase
         $this->assertNull($waka->class_id);
         $this->assertTrue((bool) $waka->must_change_password);
 
-        $bk = User::where('username', 'guru.bk')->first();
-        $this->assertNotNull($bk);
-        $this->assertSame(3, (int) $bk->role_id);
-        $this->assertNull($bk->class_id);
-        $this->assertTrue((bool) $bk->must_change_password);
+        $kesiswaan = User::where('username', 'tim.kesiswaan')->first();
+        $this->assertNotNull($kesiswaan);
+        $this->assertSame(3, (int) $kesiswaan->role_id);
+        $this->assertNull($kesiswaan->class_id);
+        $this->assertTrue((bool) $kesiswaan->must_change_password);
 
-        $wali = User::where('username', 'wali.x.rpl.1')->first();
-        $this->assertNotNull($wali);
-        $this->assertSame(3, (int) $wali->role_id);
-        $this->assertSame($classA->id, $wali->class_id);
-        $this->assertTrue((bool) $wali->must_change_password);
+        // wali.* placeholder row MUST be ignored
+        $this->assertNull(User::where('username', 'wali.x.rpl.1')->first());
 
-        \Illuminate\Support\Facades\File::delete($csvPath);
+        // DatabaseSeeder MUST NOT reference RealAccountsSeeder
+        $dbSeederSource = File::get(database_path('seeders/DatabaseSeeder.php'));
+        $this->assertStringNotContainsString('RealAccountsSeeder', $dbSeederSource);
     }
 
     public function test_real_accounts_seeder_throws_when_password_env_missing(): void

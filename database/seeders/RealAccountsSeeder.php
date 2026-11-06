@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\SchoolClass;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
@@ -12,8 +11,8 @@ use Illuminate\Support\Str;
 class RealAccountsSeeder extends Seeder
 {
     /**
-     * Run the production accounts seeder.
-     * Not environment-gated. Fully idempotent via updateOrCreate.
+     * Run the production accounts seeder for Waka & real Tim Kesiswaan accounts only.
+     * Never generates 48 homeroom (wali.*) placeholder accounts and is not called in DatabaseSeeder.
      */
     public function run(): void
     {
@@ -31,7 +30,6 @@ class RealAccountsSeeder extends Seeder
             File::makeDirectory($seedDir, 0755, true);
         }
 
-        // Check if CSV exists
         if (!File::exists($csvPath)) {
             $this->command?->warn("RealAccountsSeeder: No CSV found at {$csvPath}. Skipping seeding.");
             return;
@@ -44,24 +42,25 @@ class RealAccountsSeeder extends Seeder
             $username = trim($row['username'] ?? '');
             $name     = trim($row['name'] ?? '');
             $rawRole  = trim($row['role'] ?? '3');
-            $classId  = trim($row['class_id'] ?? '');
             $email    = trim($row['email'] ?? '');
 
             if ($username === '' || $name === '') {
                 continue;
             }
 
+            // Never seed wali.* placeholder accounts; homeroom teachers come from real Pegawai + Wali/BK import
+            if (Str::startsWith(strtolower($username), 'wali.')) {
+                continue;
+            }
+
             $roleId = match (strtolower($rawRole)) {
-                '1', 'waka', 'admin', 'waka kurikulum'             => 1,
-                '2', 'guru', 'teacher'                             => 2,
-                '3', 'kesiswaan', 'bk', 'guru bk', 'wali kelas'    => 3,
-                '4', 'siswa', 'student', 'ortu', 'parent'          => 4,
-                default                                            => is_numeric($rawRole) ? (int) $rawRole : 3,
+                '1', 'waka', 'admin', 'waka kurikulum' => 1,
+                '3', 'kesiswaan', 'bk', 'guru bk'      => 3,
+                default                                => null,
             };
 
-            $resolvedClassId = is_numeric($classId) && (int) $classId > 0 ? (int) $classId : null;
-            if ($resolvedClassId !== null && !SchoolClass::where('id', $resolvedClassId)->exists()) {
-                $resolvedClassId = null;
+            if ($roleId === null) {
+                continue;
             }
 
             User::updateOrCreate(
@@ -69,7 +68,7 @@ class RealAccountsSeeder extends Seeder
                 [
                     'fullname'             => $name,
                     'role_id'              => $roleId,
-                    'class_id'             => $resolvedClassId,
+                    'class_id'             => null,
                     'email'                => $email !== '' ? $email : null,
                     'password'             => Hash::make($defaultPassword),
                     'must_change_password' => true,
@@ -92,7 +91,7 @@ class RealAccountsSeeder extends Seeder
             $headers = null;
             while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 if ($headers === null) {
-                    $headers = array_map(fn($h) => strtolower(trim($h)), $data);
+                    $headers = array_map(fn ($h) => strtolower(trim($h)), $data);
                     continue;
                 }
                 if (count($data) === count($headers)) {
