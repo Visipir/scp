@@ -91,6 +91,104 @@
             </div>
         @endif
 
+        {{-- ================= PANEL KHUSUS WALI KELAS ================= --}}
+        @if($homeroomClass)
+            <div class="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/30 rounded-xl p-5 sm:p-6 shadow-xs">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-emerald-500/20">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/30">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono bg-emerald-500 text-white">
+                                    WALI KELAS
+                                </span>
+                                <h3 class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
+                                    Kelas Perwalian: {{ $homeroomClass->class_name }}
+                                </h3>
+                                <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-zinc-100 dark:bg-[#2C2C30] text-zinc-600 dark:text-[#97979B] border border-zinc-200 dark:border-[#3A3A3F]">
+                                    TP {{ $homeroomClass->academic_year ?? '2026/2027' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-zinc-600 dark:text-[#97979B] mt-1">
+                                Kelola data {{ $homeroomStats['total_students'] ?? 0 }} siswa perwalian, cek presensi harian, evaluasi catatan kehadiran, dan pantau status izin siswa.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 4 Menu Utama Wali Kelas --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+                    <!-- 1. Cek List Siswa -->
+                    <a href="{{ route('classes.show', $homeroomClass->id) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                                <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Cek List Siswa</span>
+                                <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">{{ $homeroomStats['total_students'] ?? 0 }} Siswa</span>
+                            </div>
+                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Daftar siswa lengkap, nomor presensi, NIS, dan data rombel kelas.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span>Buka Cek List &rarr;</span>
+                        </div>
+                    </a>
+
+                    <!-- 2. Presensi Siswa -->
+                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                                <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Presensi Siswa</span>
+                                <span class="text-xs font-bold text-emerald-500">{{ $homeroomStats['attendance_summary']['hadir'] ?? 0 }} Hadir Hari Ini</span>
+                            </div>
+                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Rekap kehadiran harian/bulanan, persentase kehadiran, dan ekspor CSV.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span>Rekap Presensi &rarr;</span>
+                        </div>
+                    </a>
+
+                    <!-- 3. Catatan Siswa -->
+                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                                <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Catatan Siswa</span>
+                                <span class="text-xs font-bold text-rose-500">{{ ($homeroomStats['attendance_summary']['alpa'] ?? 0) + ($homeroomStats['attendance_summary']['sakit'] ?? 0) + ($homeroomStats['attendance_summary']['izin'] ?? 0) }} Rekap Absen</span>
+                            </div>
+                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Catatan per siswa yang tidak hadir, sakit, alpa, izin, atau terlambat.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span>Lihat Catatan &rarr;</span>
+                        </div>
+                    </a>
+
+                    <!-- 4. Izin Siswa (Approved BK maupun Tidak / Pending) -->
+                    <a href="{{ route('leave-requests.index', ['class_id' => $homeroomClass->id]) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                                <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Izin Siswa Perwalian</span>
+                                @if(($homeroomStats['leaves']['pending'] ?? 0) > 0)
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">
+                                        {{ $homeroomStats['leaves']['pending'] }} Menunggu BK
+                                    </span>
+                                @else
+                                    <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ $homeroomStats['leaves']['total'] ?? 0 }} Total</span>
+                                @endif
+                            </div>
+                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">
+                                Pantau izin siswa (Disetujui: {{ $homeroomStats['leaves']['approved'] ?? 0 }}, Ditolak: {{ $homeroomStats['leaves']['rejected'] ?? 0 }}, Menunggu: {{ $homeroomStats['leaves']['pending'] ?? 0 }}).
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span>Semua Izin Siswa &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- 2. SWISS MINIMALIST JOURNAL FORM CARD --}}
         <div class="bg-white border border-zinc-200/80 rounded-lg p-6 sm:p-8">
             <div class="border-b border-zinc-200/80 pb-4 mb-6">

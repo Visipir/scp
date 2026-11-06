@@ -82,9 +82,45 @@ class DashboardController extends Controller
                 ->get(['id', 'fullname', 'class_id'])
                 ->groupBy('class_id');
 
+            $homeroomClass = null;
+            $homeroomStats = null;
+            if ($user->isHomeroomTeacher()) {
+                $homeroomAssignment = $user->homeroomAssignment()->with('schoolClass')->first();
+                if ($homeroomAssignment && $homeroomAssignment->schoolClass) {
+                    $homeroomClass = $homeroomAssignment->schoolClass;
+                    $studentIds = \App\Models\User::where('class_id', $homeroomClass->id)
+                        ->where('role_id', 4)
+                        ->pluck('id');
+
+                    $leaveStats = [
+                        'pending'  => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->whereIn('status_approval', ['Pending', 'Menunggu'])->count(),
+                        'approved' => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Approved')->count(),
+                        'rejected' => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Rejected')->count(),
+                        'total'    => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->count(),
+                    ];
+
+                    $todayAttendances = \App\Models\Attendance::whereIn('student_id', $studentIds)
+                        ->whereDate('date', $today)
+                        ->get();
+
+                    $homeroomStats = [
+                        'total_students'     => $studentIds->count(),
+                        'leaves'             => $leaveStats,
+                        'attendance_summary' => [
+                            'hadir'     => $todayAttendances->where('status', 'Hadir')->count(),
+                            'sakit'     => $todayAttendances->where('status', 'Sakit')->count(),
+                            'izin'      => $todayAttendances->where('status', 'Izin')->count(),
+                            'alpa'      => $todayAttendances->where('status', 'Alpa')->count(),
+                            'terlambat' => $todayAttendances->where('status', 'Terlambat')->count(),
+                        ],
+                    ];
+                }
+            }
+
             return view('teacher.dashboard', compact(
                 'user', 'config', 'alerts', 'journalLateAlert', 'schedules', 'kbmSuspendedEvent',
-                'defaultSchedule', 'defaultDate', 'studentsByClass', 'pendingSwapCount'
+                'defaultSchedule', 'defaultDate', 'studentsByClass', 'pendingSwapCount',
+                'homeroomClass', 'homeroomStats'
             ));
         }
 

@@ -41,7 +41,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6" x-data="{ activeTab: 'students', assignModalOpen: false }">
+    <div class="space-y-6" x-data="{ activeTab: '{{ in_array(request('tab'), ['students', 'absences']) ? request('tab') : 'students' }}', assignModalOpen: false }">
 
         @if(session('success'))
             <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
