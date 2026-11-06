@@ -280,11 +280,22 @@ class FetScheduleParserService
                     continue;
                 }
 
-                // Check if contiguous period
-                if ($item['period'] === $currentBlock['end_period'] + 1) {
+                $day = $item['day_of_week'];
+                $dayPeriods = $periodConfig[$day] ?? ($periodConfig['Senin'] ?? []);
+                $prevEndPeriod = $currentBlock['end_period'];
+                $currPeriod = $item['period'];
+
+                $prevEndTime = $dayPeriods[$prevEndPeriod]['end_time'] ?? null;
+                $currStartTime = $dayPeriods[$currPeriod]['start_time'] ?? null;
+
+                $isContiguousPeriod = ($currPeriod === $prevEndPeriod + 1);
+                $isContiguousTime = ($prevEndTime !== null && $currStartTime !== null && $prevEndTime === $currStartTime);
+
+                // Check if contiguous period and no break/prayer gap
+                if ($isContiguousPeriod && $isContiguousTime) {
                     $currentBlock['end_period'] = $item['period'];
                 } else {
-                    // Gap detected -> commit previous block and start new
+                    // Gap detected (period jump or break/ishoma/jumatan gap) -> commit previous block and start new
                     $this->fillTimes($currentBlock, $periodConfig);
                     $aggregated[] = $currentBlock;
 

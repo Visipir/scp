@@ -199,4 +199,57 @@ XML;
 
         @unlink($filePath);
     }
+
+    public function test_aggregate_consecutive_slots_respects_breaks_and_does_not_merge_across_them()
+    {
+        $parser = app(FetScheduleParserService::class);
+        $teacher = $this->makeUser(2, ['fullname' => 'Guru Uji, S.Pd.']);
+        $class = SchoolClass::create(['class_name' => 'X RPL 1']);
+
+        // 1. Senin JP 6 + JP 7 (ishoma break 11:45-12:45) -> 2 separate blocks
+        $seninSlots = [
+            ['day_of_week' => 'Senin', 'period' => 6, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Fisika'],
+            ['day_of_week' => 'Senin', 'period' => 7, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Fisika'],
+        ];
+        $aggSenin = $parser->aggregateConsecutiveSlots($seninSlots, 'Putaran 2');
+        $this->assertCount(2, $aggSenin);
+        $this->assertSame(6, $aggSenin[0]['start_period']);
+        $this->assertSame(6, $aggSenin[0]['end_period']);
+        $this->assertSame(7, $aggSenin[1]['start_period']);
+        $this->assertSame(7, $aggSenin[1]['end_period']);
+
+        // 2. Jumat JP 6 + JP 7 (jumatan break 11:25-12:40) -> 2 separate blocks
+        $jumatSlots = [
+            ['day_of_week' => 'Jumat', 'period' => 6, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Kimia'],
+            ['day_of_week' => 'Jumat', 'period' => 7, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Kimia'],
+        ];
+        $aggJumat = $parser->aggregateConsecutiveSlots($jumatSlots, 'Putaran 2');
+        $this->assertCount(2, $aggJumat);
+        $this->assertSame(6, $aggJumat[0]['start_period']);
+        $this->assertSame(6, $aggJumat[0]['end_period']);
+        $this->assertSame(7, $aggJumat[1]['start_period']);
+        $this->assertSame(7, $aggJumat[1]['end_period']);
+
+        // 3. Rabu JP 3 + JP 4 (istirahat 1 09:15-09:30) -> 2 separate blocks
+        $rabuSlots = [
+            ['day_of_week' => 'Rabu', 'period' => 3, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Biologi'],
+            ['day_of_week' => 'Rabu', 'period' => 4, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Biologi'],
+        ];
+        $aggRabu = $parser->aggregateConsecutiveSlots($rabuSlots, 'Putaran 2');
+        $this->assertCount(2, $aggRabu);
+        $this->assertSame(3, $aggRabu[0]['start_period']);
+        $this->assertSame(3, $aggRabu[0]['end_period']);
+        $this->assertSame(4, $aggRabu[1]['start_period']);
+        $this->assertSame(4, $aggRabu[1]['end_period']);
+
+        // 4. Selasa JP 1 + JP 2 (contiguous, no break) -> 1 single aggregated block
+        $selasaSlots = [
+            ['day_of_week' => 'Selasa', 'period' => 1, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Matematika'],
+            ['day_of_week' => 'Selasa', 'period' => 2, 'teacher' => $teacher, 'class' => $class, 'room' => null, 'subject' => 'Matematika'],
+        ];
+        $aggSelasa = $parser->aggregateConsecutiveSlots($selasaSlots, 'Putaran 2');
+        $this->assertCount(1, $aggSelasa);
+        $this->assertSame(1, $aggSelasa[0]['start_period']);
+        $this->assertSame(2, $aggSelasa[0]['end_period']);
+    }
 }
