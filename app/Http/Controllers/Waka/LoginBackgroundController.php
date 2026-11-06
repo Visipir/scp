@@ -114,8 +114,10 @@ class LoginBackgroundController extends Controller
             $dst = $src;
         }
 
-        // Random filename, stored securely in private app storage
-        $randomName = 'bg_' . Str::random(32) . '.webp';
+        // Random filename, stored securely in private app storage with WebP / JPEG fallback
+        $supportsWebp = function_exists('imagewebp');
+        $ext = $supportsWebp ? 'webp' : 'jpg';
+        $randomName = 'bg_' . Str::random(32) . '.' . $ext;
         $saveRelativePath = 'branding/' . $randomName;
         $saveFullPath = storage_path('app/' . $saveRelativePath);
 
@@ -123,7 +125,11 @@ class LoginBackgroundController extends Controller
             mkdir(dirname($saveFullPath), 0755, true);
         }
 
-        imagewebp($dst, $saveFullPath, 85);
+        if ($supportsWebp) {
+            imagewebp($dst, $saveFullPath, 85);
+        } else {
+            imagejpeg($dst, $saveFullPath, 85);
+        }
         imagedestroy($dst);
 
         $config = SystemConfiguration::firstOrCreate([]);
