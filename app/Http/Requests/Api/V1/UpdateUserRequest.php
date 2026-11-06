@@ -31,7 +31,7 @@ class UpdateUserRequest extends FormRequest
             if ($this->has('role_id') && (int) $this->input('role_id') !== 4) {
                 return false;
             }
-            $allowedClassIds = $actor->authorizedClassIds();
+            $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null && $this->has('class_id') && !in_array((int) $this->input('class_id'), $allowedClassIds, true)) {
                 return false;
             }

@@ -127,13 +127,17 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');
 
-        Route::middleware('role:1,3')->group(function () {
-            Route::post('/classes', [V1ClassController::class, 'store'])->name('classes.store');
+        Route::middleware('role:1,2,3')->group(function () {
             Route::get('/classes/{class}', [V1ClassController::class, 'show'])->name('classes.show');
-            Route::put('/classes/{class}', [V1ClassController::class, 'update'])->name('classes.update');
-            Route::delete('/classes/{class}', [V1ClassController::class, 'destroy'])->name('classes.destroy');
+            Route::get('/classes/{class}/students', [V1ClassController::class, 'students'])->name('classes.students');
             Route::get('/classes/{class}/attendance', [V1ClassController::class, 'attendance'])->name('classes.attendance');
             Route::get('/classes/{class}/export', [V1ClassController::class, 'export'])->name('classes.export');
+        });
+
+        Route::middleware('role:1,3')->group(function () {
+            Route::post('/classes', [V1ClassController::class, 'store'])->name('classes.store');
+            Route::put('/classes/{class}', [V1ClassController::class, 'update'])->name('classes.update');
+            Route::delete('/classes/{class}', [V1ClassController::class, 'destroy'])->name('classes.destroy');
 
             Route::get('/academic-calendar', [V1AcademicCalendarController::class, 'index'])->name('academic-calendar.index');
             Route::post('/academic-calendar', [V1AcademicCalendarController::class, 'store'])->name('academic-calendar.store');

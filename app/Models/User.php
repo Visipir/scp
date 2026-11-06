@@ -92,11 +92,46 @@ class User extends Authenticatable
     }
 
     /**
-     * Union of class IDs the user is authorized to supervise for kesiswaan / leave requests / class recaps.
-     * Null return means unrestricted (all classes, e.g. Waka or legacy unassigned Role 3).
-     * Empty array [] means no class access.
+     * Class IDs the teacher (role_id = 2) teaches via active schedules or approved schedule swaps.
+     *
+     * @return array<int>
      */
-    public function authorizedClassIds(): ?array
+    public function taughtClassIds(): array
+    {
+        if ((int) $this->role_id !== 2) {
+            return [];
+        }
+
+        $directIds = Schedule::where('teacher_id', $this->id)
+            ->pluck('class_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $swapScheduleIds = ScheduleSwap::where('status', 'Approved')
+            ->where(function ($q) {
+                $q->where('requester_id', $this->id)
+                  ->orWhere('substitute_id', $this->id);
+            })
+            ->get(['requester_schedule_id', 'substitute_schedule_id'])
+            ->flatMap(fn ($s) => [$s->requester_schedule_id, $s->substitute_schedule_id])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $swapClassIds = !empty($swapScheduleIds)
+            ? Schedule::whereIn('id', $swapScheduleIds)->pluck('class_id')->map(fn ($id) => (int) $id)->all()
+            : [];
+
+        return array_values(array_unique(array_merge($directIds, $swapClassIds)));
+    }
+
+    /**
+     * Union of class IDs the user supervises as Waka / BK / Wali Kelas (for leave requests, user management, class edits).
+     * Null return means unrestricted (all classes, e.g. Waka or legacy unassigned Role 3).
+     * Empty array [] means no kesiswaan/supervision access.
+     */
+    public function supervisedClassIds(): ?array
     {
         if ((int) $this->role_id === 1) {
             return null; // Unrestricted (all classes)
@@ -119,11 +154,37 @@ class User extends Authenticatable
     }
 
     /**
-     * Centralized policy check whether the user can access a given class for kesiswaan/wali/BK endpoints.
+     * Union of class IDs the user is authorized to access for class student lists, attendance recaps, and CSV exports.
+     * Includes supervised classes (Waka/BK/Wali) + taught classes (from teacher's schedules).
+     * Null return means unrestricted (all classes).
+     * Empty array [] means no class access.
+     */
+    public function authorizedClassIds(): ?array
+    {
+        $supervised = $this->supervisedClassIds();
+        if ($supervised === null) {
+            return null;
+        }
+
+        $taught = $this->taughtClassIds();
+
+        return array_values(array_unique(array_merge($supervised, $taught)));
+    }
+
+    /**
+     * Whether the user can access class student lists, attendance recaps, and CSV exports (Waka/BK/Wali or teaching teacher).
+     */
+    public function hasClassAccess(): bool
+    {
+        return $this->hasKesiswaanAccess() || !empty($this->taughtClassIds());
+    }
+
+    /**
+     * Centralized policy check whether the user can access a given class (student list, attendance recap, CSV export).
      */
     public function canAccessClass(int|SchoolClass $class): bool
     {
-        if (!$this->hasKesiswaanAccess()) {
+        if (!$this->hasClassAccess()) {
             return false;
         }
 
@@ -139,6 +200,43 @@ class User extends Authenticatable
     public function authorizeClassAccess(int|SchoolClass $class): void
     {
         abort_unless($this->canAccessClass($class), 403, 'Akses ditolak.');
+    }
+
+    /**
+     * Policy check whether the user supervises the given class (Waka, BK, or Wali Kelas of that class).
+     */
+    public function canSuperviseClass(int|SchoolClass $class): bool
+    {
+        if (!$this->hasKesiswaanAccess()) {
+            return false;
+        }
+
+        $classId = $class instanceof SchoolClass ? (int) $class->id : (int) $class;
+        $allowed = $this->supervisedClassIds();
+
+        return $allowed === null || in_array($classId, $allowed, true);
+    }
+
+    /**
+     * Abort with 403 unless the user supervises the given class.
+     */
+    public function authorizeClassSupervision(int|SchoolClass $class): void
+    {
+        abort_unless($this->canSuperviseClass($class), 403, 'Akses ditolak.');
+    }
+
+    /**
+     * Policy check whether the user can export temporary login cards for a class (Waka or Wali Kelas of that class).
+     */
+    public function canExportClassLoginCards(int|SchoolClass $class): bool
+    {
+        if ((int) $this->role_id === 1) {
+            return true;
+        }
+
+        $classId = $class instanceof SchoolClass ? (int) $class->id : (int) $class;
+
+        return $this->scopedClassId() === $classId;
     }
 
     /**

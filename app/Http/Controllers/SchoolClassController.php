@@ -46,15 +46,30 @@ class SchoolClassController extends Controller
 
     public function show(Request $request, SchoolClass $class): View
     {
+        $startDate = $request->query('start_date') ?: $request->query('date');
+        $endDate = $request->query('end_date') ?: $request->query('date');
+
         $data = $this->classService->getClassDetail(
             $request->user(),
             $class,
-            $request->query('start_date'),
-            $request->query('end_date'),
+            $startDate,
+            $endDate,
             $request->query('search')
         );
 
         return view('classes.show', $data);
+    }
+
+    public function students(Request $request, SchoolClass $class): \Illuminate\Http\JsonResponse
+    {
+        $request->user()?->authorizeClassAccess($class);
+
+        $students = $class->students()
+            ->orderByRaw('attendance_number IS NULL, attendance_number ASC')
+            ->orderBy('fullname', 'asc')
+            ->get(['id', 'username', 'fullname', 'gender', 'attendance_number', 'class_id']);
+
+        return response()->json(['data' => $students]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -91,7 +106,7 @@ class SchoolClassController extends Controller
 
     public function destroy(Request $request, SchoolClass $class): RedirectResponse
     {
-        $request->user()?->authorizeClassAccess($class);
+        $request->user()?->authorizeClassSupervision($class);
 
         if ($error = $this->classService->checkDeletable($class)) {
             return back()->with('error', $error);
@@ -106,6 +121,13 @@ class SchoolClassController extends Controller
 
     public function exportAttendance(Request $request, SchoolClass $class): StreamedResponse
     {
+        if ($request->filled('date') && !$request->filled('start_date') && !$request->filled('end_date')) {
+            $request->merge([
+                'start_date' => $request->input('date'),
+                'end_date'   => $request->input('date'),
+            ]);
+        }
+
         $request->validate([
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',

@@ -192,14 +192,18 @@ class AuthorizationMatrixD4Test extends TestCase
         $this->apiAs($this->guruBiasa)->getJson("/api/v1/classes/{$this->classA->id}/attendance?month=2026-10")->assertStatus(403);
         $this->apiAs($this->guruBiasa)->getJson("/api/v1/classes/{$this->classA->id}/export?start_date=2026-10-01&end_date=2026-10-31")->assertStatus(403);
 
-        // 7. Guru yang Wali D + mengajar Kelas C: can access Class D, MUST get 403 on Class C (taught class != homeroom!)
+        // 7. Guru yang Wali D + mengajar Kelas C: combined access (Class D + Class C for class/recap/export; 403 on Class A & B)
         $waliAAjarCClasses = $this->apiAs($this->guruWaliAMengajarC)->getJson('/api/v1/classes?page=1')->assertOk()->json('data');
-        $this->assertSame([$this->classD->id], array_column($waliAAjarCClasses, 'id'));
+        $this->assertEqualsCanonicalizing([$this->classC->id, $this->classD->id], array_column($waliAAjarCClasses, 'id'));
         $this->actingAs($this->guruWaliAMengajarC)->get(route('classes.show', $this->classD))->assertOk();
-        $this->actingAs($this->guruWaliAMengajarC)->get(route('classes.show', $this->classC))->assertStatus(403);
-        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}")->assertStatus(403);
-        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}/attendance?month=2026-10")->assertStatus(403);
-        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}/export?start_date=2026-10-01&end_date=2026-10-31")->assertStatus(403);
+        $this->actingAs($this->guruWaliAMengajarC)->get(route('classes.show', $this->classC))->assertOk();
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}")->assertOk();
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}/attendance?month=2026-10")->assertOk();
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classC->id}/export?start_date=2026-10-01&end_date=2026-10-31")->assertOk();
+        $this->actingAs($this->guruWaliAMengajarC)->get(route('classes.show', $this->classA))->assertStatus(403);
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classA->id}")->assertStatus(403);
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classA->id}/attendance?month=2026-10")->assertStatus(403);
+        $this->apiAs($this->guruWaliAMengajarC)->getJson("/api/v1/classes/{$this->classA->id}/export?start_date=2026-10-01&end_date=2026-10-31")->assertStatus(403);
 
         // 8 & 9. Siswa A & Siswa B: 403 on class management endpoints; own attendance only
         foreach ([$this->siswaA, $this->siswaB] as $siswa) {

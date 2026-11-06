@@ -26,10 +26,10 @@ class UserService
 
         $query = User::with(['role', 'schoolClass']);
 
-        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only view students (role_id 4) in their authorizedClassIds
+        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only view students (role_id 4) in their supervisedClassIds
         if ((int) $actor->role_id !== 1) {
             $query->where('role_id', 4);
-            $allowedClassIds = $actor->authorizedClassIds();
+            $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null) {
                 $query->whereIn('class_id', $allowedClassIds);
             }
@@ -70,12 +70,12 @@ class UserService
             abort(403, 'Akses ditolak.');
         }
 
-        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only create students (role 4) in their authorizedClassIds
+        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only create students (role 4) in their supervisedClassIds
         if ((int) $actor->role_id !== 1) {
             if ((int) ($data['role_id'] ?? 0) !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk menambahkan akun siswa.');
             }
-            $allowedClassIds = $actor->authorizedClassIds();
+            $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null && isset($data['class_id']) && !in_array((int) $data['class_id'], $allowedClassIds, true)) {
                 abort(403, 'Akses ditolak. Anda hanya dapat mendaftarkan siswa ke kelas binaan Anda.');
             }
@@ -92,7 +92,7 @@ class UserService
     }
 
     /**
-     * Retrieve single user detail respecting centralized authorizedClassIds scoping.
+     * Retrieve single user detail respecting centralized supervisedClassIds scoping.
      */
     public function getUser(User $actor, User $target): User
     {
@@ -116,7 +116,7 @@ class UserService
             if (isset($data['role_id']) && (int) $data['role_id'] !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk mengubah data siswa.');
             }
-            $allowedClassIds = $actor->authorizedClassIds();
+            $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null && isset($data['class_id']) && !in_array((int) $data['class_id'], $allowedClassIds, true)) {
                 abort(403, 'Akses ditolak. Anda tidak dapat memindahkan siswa ke luar kelas binaan Anda.');
             }
@@ -332,7 +332,7 @@ class UserService
                 return false;
             }
 
-            $allowedClassIds = $actor->authorizedClassIds();
+            $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null) {
                 if ($target->class_id === null || !in_array((int) $target->class_id, $allowedClassIds, true)) {
                     return false;

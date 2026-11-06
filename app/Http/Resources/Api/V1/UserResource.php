@@ -27,6 +27,8 @@ class UserResource extends JsonResource
             'is_counselor'         => (bool) $this->isCounselor(),
             'homeroom_class_id'    => $this->homeroomAssignment?->class_id,
             'counselor_class_ids'  => $this->counselorAssignments->pluck('class_id')->all(),
+            'taught_class_ids'     => $this->taughtClassIds(),
+            'authorized_class_ids' => $this->authorizedClassIds(),
             'class_id'             => $this->class_id !== null ? (int) $this->class_id : null,
             'class'                => $this->whenLoaded('schoolClass', fn () => $this->schoolClass?->class_name),
             'gender'               => $this->gender,

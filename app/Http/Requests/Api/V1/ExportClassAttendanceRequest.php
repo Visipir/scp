@@ -14,11 +14,19 @@ class ExportClassAttendanceRequest extends FormRequest
         }
 
         $class = $this->route('class');
-        return $class ? $user->canAccessClass($class) : $user->hasKesiswaanAccess();
+        return $class ? $user->canAccessClass($class) : $user->hasClassAccess();
     }
 
     protected function prepareForValidation(): void
     {
+        if ($this->filled('date') && !$this->filled('start_date') && !$this->filled('end_date')) {
+            $this->merge([
+                'start_date' => $this->input('date'),
+                'end_date'   => $this->input('date'),
+            ]);
+            return;
+        }
+
         if ($this->filled('month') && !$this->filled('start_date') && !$this->filled('end_date')) {
             try {
                 $dt = \Carbon\Carbon::createFromFormat('Y-m', $this->input('month'));

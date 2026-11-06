@@ -13,7 +13,8 @@ class ClassResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user();
-        if ($user && in_array((int) $user->role_id, [2, 4], true) && !$user->hasKesiswaanAccess()) {
+        $isPaginated = $request->has('page') || $request->has('per_page');
+        if ($user && in_array((int) $user->role_id, [2, 4], true) && !$user->hasKesiswaanAccess() && !($isPaginated && $user->hasClassAccess())) {
             return [
                 'id'         => (int) $this->id,
                 'class_name' => $this->class_name,

@@ -49,15 +49,32 @@ class ClassController extends Controller
 
     public function show(Request $request, SchoolClass $class): JsonResponse
     {
+        $startDate = $request->query('start_date') ?: $request->query('date');
+        $endDate = $request->query('end_date') ?: $request->query('date');
+
         $detail = $this->classService->getClassDetail(
             $request->user(),
             $class,
-            $request->query('start_date'),
-            $request->query('end_date'),
+            $startDate,
+            $endDate,
             $request->query('search')
         );
 
         return ApiResponse::item(new ClassDetailResource($detail));
+    }
+
+    public function students(Request $request, SchoolClass $class): JsonResponse
+    {
+        $request->user()?->authorizeClassAccess($class);
+
+        $students = $class->students()
+            ->orderByRaw('attendance_number IS NULL, attendance_number ASC')
+            ->orderBy('fullname', 'asc')
+            ->get(['id', 'username', 'fullname', 'gender', 'attendance_number', 'class_id']);
+
+        return response()->json([
+            'data' => $students,
+        ]);
     }
 
     public function update(UpdateClassRequest $request, SchoolClass $class): JsonResponse
@@ -79,14 +96,34 @@ class ClassController extends Controller
 
     public function attendance(Request $request, SchoolClass $class): JsonResponse
     {
-        $request->validate([
-            'month' => ['required', 'date_format:Y-m'],
-        ], [
-            'month.required'    => 'Parameter bulan wajib diisi.',
-            'month.date_format' => 'Format bulan harus YYYY-MM (contoh: 2026-10).',
-        ]);
+        $request->user()?->authorizeClassAccess($class);
 
-        $recap = $this->classService->getMonthlyRecap($request->user(), $class, $request->input('month'));
+        if ($request->filled('date')) {
+            $request->validate([
+                'date' => ['required', 'date_format:Y-m-d'],
+            ]);
+            $date = $request->input('date');
+            $month = substr($date, 0, 7);
+            $recap = $this->classService->getMonthlyRecap($request->user(), $class, $month, $date, $date);
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => ['required', 'date'],
+                'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
+            ]);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $month = substr($startDate, 0, 7);
+            $recap = $this->classService->getMonthlyRecap($request->user(), $class, $month, $startDate, $endDate);
+        } else {
+            $request->validate([
+                'month' => ['required', 'date_format:Y-m'],
+            ], [
+                'month.required'    => 'Parameter bulan wajib diisi.',
+                'month.date_format' => 'Format bulan harus YYYY-MM (contoh: 2026-10).',
+            ]);
+
+            $recap = $this->classService->getMonthlyRecap($request->user(), $class, $request->input('month'));
+        }
 
         return response()->json([
             'data' => $recap,

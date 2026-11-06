@@ -14,7 +14,7 @@ class UpdateClassRequest extends FormRequest
         }
 
         $class = $this->route('class');
-        return $class ? $user->canAccessClass($class) : $user->hasKesiswaanAccess();
+        return $class ? $user->canSuperviseClass($class) : $user->hasKesiswaanAccess();
     }
 
     public function rules(): array

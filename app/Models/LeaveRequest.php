@@ -69,7 +69,7 @@ class LeaveRequest extends Model
         }
 
         if ($user->hasKesiswaanAccess()) {
-            $classIds = $user->authorizedClassIds();
+            $classIds = $user->supervisedClassIds();
             if ($classIds !== null) {
                 $query->whereHas('student', fn ($q) => $q->whereIn('class_id', $classIds));
             }
@@ -100,7 +100,7 @@ class LeaveRequest extends Model
         }
 
         if ($user->hasKesiswaanAccess()) {
-            $classIds = $user->authorizedClassIds();
+            $classIds = $user->supervisedClassIds();
             if ($classIds === null) {
                 return true;
             }

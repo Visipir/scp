@@ -4,6 +4,7 @@
             title="Data Kelas" 
             subtitle="Manajemen rombel kelas, wali kelas, dan tahun ajaran aktif"
         >
+            @if(auth()->user()->hasKesiswaanAccess())
             <button 
                 type="button" 
                 @click="importModalOpen = true"
@@ -20,6 +21,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 <span>Tambah Kelas</span>
             </button>
+            @endif
         </x-page-header>
     </x-slot>
 
@@ -182,6 +184,7 @@
                                         <button type="button"
                                             @click="exportClass = { id: {{ $class->id }}, class_name: '{{ addslashes($class->class_name) }}' }; exportModalOpen = true"
                                             class="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold transition">Export</button>
+                                        @if(auth()->user()->canSuperviseClass($class))
                                         <button type="button"
                                             @click="editClass = { id: {{ $class->id }}, class_name: '{{ addslashes($class->class_name) }}', academic_year: '{{ addslashes($class->academic_year ?? '2026/2027') }}' }; editModalOpen = true"
                                             class="text-zinc-900 dark:text-[#EDEDF0] hover:text-[#0093dd] dark:hover:text-[#0093dd] font-semibold transition">Edit</button>
@@ -189,6 +192,7 @@
                                             @csrf @method('DELETE')
                                             <button type="submit" class="text-rose-600 dark:text-rose-400 hover:underline font-semibold transition">Hapus</button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

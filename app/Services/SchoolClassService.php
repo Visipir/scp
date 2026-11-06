@@ -18,16 +18,16 @@ class SchoolClassService
      */
     public function listClasses(User $actor, array $filters = [], ?int $perPage = null): Collection|LengthAwarePaginator
     {
-        // Paginated class management list requires kesiswaan/waka access
-        if ($perPage !== null && !$actor->hasKesiswaanAccess()) {
+        // Paginated class list requires class access (Waka, BK, Wali Kelas, or teaching teacher)
+        if ($perPage !== null && !$actor->hasClassAccess()) {
             abort(403, 'Akses ditolak.');
         }
 
         $query = SchoolClass::withCount('users as students_count')
             ->with(['homeroomAssignment.user', 'counselorAssignments.user']);
 
-        // Centralized scoping: Waka (null) sees all; BK & Wali Kelas see union of authorizedClassIds
-        if ($actor->hasKesiswaanAccess()) {
+        // Centralized scoping: Waka (null) sees all; BK, Wali Kelas & teaching teachers see union of authorizedClassIds
+        if ($perPage !== null || $actor->hasKesiswaanAccess() || !empty($filters['scoped'])) {
             $allowedClassIds = $actor->authorizedClassIds();
             if ($allowedClassIds !== null) {
                 $query->whereIn('id', $allowedClassIds);
@@ -176,7 +176,7 @@ class SchoolClassService
      */
     public function updateClass(User $actor, SchoolClass $class, array $data): SchoolClass
     {
-        $actor->authorizeClassAccess($class);
+        $actor->authorizeClassSupervision($class);
 
         $className = trim($data['class_name']);
         $academicYear = trim($data['academic_year']);
@@ -214,7 +214,7 @@ class SchoolClassService
      */
     public function deleteClass(User $actor, SchoolClass $class): void
     {
-        $actor->authorizeClassAccess($class);
+        $actor->authorizeClassSupervision($class);
 
         if ($err = $this->checkDeletable($class)) {
             abort(422, $err);
@@ -224,15 +224,25 @@ class SchoolClassService
     }
 
     /**
-     * Get monthly attendance recap for a class (JSON).
+     * Get monthly or daily attendance recap for a class (JSON).
      */
-    public function getMonthlyRecap(User $actor, SchoolClass $class, string $month): array
-    {
+    public function getMonthlyRecap(
+        User $actor,
+        SchoolClass $class,
+        string $month,
+        ?string $customStartDate = null,
+        ?string $customEndDate = null
+    ): array {
         $actor->authorizeClassAccess($class);
 
-        $dt = Carbon::createFromFormat('Y-m', $month) ?: Carbon::now();
-        $startDate = $dt->copy()->startOfMonth()->toDateString();
-        $endDate = $dt->copy()->endOfMonth()->toDateString();
+        if ($customStartDate !== null && $customEndDate !== null) {
+            $startDate = $customStartDate;
+            $endDate = $customEndDate;
+        } else {
+            $dt = Carbon::createFromFormat('Y-m', $month) ?: Carbon::now();
+            $startDate = $dt->copy()->startOfMonth()->toDateString();
+            $endDate = $dt->copy()->endOfMonth()->toDateString();
+        }
 
         $students = $class->students()
             ->orderByRaw('attendance_number IS NULL, attendance_number ASC')

@@ -65,14 +65,18 @@ Route::middleware(['auth', 'role:1'])->prefix('ai-importer')->name('ai-importer.
     Route::post('/store', [\App\Http\Controllers\AiImporterController::class, 'store'])->name('store');
 });
 
-Route::middleware(['auth', 'role:1,3'])->prefix('classes')->name('classes.')->group(function () {
+Route::middleware(['auth', 'role:1,2,3'])->prefix('classes')->name('classes.')->group(function () {
     Route::get('/', [\App\Http\Controllers\SchoolClassController::class, 'index'])->name('index');
-    Route::post('/', [\App\Http\Controllers\SchoolClassController::class, 'store'])->name('store');
     Route::get('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'show'])->name('show');
+    Route::get('/{class}/students', [\App\Http\Controllers\SchoolClassController::class, 'students'])->name('students');
+    Route::get('/{class}/export', [\App\Http\Controllers\SchoolClassController::class, 'exportAttendance'])->name('export');
+});
+
+Route::middleware(['auth', 'role:1,3'])->prefix('classes')->name('classes.')->group(function () {
+    Route::post('/', [\App\Http\Controllers\SchoolClassController::class, 'store'])->name('store');
     Route::put('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'update'])->name('update');
     Route::put('/{class}/assignments', [\App\Http\Controllers\SchoolClassController::class, 'updateAssignments'])->name('assignments.update');
     Route::delete('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'destroy'])->name('destroy');
-    Route::get('/{class}/export', [\App\Http\Controllers\SchoolClassController::class, 'exportAttendance'])->name('export');
     Route::post('/import-students', [\App\Http\Controllers\StudentImportController::class, 'import'])->name('import-students');
 });
 
