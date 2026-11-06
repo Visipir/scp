@@ -252,4 +252,64 @@ XML;
         $this->assertSame(1, $aggSelasa[0]['start_period']);
         $this->assertSame(2, $aggSelasa[0]['end_period']);
     }
+
+    public function test_pdf_sample_teachers_raw_jp_and_blocks_reconciliation()
+    {
+        $pdfPath = storage_path('app/import-samples/JADWAL GURU PUT 2 SEM GANJIL 26_27 REVISI 2.pdf');
+        if (!file_exists($pdfPath)) {
+            $this->markTestSkipped('Sample PDF timetable not found.');
+        }
+
+        $parser = app(FetScheduleParserService::class);
+        $rawSlots = $parser->parsePdf($pdfPath);
+        $this->assertCount(1453, $rawSlots);
+
+        $slotsByCode = [];
+        foreach ($rawSlots as $s) {
+            $code = $s['teacher_code'] ?? null;
+            if ($code !== null) {
+                $slotsByCode[$code][] = $s;
+            }
+        }
+
+        // AMAT SUKARDI (Code 6) -> 24 raw JP, 15 blocks
+        $amatSlots = $slotsByCode[6] ?? [];
+        $this->assertCount(24, $amatSlots);
+        $amatAgg = $parser->aggregateConsecutiveSlots($amatSlots, 'Putaran 2');
+        $this->assertCount(15, $amatAgg);
+
+        // SRI SUNARTINI (Code 4) -> 10 raw JP, 6 blocks
+        $sriSlots = $slotsByCode[4] ?? [];
+        $this->assertCount(10, $sriSlots);
+        $sriAgg = $parser->aggregateConsecutiveSlots($sriSlots, 'Putaran 2');
+        $this->assertCount(6, $sriAgg);
+
+        // ARIS PURWANTINAH (Code 2) -> 8 raw JP, 5 blocks
+        $arisSlots = $slotsByCode[2] ?? [];
+        $this->assertCount(8, $arisSlots);
+        $arisAgg = $parser->aggregateConsecutiveSlots($arisSlots, 'Putaran 2');
+        $this->assertCount(5, $arisAgg);
+
+        // WINDU MAHMUD (Code 12) -> 8 raw JP, 5 blocks
+        $winduSlots = $slotsByCode[12] ?? [];
+        $this->assertCount(8, $winduSlots);
+        $winduAgg = $parser->aggregateConsecutiveSlots($winduSlots, 'Putaran 2');
+        $this->assertCount(5, $winduAgg);
+
+        // RUSDIYANTO (Code 57) -> 14 raw JP, 9 blocks
+        $rusdiSlots = $slotsByCode[57] ?? [];
+        $this->assertCount(14, $rusdiSlots);
+        $rusdiAgg = $parser->aggregateConsecutiveSlots($rusdiSlots, 'Putaran 2');
+        $this->assertCount(9, $rusdiAgg);
+
+        // DINDA AYU DEWANTI (Code 81) -> 10 raw JP, 6 blocks
+        $dindaSlots = $slotsByCode[81] ?? [];
+        $this->assertCount(10, $dindaSlots);
+        $dindaAgg = $parser->aggregateConsecutiveSlots($dindaSlots, 'Putaran 2');
+        $this->assertCount(6, $dindaAgg);
+
+        // Total school-wide aggregated blocks = 866
+        $allAgg = $parser->aggregateConsecutiveSlots($rawSlots, 'Putaran 2');
+        $this->assertCount(866, $allAgg);
+    }
 }

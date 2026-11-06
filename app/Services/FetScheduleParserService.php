@@ -79,6 +79,7 @@ class FetScheduleParserService
         // Check conflicts against existing DB schedules (excluding Putaran being replaced) and internal collisions
         $conflicts = [];
         $validSchedules = [];
+        $unmappedSchedules = [];
         $byDay = [
             'Senin' => 0, 'Selasa' => 0, 'Rabu' => 0, 'Kamis' => 0, 'Jumat' => 0, 'Sabtu' => 0,
         ];
@@ -89,9 +90,15 @@ class FetScheduleParserService
                 $byDay[$day]++;
             }
 
+            // If teacher is not mapped to an existing DB user
+            if (empty($item['teacher']['id'])) {
+                $unmappedSchedules[] = $item;
+                continue;
+            }
+
             // Conflict check
             $conflictErr = null;
-            if (!empty($item['teacher']['id']) && !empty($item['class']['id'])) {
+            if (!empty($item['class']['id'])) {
                 $teacherId = $item['teacher']['id'];
                 $classId = $item['class']['id'];
                 $roomId = $item['room']['id'] ?? null;
@@ -126,20 +133,23 @@ class FetScheduleParserService
 
         $previewToken = 'fet_import_' . Str::random(32);
         $payload = [
-            'token'           => $previewToken,
-            'cycle_type'      => $cycleType,
-            'summary'         => [
-                'total_slots_raw'     => count($rawSlots),
-                'aggregated_total'    => count($aggregated),
-                'valid_count'         => count($validSchedules),
-                'conflict_count'      => count($conflicts),
-                'unmapped_teachers'   => array_keys($unmappedTeachers),
-                'by_day'              => $byDay,
+            'token'              => $previewToken,
+            'cycle_type'         => $cycleType,
+            'summary'            => [
+                'total_slots_raw'         => count($rawSlots),
+                'aggregated_total'        => count($aggregated),
+                'mapped_total'            => count($validSchedules) + count($conflicts),
+                'valid_count'             => count($validSchedules),
+                'conflict_count'          => count($conflicts),
+                'unmapped_count'          => count($unmappedSchedules),
+                'unmapped_teachers'       => array_keys($unmappedTeachers),
+                'by_day'                  => $byDay,
                 'preserved_with_journals' => $preservedCount,
             ],
-            'schedules'       => $validSchedules,
-            'conflicts'       => $conflicts,
-            'created_at'      => now('Asia/Jakarta')->toIso8601String(),
+            'schedules'          => $validSchedules,
+            'conflicts'          => $conflicts,
+            'unmapped_schedules' => $unmappedSchedules,
+            'created_at'         => now('Asia/Jakarta')->toIso8601String(),
         ];
 
         Cache::put($previewToken, $payload, now()->addHours(2));
@@ -226,23 +236,32 @@ class FetScheduleParserService
      */
     public function aggregateConsecutiveSlots(array $slots, string $cycleType): array
     {
-        // Group by day_of_week, teacher_id, class_id, room_id, subject
+        // Group by day_of_week, teacher, class, room, subject
         $groups = [];
         foreach ($slots as $slot) {
-            if (!$slot['teacher'] || !$slot['class']) {
-                continue;
-            }
+            $day = $slot['day_of_week'] ?? $this->normalizeDay($slot['day'] ?? 'Senin');
+            $teacherKey = !empty($slot['teacher'])
+                ? ('id:' . $slot['teacher']->id)
+                : ('raw:' . ($slot['teacher_code'] ?? $slot['teacher_raw'] ?? 'unknown'));
+
+            $classKey = !empty($slot['class'])
+                ? ('id:' . $slot['class']->id)
+                : ('raw:' . ($slot['class_raw'] ?? 'unknown'));
+
+            $roomKey = !empty($slot['room'])
+                ? ('id:' . $slot['room']->id)
+                : ('raw:' . ($slot['room_raw'] ?? '0'));
 
             $key = sprintf(
-                '%s|%d|%d|%d|%s',
-                $slot['day_of_week'],
-                $slot['teacher']->id,
-                $slot['class']->id,
-                $slot['room']?->id ?? 0,
+                '%s|%s|%s|%s|%s',
+                $day,
+                $teacherKey,
+                $classKey,
+                $roomKey,
                 strtolower(trim($slot['subject']))
             );
 
-            $groups[$key][] = $slot;
+            $groups[$key][] = array_merge($slot, ['day_of_week' => $day]);
         }
 
         $aggregated = [];
@@ -257,24 +276,42 @@ class FetScheduleParserService
             $currentBlock = null;
 
             foreach ($group as $item) {
+                $teacherData = !empty($item['teacher']) ? [
+                    'id'       => $item['teacher']->id,
+                    'fullname' => $item['teacher']->fullname,
+                    'username' => $item['teacher']->username,
+                ] : [
+                    'id'       => null,
+                    'fullname' => $item['teacher_raw'] ?? '',
+                    'username' => null,
+                ];
+
+                $classData = !empty($item['class']) ? [
+                    'id'         => $item['class']->id,
+                    'class_name' => $item['class']->class_name,
+                ] : [
+                    'id'         => null,
+                    'class_name' => $item['class_raw'] ?? '',
+                ];
+
+                $roomData = !empty($item['room']) ? [
+                    'id'        => $item['room']->id,
+                    'room_name' => $item['room']->room_name,
+                ] : (!empty($item['room_raw']) ? [
+                    'id'        => null,
+                    'room_name' => $item['room_raw'],
+                ] : null);
+
                 if ($currentBlock === null) {
                     $currentBlock = [
                         'day_of_week'  => $item['day_of_week'],
                         'start_period' => $item['period'],
                         'end_period'   => $item['period'],
-                        'teacher'      => [
-                            'id'       => $item['teacher']->id,
-                            'fullname' => $item['teacher']->fullname,
-                            'username' => $item['teacher']->username,
-                        ],
-                        'class'        => [
-                            'id'         => $item['class']->id,
-                            'class_name' => $item['class']->class_name,
-                        ],
-                        'room'         => $item['room'] ? [
-                            'id'        => $item['room']->id,
-                            'room_name' => $item['room']->room_name,
-                        ] : null,
+                        'teacher'      => $teacherData,
+                        'teacher_code' => $item['teacher_code'] ?? null,
+                        'teacher_raw'  => $item['teacher_raw'] ?? null,
+                        'class'        => $classData,
+                        'room'         => $roomData,
                         'subject'      => $item['subject'],
                     ];
                     continue;
@@ -303,19 +340,11 @@ class FetScheduleParserService
                         'day_of_week'  => $item['day_of_week'],
                         'start_period' => $item['period'],
                         'end_period'   => $item['period'],
-                        'teacher'      => [
-                            'id'       => $item['teacher']->id,
-                            'fullname' => $item['teacher']->fullname,
-                            'username' => $item['teacher']->username,
-                        ],
-                        'class'        => [
-                            'id'         => $item['class']->id,
-                            'class_name' => $item['class']->class_name,
-                        ],
-                        'room'         => $item['room'] ? [
-                            'id'        => $item['room']->id,
-                            'room_name' => $item['room']->room_name,
-                        ] : null,
+                        'teacher'      => $teacherData,
+                        'teacher_code' => $item['teacher_code'] ?? null,
+                        'teacher_raw'  => $item['teacher_raw'] ?? null,
+                        'class'        => $classData,
+                        'room'         => $roomData,
                         'subject'      => $item['subject'],
                     ];
                 }
