@@ -29,7 +29,7 @@
                     <label class="block text-[11px] font-mono font-medium text-zinc-500 dark:text-[#97979B] mb-1">Status</label>
                     <select name="status" class="w-full text-xs rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:ring-[#0093dd] focus:border-[#0093dd]">
                         <option value="">Semua Status</option>
-                        <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Menunggu</option>
                         <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Disetujui</option>
                         <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Ditolak</option>
                     </select>
@@ -92,9 +92,7 @@
                         </div>
                         <div class="shrink-0 flex flex-col items-end gap-1">
                             <x-status-badge :status="$leave->status_approval" />
-                            @if($leave->verifier && $leave->status_approval !== 'Pending')
-                                <span class="text-[9px] font-mono text-zinc-500 dark:text-[#97979B] uppercase">Oleh: {{ $leave->verifier->fullname }}</span>
-                            @endif
+                            <span class="text-[10px] font-mono text-zinc-500 dark:text-[#97979B]">{{ $leave->decisionLabel() }}</span>
                         </div>
                     </div>
                     <div class="mt-3 pt-3 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center justify-between">

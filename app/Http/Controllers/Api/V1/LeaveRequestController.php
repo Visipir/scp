@@ -20,7 +20,7 @@ class LeaveRequestController extends Controller
     {
         $perPage = (int) $request->input('per_page', 15);
 
-        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier'])
+        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier', 'decidedBy'])
             ->visibleTo($request->user());
 
         $status = $request->input('status') ?: $request->input('status_approval');
@@ -71,7 +71,7 @@ class LeaveRequestController extends Controller
             $request->file('document'),
         );
 
-        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
+        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier', 'decidedBy']);
 
         return ApiResponse::item(new LeaveRequestResource($leaveRequest), 201);
     }
@@ -80,7 +80,7 @@ class LeaveRequestController extends Controller
     {
         abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
 
-        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
+        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier', 'decidedBy']);
 
         return ApiResponse::item(new LeaveRequestResource($leaveRequest));
     }
@@ -102,7 +102,7 @@ class LeaveRequestController extends Controller
 
         $service->updateStatus($leaveRequest, $request->validated()['status_approval'], $request->user());
 
-        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
+        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier', 'decidedBy']);
 
         return ApiResponse::item(new LeaveRequestResource($leaveRequest));
     }

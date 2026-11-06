@@ -28,8 +28,17 @@ class LeaveRequestResource extends JsonResource
             'start_date'      => $this->start_date?->toDateString(),
             'end_date'        => $this->end_date?->toDateString(),
             'reason'          => $this->reason,
-            'status_approval' => $this->status_approval,
-            'verifier'        => $this->whenLoaded('verifier', fn () => $this->verifier ? [
+            'status_approval'    => $this->status_approval,
+            'decided_by_user_id' => $this->decided_by_user_id !== null ? (int) $this->decided_by_user_id : null,
+            'decided_by_role'    => $this->decided_by_role,
+            'decided_at'         => $this->decided_at?->toIso8601String(),
+            'decision_label'     => $this->decisionLabel(),
+            'decided_by'         => ($this->relationLoaded('decidedBy') && $this->decidedBy) ? [
+                'id'       => (int) $this->decidedBy->id,
+                'fullname' => $this->decidedBy->fullname,
+                'role'     => $this->decided_by_role,
+            ] : null,
+            'verifier'           => $this->whenLoaded('verifier', fn () => $this->verifier ? [
                 'id'       => (int) $this->verifier->id,
                 'fullname' => $this->verifier->fullname,
             ] : null),

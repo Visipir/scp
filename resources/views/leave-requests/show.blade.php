@@ -65,15 +65,16 @@
                 </div>
             @endif
 
-            @if($leaveRequest->verifier)
-                <div class="pt-4 border-t border-zinc-200 dark:border-[#2B2B30] text-xs font-mono text-zinc-500 dark:text-[#97979B]">
-                    {{ $leaveRequest->status_approval === 'Approved' ? 'Disetujui' : 'Ditolak' }} oleh: <span class="font-bold text-zinc-900 dark:text-[#EDEDF0]">{{ $leaveRequest->verifier->fullname }}</span>
-                </div>
-            @endif
+            <div class="pt-4 border-t border-zinc-200 dark:border-[#2B2B30] flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-zinc-500 dark:text-[#97979B]">
+                <span class="font-semibold text-zinc-800 dark:text-[#EDEDF0]">{{ $leaveRequest->decisionLabel() }}</span>
+                @if($leaveRequest->decided_at)
+                    <span>{{ $leaveRequest->decided_at->translatedFormat('d M Y, H:i') }}</span>
+                @endif
+            </div>
         </div>
 
-        {{-- Verification Action (Tim Kesiswaan / Waka) --}}
-        @if(in_array(auth()->user()->role_id, [1, 3]))
+        {{-- Verification Action (Waka / BK / Wali Kelas) --}}
+        @if(auth()->user()->hasKesiswaanAccess())
             <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-6 sm:p-8 space-y-4">
                 <div>
                     <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">Keputusan Verifikasi Kesiswaan</h3>

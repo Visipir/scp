@@ -20,7 +20,7 @@ class LeaveRequestController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier'])
+        $query = LeaveRequest::with(['student.schoolClass', 'applicant', 'verifier', 'decidedBy'])
             ->visibleTo($user);
 
         // Filter by status
@@ -72,7 +72,7 @@ class LeaveRequestController extends Controller
     {
         abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
 
-        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier']);
+        $leaveRequest->load(['student.schoolClass', 'applicant', 'verifier', 'decidedBy']);
 
         return view('leave-requests.show', compact('leaveRequest'));
     }

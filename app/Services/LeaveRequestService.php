@@ -50,10 +50,26 @@ class LeaveRequestService
     public function updateStatus(LeaveRequest $leaveRequest, string $status, User $verifier): LeaveRequest
     {
         return DB::transaction(function () use ($leaveRequest, $status, $verifier) {
-            $leaveRequest->update([
-                'status_approval' => $status,
-                'verified_by'     => $verifier->id,
-            ]);
+            $studentClassId = $leaveRequest->student()->value('class_id');
+
+            if ($status === 'Pending') {
+                $leaveRequest->update([
+                    'status_approval'    => 'Pending',
+                    'verified_by'        => null,
+                    'decided_by_user_id' => null,
+                    'decided_by_role'    => null,
+                    'decided_at'         => null,
+                ]);
+            } else {
+                $roleLabel = $this->resolveDeciderRole($verifier, $studentClassId !== null ? (int) $studentClassId : null);
+                $leaveRequest->update([
+                    'status_approval'    => $status,
+                    'verified_by'        => $verifier->id,
+                    'decided_by_user_id' => $verifier->id,
+                    'decided_by_role'    => $roleLabel,
+                    'decided_at'         => now(),
+                ]);
+            }
 
             $startDate = Carbon::parse($leaveRequest->start_date)->toDateString();
             $endDate = Carbon::parse($leaveRequest->end_date)->toDateString();
@@ -87,5 +103,30 @@ class LeaveRequestService
 
             return $leaveRequest;
         });
+    }
+
+    private function resolveDeciderRole(User $verifier, ?int $studentClassId): string
+    {
+        if ($studentClassId !== null && $verifier->homeroomAssignment()->where('class_id', $studentClassId)->exists()) {
+            return 'Wali';
+        }
+
+        if ($studentClassId !== null && $verifier->counselorAssignments()->where('class_id', $studentClassId)->exists()) {
+            return 'BK';
+        }
+
+        if ((int) $verifier->role_id === 3 || $verifier->counselorAssignments()->exists()) {
+            return 'BK';
+        }
+
+        if ($verifier->isHomeroomTeacher()) {
+            return 'Wali';
+        }
+
+        if ((int) $verifier->role_id === 1) {
+            return 'Waka';
+        }
+
+        return 'BK';
     }
 }

@@ -9,7 +9,8 @@ class LeaveRequest extends Model
     protected $guarded = [];
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date',
+        'end_date'   => 'date',
+        'decided_at' => 'datetime',
     ];
 
     public function student()
@@ -25,6 +26,35 @@ class LeaveRequest extends Model
     public function verifier()
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function decidedBy()
+    {
+        return $this->belongsTo(User::class, 'decided_by_user_id');
+    }
+
+    /**
+     * Human-readable decision label:
+     * - "Menunggu"
+     * - "Disetujui oleh BK: <nama>" / "Disetujui oleh Wali: <nama>"
+     * - "Ditolak oleh BK: <nama>" / "Ditolak oleh Wali: <nama>"
+     */
+    public function decisionLabel(): string
+    {
+        if (in_array($this->status_approval, ['Pending', 'Menunggu', null, ''], true)) {
+            return 'Menunggu';
+        }
+
+        $verb = $this->status_approval === 'Approved' ? 'Disetujui' : 'Ditolak';
+        $actor = $this->relationLoaded('decidedBy') && $this->decidedBy
+            ? $this->decidedBy
+            : ($this->decided_by_user_id ? $this->decidedBy : $this->verifier);
+        $name = $actor?->fullname;
+        $role = $this->decided_by_role ?: ($actor
+            ? ((int) $actor->role_id === 1 ? 'Waka' : ($actor->isHomeroomTeacher() ? 'Wali' : 'BK'))
+            : 'BK');
+
+        return $name ? "{$verb} oleh {$role}: {$name}" : "{$verb} oleh {$role}";
     }
 
     /**
