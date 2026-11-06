@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(CounselorAssignment::class, 'user_id');
     }
 
+    public function aliases()
+    {
+        return $this->hasMany(UserNameAlias::class, 'user_id');
+    }
+
     public function isHomeroomTeacher(): bool
     {
         return $this->homeroomAssignment()->exists();

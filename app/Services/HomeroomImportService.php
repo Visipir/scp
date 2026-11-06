@@ -6,6 +6,7 @@ use App\Models\CounselorAssignment;
 use App\Models\HomeroomAssignment;
 use App\Models\SchoolClass;
 use App\Models\User;
+use App\Models\UserNameAlias;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -163,6 +164,12 @@ class HomeroomImportService
                             'academic_year' => $academicYear,
                         ]
                     );
+                    if ($row['wali_status'] === 'fuzzy' && isset($confirmedWali[$index])) {
+                        UserNameAlias::firstOrCreate(
+                            ['alias_normalized' => UserNameAlias::normalize($row['wali_raw'])],
+                            ['user_id' => $waliId, 'alias_raw' => $row['wali_raw']]
+                        );
+                    }
                     $applied['homeroom_assigned']++;
                 }
 
@@ -184,6 +191,12 @@ class HomeroomImportService
                             'academic_year' => $academicYear,
                         ]
                     );
+                    if ($row['bk_status'] === 'fuzzy' && isset($confirmedBk[$index])) {
+                        UserNameAlias::firstOrCreate(
+                            ['alias_normalized' => UserNameAlias::normalize($row['bk_raw'])],
+                            ['user_id' => $bkId, 'alias_raw' => $row['bk_raw']]
+                        );
+                    }
                     $applied['counselor_assigned']++;
                 }
             }
@@ -349,6 +362,17 @@ class HomeroomImportService
                 'user'       => null,
                 'score'      => 100.0,
                 'candidates' => $candidates,
+            ];
+        }
+
+        // 1b. Check user_name_aliases before fuzzy
+        $alias = UserNameAlias::where('alias_normalized', $normalizedInput)->with('user')->first();
+        if ($alias && $alias->user) {
+            return [
+                'category'   => 'matched',
+                'user'       => $alias->user,
+                'score'      => 100.0,
+                'candidates' => [],
             ];
         }
 

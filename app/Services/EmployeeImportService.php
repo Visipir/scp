@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\UserNameAlias;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -160,6 +161,7 @@ class EmployeeImportService
                 if ($targetUserId) {
                     $user = User::find($targetUserId);
                     if ($user) {
+                        $oldName = $user->fullname;
                         $user->fullname = $row['name'];
                         if (!empty($row['nip'])) {
                             $user->nip = $row['nip'];
@@ -168,6 +170,18 @@ class EmployeeImportService
                             $user->email = $row['email'];
                         }
                         $user->save();
+
+                        if ($status === 'fuzzy' || $oldName !== $row['name']) {
+                            UserNameAlias::firstOrCreate(
+                                ['alias_normalized' => UserNameAlias::normalize($row['name'])],
+                                ['user_id' => $user->id, 'alias_raw' => $row['name']]
+                            );
+                            UserNameAlias::firstOrCreate(
+                                ['alias_normalized' => UserNameAlias::normalize($oldName)],
+                                ['user_id' => $user->id, 'alias_raw' => $oldName]
+                            );
+                        }
+
                         $applied['updated']++;
                         continue;
                     }
@@ -379,6 +393,20 @@ class EmployeeImportService
                 ])->all(),
                 'ambiguous_reason' => 'Ditemukan lebih dari satu guru dengan nama persis di basis data.',
             ];
+        }
+
+        // 2b. Check user_name_aliases before fuzzy matching
+        $alias = UserNameAlias::where('alias_normalized', $cleanRowName)->with('user')->first();
+        if ($alias && $alias->user) {
+            if (empty($row['nip']) || empty($alias->user->nip) || $alias->user->nip === $row['nip']) {
+                return [
+                    'category'   => 'matched',
+                    'match_type' => 'alias',
+                    'user'       => $alias->user,
+                    'score'      => 100.0,
+                    'candidates' => [],
+                ];
+            }
         }
 
         // 3. Token-wise / fuzzy matching

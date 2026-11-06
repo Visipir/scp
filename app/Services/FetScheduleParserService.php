@@ -8,6 +8,7 @@ use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\SystemConfiguration;
 use App\Models\User;
+use App\Models\UserNameAlias;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -743,7 +744,19 @@ class FetScheduleParserService
             }
         }
 
-        // 2. Exact match by normalized name (Fuzzy never auto-commits)
+        // 2. Check alias map before name matching
+        if (!empty($raw)) {
+            $normalized = UserNameAlias::normalize($raw);
+            $alias = UserNameAlias::where('alias_normalized', $normalized)->first();
+            if ($alias) {
+                $user = $teachers->firstWhere('id', $alias->user_id) ?? $alias->user;
+                if ($user) {
+                    return $user;
+                }
+            }
+        }
+
+        // 3. Exact match by normalized name (Fuzzy never auto-commits)
         if (!empty($raw)) {
             $cleanRaw = $this->employeeService->normalizeName($raw);
             $exact = $teachers->first(fn($t) => $this->employeeService->normalizeName($t->fullname) === $cleanRaw);
