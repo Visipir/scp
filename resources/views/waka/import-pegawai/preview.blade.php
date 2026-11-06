@@ -107,6 +107,11 @@
                                                     </option>
                                                 @endforeach
                                             </select>
+                                            @if(!empty($r['title_warning']))
+                                                <div class="text-[10px] text-amber-500 dark:text-amber-400 mt-1 flex items-center gap-1 font-mono">
+                                                    <span>{{ $r['title_warning'] }}</span>
+                                                </div>
+                                            @endif
                                         @elseif($r['status'] === 'new')
                                             <span class="italic text-zinc-400">Akun baru akan otomatis dibuat</span>
                                         @else

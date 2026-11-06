@@ -334,11 +334,21 @@ class HomeroomImportService
         }
 
         if ($exactMatches->count() > 1) {
+            $candidates = $exactMatches->values()->map(function ($t) {
+                $nipDigits = !empty($t->nip) ? preg_replace('/\D/', '', $t->nip) : '';
+                return [
+                    'user'      => $t,
+                    'score'     => 100.0,
+                    'nip_last4' => strlen($nipDigits) >= 4 ? substr($nipDigits, -4) : '-',
+                    'subject'   => 'Guru',
+                ];
+            })->all();
+
             return [
                 'category'   => 'ambiguous',
                 'user'       => null,
                 'score'      => 100.0,
-                'candidates' => $exactMatches->values()->all(),
+                'candidates' => $candidates,
             ];
         }
 
@@ -348,15 +358,22 @@ class HomeroomImportService
 
         foreach ($existingTeachers as $t) {
             $cmp = $this->employeeService->compareNamesTokenWise($cleanRaw, $t->fullname);
+            $nipDigits = !empty($t->nip) ? preg_replace('/\D/', '', $t->nip) : '';
+            $nipLast4 = strlen($nipDigits) >= 4 ? substr($nipDigits, -4) : '-';
+
             if ($cmp['status'] === 'fuzzy') {
                 $fuzzyCandidates[] = [
-                    'user'  => $t,
-                    'score' => $cmp['score'],
+                    'user'      => $t,
+                    'score'     => $cmp['score'],
+                    'nip_last4' => $nipLast4,
+                    'subject'   => 'Guru',
                 ];
             } elseif ($cmp['status'] === 'ambiguous') {
                 $ambiguousCandidates[] = [
-                    'user'  => $t,
-                    'score' => $cmp['score'],
+                    'user'      => $t,
+                    'score'     => $cmp['score'],
+                    'nip_last4' => $nipLast4,
+                    'subject'   => 'Guru',
                 ];
             }
         }

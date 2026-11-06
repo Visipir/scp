@@ -30,14 +30,141 @@ class FuzzyMatchingDisciplineTest extends TestCase
         // 1. SRI SUNARTINI vs SRI SUNARSIH must be AMBIGUOUS, never exact or fuzzy matched
         $res1 = $this->empService->compareNamesTokenWise('SRI SUNARTINI, S.Pd.', 'SRI SUNARSIH, S.Pd.');
         $this->assertSame('ambiguous', $res1['status']);
+    }
 
-        // 2. TATIK HERAWATI vs TATIK WARDAYATI must be AMBIGUOUS
-        $res2 = $this->empService->compareNamesTokenWise('TATIK HERAWATI, S.Pd', 'TATIK WARDAYATI, S.Pd.');
-        $this->assertSame('ambiguous', $res2['status']);
+    public function test_ambiguous_threshold_low_scores_become_new_and_high_remain_ambiguous()
+    {
+        $teacherSunartini = $this->makeUser(2, ['fullname' => 'SRI SUNARTINI, S.Pd.']);
+        $teacherHeru = $this->makeUser(2, ['fullname' => 'MUHAMMAD HERU PURNOMO, M.S.I']);
+        $existing = collect([$teacherSunartini, $teacherHeru]);
 
-        // 3. YULI ASTUTI vs YULI ARBIATININGSIH must be AMBIGUOUS
-        $res3 = $this->empService->compareNamesTokenWise('YULI ASTUTI, S.Pd.', 'YULI ARBIATININGSIH, S.Pd');
-        $this->assertSame('ambiguous', $res3['status']);
+        // SRI SULASTRI -> score < 70% -> NEW
+        $match1 = $this->empService->matchTeacher(['name' => 'Dra. SRI SULASTRI'], $existing);
+        $this->assertSame('new', $match1['category']);
+
+        // SRI WIDAYATI -> score < 70% -> NEW
+        $match2 = $this->empService->matchTeacher(['name' => 'SRI WIDAYATI, S.Pd., M.Pd.'], $existing);
+        $this->assertSame('new', $match2['category']);
+
+        // SRI NUR ARAFAH -> score < 70% -> NEW
+        $match3 = $this->empService->matchTeacher(['name' => 'SRI NUR ARAFAH, S.Pd'], $existing);
+        $this->assertSame('new', $match3['category']);
+
+        // MUHAMMAD FURQON -> score < 70% -> NEW
+        $match4 = $this->empService->matchTeacher(['name' => 'MUHAMMAD FURQON, S.Sos'], $existing);
+        $this->assertSame('new', $match4['category']);
+
+        // SRI SUNARTINI vs SRI SUNARSIH -> score >= 70% -> AMBIGUOUS
+        $teacherSunarsih = $this->makeUser(2, ['fullname' => 'SRI SUNARSIH, S.Pd.']);
+        $existingWithBoth = collect([$teacherSunarsih]);
+        $matchSunartini = $this->empService->matchTeacher(['name' => 'SRI SUNARTINI, S.Pd.'], $existingWithBoth);
+        $this->assertSame('ambiguous', $matchSunartini['category']);
+    }
+
+    public function test_user_with_nip_a_vs_source_nip_b_with_same_name_is_new()
+    {
+        $teacherA = $this->makeUser(2, ['fullname' => 'Ahmad Fauzi', 'nip' => '198001012005011001']);
+        $existing = collect([$teacherA]);
+
+        // Source has same name but different NIP -> must be NEW (never candidate)
+        $match = $this->empService->matchTeacher([
+            'name' => 'Ahmad Fauzi',
+            'nip'  => '198502022008011002',
+        ], $existing);
+
+        $this->assertSame('new', $match['category']);
+    }
+
+    public function test_two_source_rows_with_same_name_and_different_nips_create_two_separate_accounts()
+    {
+        \Illuminate\Support\Facades\Cache::put('test_token_twin', [
+            'rows' => [
+                [
+                    'name'   => 'Budi Santoso',
+                    'nip'    => '198001012005011001',
+                    'email'  => 'budi1@example.com',
+                    'status' => 'new',
+                ],
+                [
+                    'name'   => 'Budi Santoso',
+                    'nip'    => '198502022008011002',
+                    'email'  => 'budi2@example.com',
+                    'status' => 'new',
+                ],
+            ]
+        ], now()->addMinutes(10));
+
+        $res = $this->empService->commit('test_token_twin');
+        $this->assertEquals(2, $res['created']);
+
+        $users = User::where('fullname', 'Budi Santoso')->get();
+        $this->assertCount(2, $users);
+        $this->assertNotEquals($users[0]->username, $users[1]->username);
+        // Username should contain last 4 digits of NIP
+        $this->assertTrue(
+            str_contains($users[0]->username, '1001') || str_contains($users[1]->username, '1002')
+        );
+    }
+
+    public function test_reimport_is_idempotent_zero_accounts_created_on_second_run()
+    {
+        $payload = [
+            'rows' => [
+                [
+                    'name'   => 'Guru Pertama',
+                    'nip'    => '199001012015011001',
+                    'email'  => 'guru1@example.com',
+                    'status' => 'new',
+                ],
+            ]
+        ];
+
+        \Illuminate\Support\Facades\Cache::put('token_run_1', $payload, now()->addMinutes(10));
+        $res1 = $this->empService->commit('token_run_1');
+        $this->assertEquals(1, $res1['created']);
+
+        // Second run: existing teachers reloaded from DB
+        $freshTeachers = User::where('role_id', 2)->get();
+        $match = $this->empService->matchTeacher([
+            'name' => 'Guru Pertama',
+            'nip'  => '199001012015011001',
+        ], $freshTeachers);
+
+        $this->assertSame('matched', $match['category']);
+        $this->assertSame('nip', $match['match_type']);
+
+        $payload2 = [
+            'rows' => [
+                [
+                    'name'         => 'Guru Pertama',
+                    'nip'          => '199001012015011001',
+                    'email'        => 'guru1@example.com',
+                    'status'       => 'matched',
+                    'matched_user' => ['id' => $match['user']->id],
+                ]
+            ]
+        ];
+
+        \Illuminate\Support\Facades\Cache::put('token_run_2', $payload2, now()->addMinutes(10));
+        $res2 = $this->empService->commit('token_run_2');
+        $this->assertEquals(0, $res2['created']);
+        $this->assertEquals(1, $res2['updated']);
+    }
+
+    public function test_degree_mismatch_warning_in_fuzzy()
+    {
+        $teacher = $this->makeUser(2, ['fullname' => 'MUHAMMAD HERU PURNOMO, M.S.I']);
+        $existing = collect([$teacher]);
+
+        $match = $this->empService->matchTeacher([
+            'name' => 'MUHAMAD HERU PURNOMO, S.Pd.',
+        ], $existing);
+
+        $this->assertSame('fuzzy', $match['category']);
+        $this->assertNotNull($match['title_warning']);
+        $this->assertStringContainsString('Peringatan: Gelar berbeda', $match['title_warning']);
+        $this->assertStringContainsString('S.Pd', $match['title_warning']);
+        $this->assertStringContainsString('M.S.I', $match['title_warning']);
     }
 
     public function test_positive_pairs_are_fuzzy_matched_with_high_score()

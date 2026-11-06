@@ -87,12 +87,12 @@
                                         @if($r['wali_status'] === 'matched' && $r['wali_user'])
                                             <span class="text-emerald-400 font-medium">{{ $r['wali_user']['fullname'] }}</span>
                                             <span class="font-mono text-zinc-400 text-[10px]">({{ $r['wali_user']['username'] }})</span>
-                                        @elseif($r['wali_status'] === 'fuzzy')
+                                        @elseif($r['wali_status'] === 'fuzzy' || $r['wali_status'] === 'ambiguous')
                                             <select name="confirmed_wali[{{ $idx }}]" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
-                                                <option value="">-- Lewati / Belum Ada --</option>
+                                                <option value="" {{ $r['wali_status'] === 'ambiguous' ? 'selected' : '' }}>-- {{ $r['wali_status'] === 'ambiguous' ? 'Pilih Kandidat (Wajib Konfirmasi)' : 'Lewati / Belum Ada' }} --</option>
                                                 @foreach($r['wali_cands'] as $cand)
-                                                    <option value="{{ $cand['user']['id'] }}" selected>
-                                                        {{ $cand['user']['fullname'] }} ({{ $cand['score'] }}%)
+                                                    <option value="{{ $cand['user']['id'] }}" {{ $r['wali_status'] === 'fuzzy' ? 'selected' : '' }}>
+                                                        {{ $cand['user']['fullname'] }} [NIP: ...{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -105,12 +105,12 @@
                                         @if($r['bk_status'] === 'matched' && $r['bk_user'])
                                             <span class="text-emerald-400 font-medium">{{ $r['bk_user']['fullname'] }}</span>
                                             <span class="font-mono text-zinc-400 text-[10px]">({{ $r['bk_user']['username'] }})</span>
-                                        @elseif($r['bk_status'] === 'fuzzy')
+                                        @elseif($r['bk_status'] === 'fuzzy' || $r['bk_status'] === 'ambiguous')
                                             <select name="confirmed_bk[{{ $idx }}]" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
-                                                <option value="">-- Lewati / Belum Ada --</option>
+                                                <option value="" {{ $r['bk_status'] === 'ambiguous' ? 'selected' : '' }}>-- {{ $r['bk_status'] === 'ambiguous' ? 'Pilih Kandidat (Wajib Konfirmasi)' : 'Lewati / Belum Ada' }} --</option>
                                                 @foreach($r['bk_cands'] as $cand)
-                                                    <option value="{{ $cand['user']['id'] }}" selected>
-                                                        {{ $cand['user']['fullname'] }} ({{ $cand['score'] }}%)
+                                                    <option value="{{ $cand['user']['id'] }}" {{ $r['bk_status'] === 'fuzzy' ? 'selected' : '' }}>
+                                                        {{ $cand['user']['fullname'] }} [NIP: ...{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
                                                     </option>
                                                 @endforeach
                                             </select>

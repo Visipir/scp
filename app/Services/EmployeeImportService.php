@@ -31,7 +31,24 @@ class EmployeeImportService
         $rawRows = $sheet->toArray(null, true, true, true);
         $parsedRows = $this->extractDataRows($rawRows);
 
+        // Precompute source name frequencies for ambiguity detection
+        $sourceNameCounts = [];
+        foreach ($parsedRows as $r) {
+            $norm = $this->normalizeName($r['name']);
+            $sourceNameCounts[$norm] = ($sourceNameCounts[$norm] ?? 0) + 1;
+        }
+
         $existingTeachers = User::where('role_id', 2)->get();
+
+        // Precompute DB null-NIP frequencies for ambiguity detection
+        $dbNullNipCounts = [];
+        foreach ($existingTeachers as $t) {
+            if (empty($t->nip)) {
+                $norm = $this->normalizeName($t->fullname);
+                $dbNullNipCounts[$norm] = ($dbNullNipCounts[$norm] ?? 0) + 1;
+            }
+        }
+
         $matchedRows = [];
         $summary = [
             'total_rows' => count($parsedRows),
@@ -44,7 +61,7 @@ class EmployeeImportService
         $noEmailList = [];
 
         foreach ($parsedRows as $row) {
-            $matchResult = $this->matchTeacher($row, $existingTeachers);
+            $matchResult = $this->matchTeacher($row, $existingTeachers, $sourceNameCounts, $dbNullNipCounts);
             $category = $matchResult['category'];
             $summary[$category]++;
 
@@ -67,33 +84,27 @@ class EmployeeImportService
                 ] : null,
                 'match_score'    => $matchResult['score'],
                 'candidate_list' => $matchResult['candidates'],
+                'title_warning'  => $matchResult['title_warning'] ?? null,
             ]);
         }
 
-        // Collision check: two different source names cannot map to the same account
-        $userTargetMap = [];
+        // Collision check: only flag if multiple source rows share the EXACT same NIP
+        $nipSourceMap = [];
         foreach ($matchedRows as $idx => $r) {
-            $uid = $r['matched_user']['id'] ?? null;
-            if ($uid) {
-                $userTargetMap[$uid][] = [
-                    'index'       => $idx,
-                    'source_name' => $r['name'],
-                ];
+            $nip = $r['nip'] ?? null;
+            if (!empty($nip)) {
+                $nipSourceMap[$nip][] = $idx;
             }
         }
-        foreach ($userTargetMap as $uid => $occurrences) {
-            if (count($occurrences) > 1) {
-                $uniqueNames = array_unique(array_map(fn($o) => trim($o['source_name']), $occurrences));
-                if (count($uniqueNames) > 1) {
-                    foreach ($occurrences as $occ) {
-                        $idx = $occ['index'];
-                        $oldStatus = $matchedRows[$idx]['status'];
-                        if ($oldStatus !== 'ambiguous') {
-                            $summary[$oldStatus]--;
-                            $summary['ambiguous']++;
-                            $matchedRows[$idx]['status'] = 'ambiguous';
-                            $matchedRows[$idx]['ambiguous_reason'] = "Tabrakan: Dua nama sumber berbeda memetakan ke akun yang sama (ID: {$uid})";
-                        }
+        foreach ($nipSourceMap as $nip => $indices) {
+            if (count($indices) > 1) {
+                foreach ($indices as $idx) {
+                    $oldStatus = $matchedRows[$idx]['status'];
+                    if ($oldStatus !== 'ambiguous') {
+                        $summary[$oldStatus]--;
+                        $summary['ambiguous']++;
+                        $matchedRows[$idx]['status'] = 'ambiguous';
+                        $matchedRows[$idx]['ambiguous_reason'] = "Tabrakan: Lebih dari satu baris sumber memiliki NIP yang sama ({$nip})";
                     }
                 }
             }
@@ -166,11 +177,23 @@ class EmployeeImportService
                     // Create new teacher account with randomized password and must_change_password
                     $cleanName = $this->normalizeName($row['name']);
                     $baseSlug = Str::slug($cleanName) ?: 'guru';
-                    $finalUsername = $baseSlug;
-                    $counter = 1;
-                    while (in_array($finalUsername, $allUsernames, true)) {
-                        $counter++;
-                        $finalUsername = "{$baseSlug}-{$counter}";
+
+                    if (!in_array($baseSlug, $allUsernames, true)) {
+                        $finalUsername = $baseSlug;
+                    } else {
+                        $nipDigits = !empty($row['nip']) ? preg_replace('/\D/', '', $row['nip']) : '';
+                        $nipLast4 = strlen($nipDigits) >= 4 ? substr($nipDigits, -4) : '';
+                        $candidateWithNip = $nipLast4 !== '' ? "{$baseSlug}-{$nipLast4}" : '';
+
+                        if ($candidateWithNip !== '' && !in_array($candidateWithNip, $allUsernames, true)) {
+                            $finalUsername = $candidateWithNip;
+                        } else {
+                            $counter = 1;
+                            do {
+                                $counter++;
+                                $finalUsername = "{$baseSlug}-{$counter}";
+                            } while (in_array($finalUsername, $allUsernames, true));
+                        }
                     }
                     $allUsernames[] = $finalUsername;
 
@@ -264,42 +287,97 @@ class EmployeeImportService
     /**
      * Match a row against database teachers.
      */
-    public function matchTeacher(array $row, Collection $existingTeachers): array
+    public function matchTeacher(
+        array $row, 
+        Collection $existingTeachers, 
+        array $sourceNameCounts = [], 
+        array $dbNullNipCounts = []
+    ): array
     {
+        $hasNip = !empty($row['nip']);
+
         // 1. Match by NIP if available
-        if (!empty($row['nip'])) {
-            $nipMatches = $existingTeachers->filter(fn($t) => !empty($t->nip) && $t->nip === $row['nip']);
+        if ($hasNip) {
+            $nipMatches = $existingTeachers->filter(fn($t) => !empty($t->nip) && (string)$t->nip === (string)$row['nip']);
             if ($nipMatches->count() === 1) {
                 return [
                     'category'   => 'matched',
+                    'match_type' => 'nip',
                     'user'       => $nipMatches->first(),
                     'score'      => 100.0,
                     'candidates' => [],
                 ];
             }
+            if ($nipMatches->count() > 1) {
+                return [
+                    'category'         => 'ambiguous',
+                    'match_type'       => 'nip_collision',
+                    'user'             => null,
+                    'score'            => 100.0,
+                    'candidates'       => $nipMatches->values()->all(),
+                    'ambiguous_reason' => 'NIP ditemukan ganda di basis data.',
+                ];
+            }
+
+            // If source row has NIP N, but no user has nip == N:
+            // Candidates for name matching can ONLY come from users where nip is NULL.
+            // Users with a different NIP are NEVER candidates.
+            $candidatePool = $existingTeachers->filter(fn($t) => empty($t->nip));
+        } else {
+            // Source row without NIP: candidate pool from users with null NIP
+            $candidatePool = $existingTeachers->filter(fn($t) => empty($t->nip));
         }
 
-        // 2. Exact match by normalized name
         $cleanRowName = $this->normalizeName($row['name']);
-        $exactMatches = $existingTeachers->filter(function ($t) use ($cleanRowName) {
+
+        // 2. Exact match by normalized name
+        $exactMatches = $candidatePool->filter(function ($t) use ($cleanRowName) {
             return $this->normalizeName($t->fullname) === $cleanRowName;
         });
 
         if ($exactMatches->count() === 1) {
+            $matchedUser = $exactMatches->first();
+            $isUniqueInSource = ($sourceNameCounts[$cleanRowName] ?? 1) === 1;
+            $isUniqueInDb = ($dbNullNipCounts[$cleanRowName] ?? 1) === 1;
+
+            if ($isUniqueInSource && $isUniqueInDb) {
+                return [
+                    'category'   => 'matched',
+                    'match_type' => 'exact_name',
+                    'user'       => $matchedUser,
+                    'score'      => 100.0,
+                    'candidates' => [],
+                ];
+            }
+
             return [
-                'category'   => 'matched',
-                'user'       => $exactMatches->first(),
-                'score'      => 100.0,
-                'candidates' => [],
+                'category'         => 'ambiguous',
+                'match_type'       => 'exact_name_multiple',
+                'user'             => null,
+                'score'            => 100.0,
+                'candidates'       => [
+                    [
+                        'user'          => $matchedUser,
+                        'score'         => 100.0,
+                        'title_warning' => $this->checkDegreeMismatch($row['name'], $matchedUser->fullname),
+                    ]
+                ],
+                'ambiguous_reason' => 'Nama persis ditemukan lebih dari satu di berkas sumber atau di basis data.',
             ];
         }
 
         if ($exactMatches->count() > 1) {
             return [
-                'category'   => 'ambiguous',
-                'user'       => null,
-                'score'      => 100.0,
-                'candidates' => $exactMatches->values()->all(),
+                'category'         => 'ambiguous',
+                'match_type'       => 'exact_name_multiple',
+                'user'             => null,
+                'score'            => 100.0,
+                'candidates'       => $exactMatches->values()->map(fn($u) => [
+                    'user'          => $u,
+                    'score'         => 100.0,
+                    'title_warning' => $this->checkDegreeMismatch($row['name'], $u->fullname),
+                ])->all(),
+                'ambiguous_reason' => 'Ditemukan lebih dari satu guru dengan nama persis di basis data.',
             ];
         }
 
@@ -307,27 +385,32 @@ class EmployeeImportService
         $fuzzyCandidates = [];
         $ambiguousCandidates = [];
 
-        foreach ($existingTeachers as $t) {
+        foreach ($candidatePool as $t) {
             $cmp = $this->compareNamesTokenWise($row['name'], $t->fullname);
-            if ($cmp['status'] === 'fuzzy') {
+            $degreeWarning = $this->checkDegreeMismatch($row['name'], $t->fullname);
+
+            if ($cmp['status'] === 'fuzzy' && $cmp['score'] >= self::FUZZY_THRESHOLD) {
                 $fuzzyCandidates[] = [
-                    'user'  => $t,
-                    'score' => $cmp['score'],
+                    'user'          => $t,
+                    'score'         => $cmp['score'],
+                    'title_warning' => $degreeWarning,
                 ];
-            } elseif ($cmp['status'] === 'ambiguous') {
+            } elseif ($cmp['status'] === 'ambiguous' && $cmp['score'] >= 70.0) {
                 $ambiguousCandidates[] = [
-                    'user'  => $t,
-                    'score' => $cmp['score'],
+                    'user'          => $t,
+                    'score'         => $cmp['score'],
+                    'title_warning' => $degreeWarning,
                 ];
             }
         }
 
         if (count($fuzzyCandidates) === 1 && empty($ambiguousCandidates)) {
             return [
-                'category'   => 'fuzzy',
-                'user'       => $fuzzyCandidates[0]['user'],
-                'score'      => $fuzzyCandidates[0]['score'],
-                'candidates' => $fuzzyCandidates,
+                'category'      => 'fuzzy',
+                'user'          => $fuzzyCandidates[0]['user'],
+                'score'         => $fuzzyCandidates[0]['score'],
+                'candidates'    => $fuzzyCandidates,
+                'title_warning' => $fuzzyCandidates[0]['title_warning'] ?? null,
             ];
         }
 
@@ -355,6 +438,8 @@ class EmployeeImportService
     /**
      * Compare two names token-wise.
      * Prevents false matches where first names are identical but last names differ.
+     * Score < 70% returns status 'none' (drops to NEW).
+     * AMBIGUOUS only if score >= 70% with differing last token.
      */
     public function compareNamesTokenWise(string $nameA, string $nameB): array
     {
@@ -377,15 +462,19 @@ class EmployeeImportService
         $tokensA = explode(' ', $normA);
         $tokensB = explode(' ', $normB);
 
-        // If first token is identical, but last token differs significantly -> AMBIGUOUS (never match)
+        // If first token is identical, but last token differs:
+        // AMBIGUOUS only if last token similarity is >= 70% and < 80%.
+        // If last token similarity < 70%, it is NOT ambiguous (treated as separate names, drops to NEW).
         if (count($tokensA) > 1 && count($tokensB) > 1) {
             similar_text($tokensA[0], $tokensB[0], $firstSim);
             $lastA = end($tokensA);
             $lastB = end($tokensB);
-            similar_text($lastA, $lastB, $lastSim);
 
-            if ($firstSim >= 90.0 && $lastSim < 80.0) {
-                return ['status' => 'ambiguous', 'score' => round($lastSim, 2)];
+            if ($firstSim >= 90.0 && $lastA !== $lastB) {
+                similar_text($lastA, $lastB, $lastSim);
+                if ($lastSim >= 70.0 && $lastSim < 80.0) {
+                    return ['status' => 'ambiguous', 'score' => round($lastSim, 2)];
+                }
             }
         }
 
@@ -413,6 +502,66 @@ class EmployeeImportService
         }
 
         return ['status' => 'none', 'score' => round($overallSim, 2)];
+    }
+
+    /**
+     * Extract academic degrees and titles from full name string.
+     */
+    public function extractDegrees(string $name): array
+    {
+        $degrees = [];
+        $patterns = [
+            'S\.?Pd\.?Kor' => 'S.Pd.Kor',
+            'S\.?Pd\.?Si'  => 'S.Pd.Si',
+            'S\.?Pd\.?I'   => 'S.Pd.I',
+            'M\.?S\.?I'    => 'M.S.I',
+            'M\.?Eng'      => 'M.Eng',
+            'M\.?Acc'      => 'M.Acc',
+            'M\.?Kom'      => 'M.Kom',
+            'S\.?Kom'      => 'S.Kom',
+            'S\.?Sos'      => 'S.Sos',
+            'S\.?Pd'       => 'S.Pd',
+            'M\.?Pd'       => 'M.Pd',
+            'M\.?Si'       => 'M.Si',
+            'S\.?T'        => 'S.T',
+            'S\.?S'        => 'S.S',
+            'M\.?M'        => 'M.M',
+            'M\.?T'        => 'M.T',
+            'Drs\.?'       => 'Drs.',
+            'Dra\.?'       => 'Dra.',
+        ];
+
+        foreach ($patterns as $regex => $standard) {
+            if (preg_match('/\b' . $regex . '\b/i', $name)) {
+                $degrees[] = $standard;
+            }
+        }
+
+        return array_values(array_unique($degrees));
+    }
+
+    /**
+     * Check if source name and candidate name have differing academic degrees.
+     */
+    public function checkDegreeMismatch(string $sourceName, string $candidateName): ?string
+    {
+        $sourceDegrees = $this->extractDegrees($sourceName);
+        $candidateDegrees = $this->extractDegrees($candidateName);
+
+        if (empty($sourceDegrees) && empty($candidateDegrees)) {
+            return null;
+        }
+
+        sort($sourceDegrees);
+        sort($candidateDegrees);
+
+        if ($sourceDegrees !== $candidateDegrees) {
+            $srcStr = !empty($sourceDegrees) ? implode(', ', $sourceDegrees) : 'Tanpa Gelar';
+            $candStr = !empty($candidateDegrees) ? implode(', ', $candidateDegrees) : 'Tanpa Gelar';
+            return "Peringatan: Gelar berbeda (Sumber: {$srcStr} vs DB: {$candStr})";
+        }
+
+        return null;
     }
 
     /**
