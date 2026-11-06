@@ -21,12 +21,13 @@ class SchoolClassService
         $query = SchoolClass::withCount('users as students_count')
             ->with(['homeroomAssignment.user', 'counselorAssignments.user']);
 
-        // Scoping for Wali Kelas and Guru BK (Waka Kurikulum role 1 remains unrestricted)
-        if ((int) $actor->role_id !== 1) {
-            $authorized = $actor->authorizedClassIds();
-            if ($authorized !== null) {
-                $query->whereIn('id', $authorized);
-            }
+        // Scoping: Wali Kelas sees only their homeroom class; Counselor sees only their assigned classes
+        $scopedClassId = $actor->scopedClassId();
+        if ($scopedClassId !== null) {
+            $query->where('id', $scopedClassId);
+        } elseif ($actor->isCounselor() && $actor->counselorAssignments()->exists()) {
+            $allowedClassIds = $actor->counselorAssignments()->pluck('class_id')->all();
+            $query->whereIn('id', $allowedClassIds);
         }
 
         if (!empty($filters['academic_year']) && $filters['academic_year'] !== 'all') {
