@@ -23,6 +23,11 @@ class Schedule extends Model
         return $this->belongsTo(Room::class, 'room_id');
     }
 
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'schedule_id');
+    }
+
     public function getPeriodLabelAttribute(): string
     {
         $start = is_numeric($this->start_period) ? (int) $this->start_period : ($this->start_period ?: 1);

@@ -17,6 +17,17 @@
                     </a>
 
                     @if(!$config?->is_schedule_locked)
+                        <a 
+                            href="{{ route('waka.schedules.import.index') }}" 
+                            class="h-9 inline-flex items-center gap-1.5 px-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2C2C30] dark:hover:bg-[#35353A] text-zinc-800 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition min-h-[44px] sm:min-h-[36px]"
+                            title="Import Jadwal dari berkas ekspor FET (XML, CSV, PDF)"
+                        >
+                            <svg class="w-4 h-4 text-[#0093dd]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                            <span>Import FET</span>
+                        </a>
+
                         <x-ai-importer-modal type="Jadwal Pelajaran" title="Impor Jadwal AI" />
 
                         <a 

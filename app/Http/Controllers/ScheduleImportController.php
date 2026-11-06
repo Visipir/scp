@@ -125,6 +125,11 @@ class ScheduleImportController extends Controller
 
         $targetCycle = $validated['cycle_type'] ?? 'Putaran 2';
 
+        $config = \App\Models\SystemConfiguration::first();
+        if ($config && (bool) $config->is_schedule_locked) {
+            abort(422, 'Jadwal sedang dikunci oleh Waka Kurikulum.');
+        }
+
         try {
             $parsedItems = $parser->parsePdf($request->file('schedule_pdf'), $targetCycle);
         } catch (\Throwable $e) {
@@ -144,7 +149,7 @@ class ScheduleImportController extends Controller
         DB::beginTransaction();
         try {
             if ($request->boolean('replace_existing')) {
-                Schedule::where('cycle_type', $targetCycle)->delete();
+                Schedule::where('cycle_type', $targetCycle)->doesntHave('journals')->delete();
             }
             foreach ($parsedItems as $item) {
                 $className = trim($item['class_name'] ?? '');
@@ -292,5 +297,49 @@ class ScheduleImportController extends Controller
 
         return redirect()->route('schedules.index', ['cycle' => $targetCycle])
             ->with('success', $msg);
+    }
+
+    public function index(): \Illuminate\View\View
+    {
+        $config = \App\Models\SystemConfiguration::first();
+        return view('schedules.import-index', compact('config'));
+    }
+
+    public function preview(Request $request, \App\Services\FetScheduleParserService $parser): \Illuminate\View\View|RedirectResponse
+    {
+        $request->validate([
+            'schedule_file' => ['required', 'file', 'max:20480'],
+            'cycle_type'    => ['nullable', 'string', 'in:Putaran 1,Putaran 2'],
+        ]);
+
+        $cycleType = $request->input('cycle_type', 'Putaran 2');
+
+        try {
+            $preview = $parser->generatePreview($request->file('schedule_file'), $cycleType);
+            return view('schedules.import-preview', compact('preview'));
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function commit(Request $request, \App\Services\FetScheduleParserService $parser): RedirectResponse
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+        ]);
+
+        try {
+            $applied = $parser->commit($validated['token']);
+            return redirect()->route('schedules.index', ['cycle' => 'Putaran 2'])->with(
+                'success',
+                sprintf(
+                    'Import Jadwal FET selesai: %d jadwal berhasil disimpan, %d jadwal dengan jurnal lama dipertahankan.',
+                    $applied['inserted'],
+                    $applied['preserved']
+                )
+            );
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menerapkan jadwal: ' . $e->getMessage());
+        }
     }
 }
