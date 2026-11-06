@@ -7,7 +7,10 @@ use App\Models\Journal;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserService
@@ -194,7 +197,132 @@ class UserService
             'must_change_password' => true,
         ]);
 
+        $target->tokens()->delete();
+
         return $target;
+    }
+
+    /**
+     * Reset a user's password to a random temporary password, revoke old tokens,
+     * flag must_change_password = true, and export credentials to storage/app/private.
+     */
+    public function resetPasswordWithTempCredential(User $actor, User $target): array
+    {
+        if (!$this->canManageUser($actor, $target)) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk me-reset kata sandi pengguna ini.');
+        }
+
+        $tempPassword = Str::random(12);
+
+        $target->update([
+            'password'             => Hash::make($tempPassword),
+            'must_change_password' => true,
+        ]);
+
+        $target->tokens()->delete();
+
+        $credentialRow = [
+            'id'                 => $target->id,
+            'username'           => $target->username,
+            'fullname'           => $target->fullname,
+            'nip'                => $target->nip ?? '',
+            'role_id'            => $target->role_id,
+            'temporary_password' => $tempPassword,
+            'reset_at'           => now('Asia/Jakarta')->toIso8601String(),
+        ];
+
+        $csvPath = $this->writeCredentialsCsv([$credentialRow], "reset_user_{$target->id}");
+
+        return [
+            'user'               => $target,
+            'temporary_password' => $tempPassword,
+            'credentials'        => [$credentialRow],
+            'csv_path'           => $csvPath,
+        ];
+    }
+
+    /**
+     * Bulk reset teacher passwords to random temporary passwords (Waka only),
+     * revoke old tokens, flag must_change_password = true, and export CSV to storage/app/private.
+     */
+    public function bulkResetTeacherPasswords(User $actor, ?array $userIds = null): array
+    {
+        if ((int) $actor->role_id !== 1) {
+            abort(403, 'Akses ditolak. Hanya Waka Kurikulum yang dapat melakukan reset password massal guru.');
+        }
+
+        $query = User::where('role_id', 2)->orderBy('fullname');
+        if (!empty($userIds)) {
+            $query->whereIn('id', array_map('intval', $userIds));
+        }
+
+        $teachers = $query->get();
+        $credentials = [];
+        $nowIso = now('Asia/Jakarta')->toIso8601String();
+
+        DB::beginTransaction();
+        try {
+            foreach ($teachers as $teacher) {
+                $tempPassword = Str::random(12);
+                $teacher->update([
+                    'password'             => Hash::make($tempPassword, ['rounds' => 4]),
+                    'must_change_password' => true,
+                ]);
+                $teacher->tokens()->delete();
+
+                $credentials[] = [
+                    'id'                 => $teacher->id,
+                    'username'           => $teacher->username,
+                    'fullname'           => $teacher->fullname,
+                    'nip'                => $teacher->nip ?? '',
+                    'role_id'            => $teacher->role_id,
+                    'temporary_password' => $tempPassword,
+                    'reset_at'           => $nowIso,
+                ];
+            }
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        $csvPath = $this->writeCredentialsCsv($credentials, 'bulk_reset_teachers');
+
+        return [
+            'count'       => count($credentials),
+            'credentials' => $credentials,
+            'csv_path'    => $csvPath,
+        ];
+    }
+
+    /**
+     * Write credentials array to storage/app/private/credentials/*.csv and return relative path.
+     */
+    public function writeCredentialsCsv(array $rows, string $prefix = 'credentials'): string
+    {
+        $timestamp = now('Asia/Jakarta')->format('Ymd_His') . '_' . Str::lower(Str::random(4));
+        $relativePath = "credentials/{$prefix}_{$timestamp}.csv";
+
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, ['id', 'username', 'fullname', 'nip', 'role_id', 'temporary_password', 'reset_at']);
+        foreach ($rows as $row) {
+            fputcsv($handle, [
+                $row['id'] ?? '',
+                $row['username'] ?? '',
+                $row['fullname'] ?? '',
+                $row['nip'] ?? '',
+                $row['role_id'] ?? '',
+                $row['temporary_password'] ?? '',
+                $row['reset_at'] ?? '',
+            ]);
+        }
+        rewind($handle);
+        $csvContent = stream_get_contents($handle);
+        fclose($handle);
+
+        Storage::disk('local')->put($relativePath, $csvContent);
+
+        return $relativePath;
     }
 
     /**

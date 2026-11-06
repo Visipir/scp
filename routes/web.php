@@ -90,6 +90,7 @@ Route::middleware(['auth', 'role:1,3'])->prefix('users')->name('users.')->group(
     Route::put('/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('update');
     Route::delete('/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
     Route::patch('/{user}/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword'])->name('reset-password');
+    Route::post('/bulk-reset-passwords', [\App\Http\Controllers\UserController::class, 'bulkResetTeacherPasswords'])->name('bulk-reset-passwords')->middleware('role:1');
 });
 
 Route::middleware(['auth', 'role:1,2'])->prefix('schedules')->name('schedules.')->group(function () {

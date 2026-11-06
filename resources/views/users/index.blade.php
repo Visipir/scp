@@ -4,14 +4,27 @@
             title="Manajemen Pengguna" 
             subtitle="Pengelolaan akun guru, staf, siswa, dan hak akses sistem"
         >
-            <button 
-                type="button" 
-                @click="addModalOpen = true" 
-                class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-none shrink-0 cursor-pointer"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                <span>Tambah Pengguna</span>
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+                @if(auth()->user()?->role_id == 1)
+                    <form method="POST" action="{{ route('users.bulk-reset-passwords') }}" class="inline" onsubmit="return confirm('Reset password massal untuk semua akun Guru menjadi password sementara acak? Semua sesi/token aktif guru akan dicabut.')">
+                        @csrf
+                        <button 
+                            type="submit" 
+                            class="inline-flex items-center gap-2 px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition shadow-none shrink-0 cursor-pointer"
+                        >
+                            <span>Reset PW Massal Guru</span>
+                        </button>
+                    </form>
+                @endif
+                <button 
+                    type="button" 
+                    @click="addModalOpen = true" 
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-none shrink-0 cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    <span>Tambah Pengguna</span>
+                </button>
+            </div>
         </x-page-header>
     </x-slot>
 
@@ -24,6 +37,20 @@
         {{-- Alerts --}}
         @if(session('success'))
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
+        @endif
+        @if(session('reset_credentials'))
+            <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-4 text-xs space-y-2">
+                <div class="font-semibold text-amber-900 dark:text-amber-300">
+                    Kredensial Sementara (Tampil Sekali — Tersimpan di <code>storage/app/private/{{ session('reset_csv_path') }}</code>)
+                </div>
+                <div class="max-h-48 overflow-y-auto border border-amber-200/70 dark:border-amber-800/50 rounded-lg bg-white dark:bg-[#1E1E22] p-2.5 font-mono text-[11px]">
+                    @foreach(session('reset_credentials') as $cred)
+                        <div class="py-0.5 text-zinc-800 dark:text-zinc-200">
+                            {{ $cred['fullname'] }} ({{ $cred['username'] }}) &rarr; <span class="font-bold text-amber-700 dark:text-amber-400">{{ $cred['temporary_password'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         @endif
         @if(session('error'))
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>

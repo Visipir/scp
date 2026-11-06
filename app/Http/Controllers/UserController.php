@@ -89,12 +89,33 @@ class UserController extends Controller
     public function resetPassword(Request $request, User $user)
     {
         try {
-            $this->userService->resetPassword($request->user(), $user);
+            $result = $this->userService->resetPasswordWithTempCredential($request->user(), $user);
         } catch (HttpException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
 
-        return redirect()->back()->with('success', "Password pengguna {$user->fullname} berhasil di-reset menjadi username-nya. Pengguna wajib mengganti password saat login berikutnya.");
+        return redirect()->back()
+            ->with('success', "Password pengguna {$user->fullname} berhasil di-reset ke password sementara acak. Pengguna wajib mengganti password saat login berikutnya.")
+            ->with('reset_credentials', $result['credentials'])
+            ->with('reset_csv_path', $result['csv_path']);
+    }
+
+    public function bulkResetTeacherPasswords(Request $request)
+    {
+        $userIds = $request->input('user_ids');
+        try {
+            $result = $this->userService->bulkResetTeacherPasswords(
+                $request->user(),
+                is_array($userIds) ? $userIds : null
+            );
+        } catch (HttpException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->back()
+            ->with('success', "Berhasil me-reset password sementara acak untuk {$result['count']} akun guru. Token lama telah dicabut dan kredensial diekspor ke storage/app/private/{$result['csv_path']}.")
+            ->with('reset_credentials', $result['credentials'])
+            ->with('reset_csv_path', $result['csv_path']);
     }
 
     public function destroy(Request $request, User $user)

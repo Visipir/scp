@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\SchoolClass;
 use App\Models\User;
 use App\Services\StudentImportService;
+use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class StudentImportController extends Controller
@@ -58,6 +60,8 @@ class StudentImportController extends Controller
 
         // 3. Provision accounts and assign classes in a transaction
         $stats = ['created' => 0, 'updated' => 0, 'classes_created' => 0];
+        $exportedCredentials = [];
+        $nowIso = now('Asia/Jakarta')->toIso8601String();
 
         DB::beginTransaction();
         try {
@@ -114,14 +118,25 @@ class StudentImportController extends Controller
                     $existing->update($userData);
                     $stats['updated']++;
                 } else {
+                    $tempPassword = Str::random(12);
                     $userData['username'] = $nis;
                     $userData['must_change_password'] = true;
                     // Use rounds 4 for high-throughput batch provisioning (~0.08ms vs ~250ms per user)
                     // Bcrypt verifies rounds 4 identically and securely for student logins
-                    $userData['password'] = Hash::make($nis, ['rounds' => 4]);
+                    $userData['password'] = Hash::make($tempPassword, ['rounds' => 4]);
                     $newUser = User::create($userData);
                     $existingUsers->put($nis, $newUser);
                     $stats['created']++;
+
+                    $exportedCredentials[] = [
+                        'id'                 => $newUser->id,
+                        'username'           => $newUser->username,
+                        'fullname'           => $newUser->fullname,
+                        'nip'                => '',
+                        'role_id'            => 4,
+                        'temporary_password' => $tempPassword,
+                        'reset_at'           => $nowIso,
+                    ];
                 }
             }
 
@@ -132,11 +147,17 @@ class StudentImportController extends Controller
             return back()->with('error', 'Gagal menyimpan data ke database: ' . $e->getMessage());
         }
 
+        $csvPath = null;
+        if (!empty($exportedCredentials)) {
+            $csvPath = app(UserService::class)->writeCredentialsCsv($exportedCredentials, 'student_import');
+        }
+
         $total = $stats['created'] + $stats['updated'];
         $message = "Berhasil mengimpor {$total} siswa";
         if ($stats['created'] > 0) $message .= " ({$stats['created']} baru)";
         if ($stats['updated'] > 0) $message .= " ({$stats['updated']} diperbarui)";
         if ($stats['classes_created'] > 0) $message .= ". {$stats['classes_created']} kelas baru dibuat otomatis.";
+        if ($csvPath) $message .= " Kredensial sementara diekspor ke storage/app/private/{$csvPath}.";
 
         return back()->with('success', $message);
     }

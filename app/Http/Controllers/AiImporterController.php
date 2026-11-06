@@ -80,15 +80,23 @@ class AiImporterController extends Controller
                 case 'Daftar Siswa':
                     foreach ($data as $row) {
                         $class = SchoolClass::resolveOrCreate($row['class_name']);
-                        User::updateOrCreate(
-                            ['username' => $row['username']],
-                            [
+                        $existingStudent = User::where('username', $row['username'])->first();
+                        if ($existingStudent) {
+                            $existingStudent->update([
                                 'fullname' => $row['fullname'],
-                                'password' => Hash::make($row['username']),
-                                'role_id' => 4,
-                                'class_id' => $class->id
-                            ]
-                        );
+                                'role_id'  => 4,
+                                'class_id' => $class->id,
+                            ]);
+                        } else {
+                            User::create([
+                                'username'             => $row['username'],
+                                'fullname'             => $row['fullname'],
+                                'password'             => Hash::make(Str::random(12)),
+                                'must_change_password' => true,
+                                'role_id'              => 4,
+                                'class_id'             => $class->id,
+                            ]);
+                        }
                         $count++;
                     }
                     break;
