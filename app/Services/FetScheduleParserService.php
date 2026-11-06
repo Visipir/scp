@@ -429,52 +429,262 @@ class FetScheduleParserService
     }
 
     /**
-     * Parse FET PDF using pdftotext -layout preserving positions.
+     * Parse FET PDF using pdftohtml XML preserving exact tabular coordinates.
      */
     public function parsePdf(string $path): array
     {
-        $cmd = sprintf('pdftotext -layout %s -', escapeshellarg($path));
+        $cmd = sprintf('pdftohtml -xml -stdout %s', escapeshellarg($path));
         $output = shell_exec($cmd);
 
         if (empty($output)) {
             return [];
         }
 
-        $slots = [];
-        $lines = explode("\n", $output);
-        $currentDay = 'Senin';
-        $currentClass = null;
+        $xml = @simplexml_load_string($output);
+        if (!$xml) {
+            return [];
+        }
 
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if (empty($trimmed)) {
-                continue;
+        $pages = $xml->xpath('//page') ?: [];
+        $slots = [];
+
+        $timeSlots = [
+            1 => '07:15', 2 => '08:00', 3 => '08:45', 4 => '09:45', 5 => '10:30',
+            6 => '11:15', 7 => '12:30', 8 => '13:15', 9 => '14:00', 10 => '14:45',
+        ];
+        $dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $classPattern = '/\b(X|XI|XII)\s+([A-Z0-9]+(?:\s+[0-9]+)?)\b/i';
+
+        foreach ($pages as $p) {
+            $pNum = (int) ($p['number'] ?? 0);
+            if ($pNum <= 2) {
+                continue; // Skip TOC
             }
 
-            // Check for Day header
-            foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $d) {
-                if (stripos($trimmed, $d) === 0) {
-                    $currentDay = $d;
-                    break;
+            $texts = $p->xpath('.//text') ?: [];
+
+            // 1. Extract Teacher Code and Name from header
+            $teacherCode = null;
+            $teacherName = null;
+            foreach ($texts as $t) {
+                $str = html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $top = (int) $t['top'];
+                if ($top >= 50 && $top <= 90) {
+                    if (preg_match('/["\']?(\d+)[.,\s]*([^"\'\n]+)/u', $str, $m)) {
+                        $teacherCode = $m[1];
+                        $teacherName = trim($m[2], " \t\n\r\0\x0B\"'");
+                        break;
+                    }
                 }
             }
 
-            // Detect class patterns like X PPLG 1, XI TKJ 2, XII AK 1
-            if (preg_match('/\b(X|XI|XII)\s+[A-Z0-9\s-]+\b/i', $trimmed, $m)) {
-                $currentClass = trim($m[0]);
+            if (!$teacherCode) {
+                continue;
             }
 
-            // Match period slots like "1  08:00  Matematika  Pak Budi  Lab 1"
-            if (preg_match('/^(\d{1,2})\s+([0-9:.]+)\s+([^0-9]+?)(?:\s+(?:R\.|Lab|Ruang|\d+)\b|$)/i', $trimmed, $m)) {
-                $slots[] = [
-                    'day'          => $currentDay,
-                    'period'       => (int) $m[1],
-                    'teacher_raw'  => '',
-                    'teacher_code' => null,
-                    'subject'      => trim($m[3]),
-                    'class_raw'    => $currentClass ?: 'X PPLG 1',
-                    'room_raw'     => 'Ruang 1',
+            // 2. Identify Day Column Coordinates
+            $dayPositions = [];
+            foreach ($texts as $t) {
+                $str = trim(html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $top = (int) $t['top'];
+                $left = (int) $t['left'];
+                $width = (int) $t['width'];
+                if ($top >= 85 && $top <= 115) {
+                    if (preg_match('/\bSenin\b/i', $str)) $dayPositions['Senin'] = $left;
+                    if (preg_match('/\bSelasa\b/i', $str)) $dayPositions['Selasa'] = $left;
+                    if (preg_match('/\bRabu\b/i', $str)) $dayPositions['Rabu'] = $left;
+                    if (preg_match('/\bKamis\s+Jumat\b/i', $str)) {
+                        $dayPositions['Kamis'] = $left;
+                        $dayPositions['Jumat'] = $left + (int) ($width * 0.6);
+                    } else {
+                        if (preg_match('/\bKamis\b/i', $str)) $dayPositions['Kamis'] = $left;
+                        if (preg_match('/\bJumat\b/i', $str)) $dayPositions['Jumat'] = $left;
+                    }
+                }
+            }
+
+            if (count($dayPositions) < 5) {
+                $dayPositions = ['Senin' => 166, 'Selasa' => 334, 'Rabu' => 507, 'Kamis' => 617, 'Jumat' => 731];
+            }
+
+            // 3. Identify Time Row Coordinates
+            $rowPositions = [];
+            foreach ($texts as $t) {
+                $str = trim(html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $left = (int) $t['left'];
+                if ($left >= 40 && $left <= 80) {
+                    foreach ($timeSlots as $pIdx => $ts) {
+                        if ($str === $ts) {
+                            $rowPositions[$pIdx] = (int) $t['top'];
+                        }
+                    }
+                }
+            }
+
+            if (count($rowPositions) < 10) {
+                $rowPositions = [
+                    1 => 145, 2 => 218, 3 => 290, 4 => 363, 5 => 435,
+                    6 => 507, 7 => 580, 8 => 652, 9 => 725, 10 => 797,
                 ];
+            }
+
+            // Calculate Day Column Boundaries
+            $orderedDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+            $colBounds = [];
+            for ($i = 0; $i < count($orderedDays); $i++) {
+                $currDay = $orderedDays[$i];
+                $currLeft = $dayPositions[$currDay];
+                $minX = ($i === 0) ? 90 : ($dayPositions[$orderedDays[$i - 1]] + $currLeft) / 2;
+                $maxX = ($i === count($orderedDays) - 1) ? 880 : ($currLeft + $dayPositions[$orderedDays[$i + 1]]) / 2;
+                $colBounds[$currDay] = ['min' => $minX, 'max' => $maxX];
+            }
+
+            // Calculate Period Row Boundaries
+            $rowBounds = [];
+            for ($i = 1; $i <= 10; $i++) {
+                $currTop = $rowPositions[$i];
+                $minY = ($i === 1) ? 120 : ($rowPositions[$i - 1] + $currTop) / 2;
+                $maxY = ($i === 10) ? 830 : ($currTop + $rowPositions[$i + 1]) / 2;
+                $rowBounds[$i] = ['min' => $minY, 'max' => $maxY, 'center' => $currTop];
+            }
+
+            // Index Elements by Day and Period
+            $elements = [];
+            foreach ($texts as $t) {
+                $str = trim(html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $top = (int) $t['top'];
+                $left = (int) $t['left'];
+
+                if ($top < 120 || $top > 830 || $left < 90) {
+                    continue;
+                }
+
+                $matchedDay = null;
+                foreach ($colBounds as $day => $b) {
+                    if ($left >= $b['min'] && $left < $b['max']) {
+                        $matchedDay = $day;
+                        break;
+                    }
+                }
+                if (!$matchedDay) continue;
+
+                $matchedP = null;
+                foreach ($rowBounds as $pIdx => $b) {
+                    if ($top >= $b['min'] && $top < $b['max']) {
+                        $matchedP = $pIdx;
+                        break;
+                    }
+                }
+                if (!$matchedP) continue;
+
+                $elements[$matchedDay][$matchedP][] = [
+                    'text' => $str,
+                    'top'  => $top,
+                    'left' => $left,
+                ];
+            }
+
+            // Process Slots per Day
+            foreach ($orderedDays as $day) {
+                $pIdx = 1;
+                while ($pIdx <= 10) {
+                    $items = $elements[$day][$pIdx] ?? [];
+                    if (empty($items)) {
+                        $pIdx++;
+                        continue;
+                    }
+
+                    $isFree = false;
+                    foreach ($items as $it) {
+                        if (in_array($it['text'], ['---', '-x-', '--', '-'], true)) {
+                            $isFree = true;
+                            break;
+                        }
+                    }
+                    if ($isFree) {
+                        $pIdx++;
+                        continue;
+                    }
+
+                    $foundClass = null;
+                    foreach ($items as $it) {
+                        if (preg_match($classPattern, $it['text'], $m)) {
+                            $foundClass = trim($m[0]);
+                            break;
+                        }
+                    }
+
+                    if ($foundClass) {
+                        $startP = $pIdx;
+                        $endP = $pIdx;
+                        $collectedItems = $items;
+
+                        for ($nextP = $pIdx + 1; $nextP <= 10; $nextP++) {
+                            $nextItems = $elements[$day][$nextP] ?? [];
+                            if (empty($nextItems)) {
+                                if ($endP - $startP < 1) {
+                                    $endP = $nextP;
+                                }
+                                break;
+                            }
+
+                            $nextFree = false;
+                            $nextHasClass = false;
+                            foreach ($nextItems as $nit) {
+                                if (in_array($nit['text'], ['---', '-x-', '--', '-'], true)) {
+                                    $nextFree = true;
+                                    break;
+                                }
+                                if (preg_match($classPattern, $nit['text'])) {
+                                    $nextHasClass = true;
+                                    break;
+                                }
+                            }
+
+                            if ($nextFree || $nextHasClass) {
+                                break;
+                            }
+
+                            $endP = $nextP;
+                            foreach ($nextItems as $nit) {
+                                $collectedItems[] = $nit;
+                            }
+                        }
+
+                        $roomRaw = null;
+                        $subjectParts = [];
+
+                        foreach ($collectedItems as $cIt) {
+                            $txt = $cIt['text'];
+                            if (strcasecmp($txt, $foundClass) === 0) continue;
+                            if (preg_match('/^(?:LAB|RUANG|R\.)\s*[A-Z0-9\s-]+$/i', $txt)) {
+                                $roomRaw = $txt;
+                            } else {
+                                $cleanTxt = preg_replace($classPattern, '', $txt);
+                                $cleanTxt = trim($cleanTxt);
+                                if (!empty($cleanTxt)) $subjectParts[] = $cleanTxt;
+                            }
+                        }
+
+                        $subjectRaw = trim(implode(' ', $subjectParts)) ?: 'Pelajaran';
+
+                        for ($sp = $startP; $sp <= $endP; $sp++) {
+                            $slots[] = [
+                                'day'          => $day,
+                                'period'       => $sp,
+                                'teacher_raw'  => $teacherName,
+                                'teacher_code' => $teacherCode,
+                                'subject'      => $subjectRaw,
+                                'class_raw'    => $foundClass,
+                                'room_raw'     => $roomRaw,
+                            ];
+                        }
+
+                        $pIdx = $endP + 1;
+                    } else {
+                        $pIdx++;
+                    }
+                }
             }
         }
 
@@ -493,21 +703,12 @@ class FetScheduleParserService
             }
         }
 
-        // 2. Exact match by normalized name
+        // 2. Exact match by normalized name (Fuzzy never auto-commits)
         if (!empty($raw)) {
             $cleanRaw = $this->employeeService->normalizeName($raw);
             $exact = $teachers->first(fn($t) => $this->employeeService->normalizeName($t->fullname) === $cleanRaw);
             if ($exact) {
                 return $exact;
-            }
-
-            // 3. Fuzzy match
-            foreach ($teachers as $t) {
-                $cleanT = $this->employeeService->normalizeName($t->fullname);
-                similar_text($cleanRaw, $cleanT, $pct);
-                if ($pct >= 85.0) {
-                    return $t;
-                }
             }
         }
 
@@ -519,8 +720,12 @@ class FetScheduleParserService
         return SchoolClass::resolveOrCreate($raw, $cycle);
     }
 
-    public function resolveRoom(string $raw, Collection &$rooms): ?Room
+    public function resolveRoom(?string $raw, Collection &$rooms): ?Room
     {
+        if ($raw === null) {
+            return null;
+        }
+
         $clean = trim($raw);
         if (empty($clean) || $clean === '-') {
             return null;

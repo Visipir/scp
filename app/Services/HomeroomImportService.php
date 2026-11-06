@@ -209,48 +209,54 @@ class HomeroomImportService
         foreach ($rawRows as $row) {
             if ($headerColMap === null) {
                 $upper = array_map(fn($v) => strtoupper(trim((string) $v)), $row);
-                // Look for columns: KELAS, NAMA WALI / WALI, GURU BK / BK
-                $hasKelas = false;
-                $hasWali = false;
-                foreach ($upper as $val) {
-                    if (str_contains($val, 'KELAS')) {
-                        $hasKelas = true;
+                $tempMap = [];
+                foreach ($upper as $colLetter => $headerName) {
+                    if ($headerName === '') {
+                        continue;
                     }
-                    if (str_contains($val, 'WALI')) {
-                        $hasWali = true;
+                    if ($headerName === 'NO' || $headerName === 'NO.') {
+                        $tempMap['NO'] = $colLetter;
+                    } elseif (str_contains($headerName, 'WALI')) {
+                        $tempMap['WALI'] = $colLetter;
+                    } elseif (str_contains($headerName, 'BK') || str_contains($headerName, 'KONSELOR') || str_contains($headerName, 'BIMBINGAN')) {
+                        $tempMap['BK'] = $colLetter;
+                    } elseif (str_contains($headerName, 'KELAS') || str_contains($headerName, 'ROMBEL')) {
+                        $tempMap['KELAS'] = $colLetter;
                     }
                 }
 
-                if ($hasKelas && $hasWali) {
-                    $headerColMap = [];
-                    foreach ($upper as $colLetter => $headerName) {
-                        if ($headerName === '') {
-                            continue;
-                        }
-                        if ($headerName === 'NO' || $headerName === 'NO.') {
-                            $headerColMap['NO'] = $colLetter;
-                        } elseif (str_contains($headerName, 'WALI')) {
-                            $headerColMap['WALI'] = $colLetter;
-                        } elseif (str_contains($headerName, 'BK') || str_contains($headerName, 'KONSELOR') || str_contains($headerName, 'BIMBINGAN')) {
-                            $headerColMap['BK'] = $colLetter;
-                        } elseif (str_contains($headerName, 'KELAS') || str_contains($headerName, 'ROMBEL')) {
-                            $headerColMap['KELAS'] = $colLetter;
-                        }
-                    }
+                // Header must have both KELAS and WALI in distinct columns (ignores document title banner)
+                if (isset($tempMap['KELAS']) && isset($tempMap['WALI']) && $tempMap['KELAS'] !== $tempMap['WALI']) {
+                    $headerColMap = $tempMap;
                 }
                 continue;
             }
 
             $classRaw = trim((string) ($row[$headerColMap['KELAS'] ?? ''] ?? ''));
-            if ($classRaw === '' || str_starts_with(strtoupper($classRaw), 'JUMLAH') || str_starts_with(strtoupper($classRaw), 'TOTAL')) {
+            // Skip empty rows, summary rows, legends, or footer signatures
+            if ($classRaw === ''
+                || str_contains($classRaw, '=')
+                || str_starts_with(strtoupper($classRaw), 'JUMLAH')
+                || str_starts_with(strtoupper($classRaw), 'TOTAL')
+                || str_starts_with(strtoupper($classRaw), 'KETERANGAN')
+                || str_starts_with(strtoupper($classRaw), 'DITETAPKAN')
+            ) {
+                continue;
+            }
+
+            $waliRaw = trim((string) ($row[$headerColMap['WALI'] ?? ''] ?? ''));
+            $bkRaw = trim((string) ($row[$headerColMap['BK'] ?? ''] ?? ''));
+
+            // Must have at least a class and one teacher assignment
+            if (empty($waliRaw) && empty($bkRaw)) {
                 continue;
             }
 
             $dataRows[] = [
                 'no'        => trim((string) ($row[$headerColMap['NO'] ?? ''] ?? '')),
                 'class_raw' => $classRaw,
-                'wali_raw'  => trim((string) ($row[$headerColMap['WALI'] ?? ''] ?? '')),
-                'bk_raw'    => trim((string) ($row[$headerColMap['BK'] ?? ''] ?? '')),
+                'wali_raw'  => $waliRaw,
+                'bk_raw'    => $bkRaw,
             ];
         }
 
@@ -327,34 +333,52 @@ class HomeroomImportService
             ];
         }
 
-        // 2. Fuzzy match via similar_text
-        $candidates = [];
+        if ($exactMatches->count() > 1) {
+            return [
+                'category'   => 'ambiguous',
+                'user'       => null,
+                'score'      => 100.0,
+                'candidates' => $exactMatches->values()->all(),
+            ];
+        }
+
+        // 2. Token-wise / fuzzy matching
+        $fuzzyCandidates = [];
+        $ambiguousCandidates = [];
+
         foreach ($existingTeachers as $t) {
-            $cleanTName = $this->employeeService->normalizeName($t->fullname);
-            similar_text($normalizedInput, $cleanTName, $percent);
-            if ($percent >= self::FUZZY_THRESHOLD) {
-                $candidates[] = [
+            $cmp = $this->employeeService->compareNamesTokenWise($cleanRaw, $t->fullname);
+            if ($cmp['status'] === 'fuzzy') {
+                $fuzzyCandidates[] = [
                     'user'  => $t,
-                    'score' => round($percent, 2),
+                    'score' => $cmp['score'],
+                ];
+            } elseif ($cmp['status'] === 'ambiguous') {
+                $ambiguousCandidates[] = [
+                    'user'  => $t,
+                    'score' => $cmp['score'],
                 ];
             }
         }
 
-        if (count($candidates) === 1) {
+        if (count($fuzzyCandidates) === 1 && empty($ambiguousCandidates)) {
             return [
                 'category'   => 'fuzzy',
-                'user'       => $candidates[0]['user'],
-                'score'      => $candidates[0]['score'],
-                'candidates' => $candidates,
+                'user'       => $fuzzyCandidates[0]['user'],
+                'score'      => $fuzzyCandidates[0]['score'],
+                'candidates' => $fuzzyCandidates,
             ];
         }
 
-        if (count($candidates) > 1) {
+        if (count($fuzzyCandidates) > 1 || !empty($ambiguousCandidates)) {
+            $merged = array_merge($fuzzyCandidates, $ambiguousCandidates);
+            usort($merged, fn($a, $b) => $b['score'] <=> $a['score']);
+
             return [
                 'category'   => 'ambiguous',
                 'user'       => null,
-                'score'      => $candidates[0]['score'],
-                'candidates' => $candidates,
+                'score'      => $merged[0]['score'] ?? 0.0,
+                'candidates' => $merged,
             ];
         }
 

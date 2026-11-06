@@ -70,6 +70,35 @@ class EmployeeImportService
             ]);
         }
 
+        // Collision check: two different source names cannot map to the same account
+        $userTargetMap = [];
+        foreach ($matchedRows as $idx => $r) {
+            $uid = $r['matched_user']['id'] ?? null;
+            if ($uid) {
+                $userTargetMap[$uid][] = [
+                    'index'       => $idx,
+                    'source_name' => $r['name'],
+                ];
+            }
+        }
+        foreach ($userTargetMap as $uid => $occurrences) {
+            if (count($occurrences) > 1) {
+                $uniqueNames = array_unique(array_map(fn($o) => trim($o['source_name']), $occurrences));
+                if (count($uniqueNames) > 1) {
+                    foreach ($occurrences as $occ) {
+                        $idx = $occ['index'];
+                        $oldStatus = $matchedRows[$idx]['status'];
+                        if ($oldStatus !== 'ambiguous') {
+                            $summary[$oldStatus]--;
+                            $summary['ambiguous']++;
+                            $matchedRows[$idx]['status'] = 'ambiguous';
+                            $matchedRows[$idx]['ambiguous_reason'] = "Tabrakan: Dua nama sumber berbeda memetakan ke akun yang sama (ID: {$uid})";
+                        }
+                    }
+                }
+            }
+        }
+
         $previewToken = 'emp_import_' . Str::random(32);
         $payload = [
             'token'         => $previewToken,
@@ -274,34 +303,43 @@ class EmployeeImportService
             ];
         }
 
-        // 3. Fuzzy matching via similar_text
-        $candidates = [];
+        // 3. Token-wise / fuzzy matching
+        $fuzzyCandidates = [];
+        $ambiguousCandidates = [];
+
         foreach ($existingTeachers as $t) {
-            $cleanTName = $this->normalizeName($t->fullname);
-            similar_text($cleanRowName, $cleanTName, $percent);
-            if ($percent >= self::FUZZY_THRESHOLD) {
-                $candidates[] = [
+            $cmp = $this->compareNamesTokenWise($row['name'], $t->fullname);
+            if ($cmp['status'] === 'fuzzy') {
+                $fuzzyCandidates[] = [
                     'user'  => $t,
-                    'score' => round($percent, 2),
+                    'score' => $cmp['score'],
+                ];
+            } elseif ($cmp['status'] === 'ambiguous') {
+                $ambiguousCandidates[] = [
+                    'user'  => $t,
+                    'score' => $cmp['score'],
                 ];
             }
         }
 
-        if (count($candidates) === 1) {
+        if (count($fuzzyCandidates) === 1 && empty($ambiguousCandidates)) {
             return [
                 'category'   => 'fuzzy',
-                'user'       => $candidates[0]['user'],
-                'score'      => $candidates[0]['score'],
-                'candidates' => $candidates,
+                'user'       => $fuzzyCandidates[0]['user'],
+                'score'      => $fuzzyCandidates[0]['score'],
+                'candidates' => $fuzzyCandidates,
             ];
         }
 
-        if (count($candidates) > 1) {
+        if (count($fuzzyCandidates) > 1 || !empty($ambiguousCandidates)) {
+            $mergedCandidates = array_merge($fuzzyCandidates, $ambiguousCandidates);
+            usort($mergedCandidates, fn($a, $b) => $b['score'] <=> $a['score']);
+
             return [
                 'category'   => 'ambiguous',
                 'user'       => null,
-                'score'      => $candidates[0]['score'],
-                'candidates' => $candidates,
+                'score'      => $mergedCandidates[0]['score'] ?? 0.0,
+                'candidates' => $mergedCandidates,
             ];
         }
 
@@ -315,19 +353,96 @@ class EmployeeImportService
     }
 
     /**
-     * Clean and normalize Indonesian names by uppercase, removing titles and non-letter chars.
+     * Compare two names token-wise.
+     * Prevents false matches where first names are identical but last names differ.
+     */
+    public function compareNamesTokenWise(string $nameA, string $nameB): array
+    {
+        $normA = $this->normalizeName($nameA);
+        $normB = $this->normalizeName($nameB);
+
+        if ($normA === '' || $normB === '') {
+            return ['status' => 'none', 'score' => 0.0];
+        }
+
+        if ($normA === $normB) {
+            return ['status' => 'exact', 'score' => 100.0];
+        }
+
+        // Check whitespace-collapsed match (e.g. YULITA EKAWINAJENG vs YULITA EKA WINAJENG)
+        if (str_replace(' ', '', $normA) === str_replace(' ', '', $normB)) {
+            return ['status' => 'fuzzy', 'score' => 99.0];
+        }
+
+        $tokensA = explode(' ', $normA);
+        $tokensB = explode(' ', $normB);
+
+        // If first token is identical, but last token differs significantly -> AMBIGUOUS (never match)
+        if (count($tokensA) > 1 && count($tokensB) > 1) {
+            similar_text($tokensA[0], $tokensB[0], $firstSim);
+            $lastA = end($tokensA);
+            $lastB = end($tokensB);
+            similar_text($lastA, $lastB, $lastSim);
+
+            if ($firstSim >= 90.0 && $lastSim < 80.0) {
+                return ['status' => 'ambiguous', 'score' => round($lastSim, 2)];
+            }
+        }
+
+        // Token-wise comparison when token counts match
+        if (count($tokensA) === count($tokensB)) {
+            $tokenSims = [];
+            $allAboveMin = true;
+            for ($i = 0; $i < count($tokensA); $i++) {
+                similar_text($tokensA[$i], $tokensB[$i], $sim);
+                if ($sim < 70.0) {
+                    $allAboveMin = false;
+                }
+                $tokenSims[] = $sim;
+            }
+            $avgSim = array_sum($tokenSims) / count($tokenSims);
+            if ($allAboveMin && $avgSim >= self::FUZZY_THRESHOLD) {
+                return ['status' => 'fuzzy', 'score' => round($avgSim, 2)];
+            }
+        }
+
+        // Overall similarity
+        similar_text($normA, $normB, $overallSim);
+        if ($overallSim >= self::FUZZY_THRESHOLD) {
+            return ['status' => 'fuzzy', 'score' => round($overallSim, 2)];
+        }
+
+        return ['status' => 'none', 'score' => round($overallSim, 2)];
+    }
+
+    /**
+     * Clean and normalize Indonesian names:
+     * Uppercase, strip titles (Drs, Dra, Prof, Dr, Raden Rara, etc.), degrees (S.Pd, M.Pd, etc.), dots, commas, double spaces.
      */
     public function normalizeName(string $name): string
     {
-        // 1. Take part before comma (degrees)
-        $parts = explode(',', $name);
-        $namePart = $parts[0] ?? '';
+        $clean = str_replace(["`", "’", "'", "\"", ","], " ", $name);
 
-        // 2. Remove common prefixes
-        $namePart = preg_replace('/^(Pak|Bu|Drs\.|Dra\.|Dr\.|Prof\.|Ir\.|H\.|Hj\.)\s+/i', '', $namePart);
+        $prefixes = [
+            '\bRADEN\s+RARA\b', '\bRR\b', '\bDRA\b', '\bDRS\b', '\bPROF\b', '\bDR\b', '\bIR\b', '\bHJ\b', '\bH\b', '\bPAK\b', '\bBU\b'
+        ];
+        $clean = preg_replace('/([A-Za-z])\.([A-Za-z])/', '$1 $2', $clean);
+        $clean = str_replace('.', ' ', $clean);
 
-        // 3. Keep only letters and spaces, uppercase
-        $clean = preg_replace('/[^a-zA-Z\s]/', '', $namePart);
+        foreach ($prefixes as $p) {
+            $clean = preg_replace('/^\s*' . $p . '\s+/i', ' ', $clean);
+        }
+
+        $degrees = [
+            'S\s*PD\s*KOR', 'S\s*PD\s*SI', 'S\s*PD\s*I', 'M\s*S\s*I', 'M\s*ENG', 'M\s*ACC', 'M\s*KOM', 'S\s*KOM',
+            'S\s*SOS', 'S\s*PD', 'M\s*PD', 'M\s*SI', 'M\s*AG', 'S\s*AG', 'S\s*SI', 'S\s*PT', 'S\s*IP', 'S\s*H',
+            'S\s*E', 'S\s*T', 'S\s*S', 'M\s*M', 'M\s*T'
+        ];
+        foreach ($degrees as $d) {
+            $clean = preg_replace('/\b' . $d . '\b/i', ' ', $clean);
+        }
+
+        $clean = preg_replace('/[^a-zA-Z\s]/', ' ', $clean);
         $clean = preg_replace('/\s+/', ' ', trim($clean));
 
         return strtoupper($clean);
