@@ -110,6 +110,7 @@
                             <th class="px-5 py-3 font-semibold">Tingkat</th>
                             <th class="px-5 py-3 font-semibold">Jurusan</th>
                             <th class="px-5 py-3 font-semibold">Tahun Ajaran</th>
+                            <th class="px-5 py-3 font-semibold">Wali &amp; BK</th>
                             <th class="px-5 py-3 font-semibold">Siswa</th>
                             <th class="px-5 py-3 text-right font-semibold">Tindakan</th>
                         </tr>
@@ -143,6 +144,24 @@
                                         {{ $class->academic_year ?? '2026/2027' }}
                                     </span>
                                 </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[9px] uppercase font-mono px-1 py-0.5 rounded bg-sky-50 dark:bg-sky-950/40 text-[#0093dd] font-bold">Wali</span>
+                                            <span class="text-zinc-900 dark:text-[#EDEDF0] font-medium text-[11px]">
+                                                {{ $class->homeroomAssignment?->user?->fullname ?? '-' }}
+                                            </span>
+                                        </div>
+                                        @if($class->counselorAssignments->isNotEmpty())
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-[9px] uppercase font-mono px-1 py-0.5 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold">BK</span>
+                                                <span class="text-zinc-500 dark:text-[#97979B] text-[11px]">
+                                                    {{ $class->counselorAssignments->map(fn($ca) => $ca->user?->fullname)->filter()->join(', ') }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-5 py-3.5 text-zinc-600 dark:text-[#97979B]">
                                     <a href="{{ route('classes.show', $class) }}" class="inline-flex items-center gap-1 hover:text-[#0093dd] dark:hover:text-[#0093dd] font-semibold transition group" title="Lihat siswa di kelas ini">
                                         <span>{{ $class->students_count }} Siswa</span>
@@ -175,7 +194,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-5 py-10 text-center text-xs text-zinc-400 dark:text-[#97979B]">
+                                <td colspan="8" class="px-5 py-10 text-center text-xs text-zinc-400 dark:text-[#97979B]">
                                     Tidak ada data rombel kelas yang terdaftar.
                                 </td>
                             </tr>

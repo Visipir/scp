@@ -45,6 +45,9 @@ Route::middleware(['auth', 'role:1'])->group(function () {
         Route::get('/import-pegawai', [\App\Http\Controllers\EmployeeImportController::class, 'index'])->name('import-pegawai.index');
         Route::post('/import-pegawai/preview', [\App\Http\Controllers\EmployeeImportController::class, 'preview'])->name('import-pegawai.preview');
         Route::post('/import-pegawai/commit', [\App\Http\Controllers\EmployeeImportController::class, 'commit'])->name('import-pegawai.commit');
+        Route::get('/import-wali-bk', [\App\Http\Controllers\HomeroomImportController::class, 'index'])->name('import-wali-bk.index');
+        Route::post('/import-wali-bk/preview', [\App\Http\Controllers\HomeroomImportController::class, 'preview'])->name('import-wali-bk.preview');
+        Route::post('/import-wali-bk/commit', [\App\Http\Controllers\HomeroomImportController::class, 'commit'])->name('import-wali-bk.commit');
     });
 });
 
@@ -58,6 +61,7 @@ Route::middleware(['auth', 'role:1,3'])->prefix('classes')->name('classes.')->gr
     Route::post('/', [\App\Http\Controllers\SchoolClassController::class, 'store'])->name('store');
     Route::get('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'show'])->name('show');
     Route::put('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'update'])->name('update');
+    Route::put('/{class}/assignments', [\App\Http\Controllers\SchoolClassController::class, 'updateAssignments'])->name('assignments.update');
     Route::delete('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'destroy'])->name('destroy');
     Route::get('/{class}/export', [\App\Http\Controllers\SchoolClassController::class, 'exportAttendance'])->name('export');
     Route::post('/import-students', [\App\Http\Controllers\StudentImportController::class, 'import'])->name('import-students');

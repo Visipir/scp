@@ -69,4 +69,14 @@ class SchoolClass extends Model
     public function users() { return $this->hasMany(User::class, 'class_id'); }
     public function students() { return $this->hasMany(User::class, 'class_id')->where('role_id', 4); }
     public function schedules() { return $this->hasMany(Schedule::class, 'class_id'); }
+    public function homeroomAssignment() { return $this->hasOne(HomeroomAssignment::class, 'class_id'); }
+    public function homeroomTeacher()
+    {
+        return $this->hasOneThrough(User::class, HomeroomAssignment::class, 'class_id', 'id', 'id', 'user_id');
+    }
+    public function counselorAssignments() { return $this->hasMany(CounselorAssignment::class, 'class_id'); }
+    public function counselors()
+    {
+        return $this->belongsToMany(User::class, 'counselor_assignments', 'class_id', 'user_id');
+    }
 }

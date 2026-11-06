@@ -41,7 +41,124 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6" x-data="{ activeTab: 'students' }">
+    <div class="space-y-6" x-data="{ activeTab: 'students', assignModalOpen: false }">
+
+        @if(session('success'))
+            <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        {{-- Supervisi: Wali Kelas & Guru BK --}}
+        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-[#0093dd] flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-bold block">Wali Kelas</span>
+                        <p class="text-sm font-semibold text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
+                            {{ $class->homeroomAssignment?->user?->fullname ?? 'Belum ditentukan' }}
+                        </p>
+                        @if($class->homeroomAssignment?->user?->nip)
+                            <p class="text-[11px] font-mono text-zinc-500">NIP: {{ $class->homeroomAssignment->user->nip }}</p>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-bold block">Guru Bimbingan Konseling (BK)</span>
+                        <p class="text-sm font-semibold text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
+                            @if($class->counselorAssignments->isNotEmpty())
+                                {{ $class->counselorAssignments->map(fn($ca) => $ca->user?->fullname)->filter()->join(', ') }}
+                            @else
+                                Belum ditentukan
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            @if(Auth::user()->role_id === 1)
+                <div>
+                    <button type="button" @click="assignModalOpen = true" class="px-3.5 py-1.5 text-xs font-semibold text-[#0093dd] bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 rounded-lg border border-sky-500/20 transition-colors">
+                        Ubah Penugasan
+                    </button>
+                </div>
+            @endif
+        </div>
+
+        @if(Auth::user()->role_id === 1)
+            <div x-show="assignModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak>
+                <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl max-w-lg w-full p-6 shadow-xl" @click.away="assignModalOpen = false">
+                    <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] mb-1">
+                        Ubah Penugasan Guru: {{ $class->class_name }}
+                    </h3>
+                    <p class="text-xs text-zinc-500 dark:text-[#97979B] mb-4">
+                        Pilih guru dari daftar guru aktif untuk ditugaskan sebagai Wali Kelas atau Guru BK.
+                    </p>
+
+                    <form action="{{ route('classes.assignments.update', $class) }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] mb-1">
+                                Wali Kelas
+                            </label>
+                            <select name="homeroom_user_id" class="w-full text-xs rounded-lg border-zinc-300 dark:border-[#3A3A3F] bg-zinc-50 dark:bg-[#252529] text-zinc-900 dark:text-[#EDEDF0]">
+                                <option value="">-- Belum Ditentukan / Kosongkan --</option>
+                                @foreach($teachers as $t)
+                                    <option value="{{ $t->id }}" {{ $class->homeroomAssignment?->user_id == $t->id ? 'selected' : '' }}>
+                                        {{ $t->fullname }} {{ $t->nip ? "({$t->nip})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] mb-1">
+                                Guru BK (Bimbingan Konseling)
+                            </label>
+                            @php
+                                $assignedCounselorIds = $class->counselorAssignments->pluck('user_id')->all();
+                            @endphp
+                            <select name="counselor_user_ids[]" class="w-full text-xs rounded-lg border-zinc-300 dark:border-[#3A3A3F] bg-zinc-50 dark:bg-[#252529] text-zinc-900 dark:text-[#EDEDF0]">
+                                <option value="">-- Belum Ditentukan / Kosongkan --</option>
+                                @foreach($teachers as $t)
+                                    <option value="{{ $t->id }}" {{ in_array($t->id, $assignedCounselorIds) ? 'selected' : '' }}>
+                                        {{ $t->fullname }} {{ $t->nip ? "({$t->nip})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-200 dark:border-[#2C2C30]">
+                            <button type="button" @click="assignModalOpen = false" class="px-4 py-2 text-xs text-zinc-600 dark:text-[#97979B] hover:text-white bg-zinc-100 dark:bg-[#2C2C30] rounded-lg">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-[#0093dd] hover:bg-[#007bb8] rounded-lg">
+                                Simpan Penugasan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
 
         {{-- KPI Cards Presensi Kelas --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">

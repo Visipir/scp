@@ -18,7 +18,8 @@ class SchoolClassService
      */
     public function listClasses(User $actor, array $filters = [], ?int $perPage = null): Collection|LengthAwarePaginator
     {
-        $query = SchoolClass::withCount('users as students_count');
+        $query = SchoolClass::withCount('users as students_count')
+            ->with(['homeroomAssignment.user', 'counselorAssignments.user']);
 
         // Wali Kelas scoping (role 3 with assigned class_id)
         $scopedClassId = $actor->scopedClassId();
@@ -82,7 +83,15 @@ class SchoolClassService
         ?string $search = null
     ): array {
         $scopedClassId = $actor->scopedClassId();
-        abort_if($scopedClassId !== null && (int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        if ($scopedClassId !== null) {
+            abort_if((int) $class->id !== $scopedClassId, 403, 'Akses ditolak.');
+        } elseif ($actor->isCounselor() && $actor->counselorAssignments()->exists()) {
+            $allowed = $actor->counselorAssignments()->pluck('class_id')->all();
+            abort_unless(in_array((int) $class->id, $allowed, true), 403, 'Akses ditolak.');
+        }
+
+        $class->load(['homeroomAssignment.user', 'counselorAssignments.user']);
+        $teachers = ((int) $actor->role_id === 1) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
 
         $studentsQuery = $class->students()
             ->orderByRaw('attendance_number IS NULL, attendance_number ASC')
@@ -153,6 +162,7 @@ class SchoolClassService
             'start_date'         => $startDate,
             'end_date'           => $endDate,
             'search'             => $search,
+            'teachers'           => $teachers,
         ];
     }
 

@@ -118,4 +118,44 @@ class SchoolClassController extends Controller
             $request->input('end_date')
         );
     }
+
+    public function updateAssignments(Request $request, SchoolClass $class): RedirectResponse
+    {
+        abort_unless((int) $request->user()->role_id === 1, 403, 'Hanya Waka Kurikulum yang dapat mengubah penugasan.');
+
+        $validated = $request->validate([
+            'homeroom_user_id'     => ['nullable', 'exists:users,id'],
+            'counselor_user_ids'   => ['nullable', 'array'],
+            'counselor_user_ids.*' => ['exists:users,id'],
+        ]);
+
+        $academicYear = $class->academic_year ?? '2026/2027';
+
+        // Update Homeroom
+        if (!empty($validated['homeroom_user_id'])) {
+            \App\Models\HomeroomAssignment::updateOrCreate(
+                ['class_id' => $class->id],
+                [
+                    'user_id'       => $validated['homeroom_user_id'],
+                    'academic_year' => $academicYear,
+                ]
+            );
+        } else {
+            \App\Models\HomeroomAssignment::where('class_id', $class->id)->delete();
+        }
+
+        // Update Counselors: sync for this class
+        \App\Models\CounselorAssignment::where('class_id', $class->id)->delete();
+        if (!empty($validated['counselor_user_ids'])) {
+            foreach (array_unique($validated['counselor_user_ids']) as $counselorId) {
+                \App\Models\CounselorAssignment::create([
+                    'user_id'       => $counselorId,
+                    'class_id'      => $class->id,
+                    'academic_year' => $academicYear,
+                ]);
+            }
+        }
+
+        return back()->with('success', "Penugasan Wali Kelas & Guru BK untuk {$class->class_name} berhasil diperbarui.");
+    }
 }
