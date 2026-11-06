@@ -1,3 +1,9 @@
+@php
+    $sysConfig = \App\Models\SystemConfiguration::first();
+    $bgTimestamp = ($sysConfig && $sysConfig->login_background_updated_at)
+        ? $sysConfig->login_background_updated_at->timestamp
+        : 1;
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full antialiased">
 <head>
@@ -47,30 +53,60 @@
         }
     </style>
 </head>
-<body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between transition-colors duration-150">
+<body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen transition-colors duration-150">
     
-    <!-- Top Minimalist Brand Header -->
-    <header class="w-full px-6 py-6 flex items-center justify-between z-10">
-        <a href="/" class="flex items-center gap-2.5 group">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
-            <span class="text-base font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>
-        </a>
+    <div class="min-h-screen w-full lg:grid lg:grid-cols-2">
+        
+        {{-- KOLOM KIRI: FORM & AUTH CARD (Desktop & Mobile) --}}
+        <div class="flex flex-col justify-between min-h-screen p-5 sm:p-8 lg:p-10 xl:p-12 z-10">
+            <!-- Top Minimalist Brand Header -->
+            <header class="w-full flex items-center justify-between">
+                <a href="/" class="flex items-center gap-2.5 group">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo SCP" class="w-8 h-8 object-contain shrink-0">
+                    <span class="text-base font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>
+                </a>
 
-        <!-- Theme Preference Dropdown -->
-        <x-theme-dropdown align="right" />
-    </header>
+                <!-- Theme Preference Dropdown -->
+                <x-theme-dropdown align="right" />
+            </header>
 
-    <!-- Main Central Card Area -->
-    <main class="flex-1 flex flex-col justify-center items-center py-8 px-4 sm:px-6 lg:px-8 z-10">
-        <div class="w-full sm:max-w-md px-7 py-8 sm:p-9 bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-2xl shadow-xl dark:shadow-none transition-colors duration-150">
-            {{ $slot }}
+            <!-- Main Central Card Area -->
+            <main class="my-auto py-8 flex flex-col justify-center items-center w-full">
+                <div class="w-full sm:max-w-md px-6 py-7 sm:p-8 bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-2xl shadow-xl dark:shadow-none transition-colors duration-150">
+                    {{ $slot }}
+                </div>
+            </main>
+
+            <!-- Bottom Minimalist Footer -->
+            <footer class="w-full py-4 text-center text-xs font-mono text-zinc-400 dark:text-[#5B5B61] border-t border-zinc-200/80 dark:border-[#2B2B30]/50">
+                <span>School Class Progress &copy; {{ date('Y') }} &bull; SMK Negeri 1 Bawang</span>
+            </footer>
         </div>
-    </main>
 
-    <!-- Bottom Minimalist Footer -->
-    <footer class="w-full py-5 px-6 text-center text-xs font-mono text-zinc-400 dark:text-[#5B5B61] z-10 border-t border-zinc-200/80 dark:border-[#2B2B30]/50">
-        <span>School Class Progress &copy; {{ date('Y') }}</span>
-    </footer>
+        {{-- KOLOM KANAN: GAMBAR LATAR BELAKANG PENUH TINGGI (Hanya Desktop >= lg) --}}
+        <div class="hidden lg:block relative h-full w-full overflow-hidden bg-gradient-to-br from-[#0c1f38] via-[#0d2a4a] to-[#08182b]">
+            <picture class="absolute inset-0 w-full h-full block">
+                <source media="(min-width: 1024px)" srcset="{{ route('login.background', ['v' => $bgTimestamp]) }}">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="" aria-hidden="true" class="w-full h-full object-cover">
+            </picture>
+
+            {{-- Subtle Gradient Overlay --}}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10"></div>
+
+            {{-- Decorative Branding Text Overlay --}}
+            <div class="absolute bottom-10 left-10 right-10 z-10 text-white pointer-events-none">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-mono mb-3">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Sistem Informasi Akademik</span>
+                </div>
+                <h1 class="text-2xl xl:text-3xl font-extrabold tracking-tight">School Class Progress</h1>
+                <p class="text-xs xl:text-sm text-white/80 mt-1 max-w-lg leading-relaxed">
+                    Platform terpadu untuk monitoring jurnal mengajar guru, absensi siswa real-time, dan manajemen kurikulum sekolah.
+                </p>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 </html>

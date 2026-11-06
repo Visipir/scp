@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
+Route::get('/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'stream'])->name('login.background');
+
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -41,6 +43,9 @@ Route::middleware(['auth', 'role:1'])->group(function () {
     Route::prefix('waka')->name('waka.')->group(function () {
         Route::get('/settings', [SystemConfigurationController::class, 'edit'])->name('settings');
         Route::post('/settings/gemini', [SystemConfigurationController::class, 'updateGeminiConfig'])->name('settings.gemini');
+        Route::get('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'index'])->name('settings.login-background');
+        Route::post('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'update'])->middleware('throttle:10,1')->name('settings.login-background.update');
+        Route::delete('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'destroy'])->name('settings.login-background.destroy');
         Route::post('/schedules/import-pdf', [ScheduleImportController::class, 'import'])->name('schedules.import');
         Route::get('/schedules/import', [ScheduleImportController::class, 'index'])->name('schedules.import.index');
         Route::post('/schedules/import/preview', [ScheduleImportController::class, 'preview'])->name('schedules.import.preview');
