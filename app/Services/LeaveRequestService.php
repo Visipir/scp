@@ -51,6 +51,8 @@ class LeaveRequestService
     {
         return DB::transaction(function () use ($leaveRequest, $status, $verifier) {
             $studentClassId = $leaveRequest->student()->value('class_id');
+            $roleLabel = $this->resolveDeciderRole($verifier, $studentClassId !== null ? (int) $studentClassId : null);
+            $decidedAt = now();
 
             if ($status === 'Pending') {
                 $leaveRequest->update([
@@ -61,15 +63,22 @@ class LeaveRequestService
                     'decided_at'         => null,
                 ]);
             } else {
-                $roleLabel = $this->resolveDeciderRole($verifier, $studentClassId !== null ? (int) $studentClassId : null);
                 $leaveRequest->update([
                     'status_approval'    => $status,
                     'verified_by'        => $verifier->id,
                     'decided_by_user_id' => $verifier->id,
                     'decided_by_role'    => $roleLabel,
-                    'decided_at'         => now(),
+                    'decided_at'         => $decidedAt,
                 ]);
             }
+
+            \App\Models\LeaveRequestDecision::create([
+                'leave_request_id' => $leaveRequest->id,
+                'user_id'          => $verifier->id,
+                'role'             => $roleLabel,
+                'status'           => $status,
+                'decided_at'       => $decidedAt,
+            ]);
 
             $startDate = Carbon::parse($leaveRequest->start_date)->toDateString();
             $endDate = Carbon::parse($leaveRequest->end_date)->toDateString();
@@ -80,21 +89,30 @@ class LeaveRequestService
                 ->get();
 
             if ($attendances->isNotEmpty()) {
-                $targetStatus = (stripos($leaveRequest->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
+                $targetStatus = (stripos((string) $leaveRequest->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
 
                 foreach ($attendances as $attendance) {
+                    $isFromLeave = (int) $attendance->leave_request_id === (int) $leaveRequest->id
+                        || ($attendance->leave_request_id === null
+                            && in_array($attendance->status, ['Izin', 'Sakit'], true)
+                            && $attendance->notes === 'Izin resmi (Pengajuan surat izin disetujui)');
+
                     if ($status === 'Approved') {
-                        if (in_array($attendance->status, ['Alpa', 'Hadir'])) {
+                        // Do NOT overwrite Hadir filled by teacher; only convert Alpa or leave-originated rows
+                        if ($isFromLeave || $attendance->status === 'Alpa') {
                             $attendance->update([
-                                'status' => $targetStatus,
-                                'notes'  => 'Izin resmi (Pengajuan surat izin disetujui)',
+                                'leave_request_id' => $leaveRequest->id,
+                                'status'           => $targetStatus,
+                                'notes'            => 'Izin resmi (Pengajuan surat izin disetujui)',
                             ]);
                         }
                     } else { // Pending or Rejected
-                        if (in_array($attendance->status, ['Izin', 'Sakit'])) {
+                        // Revert ONLY attendance that originated from leave back to Alpa (do not delete row, do not overwrite teacher's Hadir)
+                        if ($isFromLeave) {
                             $attendance->update([
-                                'status' => 'Alpa',
-                                'notes'  => $status === 'Rejected' ? 'Pengajuan izin ditolak' : 'Pengajuan izin menunggu persetujuan',
+                                'leave_request_id' => $leaveRequest->id,
+                                'status'           => 'Alpa',
+                                'notes'            => $status === 'Rejected' ? 'Pengajuan izin ditolak' : 'Pengajuan izin menunggu persetujuan',
                             ]);
                         }
                     }

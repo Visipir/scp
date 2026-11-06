@@ -68,15 +68,16 @@ class JournalService
                 'total_siswa' => $students->count(),
             ]);
 
-            // 3. Get student IDs with approved leave covering this date
-            $studentsOnLeave = LeaveRequest::where('status_approval', 'Approved')
+            // 3. Get approved leave requests covering this date keyed by student_id
+            $leavesByStudent = LeaveRequest::where('status_approval', 'Approved')
                 ->whereDate('start_date', '<=', $validated['date'])
                 ->whereDate('end_date', '>=', $validated['date'])
                 ->where(function ($query) use ($students) {
                     $query->whereIn('student_id', $students->pluck('id')->toArray());
                 })
-                ->pluck('student_id')
-                ->toArray();
+                ->get()
+                ->keyBy('student_id');
+            $studentsOnLeave = $leavesByStudent->keys()->all();
 
             Log::info('[JournalSync] Izin yang disetujui ditemukan.', [
                 'jumlah_izin' => count($studentsOnLeave),
@@ -97,27 +98,30 @@ class JournalService
             }
 
             // 4. Bulk insert attendance records (Default is always Hadir)
-            $attendances = $students->map(function (User $student) use ($journal, $validated, $manualAbsences, $studentsOnLeave) {
-                // Priority: manual -> approved leave (Izin) -> Hadir
+            $attendances = $students->map(function (User $student) use ($journal, $validated, $manualAbsences, $leavesByStudent) {
+                // Priority: manual -> approved leave (Izin/Sakit) -> Hadir
                 $status = 'Hadir';
                 $notes = null;
+                $leaveRequestId = null;
 
                 if (isset($manualAbsences[$student->id])) {
                     $status = $manualAbsences[$student->id]['status'];
                     $notes = $manualAbsences[$student->id]['notes'];
-                } elseif (in_array($student->id, $studentsOnLeave)) {
-                    $status = 'Izin';
+                } elseif ($leave = $leavesByStudent->get($student->id)) {
+                    $status = (stripos((string) $leave->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
                     $notes = 'Izin resmi (Pengajuan surat izin disetujui)';
+                    $leaveRequestId = $leave->id;
                 }
 
                 return [
-                    'journal_id' => $journal->id,
-                    'student_id' => $student->id,
-                    'status'     => $status,
-                    'notes'      => $notes,
-                    'date'       => $validated['date'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'journal_id'       => $journal->id,
+                    'student_id'       => $student->id,
+                    'leave_request_id' => $leaveRequestId,
+                    'status'           => $status,
+                    'notes'            => $notes,
+                    'date'             => $validated['date'],
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
                 ];
             })->toArray();
 

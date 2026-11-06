@@ -33,6 +33,11 @@ class LeaveRequest extends Model
         return $this->belongsTo(User::class, 'decided_by_user_id');
     }
 
+    public function decisions()
+    {
+        return $this->hasMany(LeaveRequestDecision::class, 'leave_request_id');
+    }
+
     /**
      * Human-readable decision label:
      * - "Menunggu"
