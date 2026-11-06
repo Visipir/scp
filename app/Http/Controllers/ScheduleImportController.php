@@ -333,8 +333,9 @@ class ScheduleImportController extends Controller
             return redirect()->route('schedules.index', ['cycle' => 'Putaran 2'])->with(
                 'success',
                 sprintf(
-                    'Import Jadwal FET selesai: %d jadwal berhasil disimpan, %d jadwal dengan jurnal lama dipertahankan.',
+                    'Import Jadwal FET selesai: %d jadwal ditambahkan, %d jadwal tidak berubah, %d jadwal ber-jurnal dipertahankan.',
                     $applied['inserted'],
+                    $applied['unchanged'] ?? 0,
                     $applied['preserved']
                 )
             );

@@ -105,7 +105,7 @@ class FetScheduleParserService
                 $roomId = $item['room']['id'] ?? null;
 
                 // Check conflict against DB schedules that HAVE journals (which cannot be deleted)
-                $dbConflict = Schedule::where('day_of_week', $item['day_of_week'])
+                $dbConflicts = Schedule::where('day_of_week', $item['day_of_week'])
                     ->where('cycle_type', $cycleType)
                     ->whereHas('journals')
                     ->where('start_time', '<', $item['end_time'])
@@ -115,10 +115,23 @@ class FetScheduleParserService
                           ->orWhere('class_id', $classId)
                           ->when($roomId, fn($sub) => $sub->orWhere('room_id', $roomId));
                     })
-                    ->first();
+                    ->get();
 
-                if ($dbConflict) {
-                    $conflictErr = "Bentrok dengan jadwal yang sudah memiliki jurnal (ID: {$dbConflict->id}, {$dbConflict->subject})";
+                foreach ($dbConflicts as $dbConflict) {
+                    $isExactMatch = (
+                        (int) $dbConflict->teacher_id === (int) $teacherId &&
+                        (int) $dbConflict->class_id === (int) $classId &&
+                        $dbConflict->day_of_week === $item['day_of_week'] &&
+                        substr($dbConflict->start_time, 0, 5) === substr($item['start_time'], 0, 5) &&
+                        substr($dbConflict->end_time, 0, 5) === substr($item['end_time'], 0, 5) &&
+                        strtolower(trim($dbConflict->subject)) === strtolower(trim($item['subject'])) &&
+                        (int) ($dbConflict->room_id ?? 0) === (int) ($roomId ?? 0)
+                    );
+
+                    if (!$isExactMatch) {
+                        $conflictErr = "Bentrok dengan jadwal yang sudah memiliki jurnal (ID: {$dbConflict->id}, {$dbConflict->subject})";
+                        break;
+                    }
                 }
             }
 
@@ -160,7 +173,11 @@ class FetScheduleParserService
 
     /**
      * Commit preview schedules into DB.
-     * Replaces schedules in cycle EXCEPT those with attached journals.
+     * Matches incoming schedules with existing schedules in cycle:
+     * - Identical schedules retain existing ID (unchanged).
+     * - Unmatched existing schedules without journals are deleted.
+     * - Unmatched existing schedules with journals are preserved.
+     * - New incoming schedules are inserted.
      */
     public function commit(string $token): array
     {
@@ -176,39 +193,109 @@ class FetScheduleParserService
 
         $applied = [
             'inserted'  => 0,
+            'unchanged' => 0,
             'preserved' => 0,
             'deleted'   => 0,
         ];
 
         DB::beginTransaction();
         try {
-            // Delete old schedules of this cycle that do NOT have journals
-            $deleted = Schedule::where('cycle_type', $cycleType)
-                ->doesntHave('journals')
-                ->delete();
-            $applied['deleted'] = $deleted;
+            // Fetch all existing schedules in target cycle
+            $existingSchedules = Schedule::where('cycle_type', $cycleType)->with('journals')->get();
 
-            $applied['preserved'] = Schedule::where('cycle_type', $cycleType)->has('journals')->count();
+            $formatTime = function(?string $time): string {
+                if (empty($time)) {
+                    return '00:00:00';
+                }
+                $t = trim($time);
+                return strlen($t) === 5 ? "{$t}:00" : (strlen($t) >= 8 ? substr($t, 0, 8) : $t);
+            };
 
+            $buildKey = function($cycle, $teacherId, $classId, $day, $startTime, $endTime, $subject, $roomId) use ($formatTime) {
+                return sprintf(
+                    '%s|%d|%d|%s|%s|%s|%s|%d',
+                    trim($cycle),
+                    (int) $teacherId,
+                    (int) $classId,
+                    trim($day),
+                    $formatTime($startTime),
+                    $formatTime($endTime),
+                    strtolower(trim($subject)),
+                    (int) ($roomId ?? 0)
+                );
+            };
+
+            $existingMap = [];
+            foreach ($existingSchedules as $existing) {
+                $k = $buildKey(
+                    $existing->cycle_type,
+                    $existing->teacher_id,
+                    $existing->class_id,
+                    $existing->day_of_week,
+                    $existing->start_time,
+                    $existing->end_time,
+                    $existing->subject,
+                    $existing->room_id
+                );
+                $existingMap[$k] = $existing;
+            }
+
+            $matchedExistingIds = [];
+
+            // Match or insert incoming schedules
             foreach ($schedules as $item) {
                 if (empty($item['teacher']['id']) || empty($item['class']['id'])) {
                     continue;
                 }
 
-                Schedule::create([
-                    'teacher_id'   => $item['teacher']['id'],
-                    'class_id'     => $item['class']['id'],
-                    'room_id'      => $item['room']['id'] ?? null,
-                    'subject'      => $item['subject'],
-                    'day_of_week'  => $item['day_of_week'],
-                    'start_period' => $item['start_period'],
-                    'end_period'   => $item['end_period'],
-                    'start_time'   => $item['start_time'],
-                    'end_time'     => $item['end_time'],
-                    'cycle_type'   => $cycleType,
-                ]);
+                $k = $buildKey(
+                    $cycleType,
+                    $item['teacher']['id'],
+                    $item['class']['id'],
+                    $item['day_of_week'],
+                    $item['start_time'],
+                    $item['end_time'],
+                    $item['subject'],
+                    $item['room']['id'] ?? null
+                );
 
-                $applied['inserted']++;
+                if (isset($existingMap[$k])) {
+                    // Exact match: retain existing schedule ID
+                    $existing = $existingMap[$k];
+                    $matchedExistingIds[$existing->id] = true;
+                    $applied['unchanged']++;
+                } else {
+                    // New schedule to insert
+                    Schedule::create([
+                        'teacher_id'   => $item['teacher']['id'],
+                        'class_id'     => $item['class']['id'],
+                        'room_id'      => $item['room']['id'] ?? null,
+                        'subject'      => $item['subject'],
+                        'day_of_week'  => $item['day_of_week'],
+                        'start_period' => $item['start_period'],
+                        'end_period'   => $item['end_period'],
+                        'start_time'   => $formatTime($item['start_time']),
+                        'end_time'     => $formatTime($item['end_time']),
+                        'cycle_type'   => $cycleType,
+                    ]);
+                    $applied['inserted']++;
+                }
+            }
+
+            // Handle existing schedules that were not matched by incoming schedules
+            foreach ($existingSchedules as $existing) {
+                if (isset($matchedExistingIds[$existing->id])) {
+                    continue;
+                }
+
+                if ($existing->journals()->exists()) {
+                    // Different & has journals: retain & report
+                    $applied['preserved']++;
+                } else {
+                    // Different & no journals: delete
+                    $existing->delete();
+                    $applied['deleted']++;
+                }
             }
 
             DB::commit();

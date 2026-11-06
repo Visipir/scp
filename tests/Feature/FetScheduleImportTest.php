@@ -312,4 +312,58 @@ XML;
         $allAgg = $parser->aggregateConsecutiveSlots($rawSlots, 'Putaran 2');
         $this->assertCount(866, $allAgg);
     }
+
+    public function test_reimport_twice_preserves_existing_ids_and_journals()
+    {
+        $waka = $this->makeUser(1);
+        $teacherAmat = $this->makeUser(2, ['fullname' => 'Amat Sukardi, S.Pd.']);
+        $teacherSunarsih = $this->makeUser(2, ['fullname' => 'Sunarsih, S.Pd.']);
+        $class = SchoolClass::create(['class_name' => 'X RPL 1']);
+
+        $filePath = $this->createSampleFetXml();
+        $parser = app(FetScheduleParserService::class);
+
+        // 1. First import
+        $uploadedFile1 = new UploadedFile($filePath, 'fet_timetable.xml', 'application/xml', null, true);
+        $preview1 = $parser->generatePreview($uploadedFile1, 'Putaran 2');
+        $result1 = $parser->commit($preview1['token']);
+
+        $this->assertSame(2, $result1['inserted']);
+        $this->assertSame(0, $result1['unchanged']);
+        $this->assertSame(0, $result1['deleted']);
+
+        $mathSchedule = Schedule::where('subject', 'Matematika')->first();
+        $this->assertNotNull($mathSchedule);
+        $originalMathId = $mathSchedule->id;
+
+        // Attach a journal to the imported schedule
+        $journal = Journal::create([
+            'schedule_id'       => $mathSchedule->id,
+            'teacher_id'        => $teacherAmat->id,
+            'date'              => now()->toDateString(),
+            'topic_description' => 'Materi Aljabar',
+        ]);
+
+        // 2. Second import of the EXACT SAME file
+        $uploadedFile2 = new UploadedFile($filePath, 'fet_timetable.xml', 'application/xml', null, true);
+        $preview2 = $parser->generatePreview($uploadedFile2, 'Putaran 2');
+        $result2 = $parser->commit($preview2['token']);
+
+        // Assert 0 inserted, 2 unchanged, 0 deleted
+        $this->assertSame(0, $result2['inserted']);
+        $this->assertSame(2, $result2['unchanged']);
+        $this->assertSame(0, $result2['deleted']);
+
+        // Assert schedule ID is identical (retained, NOT replaced)
+        $mathScheduleAfter = Schedule::where('subject', 'Matematika')->first();
+        $this->assertSame($originalMathId, $mathScheduleAfter->id);
+
+        // Assert journal is still attached to the exact same schedule
+        $this->assertDatabaseHas('journals', [
+            'id'          => $journal->id,
+            'schedule_id' => $originalMathId,
+        ]);
+
+        @unlink($filePath);
+    }
 }
