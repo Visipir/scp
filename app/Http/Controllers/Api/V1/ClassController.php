@@ -139,4 +139,9 @@ class ClassController extends Controller
             $request->input('end_date')
         );
     }
+
+    public function exportLoginCards(Request $request, SchoolClass $class): StreamedResponse
+    {
+        return $this->classService->exportLoginCardsStream($request->user(), $class);
+    }
 }

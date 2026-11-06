@@ -141,6 +141,11 @@ class SchoolClassController extends Controller
         );
     }
 
+    public function exportLoginCards(Request $request, SchoolClass $class): StreamedResponse
+    {
+        return $this->classService->exportLoginCardsStream($request->user(), $class);
+    }
+
     public function updateAssignments(Request $request, SchoolClass $class): RedirectResponse
     {
         abort_unless((int) $request->user()->role_id === 1, 403, 'Hanya Waka Kurikulum yang dapat mengubah penugasan.');

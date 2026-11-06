@@ -7,6 +7,7 @@ use App\Services\UserService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ResetImportedStudentPasswordsCommand extends Command
@@ -22,7 +23,7 @@ class ResetImportedStudentPasswordsCommand extends Command
         $isApply = (bool) $this->option('apply');
 
         $this->info($isApply
-            ? 'Running in APPLY mode. Student passwords will be randomized and exported to storage/app/private.'
+            ? 'Running in APPLY mode. Target student passwords will be randomized and exported to storage/app/private/credentials/.'
             : 'Running in DRY-RUN mode (default). No database changes will be made.'
         );
 
@@ -35,7 +36,23 @@ class ResetImportedStudentPasswordsCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->info(sprintf('Total Student Accounts Found: %d', $students->count()));
+        $targets = $students->filter(fn (User $s) => (bool) $s->must_change_password === true)->values();
+        $skipped = $students->reject(fn (User $s) => (bool) $s->must_change_password === true)->values();
+
+        $this->info(sprintf('Total Student Accounts Found (role_id=4): %d', $students->count()));
+        $this->info(sprintf('Target Accounts to Reset (must_change_password=true): %d', $targets->count()));
+        $this->info(sprintf('Skipped Accounts (already changed password, must_change_password=false): %d', $skipped->count()));
+
+        foreach ($skipped as $s) {
+            $this->line(sprintf(
+                '  - SKIP ID=%d | NIS=%s | Name=%s | class_id=%s | reason=must_change_password=false (updated_at=%s)',
+                $s->id,
+                $s->username,
+                $s->fullname,
+                $s->class_id ?? 'null',
+                $s->updated_at
+            ));
+        }
 
         if (!$isApply) {
             $this->warn('DRY-RUN completed. Database was NOT modified. Use --apply after confirmation to execute.');
@@ -47,7 +64,7 @@ class ResetImportedStudentPasswordsCommand extends Command
 
         DB::beginTransaction();
         try {
-            foreach ($students as $student) {
+            foreach ($targets as $student) {
                 $tempPassword = Str::random(12);
                 $student->password = Hash::make($tempPassword, ['rounds' => 4]);
                 $student->must_change_password = true;
@@ -60,6 +77,7 @@ class ResetImportedStudentPasswordsCommand extends Command
                     'fullname'           => $student->fullname,
                     'nip'                => '',
                     'role_id'            => 4,
+                    'class_id'           => $student->class_id,
                     'temporary_password' => $tempPassword,
                     'reset_at'           => $nowIso,
                 ];
@@ -73,8 +91,12 @@ class ResetImportedStudentPasswordsCommand extends Command
         }
 
         $csvPath = $userService->writeCredentialsCsv($credentials, 'student_credentials');
+        Storage::disk('local')->put(
+            'credentials/student_credentials_latest.csv',
+            Storage::disk('local')->get($csvPath)
+        );
 
-        $this->info("Successfully randomized passwords for " . count($credentials) . " students.");
+        $this->info("Successfully randomized passwords for " . count($credentials) . " students (skipped " . $skipped->count() . ").");
         $this->info("Credentials exported to storage/app/private/{$csvPath}");
 
         return Command::SUCCESS;

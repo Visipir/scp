@@ -132,6 +132,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/classes/{class}/students', [V1ClassController::class, 'students'])->name('classes.students');
             Route::get('/classes/{class}/attendance', [V1ClassController::class, 'attendance'])->name('classes.attendance');
             Route::get('/classes/{class}/export', [V1ClassController::class, 'export'])->name('classes.export');
+            Route::get('/classes/{class}/login-cards', [V1ClassController::class, 'exportLoginCards'])->name('classes.login-cards');
         });
 
         Route::middleware('role:1,3')->group(function () {

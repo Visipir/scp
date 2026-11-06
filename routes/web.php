@@ -70,6 +70,7 @@ Route::middleware(['auth', 'role:1,2,3'])->prefix('classes')->name('classes.')->
     Route::get('/{class}', [\App\Http\Controllers\SchoolClassController::class, 'show'])->name('show');
     Route::get('/{class}/students', [\App\Http\Controllers\SchoolClassController::class, 'students'])->name('students');
     Route::get('/{class}/export', [\App\Http\Controllers\SchoolClassController::class, 'exportAttendance'])->name('export');
+    Route::get('/{class}/login-cards', [\App\Http\Controllers\SchoolClassController::class, 'exportLoginCards'])->name('login-cards');
 });
 
 Route::middleware(['auth', 'role:1,3'])->prefix('classes')->name('classes.')->group(function () {

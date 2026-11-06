@@ -366,4 +366,104 @@ class SchoolClassService
 
         return Response::stream($callback, 200, $headers);
     }
+
+    /**
+     * Export student login cards CSV per class (NIS, Nama Siswa, Kelas, Password Sementara).
+     * Strictly restricted to Waka (role_id = 1) and the Wali Kelas of that class.
+     * Reuses storage/app/private/credentials/student_credentials_latest.csv when available.
+     */
+    public function exportLoginCardsStream(User $actor, SchoolClass $class): StreamedResponse
+    {
+        abort_unless($actor->canExportClassLoginCards($class), 403, 'Akses ditolak. Hanya Waka Kurikulum dan Wali Kelas kelas ini yang dapat mengunduh kartu login.');
+
+        $students = $class->students()
+            ->orderByRaw('attendance_number IS NULL, attendance_number ASC')
+            ->orderBy('fullname', 'asc')
+            ->get();
+
+        // Reuse latest exported student credentials if available
+        $cachedPasswords = [];
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+        if ($disk->exists('credentials/student_credentials_latest.csv')) {
+            $raw = $disk->get('credentials/student_credentials_latest.csv');
+            $lines = preg_split('/\r\n|\r|\n/', trim((string) $raw));
+            if (count($lines) > 1) {
+                $header = str_getcsv(array_shift($lines));
+                $usernameIdx = array_search('username', $header, true);
+                $passIdx = array_search('temporary_password', $header, true);
+                if ($usernameIdx !== false && $passIdx !== false) {
+                    foreach ($lines as $line) {
+                        if ($line === '') {
+                            continue;
+                        }
+                        $cols = str_getcsv($line);
+                        if (isset($cols[$usernameIdx], $cols[$passIdx]) && $cols[$passIdx] !== '') {
+                            $cachedPasswords[$cols[$usernameIdx]] = $cols[$passIdx];
+                        }
+                    }
+                }
+            }
+        }
+
+        $newlyGenerated = [];
+        $nowIso = now('Asia/Jakarta')->toIso8601String();
+        $rows = [];
+
+        foreach ($students as $student) {
+            if (!(bool) $student->must_change_password) {
+                $tempPass = '(Sudah Diganti)';
+            } elseif (isset($cachedPasswords[$student->username])) {
+                $tempPass = $cachedPasswords[$student->username];
+            } else {
+                $tempPass = \Illuminate\Support\Str::random(12);
+                $student->password = \Illuminate\Support\Facades\Hash::make($tempPass, ['rounds' => 4]);
+                $student->must_change_password = true;
+                $student->save();
+                $student->tokens()->delete();
+
+                $newlyGenerated[] = [
+                    'id'                 => $student->id,
+                    'username'           => $student->username,
+                    'fullname'           => $student->fullname,
+                    'nip'                => '',
+                    'role_id'            => 4,
+                    'temporary_password' => $tempPass,
+                    'reset_at'           => $nowIso,
+                ];
+            }
+
+            $rows[] = [
+                $student->username,
+                $student->fullname,
+                $class->class_name,
+                $tempPass,
+            ];
+        }
+
+        if (!empty($newlyGenerated)) {
+            $safeClass = preg_replace('/[^A-Za-z0-9_-]/', '_', $class->class_name);
+            app(UserService::class)->writeCredentialsCsv($newlyGenerated, "login_cards_{$safeClass}");
+        }
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=Kartu_Login_{$class->class_name}.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
+
+        $columns = ['NIS', 'Nama Siswa', 'Kelas', 'Password Sementara'];
+
+        $callback = function () use ($rows, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($rows as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
 }
