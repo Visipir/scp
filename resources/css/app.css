@@ -134,7 +134,14 @@ body {
 .dark .bg-zinc-50\/90,
 .dark .bg-zinc-100\/40,
 .dark .bg-zinc-100\/50,
-.dark .bg-zinc-100\/60 {
+.dark .bg-zinc-100\/60,
+.dark .bg-zinc-100\/70,
+.dark .bg-zinc-100\/80,
+.dark .bg-zinc-100\/90,
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
     background-color: var(--surface-nested) !important; /* #232327 */
     border-color: var(--border-hairline) !important;
 }
@@ -234,9 +241,9 @@ body {
 }
 
 /* Secondary Buttons */
-.dark button.bg-white,
-.dark a.bg-white {
-    background-color: rgba(38, 38, 42, 0) !important;
+.dark button.bg-white:not([class*="dark:bg-"]),
+.dark a.bg-white:not([class*="dark:bg-"]) {
+    background-color: var(--surface-hover) !important; /* #26262A */
     border-color: var(--border-hairline) !important; /* #2B2B30 */
     color: var(--text-primary) !important; /* #EDEDF0 */
     box-shadow: none !important;
@@ -412,6 +419,12 @@ body {
 /* 8. Status Badges & Chips (Translucent Tint 12-16% + Hairline + Mono Font) */
 /* Hadir & Approved (Emerald) */
 .dark .bg-emerald-50,
+.dark .bg-emerald-50\/50,
+.dark .bg-emerald-50\/70,
+.dark .bg-emerald-50\/80,
+.dark .bg-emerald-100,
+.dark .bg-emerald-100\/60,
+.dark .bg-emerald-100\/80,
 .dark .bg-emerald-950\/60 {
     background-color: rgba(16, 185, 129, 0.14) !important;
     color: #34d399 !important;
@@ -419,20 +432,33 @@ body {
 }
 .dark .border-emerald-100,
 .dark .border-emerald-200,
+.dark .border-emerald-200\/80,
 .dark .border-emerald-300,
 .dark .border-emerald-800\/80 {
     border-color: rgba(16, 185, 129, 0.28) !important;
 }
 .dark .text-emerald-700,
 .dark .text-emerald-800,
+.dark .text-emerald-900,
+.dark .text-emerald-950,
 .dark .text-emerald-600,
 .dark .text-emerald-300 {
     color: #34d399 !important;
 }
 
-/* Izin (Sky) */
+/* Izin (Sky / Blue / Indigo) */
 .dark .bg-blue-50,
-.dark .bg-sky-50,
+.dark .bg-blue-50\/40,
+.dark .bg-blue-50\/60,
+.dark .bg-blue-50\/80,
+.dark .bg-blue-100,
+.dark .bg-sky-50:not([class*="dark:bg-"]),
+.dark .bg-sky-50\/60,
+.dark .bg-sky-50\/80,
+.dark .bg-sky-100,
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/80,
+.dark .bg-indigo-100,
 .dark .bg-blue-950\/60,
 .dark .bg-sky-950\/60 {
     background-color: rgba(14, 165, 233, 0.14) !important;
@@ -441,24 +467,43 @@ body {
 }
 .dark .border-blue-100,
 .dark .border-blue-200,
+.dark .border-blue-200\/60,
+.dark .border-blue-200\/80,
 .dark .border-sky-100,
 .dark .border-sky-200,
+.dark .border-indigo-100,
+.dark .border-indigo-200,
+.dark .border-indigo-200\/80,
 .dark .border-blue-800\/80 {
     border-color: rgba(14, 165, 233, 0.28) !important;
 }
 .dark .text-blue-700,
 .dark .text-blue-800,
+.dark .text-blue-900,
+.dark .text-blue-950,
 .dark .text-sky-700,
 .dark .text-sky-800,
+.dark .text-sky-900,
+.dark .text-indigo-600,
+.dark .text-indigo-700,
+.dark .text-indigo-800,
+.dark .text-indigo-900,
 .dark .text-blue-600,
 .dark .text-sky-600,
 .dark .text-blue-300 {
     color: #38bdf8 !important;
 }
 
-/* Sakit & Pending / Menunggu (Amber) */
+/* Sakit & Pending / Menunggu (Amber / Orange) */
 .dark .bg-amber-50,
+.dark .bg-amber-50\/50,
+.dark .bg-amber-50\/60,
+.dark .bg-amber-50\/80,
+.dark .bg-amber-50\/90,
+.dark .bg-amber-100,
 .dark .bg-orange-50,
+.dark .bg-orange-50\/80,
+.dark .bg-orange-100,
 .dark .bg-amber-950\/60,
 .dark .bg-orange-950\/60 {
     background-color: rgba(245, 158, 11, 0.14) !important;
@@ -467,6 +512,8 @@ body {
 }
 .dark .border-amber-100,
 .dark .border-amber-200,
+.dark .border-amber-200\/70,
+.dark .border-amber-200\/80,
 .dark .border-orange-100,
 .dark .border-orange-200,
 .dark .border-amber-800\/80 {
@@ -474,17 +521,28 @@ body {
 }
 .dark .text-amber-700,
 .dark .text-amber-800,
+.dark .text-amber-900,
+.dark .text-amber-950,
 .dark .text-amber-600,
 .dark .text-orange-700,
 .dark .text-orange-800,
+.dark .text-orange-900,
 .dark .text-orange-600,
 .dark .text-amber-300 {
     color: #fbbf24 !important;
 }
 
-/* Alpa & Rejected (Red / Rose Danger) */
+/* Alpa & Rejected (Red / Rose / Pink Danger) */
 .dark .bg-rose-50,
+.dark .bg-rose-50\/30,
+.dark .bg-rose-50\/50,
+.dark .bg-rose-50\/60,
+.dark .bg-rose-50\/80,
+.dark .bg-rose-100,
 .dark .bg-red-50,
+.dark .bg-red-100,
+.dark .bg-pink-50,
+.dark .bg-pink-100,
 .dark .bg-rose-950\/60,
 .dark .bg-red-950\/60 {
     background-color: rgba(244, 63, 94, 0.14) !important;
@@ -493,23 +551,34 @@ body {
 }
 .dark .border-rose-100,
 .dark .border-rose-200,
+.dark .border-rose-200\/80,
 .dark .border-red-100,
 .dark .border-red-200,
+.dark .border-pink-100,
+.dark .border-pink-200,
 .dark .border-rose-800\/80 {
     border-color: rgba(244, 63, 94, 0.28) !important;
 }
 .dark .text-rose-700,
 .dark .text-rose-800,
+.dark .text-rose-900,
+.dark .text-rose-950,
 .dark .text-rose-600,
 .dark .text-red-700,
 .dark .text-red-800,
+.dark .text-red-900,
 .dark .text-red-600,
+.dark .text-pink-600,
+.dark .text-pink-700,
+.dark .text-pink-800,
 .dark .text-rose-300 {
     color: #f43f5e !important;
 }
 
 /* Terlambat (Purple) */
 .dark .bg-purple-50,
+.dark .bg-purple-50\/80,
+.dark .bg-purple-100,
 .dark .bg-purple-950\/60 {
     background-color: rgba(168, 85, 247, 0.14) !important;
     color: #c084fc !important;
@@ -522,6 +591,7 @@ body {
 }
 .dark .text-purple-700,
 .dark .text-purple-800,
+.dark .text-purple-900,
 .dark .text-purple-600,
 .dark .text-purple-300 {
     color: #c084fc !important;

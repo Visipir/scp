@@ -288,7 +288,7 @@
                         type="button"
                         @click="showMatrix = !showMatrix"
                         class="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-medium border rounded-lg transition cursor-pointer shrink-0 min-h-[44px] sm:min-h-[36px]"
-                        :class="showMatrix ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-transparent shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
+                        :class="showMatrix ? 'bg-[#0093dd] text-white border-transparent shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                     >
                         <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -680,7 +680,7 @@
                                     >
                                         {{-- Time Column --}}
                                         <div class="flex items-center gap-3.5 sm:w-60 shrink-0">
-                                            <div class="w-12 h-12 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex flex-col items-center justify-center font-mono shrink-0 shadow-2xs">
+                                            <div class="w-12 h-12 rounded-xl bg-zinc-900 dark:bg-[#232327] border border-transparent dark:border-[#2B2B30] text-white dark:text-[#EDEDF0] flex flex-col items-center justify-center font-mono shrink-0 shadow-2xs">
                                                 <span class="text-[8px] uppercase tracking-wider opacity-70 font-bold leading-none">JAM</span>
                                                 <span class="text-sm font-extrabold leading-tight mt-0.5">
                                                     {{ $schedule->start_period }}&ndash;{{ $schedule->end_period }}
@@ -800,7 +800,7 @@
                                     >
                                         <div class="space-y-1.5">
                                             <div class="flex items-center justify-between text-[10px] font-mono">
-                                                <span class="font-bold px-1.5 py-0.5 rounded bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 leading-none">
+                                                <span class="font-bold px-1.5 py-0.5 rounded bg-zinc-900 dark:bg-[#232327] border border-transparent dark:border-[#2B2B30] text-white dark:text-[#EDEDF0] leading-none">
                                                     {{ $schedule->period_label }}
                                                 </span>
                                                 <span class="text-zinc-500 dark:text-[#97979B] font-semibold tabular-nums">

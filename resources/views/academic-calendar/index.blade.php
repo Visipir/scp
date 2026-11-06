@@ -134,7 +134,7 @@
                     @if($month != now()->month || $year != now()->year)
                         <a 
                             href="{{ route('academic-calendar.index') }}" 
-                            class="px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:text-zinc-900 hover:bg-[#26262A] transition shadow-2xs"
+                            class="px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#232327] text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#26262A] transition shadow-2xs"
                         >
                             Bulan Ini
                         </a>
@@ -518,13 +518,13 @@
                         <p class="text-zinc-400 text-[11px]">Tidak ada agenda sekolah atau hari libur yang tercatat pada tanggal ini.</p>
                     </div>
 
-                    <div class="mt-5 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
+                    <div class="mt-5 pt-3 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center justify-between gap-2">
                         <button 
                             type="button" 
                             @click="prefillForm(selectedDate)"
-                            class="px-3 py-1.5 bg-zinc-100 hover:bg-[#26262A] text-zinc-800 text-xs font-semibold rounded-md transition cursor-pointer inline-flex items-center gap-1"
+                            class="px-3 py-1.5 bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] text-zinc-800 dark:text-[#EDEDF0] text-xs font-semibold rounded-md transition cursor-pointer inline-flex items-center gap-1"
                         >
-                            <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg class="w-3.5 h-3.5 text-zinc-600 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             <span>Tambah Agenda Tanggal Ini</span>
@@ -609,12 +609,12 @@
 
                     <form action="{{ route('academic-calendar.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
-                        <div class="p-4 bg-zinc-50 rounded-lg border border-dashed border-zinc-300 text-xs">
-                            <label class="block font-semibold text-zinc-800 mb-1">Unggah Format File CSV</label>
-                            <span class="block text-[11px] text-zinc-500 mb-2">Format: Title, StartDate (YYYY-MM-DD), EndDate, Category, IsKBMOff (1/0)</span>
-                            <input type="file" name="file" accept=".csv,text/csv" required class="block w-full text-xs text-zinc-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 file:text-zinc-800 hover:file:bg-zinc-300">
+                        <div class="p-4 bg-zinc-50 dark:bg-[#19191C] rounded-lg border border-dashed border-zinc-300 dark:border-[#2B2B30] text-xs">
+                            <label class="block font-semibold text-zinc-800 dark:text-[#EDEDF0] mb-1">Unggah Format File CSV</label>
+                            <span class="block text-[11px] text-zinc-500 dark:text-[#97979B] mb-2">Format: Title, StartDate (YYYY-MM-DD), EndDate, Category, IsKBMOff (1/0)</span>
+                            <input type="file" name="file" accept=".csv,text/csv" required class="block w-full text-xs text-zinc-600 dark:text-[#97979B] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-[#2B2B30] file:text-zinc-800 dark:file:text-[#EDEDF0] hover:file:bg-zinc-300 dark:hover:file:bg-[#3A3A3F]">
                         </div>
-                        <button type="submit" class="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                        <button type="submit" class="w-full px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                             Unggah &amp; Ekstrak CSV
                         </button>
                     </form>

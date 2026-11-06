@@ -76,7 +76,7 @@
             <button
                 type="button"
                 @click="activeTab = 'inbox'"
-                :class="activeTab === 'inbox' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800'"
+                :class="activeTab === 'inbox' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
                 class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition inline-flex items-center gap-2 min-h-[44px]"
             >
                 <span>Permintaan Masuk</span>
@@ -90,7 +90,7 @@
             <button
                 type="button"
                 @click="activeTab = 'outbox'"
-                :class="activeTab === 'outbox' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800'"
+                :class="activeTab === 'outbox' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
                 class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition min-h-[44px]"
             >
                 Permintaan Keluar / Riwayat

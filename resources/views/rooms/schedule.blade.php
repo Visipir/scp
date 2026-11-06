@@ -5,31 +5,31 @@
 
     <div class="space-y-4">
             <!-- Filter Header -->
-            <div class="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white dark:bg-[#1E1E22] p-4 rounded-xl border border-zinc-200 dark:border-[#2C2C30] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <form method="GET" action="{{ route('room-schedules.index') }}" class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full" id="roomFilterForm">
                     
                     <!-- Room Selector -->
                     <div class="flex items-center gap-2 w-full md:w-auto">
-                        <label for="room_id" class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-400">Ruangan:</label>
-                        <select name="room_id" id="room_id" onchange="document.getElementById('roomFilterForm').submit()" class="block w-full md:w-48 text-sm rounded-md border-zinc-300 py-1.5 pl-3 pr-8 focus:border-zinc-500 focus:ring-zinc-500 font-bold text-zinc-900">
+                        <label for="room_id" class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-400 dark:text-[#97979B]">Ruangan:</label>
+                        <select name="room_id" id="room_id" onchange="document.getElementById('roomFilterForm').submit()" class="block w-full md:w-48 text-sm rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 focus:border-[#0093dd] focus:ring-[#0093dd] font-bold text-zinc-900 dark:text-[#EDEDF0]">
                             @foreach($rooms as $r)
                                 <option value="{{ $r->id }}" {{ $roomId == $r->id ? 'selected' : '' }}>{{ $r->room_name }}</option>
                             @endforeach
                         </select>
                     </div>
                     
-                    <div class="hidden md:block h-5 w-px bg-zinc-200"></div>
+                    <div class="hidden md:block h-5 w-px bg-zinc-200 dark:bg-[#2C2C30]"></div>
 
                     <!-- Cycle Toggle -->
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-400">Siklus:</span>
-                        <div class="inline-flex rounded-md border border-zinc-200 p-0.5 bg-zinc-100/70 text-xs font-semibold">
+                        <span class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-400 dark:text-[#97979B]">Siklus:</span>
+                        <div class="inline-flex rounded-md border border-zinc-200 dark:border-[#2B2B30] p-0.5 bg-zinc-100/70 dark:bg-[#121214] text-xs font-semibold">
                             @foreach(['Putaran 1', 'Putaran 2'] as $cycle)
                                 <button 
                                     type="submit" 
                                     name="cycle" 
                                     value="{{ $cycle }}" 
-                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A]' }}"
+                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                                 >
                                     {{ $cycle }}
                                 </button>
@@ -46,16 +46,16 @@
             @endphp
 
             @if(!$selectedRoom)
-                <div class="bg-white p-8 rounded-xl border border-zinc-200 text-center">
-                    <p class="text-zinc-500 text-sm">Silakan pilih ruangan terlebih dahulu.</p>
+                <div class="bg-white dark:bg-[#1E1E22] p-8 rounded-xl border border-zinc-200 dark:border-[#2C2C30] text-center">
+                    <p class="text-zinc-500 dark:text-[#97979B] text-sm">Silakan pilih ruangan terlebih dahulu.</p>
                 </div>
             @else
                 <!-- Desktop Timetable Matrix (lg+) -->
-                <div class="hidden lg:block bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-                    <div class="grid grid-cols-5 divide-x divide-zinc-200">
+                <div class="hidden lg:block bg-white dark:bg-[#1E1E22] rounded-xl border border-zinc-200 dark:border-[#2C2C30] shadow-sm overflow-hidden">
+                    <div class="grid grid-cols-5 divide-x divide-zinc-200 dark:divide-[#2C2C30]">
                         @foreach($days as $day)
-                            <div class="bg-zinc-50/50 p-3 text-center border-b border-zinc-200">
-                                <h3 class="font-bold text-zinc-900 text-sm uppercase tracking-wide">{{ $day }}</h3>
+                            <div class="bg-zinc-50/50 dark:bg-[#19191C] p-3 text-center border-b border-zinc-200 dark:border-[#2C2C30]">
+                                <h3 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-sm uppercase tracking-wide">{{ $day }}</h3>
                             </div>
                         @endforeach
                         
@@ -102,11 +102,11 @@
                                             </div>
                                         @else
                                             <!-- Empty Slot -->
-                                            <div class="p-2 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/30 flex flex-col justify-center items-center py-3">
-                                                <div class="text-[10px] font-mono text-zinc-400 font-medium mb-0.5">
+                                            <div class="p-2 rounded-lg border border-dashed border-zinc-200 dark:border-[#2C2C30] bg-zinc-50/30 dark:bg-[#19191C] flex flex-col justify-center items-center py-3">
+                                                <div class="text-[10px] font-mono text-zinc-400 dark:text-[#5B5B61] font-medium mb-0.5">
                                                     P{{ $period['period'] }} &bull; {{ $period['start_time'] }}-{{ $period['end_time'] }}
                                                 </div>
-                                                <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Kosong / Tersedia</span>
+                                                <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-1.5 py-0.5 rounded">Kosong / Tersedia</span>
                                             </div>
                                         @endif
                                     @endforeach
@@ -122,7 +122,7 @@
                         @foreach($days as $day)
                             <button 
                                 @click="activeTab = '{{ $day }}'"
-                                :class="activeTab === '{{ $day }}' ? 'bg-zinc-900 text-white shadow' : 'bg-white text-zinc-600 border border-zinc-200'"
+                                :class="activeTab === '{{ $day }}' ? 'bg-[#0093dd] text-white shadow' : 'bg-white dark:bg-[#1E1E22] text-zinc-600 dark:text-[#97979B] border border-zinc-200 dark:border-[#2C2C30] hover:bg-zinc-50 dark:hover:bg-[#26262A]'"
                                 class="px-4 py-2 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0"
                             >
                                 {{ $day }}
@@ -130,10 +130,10 @@
                         @endforeach
                     </div>
 
-                    <div class="bg-white rounded-xl border border-zinc-200 shadow-sm p-3">
+                    <div class="bg-white dark:bg-[#1E1E22] rounded-xl border border-zinc-200 dark:border-[#2C2C30] shadow-sm p-3">
                         @foreach($days as $day)
                             <div x-show="activeTab === '{{ $day }}'" class="space-y-2">
-                                <h3 class="font-bold text-zinc-900 text-sm mb-3 border-b border-zinc-100 pb-2">{{ $day }}</h3>
+                                <h3 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-sm mb-3 border-b border-zinc-100 dark:border-[#2C2C30] pb-2">{{ $day }}</h3>
                                 
                                 @if(isset($periodsByDay[$day]))
                                     @foreach($periodsByDay[$day] as $period)
@@ -153,32 +153,32 @@
                                             }
                                         @endphp
                                         
-                                        <div class="flex items-start gap-3 p-2.5 rounded-lg border {{ $occupiedBy ? 'border-indigo-100 bg-indigo-50/30' : 'border-dashed border-zinc-200 bg-zinc-50/50' }}">
+                                        <div class="flex items-start gap-3 p-2.5 rounded-lg border {{ $occupiedBy ? 'border-[#0093dd]/30 bg-[#0093dd]/5 dark:bg-[#0093dd]/10' : 'border-dashed border-zinc-200 dark:border-[#2C2C30] bg-zinc-50/50 dark:bg-[#19191C]' }}">
                                             <div class="shrink-0 w-16 text-center">
-                                                <div class="text-[10px] font-bold text-zinc-400">P{{ $period['period'] }}</div>
-                                                <div class="text-xs font-mono font-medium {{ $occupiedBy ? 'text-indigo-600' : 'text-zinc-500' }}">
+                                                <div class="text-[10px] font-bold text-zinc-400 dark:text-[#5B5B61]">P{{ $period['period'] }}</div>
+                                                <div class="text-xs font-mono font-medium {{ $occupiedBy ? 'text-[#0093dd]' : 'text-zinc-500 dark:text-[#97979B]' }}">
                                                     {{ $period['start_time'] }}
                                                     <br>
                                                     {{ $period['end_time'] }}
                                                 </div>
                                             </div>
                                             
-                                            <div class="flex-1 min-w-0 border-l {{ $occupiedBy ? 'border-indigo-200' : 'border-zinc-200' }} pl-3">
+                                            <div class="flex-1 min-w-0 border-l {{ $occupiedBy ? 'border-[#0093dd]/30' : 'border-zinc-200 dark:border-[#2C2C30]' }} pl-3">
                                                 @if($occupiedBy)
-                                                    <div class="text-sm font-bold text-zinc-900 leading-tight">
+                                                    <div class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] leading-tight">
                                                         {{ $occupiedBy->subject }}
                                                     </div>
                                                     <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#0093dd]/15 text-[#0093dd]">
                                                             {{ $occupiedBy->schoolClass->class_name ?? 'Kelas' }}
                                                         </span>
-                                                        <span class="text-xs text-zinc-600">
+                                                        <span class="text-xs text-zinc-600 dark:text-[#97979B]">
                                                             {{ $occupiedBy->teacher->fullname ?? 'Guru' }}
                                                         </span>
                                                     </div>
                                                 @else
                                                     <div class="h-full flex items-center">
-                                                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">Kosong / Tersedia</span>
+                                                        <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2 py-1 rounded border border-emerald-100 dark:border-emerald-500/30">Kosong / Tersedia</span>
                                                     </div>
                                                 @endif
                                             </div>

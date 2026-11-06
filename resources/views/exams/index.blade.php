@@ -179,11 +179,11 @@
         {{-- Filter & Search Toolbar --}}
         <div class="bg-white border border-zinc-200/90 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
             {{-- Category Segmented Tabs --}}
-            <div class="flex flex-wrap items-center gap-2 border-b border-zinc-100 pb-3">
+            <div class="flex flex-wrap items-center gap-2 border-b border-zinc-100 dark:border-[#2B2B30] pb-3">
                 <a href="{{ route('exams.index', request()->except('category', 'page')) }}"
-                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A]' }}">
+                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-zinc-900 dark:bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]' }}">
                     <span>Semua Konten</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono {{ !request()->filled('category') ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600' }}">
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono {{ !request()->filled('category') ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-[#232327] text-zinc-600 dark:text-[#97979B]' }}">
                         {{ $stats['total'] }}
                     </span>
                 </a>
@@ -410,7 +410,7 @@
                                 @if($exam->material_file_path)
                                     <a href="{{ route('exams.download', $exam) }}" 
                                        title="Unduh Berkas ({{ $exam->file_extension }} &bull; {{ $exam->formatted_file_size }})"
-                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-zinc-800 bg-white hover:bg-[#26262A] border border-zinc-200 rounded-md transition shadow-xs">
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-zinc-800 dark:text-[#EDEDF0] bg-white dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] rounded-md transition shadow-xs">
                                         <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                         </svg>
@@ -656,7 +656,7 @@
 
                                 <div class="flex items-center gap-2">
                                     <template x-if="activeExam?.edit_url">
-                                        <a :href="activeExam?.edit_url" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 hover:bg-[#26262A] text-xs font-semibold rounded-lg transition shadow-xs">
+                                        <a :href="activeExam?.edit_url" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-xs font-semibold rounded-lg transition shadow-xs">
                                             <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                             </svg>
