@@ -25,6 +25,13 @@ class RealAccountsSeederTest extends TestCase
         $classA = $this->makeClass('X RPL 1');
         putenv('SEED_DEFAULT_PASSWORD=***REMOVED***');
 
+        $seedDir = storage_path('app/seed');
+        if (!\Illuminate\Support\Facades\File::exists($seedDir)) {
+            \Illuminate\Support\Facades\File::makeDirectory($seedDir, 0755, true);
+        }
+        $csvPath = $seedDir . '/accounts.csv';
+        \Illuminate\Support\Facades\File::put($csvPath, "username,name,role,class_id,email\nwaka.kurikulum,Waka Kurikulum,1,,waka@sekolah.sch.id\nguru.bk,Guru BK,3,,bk@sekolah.sch.id\nwali.x.rpl.1,Wali X RPL 1,3,{$classA->id},wali@sekolah.sch.id\n");
+
         $this->seed(RealAccountsSeeder::class);
 
         $waka = User::where('username', 'waka.kurikulum')->first();
@@ -44,6 +51,8 @@ class RealAccountsSeederTest extends TestCase
         $this->assertSame(3, (int) $wali->role_id);
         $this->assertSame($classA->id, $wali->class_id);
         $this->assertTrue((bool) $wali->must_change_password);
+
+        \Illuminate\Support\Facades\File::delete($csvPath);
     }
 
     public function test_real_accounts_seeder_throws_when_password_env_missing(): void

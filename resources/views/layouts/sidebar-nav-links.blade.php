@@ -1,6 +1,6 @@
 @php
-    $pendingLeaveCount = (in_array(Auth::user()->role_id, [1, 3])) 
-        ? \App\Models\LeaveRequest::where('status_approval', 'Menunggu')->count() 
+    $pendingLeaveCount = (in_array(Auth::user()->role_id, [1, 3]) || Auth::user()->hasKesiswaanAccess()) 
+        ? \App\Models\LeaveRequest::visibleTo(Auth::user())->whereIn('status_approval', ['Menunggu', 'Pending'])->count() 
         : 0;
     
     $navActive = 'bg-sky-50 text-[#0093dd] dark:bg-[#3A3A3F] dark:text-white font-medium rounded-lg border border-sky-100 dark:border-transparent';
@@ -275,8 +275,8 @@
         </div>
     @endif
 
-    <!-- ================= 4. KHUSUS TIM KESISWAAN / BK (Role 3) ================= -->
-    @if(Auth::user()->role_id === 3)
+    <!-- ================= 4. KHUSUS TIM KESISWAAN / BK (Role 3 atau Guru dengan akses kesiswaan) ================= -->
+    @if(Auth::user()->role_id === 3 || Auth::user()->hasKesiswaanAccess())
         <!-- Sub-group 1: KESISWAAN -->
         <div>
             <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">

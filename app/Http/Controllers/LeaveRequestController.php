@@ -48,8 +48,10 @@ class LeaveRequestController extends Controller
             });
         }
 
-        $classes = (in_array((int) $user->role_id, [1, 3]))
-            ? \App\Models\SchoolClass::orderBy('class_name')->get()
+        $classes = (in_array((int) $user->role_id, [1, 3]) || $user->hasKesiswaanAccess())
+            ? ($user->authorizedClassIds() !== null
+                ? \App\Models\SchoolClass::whereIn('id', $user->authorizedClassIds())->orderBy('class_name')->get()
+                : \App\Models\SchoolClass::orderBy('class_name')->get())
             : collect();
 
         $leaveRequests = $query->latest()->paginate(15)->withQueryString();

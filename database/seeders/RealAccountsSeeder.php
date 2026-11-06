@@ -31,10 +31,10 @@ class RealAccountsSeeder extends Seeder
             File::makeDirectory($seedDir, 0755, true);
         }
 
-        // Generate baseline template if CSV does not exist
+        // Check if CSV exists
         if (!File::exists($csvPath)) {
-            $this->generateDefaultCsv($csvPath);
-            $this->command?->info("Created default accounts CSV at: {$csvPath}");
+            $this->command?->warn("RealAccountsSeeder: No CSV found at {$csvPath}. Skipping seeding.");
+            return;
         }
 
         $rows = $this->parseCsv($csvPath);
@@ -102,36 +102,5 @@ class RealAccountsSeeder extends Seeder
             fclose($handle);
         }
         return $rows;
-    }
-
-    /**
-     * Generate baseline accounts.csv template containing:
-     * - 1 Waka Kurikulum
-     * - 1 Guru BK / Tim Kesiswaan
-     * - Wali Kelas for every registered SchoolClass
-     */
-    private function generateDefaultCsv(string $path): void
-    {
-        $handle = fopen($path, 'w');
-        fputcsv($handle, ['username', 'name', 'role', 'class_id', 'email']);
-
-        // 1. Waka Kurikulum (Role 1)
-        fputcsv($handle, ['waka.kurikulum', 'Waka Kurikulum', '1', '', 'waka@sekolah.sch.id']);
-
-        // 2. Tim Kesiswaan / BK (Role 3, class_id null = all classes)
-        fputcsv($handle, ['guru.bk', 'Guru Bimbingan Konseling', '3', '', 'bk@sekolah.sch.id']);
-
-        // 3. Wali Kelas for each class
-        $classes = SchoolClass::orderBy('id')->get();
-        foreach ($classes as $class) {
-            $classSlug = Str::slug($class->class_name, '.');
-            $username = "wali.{$classSlug}";
-            $name = "Wali Kelas {$class->class_name}";
-            $email = "wali.{$classSlug}@sekolah.sch.id";
-
-            fputcsv($handle, [$username, $name, '3', (string) $class->id, $email]);
-        }
-
-        fclose($handle);
     }
 }

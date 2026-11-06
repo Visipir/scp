@@ -29,26 +29,35 @@ class LeaveRequest extends Model
 
     /**
      * Scope the query to the leave requests a user is allowed to see.
-     * Role 1 and BK (role 3 without class_id) see everything; a Wali Kelas (role 3
-     * with class_id) sees only their homeroom class; role 4 sees own/children scope.
+     * Role 1 sees all; teachers with homeroom/counselor see their assigned classes;
+     * legacy BK sees all or assigned class; role 4 sees own/children scope.
      */
     public function scopeVisibleTo($query, User $user)
     {
-        if ((int) $user->role_id === 3) {
-            $classId = $user->scopedClassId();
-            if ($classId !== null) {
-                $query->whereHas('student', fn ($q) => $q->where('class_id', $classId));
+        if ((int) $user->role_id === 1) {
+            return $query;
+        }
+
+        if ($user->hasKesiswaanAccess()) {
+            $classIds = $user->authorizedClassIds();
+            if ($classIds !== null) {
+                $query->whereHas('student', fn ($q) => $q->whereIn('class_id', $classIds));
             }
-        } elseif ((int) $user->role_id === 4) {
+            return $query;
+        }
+
+        if ((int) $user->role_id === 4) {
             $childrenIds = $user->children()->pluck('id')->all();
             $query->where(function ($q) use ($user, $childrenIds) {
                 $q->where('student_id', $user->id)
                   ->orWhere('applicant_id', $user->id)
                   ->orWhereIn('student_id', $childrenIds);
             });
+            return $query;
         }
 
-        return $query;
+        // Other users (e.g. regular teacher without homeroom/counselor role): cannot view
+        return $query->whereRaw('0 = 1');
     }
 
     /**
@@ -60,10 +69,12 @@ class LeaveRequest extends Model
             return true;
         }
 
-        if ((int) $user->role_id === 3) {
-            $classId = $user->scopedClassId();
-
-            return $classId === null || (int) $this->student?->class_id === $classId;
+        if ($user->hasKesiswaanAccess()) {
+            $classIds = $user->authorizedClassIds();
+            if ($classIds === null) {
+                return true;
+            }
+            return in_array((int) $this->student?->class_id, $classIds, true);
         }
 
         if ((int) $user->role_id === 4) {
