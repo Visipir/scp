@@ -109,11 +109,11 @@ php artisan accounts:purge-dummy --dry-run
   1. **Tahap 1 — Import Pegawai (`/waka/import-pegawai`)**:
      - Unggah `Data Pegawai 2026 Per Juni 2026 FIX.xlsx`.
      - Pada tabel konfirmasi Fuzzy, pilih **MERGE** untuk 5 pasangan:
-       - `TRI SUSILAWATI` -> User ID `1757` (`TRI SUSILOWATI`)
-       - `ANASTASIA RATNA SULISTIYANI` -> User ID `1732` (`ANASTYA RATNA S., S.Pd`)
-       - `AHMAD MUHLASHIN` -> User ID `1760` (`AHMAD MUHLASIN`)
-       - `YULITA EKAWINAJENG` -> User ID `1719` (`YULITA EKA WINAJENG, S.Pd`)
-       - `MUHAMAD HERU PURNOMO` -> User ID `1753` (`HERU PURNOMO`)
+       - `Guru Contoh A` -> User ID `1757` (`Guru Contoh A Alias`)
+       - `Guru Contoh B` -> User ID `1732` (`Guru Contoh B Alias`)
+       - `Guru Contoh C` -> User ID `1760` (`Guru Contoh C Alias`)
+       - `Guru Contoh D` -> User ID `1719` (`Guru Contoh D Alias`)
+       - `Guru Contoh E` -> User ID `1753` (`Guru Contoh E Alias`)
      - Klik **Commit Import Pegawai** (menyimpan nama resmi Pegawai + mencatat nama lama ke `user_name_aliases`).
   2. **Tahap 2 — Import Wali Kelas & Guru BK (`/waka/import-wali-bk`)**:
      - Unggah `Wali Kelas dan Guru BK 2026-2027.xlsx`.
