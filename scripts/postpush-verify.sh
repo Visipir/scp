@@ -22,7 +22,7 @@ cd "$VERIFY_DIR"
 
 # 1. Verify commit count equality if provided
 if [ -n "$EXPECTED_COUNT" ]; then
-    ACTUAL_COUNT=$(git rev-list --count HEAD)
+    ACTUAL_COUNT=$(git rev-list --all --count)
     if [ "$ACTUAL_COUNT" -ne "$EXPECTED_COUNT" ]; then
         echo "ERROR: Commit count mismatch! Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT" >&2
         rm -rf "$VERIFY_DIR"

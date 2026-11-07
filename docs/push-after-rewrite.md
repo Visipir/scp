@@ -79,7 +79,7 @@ Setelah `git push` selesai, lakukan verifikasi independen pada direktori `/tmp/v
 
 Jalankan skrip otomatisasi verifikasi pasca-dorongan:
 ```bash
-./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --count HEAD)
+./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
 ```
 Skrip ini akan mengkloning repositori remote ke direktori terisolasi `/tmp/verify`, memverifikasi kesamaan jumlah commit, memastikan tidak ada berkas sensitif atau password fixture di riwayat, lalu membersihkan `/tmp/verify`. Output yang diharapkan:
 `=== OK: Post-push verification PASSED. Remote repository is clean. ===`
