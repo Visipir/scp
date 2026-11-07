@@ -122,29 +122,46 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 
 ---
 
-## 6. Lima Aturan Inti Bisnis (Core Business Rules)
+## 6. Lima Aturan Inti UKK & 14 Arahan Revisi Penguji
 
-1. **Deteksi Konflik Jadwal (Conflict Detection)**
-   - Guru, ruang, dan rombel tidak boleh memiliki jadwal tumpang tindih pada hari, jam (JP), dan putaran siklus yang sama.
-   - *Implementasi*: [`app/Services/ScheduleService.php::validateConflict()`](file:///var/www/SCP/app/Services/ScheduleService.php) dan `validateSlotConflict()`.
+### 6.1. Lima Aturan Inti Spesifikasi UKK (Rules a–e)
 
-2. **Penguncian Jadwal Pelajaran (Schedule Lock Enforcement)**
-   - Saat status `is_schedule_locked = true` pada `system_configurations`, Guru dilarang menambah, mengubah, atau menghapus jadwal pelajaran (`HTTP 403 Forbidden`). Tombol aksi otomatis disembunyikan.
-   - *Implementasi*: [`app/Http/Middleware/EnsureScheduleNotLocked.php`](file:///var/www/SCP/app/Http/Middleware/EnsureScheduleNotLocked.php) dan [`app/Http/Controllers/ScheduleController.php`](file:///var/www/SCP/app/Http/Controllers/ScheduleController.php).
+1. **Aturan a (Pencegahan Konflik Jadwal)**:
+   - Validasi ketat menggunakan relasi interval `Start_A < End_B AND End_A > Start_B` pada Guru, Ruangan, dan Rombel untuk hari dan putaran siklus yang sama. Operasi pembaruan (*edit*) mengecualikan *record* dirinya sendiri.
+   - *Implementasi*: [`app/Services/ScheduleConflictService.php`](file:///var/www/SCP/app/Services/ScheduleConflictService.php).
 
-3. **Alur Izin & Peran Ganda Wali / BK (Leave Approval & Dual Role Workflow)**
-   - Siswa mengajukan izin -> Wali Kelas dan Guru BK dari kelas siswa dapat menyetujui atau menolak.
-   - Keputusan terakhir (*last decision*) tercatat dengan metadata lengkap (`decided_by_user_id`, `decided_by_role`, `decided_at`).
-   - Sinkronisasi otomatis ke jurnal presensi: jika disetujui, status absensi siswa sinkron menjadi Sakit/Izin; jika ditolak/pending, kembali ke Alpa.
-   - *Implementasi*: [`app/Http/Controllers/LeaveRequestController.php`](file:///var/www/SCP/app/Http/Controllers/LeaveRequestController.php), [`app/Models/LeaveRequest.php::recordDecision()`](file:///var/www/SCP/app/Models/LeaveRequest.php), [`app/Http/Controllers/Api/V1/LeaveRequestController.php`](file:///var/www/SCP/app/Http/Controllers/Api/V1/LeaveRequestController.php).
+2. **Aturan b (Sakelar Putaran Global)**:
+   - Penggantian status siklus aktif (`Putaran 1` / `Putaran 2`) oleh Waka Kurikulum berdampak global pada filter bawaan jadwal KBM di dashboard guru dan pencarian jadwal.
+   - *Implementasi*: [`app/Http/Controllers/SystemConfigurationController.php`](file:///var/www/SCP/app/Http/Controllers/SystemConfigurationController.php) dan [`app/Http/Controllers/DashboardController.php`](file:///var/www/SCP/app/Http/Controllers/DashboardController.php).
 
-4. **Cakupan Akses Kelas Guru Pengajar (Teaching Class Access Scoping)**
-   - Guru pengajar otomatis berhak melihat daftar siswa dan rekap kehadiran pada kelas-kelas yang tercantum di jadwal mengajarnya (`schedules`), namun dibatasi tidak dapat mengubah data siswa atau mengakses catatan kelas lain.
-   - *Implementasi*: [`app/Models/User.php::authorizedClassIds()`](file:///var/www/SCP/app/Models/User.php), `canAccessClass()`, [`app/Http/Controllers/ClassController.php`](file:///var/www/SCP/app/Http/Controllers/ClassController.php), [`app/Http/Controllers/ReportController.php`](file:///var/www/SCP/app/Http/Controllers/ReportController.php).
+3. **Aturan c (Penguncian Jadwal Server-Side)**:
+   - Saat `is_schedule_locked = true`, seluruh operasi penambahan, pengubahan, dan penghapusan jadwal diblokir di sisi server (`HTTP 403 Forbidden`) dan tombol aksi antarmuka disembunyikan.
+   - *Implementasi*: [`app/Http/Middleware/CheckScheduleLock.php`](file:///var/www/SCP/app/Http/Middleware/CheckScheduleLock.php) dan [`resources/views/schedules/index.blade.php`](file:///var/www/SCP/resources/views/schedules/index.blade.php).
 
-5. **Kekebalan Akun Terlindung Penguji (Protected Accounts Immunity)**
-   - 5 Akun penguji (`waka_kurikulum`, `haris-budiawan`, `ryawidyaningtyas`, `tim_kesiswaan`, `17766`) terlindung penuh dari reset massal, penimpaan nama/username, perubahan role, dan purge dummy.
-   - *Implementasi*: [`config/protected_accounts.php`](file:///var/www/SCP/config/protected_accounts.php), [`app/Models/User.php::isProtectedAccount()`](file:///var/www/SCP/app/Models/User.php), [`app/Services/UserService.php`](file:///var/www/SCP/app/Services/UserService.php), [`app/Services/EmployeeImportService.php`](file:///var/www/SCP/app/Services/EmployeeImportService.php), [`app/Services/StudentImportService.php`](file:///var/www/SCP/app/Services/StudentImportService.php).
+4. **Aturan d (Sinkronisasi Izin ke Jurnal)**:
+   - Permohonan izin berstatus `Pending` secara bawaan. Presensi siswa otomatis tersinkronisasi menjadi `Izin` atau `Sakit` hanya saat guru pengajar mata pelajaran membuat jurnal pada hari KBM bersangkutan.
+   - *Implementasi*: [`app/Services/JournalService.php`](file:///var/www/SCP/app/Services/JournalService.php) dan [`app/Services/LeaveRequestService.php`](file:///var/www/SCP/app/Services/LeaveRequestService.php).
+
+5. **Aturan e (Peringatan Dashboard Keterlambatan Jurnal)**:
+   - Peringatan jurnal guru muncul otomatis di dashboard setelah `end_time + 30 menit` jika guru belum mengisi jurnal KBM, dihitung dinamis saat request tanpa ketergantungan *cron job*.
+   - *Implementasi*: [`app/Services/DashboardAlertService.php`](file:///var/www/SCP/app/Services/DashboardAlertService.php).
+
+### 6.2. 14 Arahan Revisi Penguji (Pak Haris, B1–B14)
+
+1. **B1**: Data riil sekolah (kelas, mapel, guru, ruang, slot waktu, siswa); seluruh akun dummy dibersihkan kecuali 5 akun terlindung penguji.
+2. **B2**: Reset kata sandi melalui kode OTP email (kadaluarsa, *single use*, pembatasan frekuensi / *rate limit*, kode ter-hash, proteksi guard email belum terverifikasi).
+3. **B3**: Peringatan dashboard Waka Kurikulum 30 menit sebelum sesi kelas berakhir.
+4. **B4**: Tampilan daftar jadwal bawaan otomatis mengarah ke jadwal hari ini (Waka Kurikulum).
+5. **B5**: Paginasi pada tabel riwayat jurnal KBM.
+6. **B6**: Seluruh label `"Master Data"` diganti menjadi `"Manajemen Data"` di menu, judul, rekam jejak (*breadcrumbs*), pesan kilas (*flash messages*), dan antarmuka iOS.
+7. **B7**: Data siswa dapat difilter berdasarkan kelas dan dicari berdasarkan nama/NIS.
+8. **B8**: Fitur impor data master oleh Waka Kurikulum (Pegawai/Guru, Wali/BK, dan Jadwal KBM).
+9. **B9**: Daftar jadwal mengajar guru terurut kronologis berdasarkan jam mulai (`start_time`).
+10. **B10**: Formulir pengisian jurnal secara bawaan terisi tanggal hari ini dan waktu saat ini.
+11. **B11**: Rekapitulasi presensi harian per kelas (ringkasan jumlah status kehadiran).
+12. **B12**: Pengeditan jurnal KBM hanya diizinkan pada hari yang sama dengan pelaksanaan KBM (ditegakkan di sisi server).
+13. **B13**: Status permohonan izin dapat diperbarui (*Approved*, *Rejected*, *Pending*) dengan sinkronisasi ulang presensi.
+14. **B14**: Filter data permohonan izin berdasarkan status, kelas, rentang tanggal, dan siswa.
 
 ---
 
