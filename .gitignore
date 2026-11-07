@@ -22,6 +22,7 @@
 /storage/pail
 /storage/app/import-samples/
 /database/database_staging.sqlite
+/database/database_candidate.sqlite
 /vendor
 _ide_helper.php
 Homestead.json

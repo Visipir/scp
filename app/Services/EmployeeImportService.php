@@ -288,7 +288,7 @@ class EmployeeImportService
 
             // Extract row data using column map
             $name = trim((string) ($row[$headerColMap['NAMA'] ?? ''] ?? ''));
-            if ($name === '' || str_starts_with(strtoupper($name), 'JUMLAH')) {
+            if ($name === '' || mb_strlen($name) <= 2 || str_starts_with(strtoupper($name), 'JUMLAH') || str_starts_with(strtoupper($name), 'TOTAL')) {
                 continue;
             }
 

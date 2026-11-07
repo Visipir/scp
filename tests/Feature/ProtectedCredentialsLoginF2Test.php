@@ -117,11 +117,11 @@ class ProtectedCredentialsLoginF2Test extends TestCase
         }
 
         $keyMap = [
-            'waka_kurikulum'   => ['PROTECTED_WAKA_PASSWORD', 'WAKA_KURIKULUM_PASSWORD', 'waka_kurikulum'],
-            'haris-budiawan'   => ['PROTECTED_HARIS_PASSWORD', 'HARIS_BUDIAWAN_PASSWORD', 'haris-budiawan'],
-            'ryawidyaningtyas' => ['PROTECTED_RYA_PASSWORD', 'RYAWIDYANINGTYAS_PASSWORD', 'ryawidyaningtyas'],
-            'tim_kesiswaan'    => ['PROTECTED_TIM_KESISWAAN_PASSWORD', 'TIM_KESISWAAN_PASSWORD', 'tim_kesiswaan'],
-            '17766'            => ['PROTECTED_17766_PASSWORD', 'SISWA_17766_PASSWORD', '17766'],
+            'waka_kurikulum'   => ['WAKA_PASSWORD', 'PROTECTED_WAKA_PASSWORD', 'WAKA_KURIKULUM_PASSWORD', 'waka_kurikulum'],
+            'haris-budiawan'   => ['HARIS_PASSWORD', 'PROTECTED_HARIS_PASSWORD', 'HARIS_BUDIAWAN_PASSWORD', 'haris-budiawan'],
+            'ryawidyaningtyas' => ['RYAWIDYANINGTYAS_PASSWORD', 'PROTECTED_RYA_PASSWORD', 'ryawidyaningtyas'],
+            'tim_kesiswaan'    => ['TIM_KESISWAAN_PASSWORD', 'PROTECTED_TIM_KESISWAAN_PASSWORD', 'tim_kesiswaan'],
+            '17766'            => ['SISWA_17766_PASSWORD', 'PROTECTED_17766_PASSWORD', '17766'],
         ];
 
         $resolved = [];
