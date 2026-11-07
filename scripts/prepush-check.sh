@@ -20,8 +20,8 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 echo "[PASS] Working tree clean"
 
-# 3. Check git references (strictly main, feat/dark-console-ui, pre-restyle)
-EXTRA_REFS=$(git for-each-ref --format='%(refname)' | grep -v -E '^(refs/heads/main|refs/heads/feat/dark-console-ui|refs/tags/pre-restyle)$' || true)
+# 3. Check git references (strictly main, feat/dark-console-ui, pre-restyle, and remotes/origin/*)
+EXTRA_REFS=$(git for-each-ref --format='%(refname)' | grep -v -E '^(refs/heads/main|refs/heads/feat/dark-console-ui|refs/tags/pre-restyle|refs/remotes/origin/.*)$' || true)
 if [ -n "$EXTRA_REFS" ]; then
     echo "ERROR: Unexpected git references detected:" >&2
     echo "$EXTRA_REFS" >&2
