@@ -67,7 +67,7 @@ Dokumen ini memetakan seluruh butir persyaratan Uji Kompetensi Keahlian (UKK) â€
 1. **Jadwal Putaran 1 vs Putaran 2 (B1 Status: PARTIAL)**:
    - Basis data live saat ini memuat **866 jadwal aktif** yang seluruhnya terdaftar pada **Putaran 2**.
    - Pada **Putaran 1**, jumlah jadwal tercatat adalah 0. Pengalihan siklus ke Putaran 1 melalui endpoint Waka dan antarmuka web berfungsi normal dengan menampilkan pesan keadaan kosong (*empty state*: *"Tidak ada alokasi jadwal"*), tanpa galat 500. Namun, data kurikulum Putaran 1 belum diimpor oleh sekolah.
-   - Akun terlindung `waka_kurikulum` dan `tim_kesiswaan` tetap mempertahankan nama pemegang peran umum (*"waka_kurikulum"* dan *"tim_kesiswaan"*) demi menjaga integritas kredensial penguji yang telah didistribusikan sebelumnya.
+   - Akun terlindung `waka_kurikulum` dan `tim_kesiswaan` tetap dipertahankan demi menjaga integritas kredensial penguji yang telah didistribusikan sebelumnya.
 
 2. **Kebutuhan Email Profil untuk Reset Password OTP (B2)**:
    - Data impor awal warga sekolah (guru dan siswa) tidak menyertakan alamat email pribadi (tercatat 1804 dari 1805 akun memiliki `email = NULL`).

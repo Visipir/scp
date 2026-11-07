@@ -24,8 +24,8 @@ Dokumen ini memandu promosi atomik dari `database/database_candidate.sqlite` (ya
 | Username | User ID | Role ID | Nama Lengkap | `must_change_password` | `sha256(password)` |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `waka_kurikulum` | `1` | `1` | `waka_kurikulum` | `false` | `81715802dc3ec65c0e49349ff6919689b95a9a25df89d0867019c61c126c3717` |
-| `haris-budiawan` | `1723` | `2` | `HARIS BUDIAWAN, S.Pd` | `false` | `a6cd61eb3885e8880397bdd492b65560dd63185cdd55381fa1a41d910ee8eb3c` |
-| `ryawidyaningtyas` | `1721` | `2` | `RYAWIDYANINGTYAS, S.Pd` | `false` | `a6cd61eb3885e8880397bdd492b65560dd63185cdd55381fa1a41d910ee8eb3c` |
+| `haris-budiawan` | `1723` | `2` | `haris-budiawan` | `false` | `a6cd61eb3885e8880397bdd492b65560dd63185cdd55381fa1a41d910ee8eb3c` |
+| `ryawidyaningtyas` | `1721` | `2` | `ryawidyaningtyas` | `false` | `a6cd61eb3885e8880397bdd492b65560dd63185cdd55381fa1a41d910ee8eb3c` |
 | `tim_kesiswaan` | `4` | `3` | `tim_kesiswaan` | `false` | `f959eb759c01242eda29e695bf5b6c544ee0f6f918a9588517c3f21e1f5e0fc0` |
 | `17766` | `1164` | `4` | `17766` | `false` | `d28139182f0aba709c46b6556e146ff57ac1d650ca1113f7b2febacc9249e572` |
 
