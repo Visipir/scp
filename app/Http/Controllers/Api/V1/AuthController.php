@@ -33,7 +33,7 @@ class AuthController extends Controller
         return ApiResponse::data([
             'token'                => $token,
             'user'                 => (new UserResource($user->load(['role', 'schoolClass'])))->resolve(),
-            'must_change_password' => (bool) $user->must_change_password,
+            'must_change_password' => ! $user->isProtectedAccount() && (bool) $user->must_change_password,
         ]);
     }
 

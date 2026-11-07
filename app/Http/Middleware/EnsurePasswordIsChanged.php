@@ -15,7 +15,7 @@ class EnsurePasswordIsChanged
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->must_change_password) {
+        if (Auth::check() && Auth::user()->must_change_password && !Auth::user()->isProtectedAccount()) {
             $allowedRoutes = [
                 'password.first-change',
                 'password.first-change.update',

@@ -17,7 +17,7 @@ class EnsureApiPasswordIsChanged
     {
         $user = $request->user();
 
-        if ($user && $user->must_change_password) {
+        if ($user && $user->must_change_password && ! $user->isProtectedAccount()) {
             $allowed = [
                 'api.v1.auth.login',
                 'api.v1.auth.logout',

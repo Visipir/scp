@@ -33,7 +33,7 @@ class UserResource extends JsonResource
             'class'                => $this->whenLoaded('schoolClass', fn () => $this->schoolClass?->class_name),
             'gender'               => $this->gender,
             'attendance_number'    => $this->attendance_number !== null ? (int) $this->attendance_number : null,
-            'must_change_password' => (bool) $this->must_change_password,
+            'must_change_password' => ! $this->isProtectedAccount() && (bool) $this->must_change_password,
             'children'             => $this->whenLoaded('children', fn () => $this->children->map(fn ($child) => [
                 'id'       => (int) $child->id,
                 'fullname' => $child->fullname,
