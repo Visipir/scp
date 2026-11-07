@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fet version="6.0.0">
+    <Activities_Timetable>
+        <Activity>
+            <Teacher>Guru Sintetis Satu, S.Pd.</Teacher>
+            <Subject>Pemrograman Web Sintetis</Subject>
+            <Students>X RPL Sintetis</Students>
+            <Room>Lab Sintetis 1</Room>
+            <Day>Senin</Day>
+            <Hour>1</Hour>
+        </Activity>
+        <Activity>
+            <Teacher>Guru Sintetis Satu, S.Pd.</Teacher>
+            <Subject>Pemrograman Web Sintetis</Subject>
+            <Students>X RPL Sintetis</Students>
+            <Room>Lab Sintetis 1</Room>
+            <Day>Senin</Day>
+            <Hour>2</Hour>
+        </Activity>
+        <Activity>
+            <Teacher>Guru Sintetis Dua, S.Pd.</Teacher>
+            <Subject>Basis Data Sintetis</Subject>
+            <Students>X RPL Sintetis</Students>
+            <Room>Lab Sintetis 2</Room>
+            <Day>Selasa</Day>
+            <Hour>1</Hour>
+        </Activity>
+    </Activities_Timetable>
+</fet>

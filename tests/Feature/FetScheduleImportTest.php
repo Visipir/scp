@@ -366,4 +366,104 @@ XML;
 
         @unlink($filePath);
     }
+
+    public function test_synthetic_fixture_csv_import_full_flow_preview_commit_reimport_and_journal_preservation(): void
+    {
+        $waka = $this->makeUser(1);
+        $teacher1 = $this->makeUser(2, ['fullname' => 'Guru Sintetis Satu, S.Pd.']);
+        $teacher2 = $this->makeUser(2, ['fullname' => 'Guru Sintetis Dua, S.Pd.']);
+        $class = SchoolClass::create(['class_name' => 'X RPL Sintetis', 'academic_year' => '2026/2027']);
+
+        $csvPath = base_path('tests/Fixtures/synthetic_fet_timetable.csv');
+        $this->assertFileExists($csvPath);
+
+        $uploadedFile = new UploadedFile($csvPath, 'synthetic_fet_timetable.csv', 'text/csv', null, true);
+        $parser = app(FetScheduleParserService::class);
+
+        // 1. Preview
+        $preview = $parser->generatePreview($uploadedFile, 'Putaran 2');
+        $this->assertNotEmpty($preview['token']);
+        $this->assertSame(3, $preview['summary']['total_slots_raw']);
+        $this->assertSame(2, $preview['summary']['aggregated_total']);
+        $this->assertSame(2, $preview['summary']['valid_count']);
+
+        // 2. Commit
+        $result = $parser->commit($preview['token']);
+        $this->assertSame(2, $result['inserted']);
+        $this->assertSame(0, $result['unchanged']);
+        $this->assertSame(0, $result['deleted']);
+
+        // Verify DB records
+        $sched1 = Schedule::where('subject', 'Pemrograman Web Sintetis')->first();
+        $this->assertNotNull($sched1);
+        $this->assertSame($teacher1->id, $sched1->teacher_id);
+        $this->assertSame($class->id, $sched1->class_id);
+        $this->assertSame('Senin', $sched1->day_of_week);
+        $this->assertSame('Putaran 2', $sched1->cycle_type);
+
+        $sched2 = Schedule::where('subject', 'Basis Data Sintetis')->first();
+        $this->assertNotNull($sched2);
+        $this->assertSame($teacher2->id, $sched2->teacher_id);
+        $this->assertSame('Selasa', $sched2->day_of_week);
+
+        // 3. Attach Journal
+        $journal = Journal::create([
+            'schedule_id'       => $sched1->id,
+            'teacher_id'        => $teacher1->id,
+            'date'              => now()->toDateString(),
+            'topic_description' => 'Materi Sintetis Web',
+        ]);
+
+        // 4. Idempotent re-import
+        $uploadedFile2 = new UploadedFile($csvPath, 'synthetic_fet_timetable.csv', 'text/csv', null, true);
+        $preview2 = $parser->generatePreview($uploadedFile2, 'Putaran 2');
+        $result2 = $parser->commit($preview2['token']);
+
+        $this->assertSame(0, $result2['inserted']);
+        $this->assertSame(2, $result2['unchanged']);
+        $this->assertSame(0, $result2['deleted']);
+        $this->assertSame($sched1->id, Schedule::where('subject', 'Pemrograman Web Sintetis')->first()->id);
+        $this->assertDatabaseHas('journals', ['id' => $journal->id, 'schedule_id' => $sched1->id]);
+    }
+
+    public function test_synthetic_fixture_putaran_1_import_does_not_mutate_putaran_2_schedules(): void
+    {
+        $waka = $this->makeUser(1);
+        $teacher1 = $this->makeUser(2, ['fullname' => 'Guru Sintetis Satu, S.Pd.']);
+        $class = SchoolClass::create(['class_name' => 'X RPL Sintetis', 'academic_year' => '2026/2027']);
+
+        // Existing schedule in Putaran 2
+        $putaran2Schedule = Schedule::create([
+            'teacher_id'   => $teacher1->id,
+            'class_id'     => $class->id,
+            'subject'      => 'Mapel Putaran 2 Aman',
+            'day_of_week'  => 'Kamis',
+            'start_period' => 1,
+            'end_period'   => 2,
+            'start_time'   => '07:15:00',
+            'end_time'     => '08:35:00',
+            'cycle_type'   => 'Putaran 2',
+        ]);
+
+        $csvPath = base_path('tests/Fixtures/synthetic_fet_timetable.csv');
+        $uploadedFile = new UploadedFile($csvPath, 'synthetic_fet_timetable.csv', 'text/csv', null, true);
+        $parser = app(FetScheduleParserService::class);
+
+        // Import targeting Putaran 1
+        $preview = $parser->generatePreview($uploadedFile, 'Putaran 1');
+        $this->assertSame('Putaran 1', $preview['cycle_type']);
+
+        $result = $parser->commit($preview['token']);
+        $this->assertSame(2, $result['inserted']);
+
+        // Verify Putaran 1 schedules created
+        $p1Count = Schedule::where('cycle_type', 'Putaran 1')->count();
+        $this->assertSame(2, $p1Count);
+
+        // Verify Putaran 2 schedule remains completely untouched
+        $p2After = Schedule::where('cycle_type', 'Putaran 2')->get();
+        $this->assertCount(1, $p2After);
+        $this->assertSame($putaran2Schedule->id, $p2After->first()->id);
+        $this->assertSame('Mapel Putaran 2 Aman', $p2After->first()->subject);
+    }
 }
