@@ -16,6 +16,10 @@ Sebelum melakukan dorongan (*push*) ke remote GitHub:
 
 ## Langkah 2: Konfirmasi Remote Origin & Struktur Branch
 
+> [!CAUTION]
+> **EKSEKUSI PUSH HANYA DARI `/root/scp-clean`**
+> PUSH WAJIB DIJALANKAN DARI DIREKTORI `/root/scp-clean`. JANGAN PERNAH MENJALANKAN PUSH DARI `/var/www/SCP` KARENA DIREKTORI `.git` PADA LIVE MASIH MENYIMPAN RIWAYAT LAMA SEBELUM LANGKAH N6 DILAKSANAKAN.
+
 Pastikan Anda berada di direktori clone bersih `/root/scp-clean`:
 ```bash
 cd /root/scp-clean
@@ -32,6 +36,12 @@ Pastikan hanya dua branch utama dan satu tag yang eksis:
 - Tag: `pre-restyle`
 
 Tidak ada branch atau tag lain yang menyimpan riwayat lama (*unrewritten history*).
+
+Jalankan skrip pemeriksaan pra-dorongan (*pre-push safety check*):
+```bash
+./scripts/prepush-check.sh
+```
+Perintah ini wajib menghasilkan `=== OK: Pre-push checks PASSED. Repository is safe for push. ===` sebelum melanjutkan.
 
 ---
 
@@ -67,27 +77,12 @@ GitHub tetap menyimpan commit lama yang tidak terhubung (*unreachable commits*) 
 
 Setelah `git push` selesai, lakukan verifikasi independen pada direktori `/tmp/verify` untuk memastikan riwayat di GitHub benar-benar bersih:
 
+Jalankan skrip otomatisasi verifikasi pasca-dorongan:
 ```bash
-# 1. Clone fresh dari GitHub ke direktori sementara
-rm -rf /tmp/verify
-git clone git@github.com:Visipir/scp.git /tmp/verify
-cd /tmp/verify
-
-# 2. Periksa bahwa berkas sensitif yang dihapus benar-benar tidak ada di seluruh riwayat git
-git log --all --full-history -- "database/database_dump.sql" "sqlite_to_mysql.sql" ".env.testing"
-# Output HARUS KOSONG (0 commit)
-
-# 3. Periksa bahwa string rahasia / password fixture tidak ada di seluruh riwayat git
-git log --all -S "ChangeMeInitial123" --oneline
-# Output HARUS KOSONG (0 commit)
-
-# 4. Periksa bahwa sampel NIS riil di SCP_CONTEXT.md telah digantikan dengan nilai sintetis
-git grep "Real Student Imports: NIS like" $(git rev-list --all)
-# Output HARUS HANYA: 99010, 99011 (tidak ada NIS 99024 / 99025)
-
-# 5. Konfirmasi total commit count pada remote
-git rev-list --all --count
+./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --count HEAD)
 ```
+Skrip ini akan mengkloning repositori remote ke direktori terisolasi `/tmp/verify`, memverifikasi kesamaan jumlah commit, memastikan tidak ada berkas sensitif atau password fixture di riwayat, lalu membersihkan `/tmp/verify`. Output yang diharapkan:
+`=== OK: Post-push verification PASSED. Remote repository is clean. ===`
 
 ---
 

@@ -139,6 +139,63 @@ paths:
               schema: { $ref: '#/components/schemas/Message' }
         '422': { $ref: '#/components/responses/ValidationError' }
 
+  /api/v1/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request 6-digit OTP password reset code sent to verified email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier:
+                  type: string
+                  description: Username, email, or NIP/NIS of the account
+      responses:
+        '200':
+          description: Reset code sent if account exists with verified email
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '422':
+          description: Validation error or missing email
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /api/v1/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password using 6-digit OTP code received via email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, code, password, password_confirmation]
+              properties:
+                identifier: { type: string }
+                code: { type: string, minLength: 6, maxLength: 6 }
+                password: { type: string, format: password, minLength: 6 }
+                password_confirmation: { type: string, format: password }
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '422':
+          description: Invalid or expired OTP code, or max attempts reached
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
   /api/v1/config:
     get:
       tags: [Config]
