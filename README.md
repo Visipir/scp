@@ -144,12 +144,12 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 
 5. **Aturan e (Peringatan Dashboard Keterlambatan Jurnal)**:
    - Peringatan jurnal guru muncul otomatis di dashboard setelah `end_time + 30 menit` jika guru belum mengisi jurnal KBM, dihitung dinamis saat request tanpa ketergantungan *cron job*.
-   - *Implementasi*: [`app/Services/DashboardAlertService.php`](file:///var/www/SCP/app/Services/DashboardAlertService.php).
+   - *Implementasi*: [`app/Services/DashboardService.php`](file:///var/www/SCP/app/Services/DashboardService.php).
 
 ### 6.2. 14 Arahan Revisi Penguji (Pak Haris, B1–B14)
 
-1. **B1**: Data riil sekolah (kelas, mapel, guru, ruang, slot waktu, siswa); seluruh akun dummy dibersihkan kecuali 5 akun terlindung penguji.
-2. **B2**: Reset kata sandi melalui kode OTP email (kadaluarsa, *single use*, pembatasan frekuensi / *rate limit*, kode ter-hash, proteksi guard email belum terverifikasi).
+1. **B1**: Data riil sekolah (kelas, mapel, guru, ruang, slot waktu, siswa); Putaran 2 terisi 866 jadwal, Putaran 1 kosong/0 jadwal (*PARTIAL*); seluruh akun dummy dibersihkan kecuali 5 akun terlindung penguji.
+2. **B2**: Reset kata sandi melalui kode OTP email (kadaluarsa, *single use*, pembatasan frekuensi / *rate limit*, kode ter-hash, proteksi guard email belum terdaftar/terverifikasi di profil pengguna).
 3. **B3**: Peringatan dashboard Waka Kurikulum 30 menit sebelum sesi kelas berakhir.
 4. **B4**: Tampilan daftar jadwal bawaan otomatis mengarah ke jadwal hari ini (Waka Kurikulum).
 5. **B5**: Paginasi pada tabel riwayat jurnal KBM.
@@ -160,7 +160,7 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 10. **B10**: Formulir pengisian jurnal secara bawaan terisi tanggal hari ini dan waktu saat ini.
 11. **B11**: Rekapitulasi presensi harian per kelas (ringkasan jumlah status kehadiran).
 12. **B12**: Pengeditan jurnal KBM hanya diizinkan pada hari yang sama dengan pelaksanaan KBM (ditegakkan di sisi server).
-13. **B13**: Status permohonan izin dapat diperbarui (*Approved*, *Rejected*, *Pending*) dengan sinkronisasi ulang presensi.
+13. **B13**: Status permohonan izin dapat diperbarui (*Approved*, *Rejected*, *Pending*) dengan sinkronisasi ulang presensi (status berubah ke Alpa jika Ditolak/Menunggu, baris presensi tidak dihapus).
 14. **B14**: Filter data permohonan izin berdasarkan status, kelas, rentang tanggal, dan siswa.
 
 ---
@@ -205,8 +205,8 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
 - Pengaturan SMTP dapat dikonfigurasi melalui GUI Waka Kurikulum di `/settings/email` atau via `.env`.
 - Menggunakan skema TLS teruji dengan dukungan fallback log mailer.
 - Endpoint reset password dengan kode OTP 6-digit terenkripsi:
-  - Request Code: `POST /api/v1/forgot-password`
-  - Submit Code: `POST /api/v1/reset-password`
+  - Request Code: `POST /api/v1/auth/forgot-password` (Web: `/forgot-password`)
+  - Submit Code: `POST /api/v1/auth/reset-password` (Web: `/reset-password`)
 
 ---
 
