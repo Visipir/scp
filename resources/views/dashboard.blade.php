@@ -135,8 +135,15 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="text-xs text-[#97979B] font-mono text-center py-8">
-                                    Semua kelas yang telah selesai sudah mengisi jurnal.
+                                <div class="text-xs text-[#97979B] font-mono text-center py-8 space-y-2">
+                                    @if(!($todayHasSchedules ?? true))
+                                        <div>Tidak ada jadwal hari ini.</div>
+                                        <div>
+                                            <a href="{{ route('schedules.index') }}" class="text-[#0093dd] hover:underline font-sans font-semibold">Lihat Jadwal Hari Lain &rarr;</a>
+                                        </div>
+                                    @else
+                                        <div>Semua kelas yang telah selesai sudah mengisi jurnal.</div>
+                                    @endif
                                 </div>
                             @endforelse
                         </div>

@@ -230,6 +230,16 @@
 
                 {{-- Sesi Jadwal (Otomatis / Manual) --}}
                 <div>
+                    @if(!isset($defaultSchedule) || !$defaultSchedule)
+                        <div class="mb-3 p-3 bg-zinc-50 dark:bg-[#19191C] border border-zinc-200 dark:border-[#2B2B30] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                            <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">
+                                Tidak ada jadwal hari ini{{ isset($todayName) ? " ({$todayName})" : '' }}. Silakan pilih tanggal dan jadwal hari lain di bawah ini.
+                            </span>
+                            <a href="{{ route('schedules.index') }}" class="text-[#0093dd] hover:underline font-semibold shrink-0">
+                                Lihat Jadwal Hari Lain &rarr;
+                            </a>
+                        </div>
+                    @endif
                     @if(isset($defaultSchedule) && $defaultSchedule)
                         <div x-show="!isManual" class="p-3.5 bg-zinc-50 dark:bg-[#19191C] border border-zinc-200 dark:border-[#2B2B30] rounded-lg flex items-center justify-between gap-3">
                             <div class="min-w-0">

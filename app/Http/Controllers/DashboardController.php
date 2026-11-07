@@ -70,8 +70,7 @@ class DashboardController extends Controller
             $defaultSchedule = ($targetScheduleId ? $schedules->firstWhere('id', $targetScheduleId) : null)
                 ?? $currentSchedule 
                 ?? $todaySchedules->first(fn ($sched) => $sched->start_time >= $currentTime)
-                ?? $todaySchedules->first()
-                ?? $schedules->first();
+                ?? $todaySchedules->first();
 
             $defaultDate = $request->query('date', $now->format('Y-m-d'));
 
@@ -120,13 +119,17 @@ class DashboardController extends Controller
             return view('teacher.dashboard', compact(
                 'user', 'config', 'alerts', 'journalLateAlert', 'schedules', 'kbmSuspendedEvent',
                 'defaultSchedule', 'defaultDate', 'studentsByClass', 'pendingSwapCount',
-                'homeroomClass', 'homeroomStats'
+                'homeroomClass', 'homeroomStats', 'todayName', 'todaySchedules'
             ));
         }
 
         if ($user->role_id === 1) {
             $unfilledSchedules = collect();
             $attendanceStats = ['Hadir' => 0, 'Sakit' => 0, 'Izin' => 0, 'Alpa' => 0, 'Terlambat' => 0];
+            $todayDay = $dashboards->indonesianDay(Carbon::now('Asia/Jakarta'));
+            $todayHasSchedules = $todayDay !== null && Schedule::where('day_of_week', $todayDay)
+                ->where('cycle_type', $config?->active_cycle ?? 'Putaran 1')
+                ->exists();
 
             if (!$kbmSuspendedEvent) {
                 $unfilledSchedules = $dashboards->wakaUnfilledSchedules($config);
@@ -135,7 +138,7 @@ class DashboardController extends Controller
 
             $todaySwaps = app(\App\Services\ScheduleSwapService::class)->getTodayApprovedSwapsForDashboard();
 
-            return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats', 'todaySwaps'));
+            return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats', 'todaySwaps', 'todayHasSchedules'));
         }
 
         return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent'));

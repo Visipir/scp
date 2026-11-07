@@ -69,13 +69,12 @@ class JournalController extends Controller
             return $sched->start_time <= $currentTime && $sched->end_time >= $currentTime;
         });
 
-        // Default schedule: query parameter -> current ongoing -> next upcoming -> first today -> first overall
+        // Default schedule: query parameter -> current ongoing -> next upcoming -> first today (null if none today)
         $targetScheduleId = $request->query('schedule_id');
         $defaultSchedule = ($targetScheduleId ? $schedules->firstWhere('id', (int) $targetScheduleId) : null)
             ?? $currentSchedule 
             ?? $todaySchedules->first(fn ($sched) => $sched->start_time >= $currentTime)
-            ?? $todaySchedules->first()
-            ?? $schedules->first();
+            ?? $todaySchedules->first();
 
         $defaultDate = $request->query('date', $now->format('Y-m-d'));
 
@@ -86,7 +85,7 @@ class JournalController extends Controller
             ->get(['id', 'fullname', 'username', 'gender', 'class_id'])
             ->groupBy('class_id');
 
-        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass'));
+        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass', 'todayName', 'todaySchedules'));
     }
 
     public function store(StoreJournalRequest $request, JournalService $journals): RedirectResponse

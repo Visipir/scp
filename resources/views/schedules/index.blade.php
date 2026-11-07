@@ -300,6 +300,16 @@
             </div>
 
             {{-- Row 2: Day Chips (Horizontal scrollable) --}}
+            @if(($groupedSchedules->get($todayName)?->count() ?? 0) === 0)
+                <div class="p-2.5 bg-zinc-50 dark:bg-[#121214] border border-zinc-200 dark:border-[#2B2B30] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <span class="text-zinc-700 dark:text-[#EDEDF0] font-medium">
+                        Tidak ada jadwal hari ini ({{ $todayName }}). Silakan pilih hari lain pada tab di bawah ini.
+                    </span>
+                    <button type="button" @click="activeDay = 'all'" x-show="activeDay !== 'all'" class="text-[#0093dd] hover:underline font-semibold text-left sm:text-right cursor-pointer shrink-0">
+                        Tampilkan Semua Hari &rarr;
+                    </button>
+                </div>
+            @endif
             <div class="pt-2.5 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none">
                 <button 
                     type="button" 
