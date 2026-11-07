@@ -28,6 +28,11 @@ import-samples
 import-samples/
 /database/database_staging.sqlite
 /database/database_candidate.sqlite
+/.env.testing
+/sqlite_to_mysql.sql
+/database/database_dump.sql
+*.dump.sql
+credentials/
 /vendor
 _ide_helper.php
 Homestead.json
