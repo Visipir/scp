@@ -25,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // API login: 5 attempts per minute per username + IP.
         RateLimiter::for('api-login', function (Request $request) {
-            $key = Str::transliterate(Str::lower((string) $request->input('username'))).'|'.$request->ip();
+            $rawUsername = $request->input('username');
+            $username = is_scalar($rawUsername) ? (string) $rawUsername : '';
+            $key = Str::transliterate(Str::lower($username)).'|'.$request->ip();
 
             return Limit::perMinute(5)->by($key);
         });
@@ -52,7 +54,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Forgot password: 5 requests per hour per identifier/email + IP
         RateLimiter::for('forgot-password', function (Request $request) {
-            $identifier = strtolower(trim((string) ($request->input('identifier') ?: $request->input('email'))));
+            $rawIdentifier = $request->input('identifier') ?: $request->input('email');
+            $identifier = is_scalar($rawIdentifier) ? strtolower(trim((string) $rawIdentifier)) : '';
             $key = Str::transliterate($identifier) . '|' . $request->ip();
 
             return Limit::perHour(5)->by($key)->response(function () {

@@ -26,7 +26,7 @@
                 id="username" 
                 type="text" 
                 name="username" 
-                :value="old('username')" 
+                :value="is_string(old('username')) ? old('username') : ''" 
                 required 
                 autofocus 
                 autocomplete="username" 

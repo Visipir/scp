@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
+            'username' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -81,6 +81,9 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+        $rawUsername = $this->input('username');
+        $username = is_scalar($rawUsername) ? (string) $rawUsername : '';
+
+        return Str::transliterate(Str::lower($username).'|'.$this->ip());
     }
 }
