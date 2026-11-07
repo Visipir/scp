@@ -119,3 +119,66 @@ chown -R www-data:www-data storage/framework/cache storage/framework/sessions st
 php artisan up
 sha256sum database/database.sqlite database/database_staging.sqlite .env
 ```
+
+---
+
+## Catatan Hasil Eksekusi Promosi (J4 & J5 — `2026-11-07T08:46:49Z`)
+
+### 1. Eksekusi `scripts/promote-candidate.sh`
+- **Dry-Run (`--dry-run`)**: Seluruh 5 penjaga pre-flight (`keberadaan berkas`, `sha256 kandidat = 69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99`, `APP_DEBUG=false`, `fingerprint 5 akun terlindung vs database_live_h0.sqlite`, `migrate:status = 0 Pending`) **LULUS**.
+- **Eksekusi (`--confirm`)**: Berhasil dijalankan pada `2026-11-07T08:46:49Z` (`promote_20261107T084649Z`).
+- **Konfigurasi `.env` Aktif**:
+  - `APP_ENV=local`
+  - `APP_DEBUG=false`
+  - `DB_DATABASE=/var/www/SCP/database/database.sqlite`
+
+### 2. Verifikasi Pasca-Promosi (Read-Only)
+- **Row Counts Live (`database/database.sqlite`)**:
+  - `users = 1805`
+  - `classes = 48`
+  - `schedules = 866` (`1.453 JP`)
+  - `homeroom_assignments = 48`
+  - `counselor_assignments = 48`
+  - `journals = 0`
+  - `attendances = 0`
+  - `leave_requests = 0`
+  - `leave_request_decisions = 0`
+  - `personal_access_tokens = 0`
+- **Fingerprint 5 Akun Terlindung**: 100% identik dengan `storage/app/private/backups/database_live_h0.sqlite` (`must_change_password = 0`).
+- **HTTP Login & Halaman Utama (`127.0.0.1:85` & `api-scp.fikricavan.my.id`)**:
+  - `waka_kurikulum`: Web login `302 -> /dashboard`, `GET /schedules = 200`, API login `200`, `GET /api/v1/dashboard = 200`.
+  - `haris-budiawan`: Web login `302 -> /dashboard`, `GET /dashboard = 200`, API login `200`, `GET /api/v1/dashboard = 200`.
+  - `ryawidyaningtyas`: Web login `302 -> /dashboard`, `GET /leave-requests = 200`, API login `200`, `GET /api/v1/leave-requests = 200`.
+  - `tim_kesiswaan`: Web login `302 -> /dashboard`, `GET /leave-requests = 200`, API login `200`, `GET /api/v1/leave-requests = 200`.
+  - `17766`: Web login `302 -> /dashboard`, `GET /dashboard = 200`, API login `200`, `GET /api/v1/dashboard = 200`.
+- **Keamanan Endpoint Publik & Storage**:
+  - `GET /login-background` -> `HTTP 200`
+  - `GET /storage/logs/laravel.log` (guest) -> `HTTP 403`
+  - `GET /storage/app/private/credentials/student_credentials_latest.csv` (guest) -> `HTTP 403`
+
+### 3. Daftar Seluruh Berkas Backup (`storage/app/private/backups/`)
+
+| Path Berkas | Ukuran (Bytes) | `sha256` |
+| :--- | ---: | :--- |
+| `storage/app/private/backups/database_live_pre_f2.sqlite` | `1.200.128` | `d5ba406bc4f2bfbea2f74c1edc487ad31aedf85b03146d83da6c3f67dee135b4` |
+| `storage/app/private/backups/database_staging_pre_f2.sqlite` | `1.212.416` | `efbe803e1dc0980a0eb85bf44353506f0ea07ee67f07db4598cfbcbd7bf25d42` |
+| `storage/app/private/backups/database_live_h0.sqlite` | `1.200.128` | `3f95a97244fde08a2edfde798822dcbd618b117f36d8d510b92790c1cc7dfbbd` |
+| `storage/app/private/backups/database_staging_h0.sqlite` | `1.212.416` | `7e2bfdc827ca1d54f4fe4fa4673a9d6faa2122f08c37519d72a9648d7d8a3995` |
+| `storage/app/private/backups/database_candidate_h2.sqlite` | `1.355.776` | `82d9456e598d57f34fcc19e8cae8bd1f714c3ebe993469715c5ac9d3deba1650` |
+| `storage/app/private/backups/database_candidate_i2.sqlite` | `1.355.776` | `69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99` |
+| `storage/app/private/backups/env_h0.bak` | `1.207` | `855ae9d07d134c5be756ff48f8c06c486ea8eac7ab7000979010ea86f5561c20` |
+| `storage/app/private/backups/env_i0.bak` | `1.207` | `855ae9d07d134c5be756ff48f8c06c486ea8eac7ab7000979010ea86f5561c20` |
+| `storage/app/private/backups/promote_20261107T084649Z/.env.bak` | `1.208` | `37ce1bd058634af5425a2ef80330185e531d8dc6cb6c5d9b3fd4fec273c57710` |
+| `storage/app/private/backups/promote_20261107T084649Z/database.sqlite.bak` | `1.200.128` | `3f95a97244fde08a2edfde798822dcbd618b117f36d8d510b92790c1cc7dfbbd` |
+| `storage/app/private/backups/promote_20261107T084649Z/database_staging.sqlite.bak` | `1.212.416` | `b3a5f3244050c2454d05c1071957029b4e9b43f79cd6fc9977543faf64d5869d` |
+| `storage/app/private/backups/promote_20261107T084649Z/database_candidate.sqlite.bak` | `1.355.776` | `69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99` |
+| `storage/app/private/backups/promote_20261107T084649Z/manifest.txt` | `1.190` | `b5ca7854eefdcd622d22af119634aeacca6e183a9be74d1bd83bbb9767ab07df` |
+
+### 4. Lokasi CSV Kredensial Terbaru (Privat, Gitignored)
+- **Guru (`90` guru non-terlindung)**:
+  - `storage/app/private/credentials/teacher_credentials_latest.csv` (`9.766` bytes, `sha256: 7446779a2f319c8c2ca971a026e353cc038c8253d847b695e678482fff4a2ed6`)
+  - Arsip bertanda waktu: `storage/app/private/credentials/bulk_reset_teachers_20261107_145429_6caf.csv`
+- **Siswa (`1.709` siswa non-terlindung)**:
+  - `storage/app/private/credentials/student_credentials_latest.csv` (`128.912` bytes, `sha256: ce0b9cb4951418dbde7b105dc851d472831e6986658b29ae552d191cfe0ebb20`)
+  - Arsip bertanda waktu: `storage/app/private/credentials/student_credentials_20261107_025322_s4er.csv`
+
