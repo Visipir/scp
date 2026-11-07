@@ -21,7 +21,9 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
 
     public function test_reset_imported_passwords_dry_run_and_apply(): void
     {
-        putenv('SEED_DEFAULT_PASSWORD=***REMOVED***');
+        $initialPass = \Illuminate\Support\Str::random(16);
+        $newDefaultPass = \Illuminate\Support\Str::random(16);
+        putenv('SEED_DEFAULT_PASSWORD=' . $newDefaultPass);
 
         // Dummy teacher ID 2 (should be ignored)
         $dummyTeacher = $this->makeUser(2, ['id' => 2, 'username' => 'guru_andi', 'password' => Hash::make('old_pass')]);
@@ -31,7 +33,7 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
             'id' => 1718,
             'username' => 'guru_6aa0e473a0ac6',
             'fullname' => 'RUSDIYANTO, S.Pd',
-            'password' => Hash::make('***REMOVED***'),
+            'password' => Hash::make($initialPass),
             'must_change_password' => false,
         ]);
 
@@ -40,7 +42,7 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
             ->expectsOutputToContain('DRY-RUN completed. Database was NOT modified')
             ->assertSuccessful();
 
-        $this->assertTrue(Hash::check('***REMOVED***', $importedTeacher->fresh()->password));
+        $this->assertTrue(Hash::check($initialPass, $importedTeacher->fresh()->password));
         $this->assertFalse((bool) $importedTeacher->fresh()->must_change_password);
 
         // 2. Apply
@@ -49,8 +51,8 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
             ->assertSuccessful();
 
         $fresh = $importedTeacher->fresh();
-        $this->assertFalse(Hash::check('***REMOVED***', $fresh->password));
-        $this->assertTrue(Hash::check('***REMOVED***', $fresh->password));
+        $this->assertFalse(Hash::check($initialPass, $fresh->password));
+        $this->assertTrue(Hash::check($newDefaultPass, $fresh->password));
         $this->assertTrue((bool) $fresh->must_change_password);
 
         // Dummy teacher password was not modified

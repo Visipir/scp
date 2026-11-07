@@ -70,16 +70,16 @@ class LeaveDecisionAndWaliMenuD5Test extends TestCase
 
         $this->studentA = User::create([
             'fullname' => 'SISWA RPL SATU',
-            'username' => '17766',
-            'password' => bcrypt('password'),
+            'username' => '99001',
+            'password' => bcrypt(\Illuminate\Support\Str::random(16)),
             'role_id'  => 4,
             'class_id' => $this->classA->id,
         ]);
 
         $this->parentA = User::create([
             'fullname' => 'ORTU SISWA RPL SATU',
-            'username' => 'ortu_17766',
-            'password' => bcrypt('password'),
+            'username' => 'ortu_99001',
+            'password' => bcrypt(\Illuminate\Support\Str::random(16)),
             'role_id'  => 4,
         ]);
         $this->studentA->update(['parent_id' => $this->parentA->id]);

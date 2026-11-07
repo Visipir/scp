@@ -227,7 +227,7 @@ class UserApiTest extends TestCase
             'fullname' => 'Pak Guru Baru',
             'username' => 'gurubaru',
             'role_id'  => 2,
-            'password' => '***REMOVED***',
+            'password' => \Illuminate\Support\Str::random(16),
         ]);
         $createRes->assertStatus(403);
 

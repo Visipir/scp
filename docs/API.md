@@ -148,7 +148,7 @@ Access:
 - `GET /api/v1/users/{id}` — Get user details (including parent and children relationships).
 - `PUT /api/v1/users/{id}` — Update user fields.
 - `DELETE /api/v1/users/{id}` — Delete user.
-- `PATCH /api/v1/users/{id}/reset-password` — Reset password to default (`***REMOVED***` or school default).
+- `PATCH /api/v1/users/{id}/reset-password` — Reset password to a temporary password and set `must_change_password = true`.
 
 ---
 

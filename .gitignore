@@ -1,4 +1,5 @@
 *.log
+*.sqlite
 .DS_Store
 .env
 .env.backup
@@ -20,7 +21,11 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/private/
+/storage/app/seed/
 /storage/app/import-samples/
+import-samples
+import-samples/
 /database/database_staging.sqlite
 /database/database_candidate.sqlite
 /vendor

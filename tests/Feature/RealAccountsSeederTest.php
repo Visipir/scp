@@ -44,7 +44,7 @@ class RealAccountsSeederTest extends TestCase
     public function test_real_accounts_seeder_creates_only_waka_and_kesiswaan_and_ignores_wali_placeholders(): void
     {
         $classA = $this->makeClass('X RPL 1');
-        putenv('SEED_DEFAULT_PASSWORD=***REMOVED***');
+        putenv('SEED_DEFAULT_PASSWORD=' . \Illuminate\Support\Str::random(16));
 
         File::put(
             $this->csvPath,

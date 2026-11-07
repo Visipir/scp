@@ -139,10 +139,12 @@ class ForgotPasswordTest extends TestCase
 
     public function test_reset_password_fails_with_invalid_code(): void
     {
+        $oldPass = \Illuminate\Support\Str::random(16);
+        $newPass = \Illuminate\Support\Str::random(16);
         $user = $this->makeUser(2, [
             'email'             => 'guru.reset@example.com',
             'email_verified_at' => now(),
-            'password'          => Hash::make('old***REMOVED***'),
+            'password'          => Hash::make($oldPass),
         ]);
 
         PasswordResetCode::create([
@@ -155,8 +157,8 @@ class ForgotPasswordTest extends TestCase
         $response = $this->postJson('/api/reset-password', [
             'email'                 => 'guru.reset@example.com',
             'code'                  => '999999',
-            'password'              => 'new***REMOVED***',
-            'password_confirmation' => 'new***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $response->assertStatus(422)
@@ -168,6 +170,7 @@ class ForgotPasswordTest extends TestCase
 
     public function test_reset_password_locks_out_after_max_attempts(): void
     {
+        $newPass = \Illuminate\Support\Str::random(16);
         $user = $this->makeUser(2, [
             'email'             => 'guru.locked@example.com',
             'email_verified_at' => now(),
@@ -184,8 +187,8 @@ class ForgotPasswordTest extends TestCase
         $response = $this->postJson('/api/reset-password', [
             'email'                 => 'guru.locked@example.com',
             'code'                  => '000000',
-            'password'              => 'new***REMOVED***',
-            'password_confirmation' => 'new***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $response->assertStatus(422);
@@ -194,8 +197,8 @@ class ForgotPasswordTest extends TestCase
         $nextResponse = $this->postJson('/api/reset-password', [
             'email'                 => 'guru.locked@example.com',
             'code'                  => '123456',
-            'password'              => 'new***REMOVED***',
-            'password_confirmation' => 'new***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $nextResponse->assertStatus(422);
@@ -203,6 +206,7 @@ class ForgotPasswordTest extends TestCase
 
     public function test_reset_password_fails_if_expired(): void
     {
+        $newPass = \Illuminate\Support\Str::random(16);
         $user = $this->makeUser(2, [
             'email'             => 'guru.expired@example.com',
             'email_verified_at' => now(),
@@ -218,8 +222,8 @@ class ForgotPasswordTest extends TestCase
         $response = $this->postJson('/api/reset-password', [
             'email'                 => 'guru.expired@example.com',
             'code'                  => '123456',
-            'password'              => 'new***REMOVED***',
-            'password_confirmation' => 'new***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $response->assertStatus(422)
@@ -228,11 +232,13 @@ class ForgotPasswordTest extends TestCase
 
     public function test_reset_password_success_revokes_tokens_and_updates_password(): void
     {
+        $oldPass = \Illuminate\Support\Str::random(16);
+        $newPass = \Illuminate\Support\Str::random(16);
         $user = $this->makeUser(2, [
             'username'          => 'guru_success',
             'email'             => 'guru.success@example.com',
             'email_verified_at' => now(),
-            'password'          => Hash::make('old***REMOVED***'),
+            'password'          => Hash::make($oldPass),
         ]);
 
         // Create Sanctum personal access token
@@ -250,8 +256,8 @@ class ForgotPasswordTest extends TestCase
         $response = $this->postJson('/api/reset-password', [
             'identifier'            => 'guru_success',
             'code'                  => '654321',
-            'password'              => '***REMOVED***',
-            'password_confirmation' => '***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $response->assertOk()
@@ -268,18 +274,20 @@ class ForgotPasswordTest extends TestCase
         $this->assertCount(0, $user->fresh()->tokens);
 
         // Password updated
-        $this->assertTrue(Hash::check('***REMOVED***', $user->fresh()->password));
+        $this->assertTrue(Hash::check($newPass, $user->fresh()->password));
     }
 
     public function test_web_forgot_password_and_reset_flow(): void
     {
         Mail::fake();
+        $oldPass = \Illuminate\Support\Str::random(16);
+        $newPass = \Illuminate\Support\Str::random(16);
 
         $user = $this->makeUser(2, [
             'username'          => 'web_teacher',
             'email'             => 'web.user@example.com',
             'email_verified_at' => now(),
-            'password'          => Hash::make('old***REMOVED***'),
+            'password'          => Hash::make($oldPass),
         ]);
 
         // Step 1: Request code using username
@@ -300,12 +308,12 @@ class ForgotPasswordTest extends TestCase
         $resetResponse = $this->post('/reset-password', [
             'identifier'            => 'web_teacher',
             'code'                  => '112233',
-            'password'              => '***REMOVED***',
-            'password_confirmation' => '***REMOVED***',
+            'password'              => $newPass,
+            'password_confirmation' => $newPass,
         ]);
 
         $resetResponse->assertRedirect('/login');
-        $this->assertTrue(Hash::check('***REMOVED***', $user->fresh()->password));
+        $this->assertTrue(Hash::check($newPass, $user->fresh()->password));
     }
 
     public function test_login_page_renders_forgot_password_link(): void
