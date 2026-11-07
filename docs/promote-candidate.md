@@ -17,7 +17,7 @@ Dokumen ini memandu promosi atomik dari `database/database_candidate.sqlite` (ya
 | `counselor_assignments` | `0` (tabel belum ada) | `0` | `48` (5 guru BK, `tim_kesiswaan` = 0) |
 | `user_name_aliases` | `0` (tabel belum ada) | `0` | `45` |
 | Migrasi Pending | `7` pending | `0` pending | `0` pending |
-| `sha256` File | `3f95a97244fde08a2edfde798822dcbd618b117f36d8d510b92790c1cc7dfbbd` | `26d2b4d56e91744fb912fb3ac55b35969e2c3a9688b692f814d3275df018b78d` | `82d9456e598d57f34fcc19e8cae8bd1f714c3ebe993469715c5ac9d3deba1650` |
+| `sha256` File | `3f95a97244fde08a2edfde798822dcbd618b117f36d8d510b92790c1cc7dfbbd` | `26d2b4d56e91744fb912fb3ac55b35969e2c3a9688b692f814d3275df018b78d` | `69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99` |
 
 ### Fingerprint `sha256(password)` 5 Akun Terlindung (Identik di Ketiga DB)
 
@@ -46,9 +46,16 @@ Dokumen ini memandu promosi atomik dari `database/database_candidate.sqlite` (ya
 
 ## Urutan Langkah Promosi (`scripts/promote-candidate.sh`)
 
-1. **Verifikasi Prasyarat**:
-   - Pastikan file `database/database_candidate.sqlite`, `database/database.sqlite`, `database/database_staging.sqlite`, dan `storage/app/private/protected-verify.env` ada.
-   - Verifikasi `sha256` dari `database/database_candidate.sqlite` sama dengan `82d9456e598d57f34fcc19e8cae8bd1f714c3ebe993469715c5ac9d3deba1650`.
+1. **Verifikasi Prasyarat (Pre-Flight sebelum `artisan down`)**:
+   - Pastikan file `database/database_candidate.sqlite`, `database/database.sqlite`, `database/database_staging.sqlite`, `storage/app/private/backups/database_live_h0.sqlite`, dan `storage/app/private/protected-verify.env` ada.
+   - Verifikasi `sha256` dari `database/database_candidate.sqlite` sama dengan `69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99` (atau nilai `--expected-sha256=<hash>`).
+   - Verifikasi `APP_DEBUG=false` di `.env`.
+   - Verifikasi otomatis 5 hash password akun terlindung di `database_candidate.sqlite` sama persis dengan `database_live_h0.sqlite`.
+   - Verifikasi `migrate:status` pada `database_candidate.sqlite` tidak memiliki migrasi `Pending`.
+   - Uji kering tanpa menulis apa pun dapat dijalankan dengan:
+     ```bash
+     bash scripts/promote-candidate.sh --dry-run
+     ```
 2. **Aktifkan Maintenance Mode**:
    ```bash
    php artisan down --retry=15
