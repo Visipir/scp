@@ -27,6 +27,42 @@ class User extends Authenticatable
         return !empty($this->email) && $this->email_verified_at !== null;
     }
 
+    /**
+     * List of usernames whose credentials and identity fields are protected (F1).
+     *
+     * @return array<int, string>
+     */
+    public static function protectedUsernames(): array
+    {
+        return config('protected_accounts.usernames', [
+            'waka_kurikulum',
+            'haris-budiawan',
+            'ryawidyaningtyas',
+            'tim_kesiswaan',
+            '17766',
+        ]);
+    }
+
+    /**
+     * Check whether a given username is in the protected accounts list.
+     */
+    public static function isProtectedUsername(?string $username): bool
+    {
+        if ($username === null || $username === '') {
+            return false;
+        }
+
+        return in_array(trim($username), self::protectedUsernames(), true);
+    }
+
+    /**
+     * Check whether this user account is protected from credential/identity mutations.
+     */
+    public function isProtectedAccount(): bool
+    {
+        return self::isProtectedUsername($this->username);
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');

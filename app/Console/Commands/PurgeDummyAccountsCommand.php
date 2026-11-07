@@ -79,8 +79,22 @@ class PurgeDummyAccountsCommand extends Command
         $tableRows = [];
         $eligibleToDelete = [];
         $blockedCount = 0;
+        $protectedCount = 0;
 
         foreach ($users as $user) {
+            if ($user->isProtectedAccount()) {
+                $protectedCount++;
+                $tableRows[] = [
+                    'id'        => $user->id,
+                    'username'  => $user->username,
+                    'fullname'  => $user->fullname,
+                    'role_id'   => $user->role_id,
+                    'relations' => 'protected',
+                    'status'    => 'PROTECTED_SKIPPED',
+                ];
+                continue;
+            }
+
             $relations = $this->countRelations($user);
             $totalRelations = array_sum($relations);
 
@@ -116,9 +130,10 @@ class PurgeDummyAccountsCommand extends Command
         );
 
         $this->info(sprintf(
-            'Total Targets Found: %d | Blocked (has relations): %d | Eligible for Purge: %d',
+            'Total Targets Found: %d | Blocked (has relations): %d | Protected Skipped: %d | Eligible for Purge: %d',
             count($users),
             $blockedCount,
+            $protectedCount,
             count($eligibleToDelete)
         ));
 

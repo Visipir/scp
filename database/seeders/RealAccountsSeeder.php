@@ -37,6 +37,7 @@ class RealAccountsSeeder extends Seeder
 
         $rows = $this->parseCsv($csvPath);
         $count = 0;
+        $skippedProtected = [];
 
         foreach ($rows as $row) {
             $username = trim($row['username'] ?? '');
@@ -50,6 +51,13 @@ class RealAccountsSeeder extends Seeder
 
             // Never seed wali.* placeholder accounts; homeroom teachers come from real Pegawai + Wali/BK import
             if (Str::startsWith(strtolower($username), 'wali.')) {
+                continue;
+            }
+
+            // Never overwrite protected accounts (F1)
+            if (User::isProtectedUsername($username) && User::where('username', $username)->exists()) {
+                $skippedProtected[] = $username;
+                $this->command?->warn("RealAccountsSeeder: Skipping protected account '{$username}'.");
                 continue;
             }
 

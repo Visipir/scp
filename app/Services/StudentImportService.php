@@ -577,4 +577,128 @@ PROMPT;
             'major' => $major,
         ];
     }
+
+    /**
+     * Provision or update student accounts from parsed rows while skipping protected accounts (F1).
+     */
+    public function provisionStudents(array $students): array
+    {
+        $allNis = array_unique(array_filter(array_column($students, 'nis')));
+        $existingUsers = \App\Models\User::whereIn('username', $allNis)->get()->keyBy('username');
+        $allClasses = \App\Models\SchoolClass::all()->groupBy(fn ($c) => $c->class_name . '|' . $c->academic_year);
+
+        $stats = [
+            'created'           => 0,
+            'updated'           => 0,
+            'classes_created'   => 0,
+            'skipped_protected' => [],
+        ];
+        $exportedCredentials = [];
+        $nowIso = now('Asia/Jakarta')->toIso8601String();
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $classCache = [];
+
+            foreach ($students as $row) {
+                $nis = $row['nis'] ?? '';
+                $fullname = $row['fullname'] ?? '';
+                $gender = $row['gender'] ?? null;
+                $className = $row['class_name'] ?? '';
+                $attendanceNumber = $row['attendance_number'] ?? null;
+                $academicYear = $row['academic_year'] ?? date('Y') . '/' . (date('Y') + 1);
+
+                if (empty($nis) || empty($fullname) || empty($className)) {
+                    continue;
+                }
+
+                $classKey = $className . '|' . $academicYear;
+                if (!isset($classCache[$classKey])) {
+                    $class = $allClasses->get($classKey)?->first();
+
+                    if (!$class) {
+                        $parsed = self::parseClassName($className);
+                        $class = \App\Models\SchoolClass::create([
+                            'class_name'    => $className,
+                            'academic_year' => $academicYear,
+                            'grade_level'   => $parsed['grade_level'],
+                            'major'         => $parsed['major'],
+                        ]);
+                        $stats['classes_created']++;
+                    }
+
+                    $classCache[$classKey] = $class;
+                }
+
+                $class = $classCache[$classKey];
+                $existing = $existingUsers->get($nis);
+
+                if ($existing) {
+                    if ($existing->isProtectedAccount()) {
+                        // Protected student account (e.g. 17766): never overwrite password, fullname, username, role_id, or must_change_password
+                        $stats['skipped_protected'][] = $existing->username;
+                        continue;
+                    }
+
+                    $userData = [
+                        'fullname'          => $fullname,
+                        'role_id'           => 4,
+                        'class_id'          => $class->id,
+                        'attendance_number' => $attendanceNumber,
+                    ];
+
+                    if ($gender) {
+                        $userData['gender'] = $gender;
+                    }
+
+                    $existing->update($userData);
+                    $stats['updated']++;
+                } else {
+                    $tempPassword = \Illuminate\Support\Str::random(12);
+                    $userData = [
+                        'username'              => $nis,
+                        'fullname'              => $fullname,
+                        'role_id'               => 4,
+                        'class_id'              => $class->id,
+                        'attendance_number'     => $attendanceNumber,
+                        'must_change_password'  => true,
+                        'password'              => \Illuminate\Support\Facades\Hash::make($tempPassword, ['rounds' => 4]),
+                    ];
+                    if ($gender) {
+                        $userData['gender'] = $gender;
+                    }
+
+                    $newUser = \App\Models\User::create($userData);
+                    $existingUsers->put($nis, $newUser);
+                    $stats['created']++;
+
+                    $exportedCredentials[] = [
+                        'id'                 => $newUser->id,
+                        'username'           => $newUser->username,
+                        'fullname'           => $newUser->fullname,
+                        'nip'                => '',
+                        'role_id'            => 4,
+                        'temporary_password' => $tempPassword,
+                        'reset_at'           => $nowIso,
+                    ];
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            throw $e;
+        }
+
+        $csvPath = null;
+        if (!empty($exportedCredentials)) {
+            $csvPath = app(UserService::class)->writeCredentialsCsv($exportedCredentials, 'student_import');
+        }
+
+        return [
+            'stats'                => $stats,
+            'exported_credentials' => $exportedCredentials,
+            'csv_path'             => $csvPath,
+        ];
+    }
 }

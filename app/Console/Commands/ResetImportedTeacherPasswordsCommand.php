@@ -55,13 +55,24 @@ class ResetImportedTeacherPasswordsCommand extends Command
         }
 
         $tableRows = [];
+        $skippedProtected = [];
+        $targets = [];
+
         foreach ($teachers as $teacher) {
+            if ($teacher->isProtectedAccount()) {
+                $skippedProtected[] = $teacher;
+                $action = 'PROTECTED_SKIPPED';
+            } else {
+                $targets[] = $teacher;
+                $action = $isApply ? 'PASSWORD_RESET' : 'PENDING_RESET';
+            }
+
             $tableRows[] = [
                 'id'                   => $teacher->id,
                 'username'             => $teacher->username,
                 'fullname'             => $teacher->fullname,
                 'must_change_password' => $teacher->must_change_password ? 'true' : 'false',
-                'action'               => $isApply ? 'PASSWORD_RESET' : 'PENDING_RESET',
+                'action'               => $action,
             ];
         }
 
@@ -70,7 +81,16 @@ class ResetImportedTeacherPasswordsCommand extends Command
             $tableRows
         );
 
-        $this->info(sprintf('Total Imported Teachers Found: %d', $teachers->count()));
+        $this->info(sprintf(
+            'Total Teachers Found: %d | Targets: %d | Protected Skipped: %d',
+            $teachers->count(),
+            count($targets),
+            count($skippedProtected)
+        ));
+
+        foreach ($skippedProtected as $protected) {
+            $this->line("  - SKIP PROTECTED: ID={$protected->id} | username={$protected->username} | name={$protected->fullname}");
+        }
 
         if (!$isApply) {
             $this->warn('DRY-RUN completed. Database was NOT modified. Use --apply to execute.');
@@ -82,7 +102,7 @@ class ResetImportedTeacherPasswordsCommand extends Command
             $hashedPassword = Hash::make($defaultPassword);
             $count = 0;
 
-            foreach ($teachers as $teacher) {
+            foreach ($targets as $teacher) {
                 $teacher->password = $hashedPassword;
                 $teacher->must_change_password = true;
                 $teacher->save();
@@ -94,7 +114,7 @@ class ResetImportedTeacherPasswordsCommand extends Command
 
             DB::commit();
 
-            $this->info("Successfully reset passwords and flagged must_change_password for {$count} imported teachers.");
+            $this->info("Successfully reset passwords and flagged must_change_password for {$count} imported teachers (skipped " . count($skippedProtected) . " protected accounts).");
             $this->warn('Notice: Existing API tokens for these teachers were revoked.');
         } catch (\Throwable $e) {
             DB::rollBack();

@@ -36,21 +36,24 @@ class ResetImportedStudentPasswordsCommand extends Command
             return Command::SUCCESS;
         }
 
-        $targets = $students->filter(fn (User $s) => (bool) $s->must_change_password === true)->values();
-        $skipped = $students->reject(fn (User $s) => (bool) $s->must_change_password === true)->values();
+        $targets = $students->filter(fn (User $s) => !$s->isProtectedAccount() && (bool) $s->must_change_password === true)->values();
+        $skipped = $students->reject(fn (User $s) => !$s->isProtectedAccount() && (bool) $s->must_change_password === true)->values();
 
         $this->info(sprintf('Total Student Accounts Found (role_id=4): %d', $students->count()));
-        $this->info(sprintf('Target Accounts to Reset (must_change_password=true): %d', $targets->count()));
-        $this->info(sprintf('Skipped Accounts (already changed password, must_change_password=false): %d', $skipped->count()));
+        $this->info(sprintf('Target Accounts to Reset (must_change_password=true & non-protected): %d', $targets->count()));
+        $this->info(sprintf('Skipped Accounts (protected or must_change_password=false): %d', $skipped->count()));
 
         foreach ($skipped as $s) {
+            $reason = $s->isProtectedAccount()
+                ? 'protected_account'
+                : "must_change_password=false (updated_at={$s->updated_at})";
             $this->line(sprintf(
-                '  - SKIP ID=%d | NIS=%s | Name=%s | class_id=%s | reason=must_change_password=false (updated_at=%s)',
+                '  - SKIP ID=%d | NIS=%s | Name=%s | class_id=%s | reason=%s',
                 $s->id,
                 $s->username,
                 $s->fullname,
                 $s->class_id ?? 'null',
-                $s->updated_at
+                $reason
             ));
         }
 

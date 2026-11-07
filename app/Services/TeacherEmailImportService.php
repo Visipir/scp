@@ -87,12 +87,18 @@ class TeacherEmailImportService
 
         $matched = $payload['matched'] ?? [];
         $updatedCount = 0;
+        $skippedProtected = [];
 
         DB::beginTransaction();
         try {
             foreach ($matched as $item) {
                 $user = User::find($item['teacher_id']);
                 if ($user && !empty($item['new_email'])) {
+                    if ($user->isProtectedAccount() && !empty($user->email)) {
+                        // Protected accounts may only have email populated when currently empty; never overwrite existing email or credentials
+                        $skippedProtected[] = $user->username;
+                        continue;
+                    }
                     $user->email = $item['new_email'];
                     $user->save();
                     $updatedCount++;
@@ -106,7 +112,10 @@ class TeacherEmailImportService
             throw $e;
         }
 
-        return ['updated' => $updatedCount];
+        return [
+            'updated'           => $updatedCount,
+            'skipped_protected' => $skippedProtected,
+        ];
     }
 
     private function matchTeacher(array $row, Collection $teachers): ?User

@@ -107,9 +107,9 @@ class UserPasswordResetAndExportTest extends TestCase
         Storage::fake('local');
 
         $student = $this->makeUser(4, [
-            'username'             => '17766',
+            'username'             => '99001',
             'fullname'             => 'SISWA UJI',
-            'password'             => Hash::make('17766'),
+            'password'             => Hash::make('99001'),
             'must_change_password' => true,
         ]);
         $student->createToken('student-token');
@@ -119,7 +119,7 @@ class UserPasswordResetAndExportTest extends TestCase
             ->expectsOutputToContain('DRY-RUN completed')
             ->assertSuccessful();
 
-        $this->assertTrue(Hash::check('17766', $student->fresh()->password));
+        $this->assertTrue(Hash::check('99001', $student->fresh()->password));
         $this->assertSame(1, $student->fresh()->tokens()->count());
 
         // Apply randomizes password, revokes token, and exports CSV
@@ -127,7 +127,7 @@ class UserPasswordResetAndExportTest extends TestCase
             ->expectsOutputToContain('Successfully randomized passwords for 1 students')
             ->assertSuccessful();
 
-        $this->assertFalse(Hash::check('17766', $student->fresh()->password));
+        $this->assertFalse(Hash::check('99001', $student->fresh()->password));
         $this->assertTrue((bool) $student->fresh()->must_change_password);
         $this->assertSame(0, $student->fresh()->tokens()->count());
 
@@ -138,15 +138,18 @@ class UserPasswordResetAndExportTest extends TestCase
     public function test_setup_demo_accounts_command_from_env(): void
     {
         $class = SchoolClass::create(['class_name' => 'X RPL 1', 'academic_year' => '2026/2027']);
-        $waka = $this->makeUser(1, ['username' => 'waka_kurikulum']);
+        $waka = $this->makeUser(1, ['username' => 'waka_demo']);
         $guru = $this->makeUser(2, ['username' => 'rusdiyanto']);
-        $wali = $this->makeUser(2, ['username' => 'haris-budiawan']);
+        $wali = $this->makeUser(2, ['username' => 'wali-demo']);
         HomeroomAssignment::create(['user_id' => $wali->id, 'class_id' => $class->id, 'academic_year' => '2026/2027']);
         $bk = $this->makeUser(3, ['username' => 'sri-wahyuningsih']);
         CounselorAssignment::create(['user_id' => $bk->id, 'class_id' => $class->id, 'academic_year' => '2026/2027']);
-        $siswa = $this->makeUser(4, ['username' => '17766', 'class_id' => $class->id]);
+        $siswa = $this->makeUser(4, ['username' => '99002', 'class_id' => $class->id]);
 
         putenv('DEMO_DEFAULT_PASSWORD=EnvSuppliedPass#2026');
+        putenv('DEMO_WAKA_USERNAME=waka_demo');
+        putenv('DEMO_WALI_USERNAME=wali-demo');
+        putenv('DEMO_SISWA_USERNAME=99002');
 
         $this->artisan('accounts:setup-demo --apply')
             ->expectsOutputToContain('Successfully configured 5 demo tester accounts')
@@ -159,5 +162,8 @@ class UserPasswordResetAndExportTest extends TestCase
         $this->assertTrue(Hash::check('EnvSuppliedPass#2026', $siswa->fresh()->password));
 
         putenv('DEMO_DEFAULT_PASSWORD');
+        putenv('DEMO_WAKA_USERNAME');
+        putenv('DEMO_WALI_USERNAME');
+        putenv('DEMO_SISWA_USERNAME');
     }
 }

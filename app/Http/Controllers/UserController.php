@@ -115,8 +115,12 @@ class UserController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
 
+        $skippedMsg = !empty($result['skipped_protected'])
+            ? ' Akun terlindung dilewati: ' . implode(', ', $result['skipped_protected']) . '.'
+            : '';
+
         return redirect()->back()
-            ->with('success', "Berhasil me-reset password sementara acak untuk {$result['count']} akun guru. Token lama telah dicabut dan kredensial diekspor ke storage/app/private/{$result['csv_path']}.")
+            ->with('success', "Berhasil me-reset password sementara acak untuk {$result['count']} akun guru.{$skippedMsg} Token lama telah dicabut dan kredensial diekspor ke storage/app/private/{$result['csv_path']}.")
             ->with('reset_credentials', $result['credentials'])
             ->with('reset_csv_path', $result['csv_path']);
     }

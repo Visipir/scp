@@ -137,9 +137,10 @@ class EmployeeImportService
 
         $rows = $payload['rows'] ?? [];
         $applied = [
-            'updated' => 0,
-            'created' => 0,
-            'skipped' => 0,
+            'updated'             => 0,
+            'created'             => 0,
+            'skipped'             => 0,
+            'protected_preserved' => [],
         ];
 
         DB::beginTransaction();
@@ -162,14 +163,26 @@ class EmployeeImportService
                     $user = User::find($targetUserId);
                     if ($user) {
                         $oldName = $user->fullname;
-                        $user->fullname = $row['name'];
-                        if (!empty($row['nip'])) {
-                            $user->nip = $row['nip'];
+                        if ($user->isProtectedAccount()) {
+                            // Never modify username, password, fullname, role_id, or must_change_password on protected accounts
+                            if (!empty($row['nip'])) {
+                                $user->nip = $row['nip'];
+                            }
+                            if (!empty($row['email']) && empty($user->email)) {
+                                $user->email = $row['email'];
+                            }
+                            $user->save();
+                            $applied['protected_preserved'][] = $user->username;
+                        } else {
+                            $user->fullname = $row['name'];
+                            if (!empty($row['nip'])) {
+                                $user->nip = $row['nip'];
+                            }
+                            if (!empty($row['email']) && empty($user->email)) {
+                                $user->email = $row['email'];
+                            }
+                            $user->save();
                         }
-                        if (!empty($row['email']) && empty($user->email)) {
-                            $user->email = $row['email'];
-                        }
-                        $user->save();
 
                         if ($status === 'fuzzy' || $oldName !== $row['name']) {
                             UserNameAlias::firstOrCreate(

@@ -410,7 +410,7 @@ class SchoolClassService
         $rows = [];
 
         foreach ($students as $student) {
-            if (!(bool) $student->must_change_password) {
+            if ($student->isProtectedAccount() || !(bool) $student->must_change_password) {
                 $tempPass = '(Sudah Diganti)';
             } elseif (isset($cachedPasswords[$student->username])) {
                 $tempPass = $cachedPasswords[$student->username];

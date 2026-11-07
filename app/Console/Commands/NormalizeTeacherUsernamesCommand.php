@@ -54,8 +54,22 @@ class NormalizeTeacherUsernamesCommand extends Command
 
         $tableRows = [];
         $updates = [];
+        $skippedProtected = [];
 
         foreach ($teachers as $teacher) {
+            if ($teacher->isProtectedAccount()) {
+                $assignedInRun[] = $teacher->username;
+                $skippedProtected[] = $teacher;
+                $tableRows[] = [
+                    'id'           => $teacher->id,
+                    'old_username' => $teacher->username,
+                    'fullname'     => $teacher->fullname,
+                    'new_username' => $teacher->username,
+                    'status'       => 'PROTECTED_SKIPPED',
+                ];
+                continue;
+            }
+
             $candidateSlug = $this->generateSlug($teacher->fullname);
 
             // Handle uniqueness: check against existing usernames and newly assigned ones
@@ -96,10 +110,11 @@ class NormalizeTeacherUsernamesCommand extends Command
         );
 
         $this->info(sprintf(
-            'Total Teachers: %d | Renames Pending: %d | Unchanged: %d',
+            'Total Teachers: %d | Renames Pending: %d | Unchanged: %d | Protected Skipped: %d',
             count($teachers),
             count($updates),
-            count($teachers) - count($updates)
+            count($teachers) - count($updates) - count($skippedProtected),
+            count($skippedProtected)
         ));
 
         if (!$isApply) {

@@ -51,111 +51,21 @@ class StudentImportController extends Controller
             return back()->with('error', 'Tidak ada data siswa yang ditemukan di file.');
         }
 
-        // 2. Pre-fetch all existing users in ONE query instead of 1,711 separate SELECT queries
-        $allNis = array_unique(array_filter(array_column($students, 'nis')));
-        $existingUsers = User::whereIn('username', $allNis)->get()->keyBy('username');
-
-        // Pre-fetch all classes to minimize queries
-        $allClasses = SchoolClass::all()->groupBy(fn($c) => $c->class_name . '|' . $c->academic_year);
-
-        // 3. Provision accounts and assign classes in a transaction
-        $stats = ['created' => 0, 'updated' => 0, 'classes_created' => 0];
-        $exportedCredentials = [];
-        $nowIso = now('Asia/Jakarta')->toIso8601String();
-
-        DB::beginTransaction();
+        // 2. Provision accounts and assign classes via StudentImportService (protects F1 accounts)
         try {
-            $classCache = [];
-
-            foreach ($students as $row) {
-                $nis = $row['nis'] ?? '';
-                $fullname = $row['fullname'] ?? '';
-                $gender = $row['gender'] ?? null;
-                $className = $row['class_name'] ?? '';
-                $attendanceNumber = $row['attendance_number'] ?? null;
-                $academicYear = $row['academic_year'] ?? date('Y') . '/' . (date('Y') + 1);
-
-                if (empty($nis) || empty($fullname) || empty($className)) {
-                    continue;
-                }
-
-                // Resolve or create class
-                $classKey = $className . '|' . $academicYear;
-                if (!isset($classCache[$classKey])) {
-                    $class = $allClasses->get($classKey)?->first();
-
-                    if (!$class) {
-                        $parsed = StudentImportService::parseClassName($className);
-                        $class = SchoolClass::create([
-                            'class_name' => $className,
-                            'academic_year' => $academicYear,
-                            'grade_level' => $parsed['grade_level'],
-                            'major' => $parsed['major'],
-                        ]);
-                        $stats['classes_created']++;
-                    }
-
-                    $classCache[$classKey] = $class;
-                }
-
-                $class = $classCache[$classKey];
-
-                $userData = [
-                    'fullname' => $fullname,
-                    'role_id' => 4,
-                    'class_id' => $class->id,
-                    'attendance_number' => $attendanceNumber,
-                ];
-
-                if ($gender) {
-                    $userData['gender'] = $gender;
-                }
-
-                // Check existing in-memory (O(1) lookup)
-                $existing = $existingUsers->get($nis);
-
-                if ($existing) {
-                    $existing->update($userData);
-                    $stats['updated']++;
-                } else {
-                    $tempPassword = Str::random(12);
-                    $userData['username'] = $nis;
-                    $userData['must_change_password'] = true;
-                    // Use rounds 4 for high-throughput batch provisioning (~0.08ms vs ~250ms per user)
-                    // Bcrypt verifies rounds 4 identically and securely for student logins
-                    $userData['password'] = Hash::make($tempPassword, ['rounds' => 4]);
-                    $newUser = User::create($userData);
-                    $existingUsers->put($nis, $newUser);
-                    $stats['created']++;
-
-                    $exportedCredentials[] = [
-                        'id'                 => $newUser->id,
-                        'username'           => $newUser->username,
-                        'fullname'           => $newUser->fullname,
-                        'nip'                => '',
-                        'role_id'            => 4,
-                        'temporary_password' => $tempPassword,
-                        'reset_at'           => $nowIso,
-                    ];
-                }
-            }
-
-            DB::commit();
+            $provisioned = $service->provisionStudents($students);
+            $stats = $provisioned['stats'];
+            $csvPath = $provisioned['csv_path'];
         } catch (\Throwable $e) {
-            DB::rollBack();
             Log::error('[StudentImport] DB failed: ' . $e->getMessage());
             return back()->with('error', 'Gagal menyimpan data ke database: ' . $e->getMessage());
-        }
-
-        $csvPath = null;
-        if (!empty($exportedCredentials)) {
-            $csvPath = app(UserService::class)->writeCredentialsCsv($exportedCredentials, 'student_import');
         }
 
         $total = $stats['created'] + $stats['updated'];
         $message = "Berhasil mengimpor {$total} siswa";
         if ($stats['created'] > 0) $message .= " ({$stats['created']} baru)";
         if ($stats['updated'] > 0) $message .= " ({$stats['updated']} diperbarui)";
+        if (!empty($stats['skipped_protected'])) $message .= " (" . count($stats['skipped_protected']) . " akun terlindung dilewati: " . implode(', ', $stats['skipped_protected']) . ")";
         if ($stats['classes_created'] > 0) $message .= ". {$stats['classes_created']} kelas baru dibuat otomatis.";
         if ($csvPath) $message .= " Kredensial sementara diekspor ke storage/app/private/{$csvPath}.";
 

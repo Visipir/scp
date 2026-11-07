@@ -112,6 +112,11 @@ class UserService
             abort(403, 'Akses ditolak.');
         }
 
+        if ($target->isProtectedAccount()) {
+            // Protected accounts cannot have their username, password, fullname, role_id, or must_change_password modified
+            unset($data['username'], $data['password'], $data['fullname'], $data['role_id'], $data['must_change_password']);
+        }
+
         if ((int) $actor->role_id !== 1) {
             if (isset($data['role_id']) && (int) $data['role_id'] !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk mengubah data siswa.');
@@ -152,6 +157,10 @@ class UserService
      */
     public function deleteUser(User $actor, User $target): void
     {
+        if ($target->isProtectedAccount()) {
+            abort(422, "Akun {$target->username} adalah akun terlindung penguji dan tidak boleh dihapus.");
+        }
+
         if ((int) $actor->id === (int) $target->id) {
             abort(422, 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
@@ -185,6 +194,10 @@ class UserService
             abort(403, 'Akses ditolak.');
         }
 
+        if ($target->isProtectedAccount()) {
+            abort(422, "Akun {$target->username} adalah akun terlindung penguji dan password-nya tidak boleh di-reset.");
+        }
+
         $target->update([
             'password'             => Hash::make($target->username),
             'must_change_password' => true,
@@ -196,6 +209,14 @@ class UserService
     }
 
     /**
+     * Alias for resetPasswordWithTempCredential.
+     */
+    public function resetTemporaryPassword(User $actor, User $target): array
+    {
+        return $this->resetPasswordWithTempCredential($actor, $target);
+    }
+
+    /**
      * Reset a user's password to a random temporary password, revoke old tokens,
      * flag must_change_password = true, and export credentials to storage/app/private.
      */
@@ -203,6 +224,10 @@ class UserService
     {
         if (!$this->canManageUser($actor, $target)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki wewenang untuk me-reset kata sandi pengguna ini.');
+        }
+
+        if ($target->isProtectedAccount()) {
+            abort(422, "Akun {$target->username} adalah akun terlindung penguji dan password-nya tidak boleh di-reset.");
         }
 
         $tempPassword = Str::random(12);
@@ -237,6 +262,7 @@ class UserService
     /**
      * Bulk reset teacher passwords to random temporary passwords (Waka only),
      * revoke old tokens, flag must_change_password = true, and export CSV to storage/app/private.
+     * Protected accounts are skipped and reported.
      */
     public function bulkResetTeacherPasswords(User $actor, ?array $userIds = null): array
     {
@@ -250,12 +276,18 @@ class UserService
         }
 
         $teachers = $query->get();
+        $skippedProtected = [];
         $credentials = [];
         $nowIso = now('Asia/Jakarta')->toIso8601String();
 
         DB::beginTransaction();
         try {
             foreach ($teachers as $teacher) {
+                if ($teacher->isProtectedAccount()) {
+                    $skippedProtected[] = $teacher->username;
+                    continue;
+                }
+
                 $tempPassword = Str::random(12);
                 $teacher->update([
                     'password'             => Hash::make($tempPassword, ['rounds' => 4]),
@@ -282,9 +314,10 @@ class UserService
         $csvPath = $this->writeCredentialsCsv($credentials, 'bulk_reset_teachers');
 
         return [
-            'count'       => count($credentials),
-            'credentials' => $credentials,
-            'csv_path'    => $csvPath,
+            'count'             => count($credentials),
+            'skipped_protected' => $skippedProtected,
+            'credentials'       => $credentials,
+            'csv_path'          => $csvPath,
         ];
     }
 

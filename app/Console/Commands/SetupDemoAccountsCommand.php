@@ -98,6 +98,7 @@ class SetupDemoAccountsCommand extends Command
 
         $rows = [];
         $targets = [];
+        $skippedProtected = [];
 
         foreach ($slots as $key => $slot) {
             if (blank($slot['password'])) {
@@ -110,6 +111,18 @@ class SetupDemoAccountsCommand extends Command
             if (!$user) {
                 $this->error("Could not find user for demo slot '{$key}'.");
                 return Command::FAILURE;
+            }
+
+            if ($user->isProtectedAccount()) {
+                $skippedProtected[] = $user;
+                $rows[] = [
+                    $slot['label'],
+                    $user->id,
+                    $user->username,
+                    $user->fullname,
+                    'PROTECTED_SKIPPED',
+                ];
+                continue;
             }
 
             $targets[] = [
@@ -129,6 +142,10 @@ class SetupDemoAccountsCommand extends Command
         }
 
         $this->table(['Peran Demo', 'ID', 'Username', 'Nama Lengkap', 'Status'], $rows);
+
+        if (!empty($skippedProtected)) {
+            $this->info('Protected accounts skipped (' . count($skippedProtected) . '): ' . implode(', ', array_map(fn (User $u) => $u->username, $skippedProtected)));
+        }
 
         if (!$isApply) {
             $this->warn('DRY-RUN completed. Use --apply to update passwords.');

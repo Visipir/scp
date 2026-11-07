@@ -26,6 +26,15 @@ sqlite3 "storage/app/private/backups/database_live_${TIMESTAMP}.sqlite" \
 
 - **Kriteria Lulus**: `integrity_check = ok`, ukuran file backup `> 0`, row count awal tercatat (`users=1758, classes=48, schedules=124`).
 
+### 1c. Verifikasi Awal 5 Akun Terlindung Penguji (`AKUN TERLINDUNG`)
+
+Pastikan 5 akun penguji (`waka_kurikulum`, `haris-budiawan`, `ryawidyaningtyas`, `tim_kesiswaan`, `17766`) tercatat fingerprint `sha256(password)`, `username`, `fullname`, `role_id`, dan `must_change_password=false` sebelum langkah deploy:
+
+```bash
+cd /var/www/SCP
+php artisan accounts:protect-credentials --dry-run
+```
+
 ---
 
 ## 2. Aktifkan Mode Maintenance
@@ -136,22 +145,24 @@ php artisan students:reset-imported-passwords --apply
 
 ---
 
-## 8. Nonaktifkan / Ganti Akun Default Lama & Siapkan Akun Demo Penguji
+## 8. Penambahan Akun Tambahan & Verifikasi Akun Terlindung Penguji
+
+> **PENTING**: 5 akun terlindung penguji (`waka_kurikulum`, `haris-budiawan`, `ryawidyaningtyas`, `tim_kesiswaan`, `17766`) **TIDAK BOLEH** dinonaktifkan, diganti username/nama/role-nya, atau di-reset password-nya karena kredensialnya telah dikirim ke penguji.
 
 - **`[BUTUH DATA DARI OPERATOR]`**:
-  - Daftar akun pengganti untuk `waka_kurikulum` (ID `1`) dan `tim_kesiswaan` (ID `4`) di `storage/app/seed/accounts.csv`.
-  - Password akun demo penguji (`DEMO_ACCOUNTS_PASSWORD` di `.env`) bila akun demo diperlukan saat uji penerimaan.
+  - Daftar akun Waka / Tim Kesiswaan tambahan (jika ada) di `storage/app/seed/accounts.csv`.
+  - Password akun demo tambahan (`DEMO_ACCOUNTS_PASSWORD` di `.env`) bila diperlukan selain 5 akun terlindung.
 
 ```bash
 cd /var/www/SCP
 
-# 8a. Seed akun Waka & Tim Kesiswaan nyata dari storage/app/seed/accounts.csv
+# 8a. (Opsional) Seed akun Waka & Tim Kesiswaan tambahan dari storage/app/seed/accounts.csv
+#     Akun terlindung otomatis di-skip oleh RealAccountsSeeder.
 php artisan db:seed --class=RealAccountsSeeder --force
 
-# 8b. Nonaktifkan / rotasi password akun lama (waka_kurikulum ID 1, tim_kesiswaan ID 4) dan cabut token Sanctum lama
-
-# 8c. (Opsional untuk Pengujian) Siapkan 5 akun demo penguji (1 Waka, 1 Guru, 1 Guru Wali, 1 BK, 1 Siswa)
-php artisan accounts:setup-demo
+# 8b. Verifikasi kembali fingerprint (sha256 password, username, nama, role, must_change_password=false)
+#     dari 5 akun terlindung penguji setelah seluruh tahapan import & reset selesai:
+php artisan accounts:protect-credentials --dry-run
 ```
 
 ---
