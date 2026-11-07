@@ -194,17 +194,19 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
    - **Format**: File mapping kelas, nama guru, dan peran penugasan (Wali Kelas / BK).
    - Memperbarui tabel `homeroom_assignments` dan `counselor_assignments`.
 
-3. **Impor Jadwal Pelajaran** (`/waka/schedules/import`)
-   - **Format**: Format matriks tabular atau jadwal per kelas (Senin s.d. Jumat, JP 1–10).
-   - Melakukan validasi otomatis terhadap konflik guru ganda, ruang ganda, dan rombel ganda sebelum commit.
+3. **Impor Jadwal Pelajaran (FET XML / CSV)** (`/waka/schedules/import`)
+   - **Siklus**: Mendukung seleksi siklus eksplisit (`Putaran 1` atau `Putaran 2`). Saat ini jadwal riil sekolah yang diterbitkan adalah **Putaran 2 (866 jadwal)**, sedangkan **Putaran 1 memiliki 0 jadwal**.
+   - **Prosedur Impor Putaran 1**: Ketika sekolah merilis jadwal resmi Putaran 1 dalam format FET timetable XML atau CSV, Waka Kurikulum dapat mengunggah file tersebut melalui menu `/waka/schedules/import`, memilih opsi `Putaran 1`, meninjau pratinjau matriks slot (preview), dan melakukan commit. Impor Putaran 1 bekerja secara independen dan tidak akan menimpa maupun merusak data jadwal Putaran 2.
+   - **Format File**: FET Timetable XML atau FET CSV (guru, rombel, hari, jam, mapel, ruang). Melakukan validasi otomatis terhadap konflik bentrok guru, ruang, dan rombel sebelum disimpan.
 
 ---
 
 ## 9. Konfigurasi Email & OTP Reset Password
 
-- Pengaturan SMTP dapat dikonfigurasi melalui GUI Waka Kurikulum di `/settings/email` atau via `.env`.
-- Menggunakan skema TLS teruji dengan dukungan fallback log mailer.
-- Endpoint reset password dengan kode OTP 6-digit terenkripsi:
+- **Prasyarat Reset Password**: Pengguna hanya dapat menggunakan reset password mandiri via OTP jika akun mereka telah memiliki alamat email terverifikasi yang didaftarkan melalui halaman profil pengguna (`/profile`). Akun tanpa email tidak dapat meminta kode OTP (pesan guard: akun belum memiliki email terdaftar).
+- **Manajemen Akun Tanpa Email oleh Waka**: Waka Kurikulum dapat memantau status pengguna dan melakukan reset kata sandi sementara secara manual maupun ekspor batch melalui menu **Manajemen Pengguna** (`/waka/users`).
+- **Pengaturan SMTP**: Dapat dikonfigurasi melalui GUI Waka Kurikulum di `/settings/email` atau via `.env`. Mendukung pengujian koneksi, proteksi TLS, dan fallback log mailer.
+- **Endpoint Reset Password**:
   - Request Code: `POST /api/v1/auth/forgot-password` (Web: `/forgot-password`)
   - Submit Code: `POST /api/v1/auth/reset-password` (Web: `/reset-password`)
 
