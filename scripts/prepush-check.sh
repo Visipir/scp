@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_DIR"
+
 SCAN_TERMS_FILE="${SCAN_TERMS_FILE:-/root/backup/scan-terms.txt}"
 
 echo "=== Running Pre-Push Safety Check ==="
