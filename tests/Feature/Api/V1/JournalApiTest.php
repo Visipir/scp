@@ -21,6 +21,13 @@ class JournalApiTest extends TestCase
     {
         parent::setUp();
         $this->seedRoles();
+        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-11-04 09:00:00', 'Asia/Jakarta'));
+    }
+
+    protected function tearDown(): void
+    {
+        \Carbon\Carbon::setTestNow();
+        parent::tearDown();
     }
 
     private function makeJournal(Schedule $schedule, ?string $date = null, array $attrs = []): Journal

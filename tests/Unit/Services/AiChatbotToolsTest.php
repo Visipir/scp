@@ -31,7 +31,14 @@ class AiChatbotToolsTest extends TestCase
     {
         parent::setUp();
         $this->seedRoles();
+        Carbon::setTestNow(Carbon::parse('2026-11-04 09:00:00', 'Asia/Jakarta'));
         $this->tools = app(AiChatbotTools::class);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     private function makeAttendance(User $student, string $status, string $date, ?Journal $journal = null): Attendance
