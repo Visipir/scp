@@ -38,13 +38,16 @@
 ## 2. Langkah 0: Aplikasi Patch Terpadu Live (`ALLOW_LIVE_PATCH`)
 
 > [!IMPORTANT]
-> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` yang mencakup:
-> 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email.
+> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0`) yang mencakup 7 berkas aplikasi:
+> 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email (`routes/api.php`, `routes/auth.php`, `routes/web.php`).
 > 2. Perlindungan fallback dekripsi password SMTP (`MailConfigService.php`) jika key rusak.
 > 3. Validasi batasan panjang prompt AI chat (`ChatController.php`).
 > 4. Perlindungan anti-enumerasi akun dan anonymized audit logging pada forgot-password (`PasswordResetService.php`).
+> 5. Bootstrap fallback akun Waka Kurikulum pertama saat `accounts.csv` tidak tersedia (`RealAccountsSeeder.php`).
 >
-> **Jika operator melewati Langkah 0, operator WAJIB melewati Langkah 1 juga.** Melewatkan Langkah 0 akan menyebabkan perbedaan pada berkas aplikasi saat `git reset --mixed feat/dark-console-ui` di Langkah 1, sehingga `git status --short` tidak akan bersih dan swap riwayat otomatis dibatalkan.
+> > **ATURAN MUTLAK:** Jika patch tidak dapat diterapkan secara bersih (baik verifikasi SHA-256 gagal maupun `git apply --check` gagal), **JANGAN JALANKAN LANGKAH 0 ATAU LANGKAH 1**. Hentikan proses dan periksa perbedaan direktori kerja.
+>
+> **Jika operator melewati Langkah 0, operator WAJIB melewati Langkah 1 juga.** Melewatkan Langkah 0 akan menyebabkan perbedaan pada berkas aplikasi saat `git reset --mixed main` di Langkah 1, sehingga `git status --short` tidak akan bersih dan swap riwayat otomatis dibatalkan.
 
 ### Eksekusi Langkah 0
 
@@ -57,22 +60,30 @@ if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
     exit 1
 fi
 
+# 0b. Verifikasi Checksum Patch Terpadu
+echo "82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0  /root/backup/live-patch-app.patch" | sha256sum -c -
+if [ $? -ne 0 ]; then
+    echo "ERROR: Checksum /root/backup/live-patch-app.patch tidak cocok! Membatalkan eksekusi."
+    exit 1
+fi
+
 /root/backup/live-verify.sh
 
 cd /var/www/SCP
 
-# 1. Backup berkas aplikasi yang akan dimodifikasi
+# 1. Backup berkas aplikasi yang akan dimodifikasi (7 berkas)
 mkdir -p /root/backup/live-files-pre-patch
 cp -a routes/api.php routes/auth.php routes/web.php \
       app/Http/Controllers/ChatController.php \
       app/Services/MailConfigService.php app/Services/PasswordResetService.php \
+      database/seeders/RealAccountsSeeder.php \
       /root/backup/live-files-pre-patch/
 echo "Backup berkas aplikasi selesai di /root/backup/live-files-pre-patch/"
 
 # 2. Uji coba patch kering (dry-run)
 git apply --check /root/backup/live-patch-app.patch || patch -p1 --dry-run < /root/backup/live-patch-app.patch
 if [ $? -ne 0 ]; then
-    echo "ERROR: Patch dry-run gagal! Membatalkan eksekusi."
+    echo "ERROR: Patch dry-run gagal! Patch tidak berlaku bersih. Jangan jalankan Langkah 0 atau 1."
     exit 1
 fi
 
@@ -183,8 +194,8 @@ fi
 # 8. Set remote URL ke origin resmi
 git remote set-url origin git@github.com:Visipir/scp.git || git remote add origin git@github.com:Visipir/scp.git
 
-# 9. Mixed reset ke branch feat/dark-console-ui (working tree TIDAK disentuh/dihapus)
-git reset --mixed feat/dark-console-ui
+# 9. Mixed reset ke branch main (working tree TIDAK disentuh/dihapus)
+git reset --mixed main
 
 # 10. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
 git checkout -- \
