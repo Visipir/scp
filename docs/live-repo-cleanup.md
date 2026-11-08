@@ -2,8 +2,20 @@
 
 > [!CAUTION]
 > **DOKUMEN RENCANA EKSEKUSI — JANGAN DIJALANKAN TANPA KONFIRMASI EKSPLISIT.**
-> Prosedur ini dirancang untuk mengganti riwayat `.git` di `/var/www/SCP` dengan riwayat bersih dari `/root/scp-clean`.
-> Gating: HANYA boleh dijalankan jika berkas `/root/backup/ALLOW_LIVE_CLEANUP` dibuat oleh operator.
+> Prosedur ini dirancang dalam 2 tahap berpagar (*two-stage gated process*) untuk memastikan keamanan penuh pada instance produksi:
+> 1. **Langkah 0 (Patch Routes Live)**: Gated oleh `/root/backup/ALLOW_LIVE_PATCH`.
+> 2. **Langkah 1 (Swap Riwayat .git Live)**: Gated oleh `/root/backup/ALLOW_LIVE_CLEANUP`.
+>
+> Kedua berkas gerbang (*gate files*) saat ini **TIDAK ADA**. Dokumen ini adalah panduan operasional mandiri (*runbook*) untuk operator.
+
+---
+
+## Status Kesiapan Gerbang (*Gate Readiness*)
+
+| Gerbang Eksekusi | Berkas Gerbang | Status Saat Ini | Alasan / Prasyarat |
+|---|---|---|---|
+| **Langkah 0** (Patch Routes) | `/root/backup/ALLOW_LIVE_PATCH` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; patch `/root/backup/live-patch-routes.patch` harus ditinjau terlebih dahulu. |
+| **Langkah 1** (Swap Riwayat) | `/root/backup/ALLOW_LIVE_CLEANUP` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; mensyaratkan Langkah 0 selesai dan tervalidasi penuh terlebih dahulu. |
 
 ---
 
@@ -15,16 +27,107 @@
    - Verifikasi permission dilakukan dengan `stat` sebelum dan sesudah swap.
 3. **Pembaruan Berkas Terpilih (Allowlist Only)**:
    - Hanya berkas dalam kategori aman (dokumentasi, panduan, unit/feature test, scripts) yang diperbarui menggunakan `git checkout -- <explicit list>`.
-   - Berkas kode aplikasi (`app/`, `routes/`, `config/`, `database/`) TIDAK disentuh.
-4. **Cadangan Lengkap**:
+   - Berkas kode aplikasi inti selain route patch (`app/`, `config/`, `database/`) TIDAK disentuh.
+4. **Cadangan Lengkap & Rollback**:
+   - Berkas yang disentuh di-backup sebelum eksekusi patch (`/root/backup/live-files-pre-patch/`).
    - Direktori `.git` asli disalin ke `/root/backup/live-git-old` sebelum modifikasi apa pun.
    - Berkas bundle rollback tersedia di `/root/backup/scp-pre-rewrite2.bundle`.
 
 ---
 
-## 2. Perintah Eksekusi Riil (Swap .git + Mixed Reset)
+## 2. Langkah 0: Aplikasi Patch Routes Live (`ALLOW_LIVE_PATCH`)
 
-Jalankan perintah berikut di terminal server:
+> [!IMPORTANT]
+> Langkah ini menerapkan pembatasan laju (*rate limiting*) `throttle:6,1` pada endpoint reset password & verifikasi email, serta menonaktifkan endpoint legacy `/api/login` (410 Gone) pada instans live tanpa mengubah fungsionalitas lain.
+
+### Eksekusi Langkah 0
+
+Jalankan perintah berikut di direktori server:
+
+```bash
+# 0. Verifikasi Gate File
+if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
+    echo "ERROR: Gate file /root/backup/ALLOW_LIVE_PATCH tidak ditemukan. Abort."
+    exit 1
+fi
+
+cd /var/www/SCP
+
+# 1. Backup berkas routes yang akan dimodifikasi
+mkdir -p /root/backup/live-files-pre-patch
+cp -a routes/api.php routes/auth.php routes/web.php /root/backup/live-files-pre-patch/
+echo "Backup routes selesai di /root/backup/live-files-pre-patch/"
+
+# 2. Uji coba patch kering (dry-run)
+patch -p1 --dry-run < /root/backup/live-patch-routes.patch || git apply --check /root/backup/live-patch-routes.patch
+if [ $? -ne 0 ]; then
+    echo "ERROR: Patch dry-run gagal! Membatalkan eksekusi."
+    exit 1
+fi
+
+# 3. Terapkan patch pada working tree live
+git apply /root/backup/live-patch-routes.patch
+echo "Patch routes berhasil diterapkan."
+
+# 4. Uji kelayakan konfigurasi & route list
+php artisan route:list > /dev/null
+php artisan config:clear
+php artisan route:clear
+
+# 5. Uji login nyata 5 akun terlindung (read-only, via port live)
+# Membaca password dari storage/app/private/protected-verify.env tanpa mencetaknya
+bash -c '
+set -e
+if [ -f storage/app/private/protected-verify.env ]; then
+    set -a
+    source storage/app/private/protected-verify.env
+    set +a
+    for u in waka_kurikulum haris-budiawan ryawidyaningtyas tim_kesiswaan 17766; do
+        varname="PASS_${u//-/_}"
+        pw="${!varname:-}"
+        if [ -n "$pw" ]; then
+            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/login \
+                -H "Content-Type: application/x-www-form-urlencoded" \
+                --data-urlencode "username=$u" --data-urlencode "password=$pw")
+            echo "Login Web $u: HTTP $code (expected 302)"
+        fi
+    done
+fi
+'
+
+# 6. Konfirmasi integritas live DB
+echo "Live DB SHA256: $(sha256sum database/database.sqlite)"
+echo "User count: $(sqlite3 database/database.sqlite 'SELECT count(*) FROM users;')"
+```
+
+### Prosedur Rollback Langkah 0
+
+Jika terjadi kendala pada routing setelah patch:
+
+```bash
+cd /var/www/SCP
+
+# 1. Pulihkan berkas routes asli dari backup
+cp -a /root/backup/live-files-pre-patch/* routes/
+
+# 2. Bersihkan cache route dan config
+php artisan config:clear
+php artisan route:clear
+
+# 3. Verifikasi git status pada routes
+git status routes/
+```
+
+---
+
+## 3. Langkah 1: Pembersihan & Swap Riwayat Git Live (`ALLOW_LIVE_CLEANUP`)
+
+> [!IMPORTANT]
+> Langkah ini mengganti riwayat git `.git` di `/var/www/SCP` dengan riwayat bersih dari `/root/scp-clean`, memindahkan berkas sensitif yang tidak ter-track, dan menyelaraskan working tree melalui mixed reset.
+
+### Eksekusi Langkah 1
+
+Jalankan perintah berikut di direktori server:
 
 ```bash
 # 0. Verifikasi Gate File
@@ -35,25 +138,41 @@ fi
 
 cd /var/www/SCP
 
-# 1. Catat stat & ownership .git asli
+# 1. Pindahkan 3 berkas sensitif tidak terlacak ke direktori aman terisolasi
+mkdir -p /root/backup/sensitive
+chmod 700 /root/backup/sensitive
+
+if [ -f /var/www/SCP/database/database_dump.sql ]; then
+    mv /var/www/SCP/database/database_dump.sql /root/backup/sensitive/
+fi
+if [ -f /var/www/SCP/sqlite_to_mysql.sql ]; then
+    mv /var/www/SCP/sqlite_to_mysql.sql /root/backup/sensitive/
+fi
+if [ -f /var/www/SCP/.env.testing ]; then
+    mv /var/www/SCP/.env.testing /root/backup/sensitive/
+fi
+chmod 600 /root/backup/sensitive/* 2>/dev/null || true
+echo "Berkas sensitif berhasil diamankan di /root/backup/sensitive/"
+
+# 2. Catat stat & ownership .git asli
 STAT_BEFORE=$(stat -c '%u:%g %a' /var/www/SCP/.git)
 echo "Stat .git asli: $STAT_BEFORE"
 
-# 2. Backup direktori .git live asli
+# 3. Backup direktori .git live asli
 cp -a /var/www/SCP/.git /root/backup/live-git-old
 echo "Backup .git live selesai di /root/backup/live-git-old"
 
-# 3. Salin .git bersih dari /root/scp-clean ke lokasi sementara
+# 4. Salin .git bersih dari /root/scp-clean ke lokasi sementara
 cp -a /root/scp-clean/.git /var/www/SCP/.git_new
 
-# 4. Samakan kepemilikan .git_new dengan .git asli
+# 5. Samakan kepemilikan .git_new dengan .git asli
 chown -R "$(stat -c '%U:%G' /var/www/SCP/.git)" /var/www/SCP/.git_new
 
-# 5. Swap direktori .git
+# 6. Swap direktori .git
 mv /var/www/SCP/.git /var/www/SCP/.git_bak
 mv /var/www/SCP/.git_new /var/www/SCP/.git
 
-# 6. Verifikasi stat & ownership setelah swap (harus identik)
+# 7. Verifikasi stat & ownership setelah swap (harus identik)
 STAT_AFTER=$(stat -c '%u:%g %a' /var/www/SCP/.git)
 echo "Stat .git baru: $STAT_AFTER"
 if [ "$STAT_BEFORE" != "$STAT_AFTER" ]; then
@@ -61,73 +180,51 @@ if [ "$STAT_BEFORE" != "$STAT_AFTER" ]; then
     chown -R "$(stat -c '%U:%G' /var/www/SCP/.git_bak)" /var/www/SCP/.git
 fi
 
-# 7. Mixed reset ke branch feat/dark-console-ui (working tree TIDAK disentuh)
+# 8. Set remote URL ke origin resmi
+git remote set-url origin git@github.com:Visipir/scp.git || git remote add origin git@github.com:Visipir/scp.git
+
+# 9. Mixed reset ke branch feat/dark-console-ui (working tree TIDAK disentuh/dihapus)
 git reset --mixed feat/dark-console-ui
 
-# 8. Periksa status working tree
+# 10. Periksa status working tree (harus hanya memuat docs/tests/scripts)
 git status --short
 
-# 9. Checkout HANYA berkas kategori aman (docs, tests, scripts, config test)
+# 11. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
 git checkout -- \
     .gitignore \
     README.md \
     SCP_CONTEXT.md \
-    docs/checklist-ukk.md \
-    docs/deploy-runbook.md \
-    docs/live-repo-cleanup.md \
-    docs/openapi.yaml \
-    docs/promote-candidate.md \
-    docs/push-after-rewrite.md \
+    docs/ \
     phpunit.xml \
-    scripts/postpush-verify.sh \
-    scripts/prepush-check.sh \
-    tests/Feature/Api/V1/JournalApiTest.php \
-    tests/Feature/FetScheduleImportTest.php \
-    tests/Feature/LoginValidationJ1Test.php \
-    tests/Feature/ProtectedAccountsF1Test.php \
-    tests/Feature/ProtectedAccountsScopeAfterImportF3Test.php \
-    tests/Feature/ProtectedCredentialsLoginF2Test.php \
-    tests/Feature/StudentLoginCardsAndPasswordResetE4Test.php \
-    tests/Feature/UserPasswordResetAndExportTest.php \
-    tests/Feature/WeekendEmptyScheduleJ2Test.php \
-    tests/Fixtures/synthetic_fet_timetable.csv \
-    tests/Fixtures/synthetic_fet_timetable.xml \
-    tests/Unit/Services/AiChatbotToolsTest.php
+    scripts/ \
+    tests/
 
-# Catatan: database/seeders/UserSeeder.php sengaja TIDAK di-checkout agar kode seeder live tidak terganggu tanpa approval.
-```
+# 12. Kadaluwarsa reflog & garbage collection untuk memusnahkan objek lama
+git reflog expire --expire=now --all
+git gc --prune=now
 
----
+# 13. Verifikasi Keberhasilan Pasca-Pembersihan
+echo "--- Verifikasi Objek Lama ---"
+git cat-file -e 433dc1164c62998d4e863b31563b7c9e7ac5e599 2>/dev/null && echo "FAIL: dump blob masih ada" || echo "PASS: dump blob musnah"
+git cat-file -e 7ee509f 2>/dev/null && echo "FAIL: commit 7ee509f masih ada" || echo "PASS: commit 7ee509f musnah"
 
-## 3. Verifikasi Keberhasilan Pasca-Pembersihan
-
-```bash
-cd /var/www/SCP
-
-# 1. Buktikan blob dump lama sudah tidak ada
-git cat-file -e 433dc1164c62998d4e863b31563b7c9e7ac5e599 2>/dev/null && echo "FAIL" || echo "PASS (blob lama lenyap)"
-
-# 2. Buktikan commit live lama 7ee509f sudah tidak ada
-git cat-file -e 7ee509f 2>/dev/null && echo "FAIL" || echo "PASS (commit lama lenyap)"
-
-# 3. Konfirmasi total commit sama dengan repo bersih
 echo "Total commit live: $(git rev-list --all --count)"
-# Harus cocok dengan /root/scp-clean (114 commit)
 
-# 4. Jalankan prepush safety check di repo live
+# 14. Jalankan prepush-check pada repositori live
 bash scripts/prepush-check.sh
+
+# 15. Verifikasi login akun terlindung & hash DB live
+echo "Live DB SHA256: $(sha256sum database/database.sqlite)"
 ```
 
----
+### Prosedur Rollback Langkah 1
 
-## 4. Prosedur Pemulihan (Rollback Procedure)
-
-Jika terjadi anomali atau kesalahan pasca-swap:
+Jika terjadi anomali atau kesalahan pasca-swap riwayat:
 
 ```bash
 cd /var/www/SCP
 
-# 1. Kembalikan .git asli dari backup live-git-bak
+# 1. Kembalikan .git asli dari backup .git_bak
 mv /var/www/SCP/.git /var/www/SCP/.git_failed
 mv /var/www/SCP/.git_bak /var/www/SCP/.git
 
@@ -137,7 +234,20 @@ git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
 # 3. Pulihkan berkas docs/tests yang sempat di-checkout
 git checkout -- .
 
-# 4. Bersihkan .git_failed jika verifikasi rollback selesai
+# 4. Kembalikan berkas sensitif dari backup jika diperlukan
+if [ -f /root/backup/sensitive/database_dump.sql ]; then
+    cp -a /root/backup/sensitive/database_dump.sql /var/www/SCP/database/
+fi
+if [ -f /root/backup/sensitive/sqlite_to_mysql.sql ]; then
+    cp -a /root/backup/sensitive/sqlite_to_mysql.sql /var/www/SCP/
+fi
+if [ -f /root/backup/sensitive/.env.testing ]; then
+    cp -a /root/backup/sensitive/.env.testing /var/www/SCP/
+fi
+
+# 5. Bersihkan direktori failed jika verifikasi rollback selesai
 rm -rf /var/www/SCP/.git_failed
+php artisan config:clear
+php artisan route:clear
+echo "Rollback Langkah 1 selesai. Repositori live kembali ke kondisi awal."
 ```
-Aplikasi live kembali 100% ke kondisi semula tanpa downtime atau perubahan state.

@@ -6,104 +6,129 @@
 
 ---
 
-## Langkah 1: Prasyarat Keamanan (Rotasi Kunci & Repositori Privat)
+## 1. Daftar Periksa Manual Operator (*Manual Execution Checklist*)
 
-Sebelum melakukan dorongan (*push*) ke remote GitHub:
-1. **Rotasi Google Gemini API Key**: Pastikan API key yang pernah tercantum dalam commit awal telah di-revoke dan diganti dengan API key baru via Google AI Studio / Google Cloud Console.
-2. **Status Repositori Privat**: Pastikan visibilitas repositori GitHub `git@github.com:Visipir/scp.git` berada dalam status **Private**.
+Ikuti langkah-langkah berikut secara berurutan:
+
+1. [ ] **Rotasi Google Gemini API Key**:
+   - Buat API key baru di Google AI Studio / Google Cloud Console.
+   - Buka `/waka/settings` di aplikasi web SCP dan simpan API key baru ke dalam konfigurasi sistem.
+   - Hapus / nonaktifkan API key lama di konsol Google Cloud.
+2. [ ] **Setel Repositori GitHub ke Status Privat**:
+   - Buka pengaturan repositori web `git@github.com:Visipir/scp.git` -> Ubah visibilitas ke **Private**.
+   - Buka pengaturan repositori iOS `git@github.com:Visipir/scp-ios.git` -> Ubah visibilitas ke **Private**.
+3. [ ] **Jalankan Skrip Pemeriksaan Pra-Dorongan (*Pre-push Safety Check*)**:
+   - Di direktori web: `cd /root/scp-clean && ./scripts/prepush-check.sh`
+   - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/prepush-check.sh`
+   - Keduanya wajib menghasilkan status `=== OK: Pre-push checks PASSED. ===`.
+4. [ ] **Eksekusi Force Push Repositori Web dari `/root/scp-clean`**:
+   ```bash
+   cd /root/scp-clean
+   git push --force origin --all
+   git push --force origin --tags
+   ```
+5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
+   ```bash
+   cd /root/scp-clean
+   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git 123
+   ```
+6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push)**:
+   - Ikuti panduan di [`docs/push-ios.md`](file:///root/scp-ios-clean/docs/push-ios.md):
+   ```bash
+   cd /root/scp-ios-clean
+   git push origin main
+   ```
+7. [ ] **Kirim Permohonan Pembersihan Cache ke GitHub Support**:
+   - Jika salah satu repositori pernah berstatus publik atau memiliki fork/pull request, buka tiket di [GitHub Support](https://support.github.com/contact):
+   - Minta GitHub menjalankan `git gc` dan menghapus unreachable commits, PR refs, dan cached commit views.
+8. [ ] **Unduh & Hapus Berkas Kredensial CSV**:
+   - Unduh berkas `users_credentials_*.csv` jika masih dibutuhkan secara luring (*offline*).
+   - Hapus dari server untuk mematuhi regulasi privasi data.
+9. [ ] **Eksekusi Langkah 0 Pembersihan Live (Patch Routes)**:
+   - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_PATCH`
+   - Jalankan Langkah 0 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
+10. [ ] **Eksekusi Langkah 1 Pembersihan Live (Swap .git History)**:
+    - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_CLEANUP`
+    - Jalankan Langkah 1 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
+11. [ ] **Pembersihan Cadangan Server Pasca-Penilaian**:
+    - Setelah penilaian/grading selesai, hapus direktori `/root/backup/` (berkas bundle, scan-terms, live-git-old, dan sensitive).
 
 ---
 
-## Langkah 2: Konfirmasi Remote Origin & Struktur Branch
+## 2. Tabel Ringkasan Komit, Branch, Tag, dan Berkas Bundle
 
-> [!CAUTION]
-> **EKSEKUSI PUSH HANYA DARI `/root/scp-clean`**
-> PUSH WAJIB DIJALANKAN DARI DIREKTORI `/root/scp-clean`. JANGAN PERNAH MENJALANKAN PUSH DARI `/var/www/SCP` KARENA DIREKTORI `.git` PADA LIVE MASIH MENYIMPAN RIWAYAT LAMA SEBELUM LANGKAH N6 DILAKSANAKAN.
+### A. Repositori Web (`/root/scp-clean`)
+- **Total Komit (`git rev-list --all --count`)**: `123`
+- **Branch Aktif**:
+  - `feat/dark-console-ui`: HEAD (komit dokumentasi dan hardening route/privasi)
+  - `main`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21` (17 komit)
+- **Tag**:
+  - `pre-restyle`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21`
+- **Hasil Pengujian Unit/Fitur**:
+  - `331 tests, 330 passed, 1 skipped` (0 failures, 0 errors, 933 assertions).
 
-Pastikan Anda berada di direktori clone bersih `/root/scp-clean`:
+### B. Repositori iOS (`/root/scp-ios-clean`)
+- **Total Komit (`git rev-list --all --count`)**: `93`
+- **Branch Aktif**:
+  - `main`: `7f4ad93b28ca8b1874ed7345a43dc4909de8af18`
+- **Komit di `origin/main` lama**:
+  - `9be56e9d59ef7210456c45755740a9384eeaf352` (repositori iOS 10 komit mendahului origin)
+- **Status Audit Keamanan**:
+  - 0 pelanggaran NIS/NIP/prefix/secret pada seluruh riwayat komit.
+  - **Keputusan**: Normal push tanpa rewriting history.
+
+### C. Checksum Berkas Cadangan Bundle (`/root/backup/`)
+
+| Berkas Bundle | Ukuran | SHA-256 Checksum |
+|---|---|---|
+| `scp-clean-HEAD.bundle` | ~1.0 MB | *(Dihitung ulang pasca-komit final)* |
+| `scp-pre-rewrite2.bundle` | 1.0 MB | `ed2beb3ce7a0cb84883cdd0b0c7ac97c2de4dd4d6a063d27897a4b8c204f25e2` |
+| `scp-pre-rewrite.bundle` | 1.2 MB | `11d5489892d08d9fb959e4d6f5813d8a2fbaf2da5aebfe0568ce6977e6d88eb4` |
+| `scp-pre-restyle-tag.bundle` | 486 KB | `66c588115e3fc0ca436478a3a209646736703034ddc0557a73f0bf57755f1520` |
+| `scp-ios-pre-rewrite2.bundle` | 515 KB | `d15405eddb51a863db4e81ef940eef42520bf89ab526d9bf047adc5b444c4784` |
+| `scp-ios-pre-rewrite.bundle` | 516 KB | `8c766cde3ef8ad51365a7c3d7821261a9bfa173f1d94147de8b02aa46cb0dc23` |
+
+---
+
+## 3. Peringatan Privasi Alamat Email Komit
+
+> [!WARNING]
+> Audit terhadap riwayat komit (`git log --all --format='%an <%ae>'`) mendeteksi alamat email pribadi:
+> - `Visipir <fi***@gmail.com>` (tercatat pada komit web dan iOS)
+> - `Visipir <vi***@users.noreply.github.com>` (tercatat pada komit iOS)
+>
+> Jika repositori di-push ke GitHub dan disetel ke Public, alamat email `fi***@gmail.com` akan terlihat secara publik. Oleh karena itu, **pastikan kedua repositori berstatus PRIVATE**.
+
+---
+
+## 4. Eksekusi Dorongan (*Push Execution*)
+
+### A. Repositori Web (`/root/scp-clean`)
+Pastikan remote origin benar:
 ```bash
 cd /root/scp-clean
 git remote -v
+# origin git@github.com:Visipir/scp.git
 ```
-Output yang diharapkan:
-```text
-origin  git@github.com:Visipir/scp.git (fetch)
-origin  git@github.com:Visipir/scp.git (push)
-```
-
-Pastikan hanya dua branch utama dan satu tag yang eksis:
-- Branch: `main` dan `feat/dark-console-ui`
-- Tag: `pre-restyle`
-
-Tidak ada branch atau tag lain yang menyimpan riwayat lama (*unrewritten history*).
-
-Jalankan skrip pemeriksaan pra-dorongan (*pre-push safety check*):
+Jalankan dorongan paksa:
 ```bash
-./scripts/prepush-check.sh
-```
-Perintah ini wajib menghasilkan `=== OK: Pre-push checks PASSED. Repository is safe for push. ===` sebelum melanjutkan.
-
----
-
-## Langkah 3: Eksekusi Force Push ke Remote Origin
-
-> [!IMPORTANT]
-> **Mengapa Menggunakan `--force` Bukan `--force-with-lease`?**
-> Perkakas `git-filter-repo` melepaskan dan menghapus referensi *remote-tracking* (`refs/remotes/origin/*`). Karena clone lokal yang telah di-rewrite tidak lagi memiliki referensi pelacak remote lama untuk dibandingkan (*no remote-tracking comparison baseline*), opsi `--force-with-lease` akan ditolak (*rejected*) atau memberikan ilusi proteksi yang keliru (*false safety*). Oleh karena itu, gunakan opsi `--force` secara eksplisit pada branch dan tag.
-
-Jalankan perintah berikut:
-```bash
-# 1. Force push seluruh branch yang telah dibersihkan
 git push --force origin --all
-
-# 2. Force push seluruh tag yang telah dibersihkan
 git push --force origin --tags
 ```
 
----
-
-## Langkah 4: Pembersihan Server GitHub (Support Ticket)
-
-Jika repositori pernah berstatus **Public** atau memiliki **Forks / Pull Requests**:
-GitHub tetap menyimpan commit lama yang tidak terhubung (*unreachable commits*) dalam cache internal dan tampilan commit PR. Hubungi GitHub Support untuk membersihkannya secara permanen:
-1. Kunjungi [GitHub Support Portal](https://support.github.com/contact).
-2. Topik: **Git and GitHub / Removing sensitive data**.
-3. Lampirkan permohonan pembersihan:
-   > *"Please run git gc and purge orphaned unreachable commits, pull request refs, and cached commit views on repository Visipir/scp following a sensitive data removal via git-filter-repo."*
-
----
-
-## Langkah 5: Blok Verifikasi Pasca-Push (Post-Push Verification)
-
-Setelah `git push` selesai, lakukan verifikasi independen pada direktori `/tmp/verify` untuk memastikan riwayat di GitHub benar-benar bersih:
-
-Jalankan skrip otomatisasi verifikasi pasca-dorongan:
+Lakukan verifikasi pasca-dorongan:
 ```bash
-./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
+./scripts/postpush-verify.sh git@github.com:Visipir/scp.git 123
 ```
-Skrip ini akan mengkloning repositori remote ke direktori terisolasi `/tmp/verify`, memverifikasi kesamaan jumlah commit, memastikan tidak ada berkas sensitif atau password fixture di riwayat, lalu membersihkan `/tmp/verify`. Output yang diharapkan:
-`=== OK: Post-push verification PASSED. Remote repository is clean. ===`
 
----
-
-## Langkah 6: Prosedur Push Repositori iOS (`/root/scp-ios`)
-
-Repositori klien iOS (`/root/scp-ios`) tidak memuat berkas sensitif atau rahasia, sehingga **TIDAK MENGALAMI HISTORY REWRITE**.
-
+### B. Repositori iOS (`/root/scp-ios-clean`)
+Pastikan remote origin benar:
 ```bash
-cd /root/scp-ios
-
-# Periksa status: 9 commit ahead of origin/main
-git status
-
-# Lakukan push standar (tanpa --force)
+cd /root/scp-ios-clean
+git remote -v
+# origin git@github.com:Visipir/scp-ios.git
+```
+Jalankan dorongan normal (tanpa `--force`):
+```bash
 git push origin main
 ```
-
----
-
-## Langkah 7: Pembaruan Hash Commit
-
-Proses `git-filter-repo` mengubah seluruh SHA commit secara deterministik.
-Hash commit live lama (`7ee509f`) berkorespondensi dengan commit bersih `1ff3733` (`1ff373375a389c0dc73594d63d9ff156dc5aeeff`).
-Semua dokumentasi selanjutnya wajib merujuk pada hash baru di branch `feat/dark-console-ui` dan `main`.
