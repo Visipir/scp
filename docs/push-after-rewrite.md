@@ -59,24 +59,32 @@ Ikuti langkah-langkah berikut secara berurutan:
    - Target ref web yang sah: `refs/heads/main`, `refs/heads/feat/dark-console-ui`, `refs/tags/pre-restyle`.
    - Target ref iOS yang sah: `refs/heads/main`.
    - Jika ditemukan branch/tag asing di GitHub, hapus ref tersebut (`git push origin --delete <stale-ref>`).
-8. [ ] **Unduh & Hapus Berkas Kredensial CSV (Tanpa Menyisakan Arsip di Server)**:
+8. [ ] **Unduh & Hapus Berkas Kredensial CSV (Perbandingan SHA-256 Wajib Sebelum Hapus)**:
    - Pola berkas riil di `/var/www/SCP/storage/app/private/credentials/`:
      - `bulk_reset_teachers_20261107_145429_6caf.csv` (`9733` bytes, mode `0600`)
      - `student_credentials_20261107_025322_s4er.csv` (`128974` bytes, mode `0600`)
      - `student_credentials_latest.csv` (`128974` bytes, mode `0600`)
      - `teacher_credentials_latest.csv` (`9733` bytes, mode `0600`)
-   - Salin 4 berkas ke laptop via `scp`:
+   - **Langkah 1 (Server): Hitung SHA-256 berkas sebelum disalin**:
+     ```bash
+     sha256sum /var/www/SCP/storage/app/private/credentials/*.csv > /tmp/credentials-server.sha256
+     cat /tmp/credentials-server.sha256
+     ```
+   - **Langkah 2 (Laptop): Salin 4 berkas ke laptop via `scp` & hitung SHA-256 lokal**:
      ```bash
      scp "root@<SERVER_IP>:/var/www/SCP/storage/app/private/credentials/*.csv" ./
+     sha256sum *.csv
      ```
-   - Bandingkan checksum `sha256sum` lokal di laptop dengan `sha256sum` di server.
-   - Hapus berkas persis di server setelah checksum identik; **jangan tinggalkan berkas arsip zip/tar apa pun di server**:
+   - **Langkah 3 (Verifikasi Kesetaraan Wajib)**:
+     - Bandingkan setiap baris hash SHA-256 lokal di laptop dengan hash server. Seluruh hash wajib cocok persis (*byte-identical*).
+   - **Langkah 4 (Server): Hapus berkas hanya setelah hash terbukti identik**:
      ```bash
      rm -f \
        /var/www/SCP/storage/app/private/credentials/bulk_reset_teachers_20261107_145429_6caf.csv \
        /var/www/SCP/storage/app/private/credentials/student_credentials_20261107_025322_s4er.csv \
        /var/www/SCP/storage/app/private/credentials/student_credentials_latest.csv \
-       /var/www/SCP/storage/app/private/credentials/teacher_credentials_latest.csv
+       /var/www/SCP/storage/app/private/credentials/teacher_credentials_latest.csv \
+       /tmp/credentials-server.sha256
      ```
 9. [ ] **Pemeriksaan Pra-Patch Dekripsi SMTP & Eksekusi Patch Terpadu Live**:
    - Jalankan `/root/backup/live-verify.sh`
@@ -129,7 +137,7 @@ Ikuti langkah-langkah berikut secara berurutan:
 
 | Berkas Bundle | Ukuran | SHA-256 Checksum |
 |---|---|---|
-| `final-web.bundle` / `scp-clean-HEAD.bundle` | 1,072,527 B | `a04f418d4ced13a360c0534235e63b371ba708b181f0e99c1c514991df8435c4` |
+| `final-web.bundle` / `scp-clean-HEAD.bundle` | Dihitung dinamis saat rebuild | Tercatat di `/root/backup/RUNSHEET.md` via `sha256sum /root/backup/final-web.bundle` |
 | `final-ios.bundle` | 518,484 B | `d32cd0874558c9beac5f0bd9f34c513a50c905e5ebf3afa40b9460c131ce8e75` |
 | `scp-pre-rewrite2.bundle` | 1.0 MB | `ed2beb3ce7a0cb84883cdd0b0c7ac97c2de4dd4d6a063d27897a4b8c204f25e2` |
 | `scp-pre-rewrite.bundle` | 1.2 MB | `11d5489892d08d9fb959e4d6f5813d8a2fbaf2da5aebfe0568ce6977e6d88eb4` |
@@ -190,7 +198,7 @@ Jika koneksi SSH keluar dari server tidak digunakan, salin berkas `/root/backup/
 git clone final-web.bundle scp && cd scp
 git remote set-url origin git@github.com:Visipir/scp.git
 ./scripts/prepush-check.sh
-git push --force origin --all && git push --force origin --tags
+git push --force origin main feat/dark-console-ui && git push --force origin pre-restyle
 
 # iOS
 git clone final-ios.bundle scp-ios && cd scp-ios
@@ -198,3 +206,29 @@ git remote set-url origin git@github.com:Visipir/scp-ios.git
 ./scripts/prepush-check.sh
 git push origin main
 ```
+
+---
+
+## 5. Akses Reviewer, Visibilitas Repositori, dan Manajemen SSH Key
+
+### A. Akses Reviewer pada Repositori Privat
+Ketika repositori GitHub disetel menjadi **Private**, seluruh tautan publik sebelumnya akan rusak (*broken link* / HTTP 404). Jika reviewer atau penilai membutuhkan akses ke kode sumber, terdapat dua mekanisme:
+
+1. **Undang Reviewer sebagai Kolaborator GitHub (Settings → Collaborators)**:
+   - *Apa yang terekspos:* Seluruh riwayat komit (*git history*), nama komitter, dan alamat email maintainer (`fi***@gmail.com`).
+   - *Kelebihan:* Reviewer dapat melihat commit log, diff, file tree, dan branch secara interaktif di antarmuka GitHub.
+2. **Bagikan Arsip Snapshot Kode via `git archive` (Tanpa Riwayat Git)**:
+   - Buat arsip zip bersih langsung dari commit tip `main`:
+     ```bash
+     cd /root/scp-clean
+     git archive --format=zip --output=/root/backup/scp-main-snapshot.zip main
+     ```
+   - *Apa yang terekspos:* Hanya *snapshot* berkas kode sumber saat ini. Riwayat komit lampau, commit metadata, dan alamat email maintainer **TIDAK terekspos sama sekali** (tidak memuat direktori `.git`).
+   - *Rekomendasi:* Sangat disarankan jika privasi alamat email maintainer ingin dijaga 100% dari pihak luar.
+
+### B. Keputusan Pemilik Terkait SSH Key (`id_ed25519`) Pasca-Push
+Kunci SSH privat server (`/root/.ssh/id_ed25519`) digunakan untuk mengautentikasi operasi push ke GitHub akun `Visipir`. Setelah seluruh proses push selesai:
+- **Keputusan Pemilik:** Pemilik repositori wajib memutuskan apakah kunci SSH ini akan:
+  1. **Dihapus dari GitHub (Direkomendasikan)**: Buka GitHub Settings -> SSH and GPG keys -> Hapus kunci server, ATAU
+  2. **Dibatasi aksesnya (*Deploy Key with write access*)**: Jadikan kunci tersebut hanya terikat pada repositori tertentu alih-alih seluruh akun GitHub.
+- *Catatan Kepatuhan:* Agent tidak menyentuh, mengubah, maupun menghapus berkas kunci `/root/.ssh/id_ed25519` di server.
