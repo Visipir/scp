@@ -28,9 +28,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Legacy endpoints (kept unchanged for existing clients)
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', function () {
+    return response()->json([
+        'message' => 'Endpoint legacy /api/login telah dinonaktifkan (410 Gone). Gunakan /api/v1/auth/login.',
+    ], 410);
+});
 Route::post('/forgot-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'forgotPassword'])->middleware('throttle:forgot-password');
-Route::post('/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword']);
+Route::post('/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword'])->middleware('throttle:6,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -61,6 +65,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         ->middleware('throttle:forgot-password')
         ->name('auth.forgot-password');
     Route::post('/auth/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword'])
+        ->middleware('throttle:6,1')
         ->name('auth.reset-password');
 
     Route::middleware(['auth:sanctum', EnsureApiPasswordIsChanged::class])->group(function () {
@@ -68,10 +73,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/auth/me', [V1AuthController::class, 'me'])->name('auth.me');
         Route::patch('/auth/profile', [V1AuthController::class, 'updateProfile'])->name('auth.profile');
         Route::post('/auth/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'requestChange'])->name('auth.email.request');
-        Route::post('/auth/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify'])->name('auth.email.verify');
+        Route::post('/auth/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify'])->middleware('throttle:6,1')->name('auth.email.verify');
         Route::delete('/auth/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'remove'])->name('auth.email.remove');
         Route::post('/profile/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'requestChange']);
-        Route::post('/profile/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify']);
+        Route::post('/profile/email/verify', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'verify'])->middleware('throttle:6,1');
         Route::delete('/profile/email', [\App\Http\Controllers\Api\V1\ProfileEmailController::class, 'remove']);
         Route::post('/auth/change-password', [V1AuthController::class, 'changePassword'])->name('auth.change-password');
 

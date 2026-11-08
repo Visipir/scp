@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/email', [\App\Http\Controllers\ProfileEmailController::class, 'requestChange'])->name('profile.email.request');
-    Route::post('/profile/email/verify', [\App\Http\Controllers\ProfileEmailController::class, 'verify'])->name('profile.email.verify');
+    Route::post('/profile/email/verify', [\App\Http\Controllers\ProfileEmailController::class, 'verify'])->middleware('throttle:6,1')->name('profile.email.verify');
     Route::delete('/profile/email', [\App\Http\Controllers\ProfileEmailController::class, 'remove'])->name('profile.email.remove');
     Route::post('/chat/message', [ChatController::class, 'sendMessage'])->name('chat.message');
 });

@@ -1,0 +1,112 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\SchoolClass;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Tests\Support\ScpTestHelpers;
+use Tests\TestCase;
+
+class AuthRateLimitingQ2Test extends TestCase
+{
+    use RefreshDatabase;
+    use ScpTestHelpers;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seedRoles();
+        RateLimiter::clear('api-login');
+        RateLimiter::clear('forgot-password');
+    }
+
+    public function test_legacy_api_login_returns_410_gone(): void
+    {
+        $response = $this->postJson('/api/login', [
+            'username' => 'someuser',
+            'password' => 'somepass',
+        ]);
+
+        $response->assertStatus(410);
+        $response->assertJsonStructure(['message']);
+    }
+
+    public function test_reset_password_token_rate_limited_to_6_per_minute(): void
+    {
+        for ($i = 1; $i <= 6; $i++) {
+            $res = $this->post('/reset-password-token', [
+                'token' => 'dummy-token',
+                'email' => 'test@example.com',
+                'password' => 'short',
+                'password_confirmation' => 'mismatch',
+            ]);
+            $this->assertNotEquals(429, $res->getStatusCode(), "Request {$i} should not be throttled");
+        }
+
+        $res7 = $this->post('/reset-password-token', [
+            'token' => 'dummy-token',
+            'email' => 'test@example.com',
+            'password' => 'short',
+            'password_confirmation' => 'mismatch',
+        ]);
+        $this->assertEquals(429, $res7->getStatusCode(), 'The 7th request must be throttled with HTTP 429');
+    }
+
+    public function test_web_reset_password_code_rate_limited_to_6_per_minute(): void
+    {
+        for ($i = 1; $i <= 6; $i++) {
+            $res = $this->post('/reset-password', [
+                'email' => 'test@example.com',
+                'code' => '123456',
+                'password' => 'short',
+                'password_confirmation' => 'mismatch',
+            ]);
+            $this->assertNotEquals(429, $res->getStatusCode(), "Request {$i} should not be throttled");
+        }
+
+        $res7 = $this->post('/reset-password', [
+            'email' => 'test@example.com',
+            'code' => '123456',
+            'password' => 'short',
+            'password_confirmation' => 'mismatch',
+        ]);
+        $this->assertEquals(429, $res7->getStatusCode(), 'The 7th request must be throttled with HTTP 429');
+    }
+
+    public function test_api_v1_email_verify_rate_limited_to_6_per_minute(): void
+    {
+        $user = $this->makeUser(2);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $res = $this->apiAs($user)->postJson('/api/v1/auth/email/verify', [
+                'code' => '123456',
+            ]);
+            $this->assertNotEquals(429, $res->getStatusCode(), "Request {$i} should not be throttled");
+        }
+
+        $res7 = $this->apiAs($user)->postJson('/api/v1/auth/email/verify', [
+            'code' => '123456',
+        ]);
+        $res7->assertStatus(429);
+    }
+
+    public function test_web_profile_email_verify_rate_limited_to_6_per_minute(): void
+    {
+        $user = $this->makeUser(2);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $res = $this->actingAs($user)->post('/profile/email/verify', [
+                'code' => '123456',
+            ]);
+            $this->assertNotEquals(429, $res->getStatusCode(), "Request {$i} should not be throttled");
+        }
+
+        $res7 = $this->actingAs($user)->post('/profile/email/verify', [
+            'code' => '123456',
+        ]);
+        $res7->assertStatus(429);
+    }
+}

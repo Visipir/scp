@@ -33,12 +33,14 @@ Route::middleware('guest')->group(function () {
         ->name('password.reset.code');
 
     Route::post('reset-password', [\App\Http\Controllers\Auth\PasswordResetCodeWebController::class, 'reset'])
+        ->middleware('throttle:6,1')
         ->name('password.reset.update');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
     Route::post('reset-password-token', [NewPasswordController::class, 'store'])
+        ->middleware('throttle:6,1')
         ->name('password.store');
 });
 
