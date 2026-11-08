@@ -102,7 +102,7 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 ├── database/
 │   ├── migrations/              # Database schema migrations
 │   └── seeders/                 # Seeders (RoleSeeder, RealAccountsSeeder, UserSeeder)
-├── docs/                        # Dokumentasi teknis, API spec, UKK checklist, runbook
+├── docs/                        # Dokumentasi teknis, API spec, UKK checklist
 ├── public/                      # Entry point (index.php), Vite assets, favicon, login background
 ├── resources/
 │   ├── css/ & js/               # Frontend source (Tailwind CSS Swiss Console, Alpine.js)
@@ -233,7 +233,7 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
 - Berkas CSV kredensial sementara hasil impor tersimpan di `storage/app/private/credentials/` dengan pola nama: `teacher_credentials_*.csv`, `student_credentials_*.csv`, dan `bulk_reset_teachers_*.csv`.
 - Unduh berkas kredensial melalui jalur aman (`scp`), bagikan secara personal kepada guru/wali/siswa, dan segera hapus arsip CSV dari server setelah disalin menggunakan perintah:
   ```bash
-  rm -f /var/www/SCP/storage/app/private/credentials/*.csv
+  rm -f storage/app/private/credentials/*.csv
   ```
 
 ---

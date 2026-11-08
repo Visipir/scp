@@ -24,8 +24,8 @@ Ikuti langkah-langkah berikut secara berurutan:
    - Buka pengaturan repositori iOS `git@github.com:Visipir/scp-ios.git` -> Ubah visibilitas ke **Private**.
    - Pastikan default branch di GitHub adalah **`main`** (Settings -> Branches). Branch `main` adalah branch utama untuk review dan deployment.
 3. [ ] **Jalankan Skrip Pemeriksaan Pra-Dorongan (*Pre-push Safety Check*)**:
-   - Di direktori web: `cd /root/scp-clean && ./scripts/prepush-check.sh`
-   - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/prepush-check.sh`
+   - Di direktori web: `cd /root/scp-clean && ./scripts/ops/prepush-check.sh`
+   - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/ops/prepush-check.sh`
    - Keduanya wajib menghasilkan status `=== OK: Pre-push checks PASSED. ===`.
 4. [ ] **Eksekusi Force Push Repositori Web dari `/root/scp-clean`**:
    - Urutan dorongan (*push order*): push branch `main` dan `feat/dark-console-ui` terlebih dahulu, lalu push tag `pre-restyle`.
@@ -38,7 +38,7 @@ Ikuti langkah-langkah berikut secara berurutan:
 5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
    ```bash
    cd /root/scp-clean
-   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
+   ./scripts/ops/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
    ```
 6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push, Tanpa Force)**:
    - Push ke remote iOS dilakukan secara normal tanpa `--force` (`git push origin main`).
@@ -98,7 +98,7 @@ Ikuti langkah-langkah berikut secara berurutan:
     - Jalankan `/root/backup/live-verify.sh`
     - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_CLEANUP && chmod 600 /root/backup/ALLOW_LIVE_CLEANUP`
     - Pindahkan `.git` lama langsung ke `/root/backup/live-git-old` (di luar web tree, JANGAN buat `.git_bak`).
-    - Jalankan Langkah 1 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
+    - Jalankan Langkah 1 pada [`docs/ops/live-repo-cleanup.md`](file:///root/scp-clean/docs/ops/live-repo-cleanup.md).
     - Pastikan `git status --short` benar-benar kosong; jika ada file tak terduga, batalkan dan kembalikan `.git` dari `/root/backup/live-git-old`.
     - Jalankan kembali `/root/backup/live-verify.sh`.
 11. [ ] **Pembersihan Token Uji Coba (Ketat & Terarah)**:
@@ -184,7 +184,7 @@ Verifikasi di GitHub (Settings -> Branches) bahwa default branch adalah `main` d
 
 Lakukan verifikasi pasca-dorongan:
 ```bash
-./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
+./scripts/ops/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
 ```
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
@@ -205,13 +205,13 @@ Jika koneksi SSH keluar dari server tidak digunakan, salin berkas `/root/backup/
 # Web
 git clone final-web.bundle scp && cd scp
 git remote set-url origin git@github.com:Visipir/scp.git
-./scripts/prepush-check.sh
+./scripts/ops/prepush-check.sh
 git push --force origin main feat/dark-console-ui && git push --force origin pre-restyle
 
 # iOS
 git clone final-ios.bundle scp-ios && cd scp-ios
 git remote set-url origin git@github.com:Visipir/scp-ios.git
-./scripts/prepush-check.sh
+./scripts/ops/prepush-check.sh
 git push origin main
 ```
 

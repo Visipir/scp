@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# scripts/promote-candidate.sh
+# scripts/ops/promote-candidate.sh
 # Promosi atomik database_candidate.sqlite -> database.sqlite dan switch .env
 #
 # Penggunaan:
-#   bash scripts/promote-candidate.sh --dry-run [--expected-sha256=<sha256>]
-#   bash scripts/promote-candidate.sh --confirm [--expected-sha256=<sha256>]
+#   bash scripts/ops/promote-candidate.sh --dry-run [--expected-sha256=<sha256>]
+#   bash scripts/ops/promote-candidate.sh --confirm [--expected-sha256=<sha256>]
 #
 # Variabel opsional (untuk pengujian sandbox):
 #   APP_DIR, WORK_DIR, ARTISAN_DIR, BASE_URL, SIMULATE_POST_CHECK_FAIL
@@ -41,7 +41,7 @@ for arg in "$@"; do
             ;;
         *)
             echo "ERROR: Argumen tidak dikenal: ${arg}"
-            echo "Cara pakai: bash scripts/promote-candidate.sh [--dry-run | --confirm] [--expected-sha256=<sha256>]"
+            echo "Cara pakai: bash scripts/ops/promote-candidate.sh [--dry-run | --confirm] [--expected-sha256=<sha256>]"
             exit 1
             ;;
     esac
@@ -50,8 +50,8 @@ done
 if [[ -z "${MODE}" ]]; then
     echo "STOP: Wajib memilih mode --dry-run atau --confirm."
     echo "Cara pakai:"
-    echo "  bash scripts/promote-candidate.sh --dry-run"
-    echo "  bash scripts/promote-candidate.sh --confirm"
+    echo "  bash scripts/ops/promote-candidate.sh --dry-run"
+    echo "  bash scripts/ops/promote-candidate.sh --confirm"
     exit 1
 fi
 

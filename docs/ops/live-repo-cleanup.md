@@ -232,7 +232,7 @@ git cat-file -e 7ee509f 2>/dev/null && echo "FAIL: commit 7ee509f masih ada" || 
 echo "Total commit live: $(git rev-list --all --count)"
 
 # 14. Jalankan prepush-check pada repositori live
-bash scripts/prepush-check.sh
+bash scripts/ops/prepush-check.sh
 
 # 15. Verifikasi login akun terlindung & hash DB live
 echo "Live DB SHA256: $(sha256sum database/database.sqlite)"
@@ -260,10 +260,10 @@ git clean -nd -- docs/ scripts/ tests/
 # (Daftar di bawah dikomputasi dari: git diff --name-only --diff-filter=A live_head clean_tip)
 rm -f \
     docs/checklist-ukk.md \
-    docs/live-repo-cleanup.md \
-    docs/push-after-rewrite.md \
-    scripts/postpush-verify.sh \
-    scripts/prepush-check.sh \
+    docs/ops/live-repo-cleanup.md \
+    docs/ops/push-after-rewrite.md \
+    scripts/ops/postpush-verify.sh \
+    scripts/ops/prepush-check.sh \
     tests/Feature/AuthRateLimitingQ2Test.php \
     tests/Feature/SmtpGuardTest.php \
     tests/Fixtures/synthetic_fet_timetable.csv \

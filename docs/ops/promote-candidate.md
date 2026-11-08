@@ -44,7 +44,7 @@ Dokumen ini memandu promosi atomik dari `database/database_candidate.sqlite` (ya
 
 ---
 
-## Urutan Langkah Promosi (`scripts/promote-candidate.sh`)
+## Urutan Langkah Promosi (`scripts/ops/promote-candidate.sh`)
 
 1. **Verifikasi Prasyarat (Pre-Flight sebelum `artisan down`)**:
    - Pastikan file `database/database_candidate.sqlite`, `database/database.sqlite`, `database/database_staging.sqlite`, `storage/app/private/backups/database_live_h0.sqlite`, dan `storage/app/private/protected-verify.env` ada.
@@ -54,7 +54,7 @@ Dokumen ini memandu promosi atomik dari `database/database_candidate.sqlite` (ya
    - Verifikasi `migrate:status` pada `database_candidate.sqlite` tidak memiliki migrasi `Pending`.
    - Uji kering tanpa menulis apa pun dapat dijalankan dengan:
      ```bash
-     bash scripts/promote-candidate.sh --dry-run
+     bash scripts/ops/promote-candidate.sh --dry-run
      ```
 2. **Aktifkan Maintenance Mode**:
    ```bash
@@ -124,7 +124,7 @@ sha256sum database/database.sqlite database/database_staging.sqlite .env
 
 ## Catatan Hasil Eksekusi Promosi (J4 & J5 — `2026-11-07T08:46:49Z`)
 
-### 1. Eksekusi `scripts/promote-candidate.sh`
+### 1. Eksekusi `scripts/ops/promote-candidate.sh`
 - **Dry-Run (`--dry-run`)**: Seluruh 5 penjaga pre-flight (`keberadaan berkas`, `sha256 kandidat = 69babead4ca87064f01a431ef7b15c3bae7f391ecc7006eae423850637645b99`, `APP_DEBUG=false`, `fingerprint 5 akun terlindung vs database_live_h0.sqlite`, `migrate:status = 0 Pending`) **LULUS**.
 - **Eksekusi (`--confirm`)**: Berhasil dijalankan pada `2026-11-07T08:46:49Z` (`promote_20261107T084649Z`).
 - **Konfigurasi `.env` Aktif**:
