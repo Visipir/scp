@@ -256,6 +256,7 @@ rm -f \
     scripts/postpush-verify.sh \
     scripts/prepush-check.sh \
     tests/Feature/AuthRateLimitingQ2Test.php \
+    tests/Feature/SmtpGuardTest.php \
     tests/Fixtures/synthetic_fet_timetable.csv \
     tests/Fixtures/synthetic_fet_timetable.xml \
     .env.testing.example
