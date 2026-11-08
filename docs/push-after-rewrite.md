@@ -126,7 +126,7 @@ Ikuti langkah-langkah berikut secara berurutan:
 
 | Berkas Bundle | Ukuran | SHA-256 Checksum |
 |---|---|---|
-| `final-web.bundle` / `scp-clean-HEAD.bundle` | 1,069,704 B | `cd34a3f0521ab7a6af8b3c2e9f1c259d7da353026ebba0542cc5e9946d2a92e0` |
+| `final-web.bundle` / `scp-clean-HEAD.bundle` | 1,072,116 B | `9da875e7bd585831cd872d0565df5ba10619e597359c6cfb7ed24e99b77a6442` |
 | `final-ios.bundle` | 518,484 B | `d32cd0874558c9beac5f0bd9f34c513a50c905e5ebf3afa40b9460c131ce8e75` |
 | `scp-pre-rewrite2.bundle` | 1.0 MB | `ed2beb3ce7a0cb84883cdd0b0c7ac97c2de4dd4d6a063d27897a4b8c204f25e2` |
 | `scp-pre-rewrite.bundle` | 1.2 MB | `11d5489892d08d9fb959e4d6f5813d8a2fbaf2da5aebfe0568ce6977e6d88eb4` |
