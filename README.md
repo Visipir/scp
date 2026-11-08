@@ -167,7 +167,7 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 
 ## 7. Menjalankan Automated Test Suite
 
-Aplikasi dilengkapi suite pengujian otomatis (324+ skenario) yang mencakup otentikasi, otorisasi RBAC, penjadwalan, impor, izin, dan kompatibilitas API V1.
+Aplikasi dilengkapi suite pengujian otomatis (**331 pengujian: 330 lulus, 1 dilewati, 2348 assertions**) yang mencakup otentikasi, pembatasan laju (*rate limiting*), otorisasi RBAC, penjadwalan, impor, izin, dan kompatibilitas API V1.
 
 ```bash
 # Menjalankan seluruh test suite
@@ -175,6 +175,7 @@ php artisan test
 
 # Menjalankan pengujian fitur tertentu
 php artisan test --filter ProtectedAccountsF1Test
+php artisan test --filter AuthRateLimitingQ2Test
 php artisan test --filter LeaveDecisionAndWaliMenuD5Test
 php artisan test --filter ScheduleConflictTest
 ```
@@ -201,14 +202,18 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
 
 ---
 
-## 9. Konfigurasi Email & OTP Reset Password
+## 9. Konfigurasi Email, OTP Reset Password & Rate Limiting Auth
 
 - **Prasyarat Reset Password**: Pengguna hanya dapat menggunakan reset password mandiri via OTP jika akun mereka telah memiliki alamat email terverifikasi yang didaftarkan melalui halaman profil pengguna (`/profile`). Akun tanpa email tidak dapat meminta kode OTP (pesan guard: akun belum memiliki email terdaftar).
 - **Manajemen Akun Tanpa Email oleh Waka**: Waka Kurikulum dapat memantau status pengguna dan melakukan reset kata sandi sementara secara manual maupun ekspor batch melalui menu **Manajemen Pengguna** (`/waka/users`).
 - **Pengaturan SMTP**: Dapat dikonfigurasi melalui GUI Waka Kurikulum di `/settings/email` atau via `.env`. Mendukung pengujian koneksi, proteksi TLS, dan fallback log mailer.
-- **Endpoint Reset Password**:
+- **Endpoint Autentikasi & Reset Password**:
+  - Login API Resmi: `POST /api/v1/auth/login` (Endpoint legacy `POST /api/login` telah dinonaktifkan dan mengembalikan **`410 Gone`**).
   - Request Code: `POST /api/v1/auth/forgot-password` (Web: `/forgot-password`)
-  - Submit Code: `POST /api/v1/auth/reset-password` (Web: `/reset-password`)
+  - Submit Code: `POST /api/v1/auth/reset-password` (Web: `/reset-password` dan `/reset-password-token`)
+- **Pembatasan Laju (*Auth Throttles*)**:
+  - Endpoint reset password (`/reset-password`, `/reset-password-token`, `/api/reset-password`, `/api/v1/auth/reset-password`) dan verifikasi email (`/profile/email/verify`, `/api/v1/auth/email/verify`, `/api/v1/profile/email/verify`) dibatasi **6 permintaan per menit per IP** (`throttle:6,1`; permintaan ke-7 mengembalikan `429 Too Many Requests`).
+  - Endpoint login (`/login` dan `/api/v1/auth/login`) dibatasi **5 percobaan per menit per username + IP**.
 
 ---
 
@@ -222,5 +227,8 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
 ## 11. Catatan Keamanan Produksi
 
 - Pastikan `.env` memiliki `APP_DEBUG=false` dan `APP_ENV=production`.
-- Berkas CSV kredensial sementara hasil impor tersimpan di `storage/app/private/credentials/`.
-- Unduh berkas kredensial melalui jalur aman (`scp`), bagikan secara personal kepada guru/wali, dan segera hapus arsip CSV dari server setelah didistribusikan.
+- Berkas CSV kredensial sementara hasil impor tersimpan di `storage/app/private/credentials/` dengan pola nama: `teacher_credentials_*.csv`, `student_credentials_*.csv`, dan `bulk_reset_teachers_*.csv`.
+- Unduh berkas kredensial melalui jalur aman (`scp`), bagikan secara personal kepada guru/wali/siswa, dan segera hapus arsip CSV dari server setelah disalin menggunakan perintah:
+  ```bash
+  rm -f /var/www/SCP/storage/app/private/credentials/*.csv
+  ```

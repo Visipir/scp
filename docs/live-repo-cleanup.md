@@ -69,12 +69,15 @@ fi
 git apply /root/backup/live-patch-routes.patch
 echo "Patch routes berhasil diterapkan."
 
-# 4. Uji kelayakan konfigurasi & route list
-php artisan route:list > /dev/null
+# 4. Uji kelayakan konfigurasi & route list (cek apakah route cache routes-v7.php aktif)
+HAD_ROUTE_CACHE=0
+[ -f bootstrap/cache/routes-v7.php ] && HAD_ROUTE_CACHE=1
 php artisan config:clear
 php artisan route:clear
+[ "$HAD_ROUTE_CACHE" -eq 1 ] && php artisan route:cache
+php artisan route:list > /dev/null
 
-# 5. Uji login nyata 5 akun terlindung (read-only, via port live)
+# 5. Uji login nyata 5 akun terlindung (read-only, via port live 127.0.0.1:85)
 # Membaca password dari storage/app/private/protected-verify.env tanpa mencetaknya
 bash -c '
 set -e
@@ -82,15 +85,24 @@ if [ -f storage/app/private/protected-verify.env ]; then
     set -a
     source storage/app/private/protected-verify.env
     set +a
+    declare -A MAP=(
+        ["waka_kurikulum"]="$WAKA_PASSWORD"
+        ["haris-budiawan"]="$HARIS_PASSWORD"
+        ["ryawidyaningtyas"]="$RYAWIDYANINGTYAS_PASSWORD"
+        ["tim_kesiswaan"]="$TIM_KESISWAAN_PASSWORD"
+        ["17766"]="$SISWA_17766_PASSWORD"
+    )
     for u in waka_kurikulum haris-budiawan ryawidyaningtyas tim_kesiswaan 17766; do
-        varname="PASS_${u//-/_}"
-        pw="${!varname:-}"
-        if [ -n "$pw" ]; then
-            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/login \
-                -H "Content-Type: application/x-www-form-urlencoded" \
-                --data-urlencode "username=$u" --data-urlencode "password=$pw")
-            echo "Login Web $u: HTTP $code (expected 302)"
-        fi
+        pw="${MAP[$u]}"
+        jar=$(mktemp)
+        csrf=$(curl -s -c "$jar" http://127.0.0.1:85/login | grep -oP '\''name="_token" value="\K[^"]+'\'' | head -n1)
+        web_code=$(curl -s -b "$jar" -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/login \
+            --data-urlencode "_token=$csrf" --data-urlencode "username=$u" --data-urlencode "password=$pw")
+        rm -f "$jar"
+        api_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/api/v1/auth/login \
+            -H "Accept: application/json" -H "Content-Type: application/json" \
+            -d "{\"username\":\"$u\",\"password\":\"$pw\"}")
+        echo "Login $u -> Web: HTTP $web_code (expected 302), API v1: HTTP $api_code (expected 200)"
     done
 fi
 '
@@ -250,4 +262,19 @@ rm -rf /var/www/SCP/.git_failed
 php artisan config:clear
 php artisan route:clear
 echo "Rollback Langkah 1 selesai. Repositori live kembali ke kondisi awal."
+```
+
+---
+
+## 4. Pembersihan Arsip Kredensial CSV (`storage/app/private/credentials/`)
+
+Setelah seluruh berkas kredensial sementara (`teacher_credentials_*.csv`, `student_credentials_*.csv`, `bulk_reset_teachers_*.csv`) disalin oleh operator ke mesin lokal via `scp`:
+- `bulk_reset_teachers_20261107_145429_6caf.csv` (`9733` bytes, mode `0600`)
+- `student_credentials_20261107_025322_s4er.csv` (`128974` bytes, mode `0600`)
+- `student_credentials_latest.csv` (`128974` bytes, mode `0600`)
+- `teacher_credentials_latest.csv` (`9733` bytes, mode `0600`)
+
+Jalankan perintah penghapusan berikut di server:
+```bash
+rm -f /var/www/SCP/storage/app/private/credentials/*.csv
 ```

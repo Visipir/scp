@@ -1,8 +1,9 @@
 # SCP API (v1)
 
-Base URL: `/api/v1` (e.g. `http://localhost/api/v1`). The legacy `/api/login`,
-`/api/me`, `/api/logout` endpoints remain available but are deprecated for the
-iOS client. The full contract lives in [`openapi.yaml`](./openapi.yaml).
+Base URL: `/api/v1` (e.g. `http://localhost/api/v1`). The legacy `POST /api/login`
+endpoint has been decommissioned and returns **`410 Gone`**; `POST /api/v1/auth/login`
+is the supported login endpoint. Legacy `/api/me` and `/api/logout` remain deprecated.
+The full contract lives in [`openapi.yaml`](./openapi.yaml).
 
 ## Authentication
 
@@ -12,7 +13,9 @@ Stateless Bearer tokens via Laravel Sanctum. Tokens expire after **43200 minutes
 2. Use the returned `data.token` as `Authorization: Bearer <token>`.
 3. `POST /api/v1/auth/logout` revokes the current token.
 
-Login is rate limited to **5 attempts per minute per username + IP** (`429` on excess).
+Rate limiting:
+- Login (`POST /api/v1/auth/login` and web `POST /login`): **5 attempts per minute per username + IP** (`429` on excess).
+- Password reset & email verification (`POST /api/v1/auth/reset-password`, `POST /api/reset-password`, `POST /reset-password`, `POST /reset-password-token`, `POST /api/v1/auth/email/verify`, `POST /api/v1/profile/email/verify`, `POST /profile/email/verify`): **6 attempts per minute per IP** (`throttle:6,1`, `429` on the 7th request).
 
 ### Login (curl)
 
@@ -76,6 +79,7 @@ Every failure uses the same envelope:
 | 401 | Missing/invalid token, bad credentials | `Unauthenticated.` / `Username atau password salah.` |
 | 403 | Not allowed / password change required / schedule locked | `Akses ditolak.` |
 | 404 | Not found or no file | `Data tidak ditemukan.` |
+| 410 | Legacy endpoint decommissioned | `Endpoint legacy /api/login telah dinonaktifkan (410 Gone). Gunakan /api/v1/auth/login.` |
 | 422 | Validation error (field keys included) | `Data yang diberikan tidak valid.` |
 | 429 | Rate limited | `Terlalu banyak percobaan. Silakan coba lagi nanti.` |
 | 500 | Server error (generic in production) | `Terjadi kesalahan pada server.` |

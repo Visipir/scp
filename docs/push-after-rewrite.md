@@ -30,7 +30,7 @@ Ikuti langkah-langkah berikut secara berurutan:
 5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
    ```bash
    cd /root/scp-clean
-   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git 123
+   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
    ```
 6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push)**:
    - Ikuti panduan di [`docs/push-ios.md`](file:///root/scp-ios-clean/docs/push-ios.md):
@@ -42,8 +42,15 @@ Ikuti langkah-langkah berikut secara berurutan:
    - Jika salah satu repositori pernah berstatus publik atau memiliki fork/pull request, buka tiket di [GitHub Support](https://support.github.com/contact):
    - Minta GitHub menjalankan `git gc` dan menghapus unreachable commits, PR refs, dan cached commit views.
 8. [ ] **Unduh & Hapus Berkas Kredensial CSV**:
-   - Unduh berkas `users_credentials_*.csv` jika masih dibutuhkan secara luring (*offline*).
-   - Hapus dari server untuk mematuhi regulasi privasi data.
+   - Pola berkas riil di `/var/www/SCP/storage/app/private/credentials/`: `teacher_credentials_*.csv`, `student_credentials_*.csv`, `bulk_reset_teachers_*.csv`:
+     - `bulk_reset_teachers_20261107_145429_6caf.csv` (`9733` bytes, mode `0600`)
+     - `student_credentials_20261107_025322_s4er.csv` (`128974` bytes, mode `0600`)
+     - `student_credentials_latest.csv` (`128974` bytes, mode `0600`)
+     - `teacher_credentials_latest.csv` (`9733` bytes, mode `0600`)
+   - Salin berkas ke mesin lokal via `scp`, distribusikan, lalu hapus dari server:
+     ```bash
+     rm -f /var/www/SCP/storage/app/private/credentials/*.csv
+     ```
 9. [ ] **Eksekusi Langkah 0 Pembersihan Live (Patch Routes)**:
    - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_PATCH`
    - Jalankan Langkah 0 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
@@ -58,14 +65,14 @@ Ikuti langkah-langkah berikut secara berurutan:
 ## 2. Tabel Ringkasan Komit, Branch, Tag, dan Berkas Bundle
 
 ### A. Repositori Web (`/root/scp-clean`)
-- **Total Komit (`git rev-list --all --count`)**: `123`
+- **Total Komit (`git rev-list --all --count`)**: `124`
 - **Branch Aktif**:
   - `feat/dark-console-ui`: HEAD (komit dokumentasi dan hardening route/privasi)
   - `main`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21` (17 komit)
 - **Tag**:
   - `pre-restyle`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21`
 - **Hasil Pengujian Unit/Fitur**:
-  - `331 tests, 330 passed, 1 skipped` (0 failures, 0 errors, 933 assertions).
+  - `331 tests, 330 passed, 1 skipped` (0 failures, 0 errors, 2348 assertions).
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
 - **Total Komit (`git rev-list --all --count`)**: `93`
@@ -118,7 +125,7 @@ git push --force origin --tags
 
 Lakukan verifikasi pasca-dorongan:
 ```bash
-./scripts/postpush-verify.sh git@github.com:Visipir/scp.git 123
+./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
 ```
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
@@ -130,5 +137,21 @@ git remote -v
 ```
 Jalankan dorongan normal (tanpa `--force`):
 ```bash
+git push origin main
+```
+
+### C. Jalur Alternatif: Push dari Mesin Lokal (Laptop) via Bundle
+Jika koneksi SSH keluar dari server tidak digunakan, salin berkas `/root/backup/final-web.bundle` dan `/root/backup/final-ios.bundle` ke mesin lokal Anda:
+```bash
+# Web
+git clone final-web.bundle scp && cd scp
+git remote set-url origin git@github.com:Visipir/scp.git
+./scripts/prepush-check.sh
+git push --force origin --all && git push --force origin --tags
+
+# iOS
+git clone final-ios.bundle scp-ios && cd scp-ios
+git remote set-url origin git@github.com:Visipir/scp-ios.git
+./scripts/prepush-check.sh
 git push origin main
 ```
