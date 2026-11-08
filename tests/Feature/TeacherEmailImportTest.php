@@ -29,31 +29,32 @@ class TeacherEmailImportTest extends TestCase
             'email'    => null, // No email registered
         ]);
 
-        // 1. API: POST /api/v1/auth/forgot-password
+        // 1. API: POST /api/v1/auth/forgot-password (anti-enumeration returns generic success)
         $responseApi = $this->postJson('/api/v1/auth/forgot-password', [
             'identifier' => 'guru.budi',
         ]);
 
-        $responseApi->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-        $this->assertSame(
-            'Email belum terdaftar. Hubungi Waka Kurikulum.',
-            $responseApi->json('errors.email.0')
-        );
+        $responseApi->assertOk()
+            ->assertJson([
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
+            ]);
 
         // API check by NIP
         $responseApiNip = $this->postJson('/api/v1/auth/forgot-password', [
             'identifier' => '198001012005011001',
         ]);
-        $responseApiNip->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+        $responseApiNip->assertOk()
+            ->assertJson([
+                'message' => 'Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.',
+            ]);
 
         // 2. Web: POST /forgot-password
         $responseWeb = $this->post('/forgot-password', [
             'identifier' => 'guru.budi',
         ]);
 
-        $responseWeb->assertSessionHasErrors(['email']);
+        $responseWeb->assertRedirect()
+            ->assertSessionHas('status');
     }
 
     public function test_email_batch_import_service_matches_and_updates_emails(): void

@@ -14,8 +14,8 @@
 
 | Gerbang Eksekusi | Berkas Gerbang | Status Saat Ini | Alasan / Prasyarat |
 |---|---|---|---|
-| **Langkah 0** (Patch Routes) | `/root/backup/ALLOW_LIVE_PATCH` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; patch `/root/backup/live-patch-routes.patch` harus ditinjau terlebih dahulu. |
-| **Langkah 1** (Swap Riwayat) | `/root/backup/ALLOW_LIVE_CLEANUP` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; mensyaratkan Langkah 0 selesai dan tervalidasi penuh terlebih dahulu. |
+| **Langkah 0** (Patch Aplikasi Terpadu) | `/root/backup/ALLOW_LIVE_PATCH` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; patch `/root/backup/live-patch-app.patch` harus ditinjau terlebih dahulu. Menjadi prasyarat mutlak Langkah 1. |
+| **Langkah 1** (Swap Riwayat) | `/root/backup/ALLOW_LIVE_CLEANUP` | **NOT READY** | Berkas gerbang belum dibuat oleh operator; mensyaratkan Langkah 0 selesai dan tervalidasi penuh terlebih dahulu. Jika Langkah 0 dilewati, Langkah 1 WAJIB dilewati. |
 
 ---
 
@@ -35,89 +35,78 @@
 
 ---
 
-## 2. Langkah 0: Aplikasi Patch Routes Live (`ALLOW_LIVE_PATCH`)
+## 2. Langkah 0: Aplikasi Patch Terpadu Live (`ALLOW_LIVE_PATCH`)
 
 > [!IMPORTANT]
-> Langkah ini menerapkan pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email pada instans live tanpa menonaktifkan endpoint apa pun (*throttle-only patch*). Varian 410 disimpan di `/root/backup/live-patch-routes-410.patch` (tidak direkomendasikan).
+> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` yang mencakup:
+> 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email.
+> 2. Perlindungan fallback dekripsi password SMTP (`MailConfigService.php`) jika key rusak.
+> 3. Validasi batasan panjang prompt AI chat (`ChatController.php`).
+> 4. Perlindungan anti-enumerasi akun dan anonymized audit logging pada forgot-password (`PasswordResetService.php`).
+>
+> **Jika operator melewati Langkah 0, operator WAJIB melewati Langkah 1 juga.** Melewatkan Langkah 0 akan menyebabkan perbedaan pada berkas aplikasi saat `git reset --mixed feat/dark-console-ui` di Langkah 1, sehingga `git status --short` tidak akan bersih dan swap riwayat otomatis dibatalkan.
 
 ### Eksekusi Langkah 0
 
 Jalankan perintah berikut di direktori server:
 
 ```bash
-# 0. Verifikasi Gate File
+# 0. Verifikasi Gate File & Pra-Verifikasi Sistem
 if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
     echo "ERROR: Gate file /root/backup/ALLOW_LIVE_PATCH tidak ditemukan. Abort."
     exit 1
 fi
 
+/root/backup/live-verify.sh
+
 cd /var/www/SCP
 
-# 1. Backup berkas routes yang akan dimodifikasi
+# 1. Backup berkas aplikasi yang akan dimodifikasi
 mkdir -p /root/backup/live-files-pre-patch
-cp -a routes/api.php routes/auth.php routes/web.php /root/backup/live-files-pre-patch/
-echo "Backup routes selesai di /root/backup/live-files-pre-patch/"
+cp -a routes/api.php routes/auth.php routes/web.php \
+      app/Http/Controllers/ChatController.php \
+      app/Services/MailConfigService.php app/Services/PasswordResetService.php \
+      /root/backup/live-files-pre-patch/
+echo "Backup berkas aplikasi selesai di /root/backup/live-files-pre-patch/"
 
 # 2. Uji coba patch kering (dry-run)
-patch -p1 --dry-run < /root/backup/live-patch-routes.patch || git apply --check /root/backup/live-patch-routes.patch
+git apply --check /root/backup/live-patch-app.patch || patch -p1 --dry-run < /root/backup/live-patch-app.patch
 if [ $? -ne 0 ]; then
     echo "ERROR: Patch dry-run gagal! Membatalkan eksekusi."
     exit 1
 fi
 
 # 3. Terapkan patch pada working tree live
-git apply /root/backup/live-patch-routes.patch
-echo "Patch routes berhasil diterapkan."
+git apply /root/backup/live-patch-app.patch
+echo "Patch terpadu berhasil diterapkan."
 
-# 4. Uji kelayakan konfigurasi & route list (cek apakah route cache routes-v7.php aktif)
+# 4. Uji kelayakan konfigurasi, cache rute, dan reload PHP-FPM
 HAD_ROUTE_CACHE=0
 [ -f bootstrap/cache/routes-v7.php ] && HAD_ROUTE_CACHE=1
 php artisan config:clear
 php artisan route:clear
 [ "$HAD_ROUTE_CACHE" -eq 1 ] && php artisan route:cache
 php artisan route:list > /dev/null
+systemctl reload php8.3-fpm
 
-# 5. Uji login nyata 5 akun terlindung (read-only, via port live 127.0.0.1:85)
-# Membaca password dari storage/app/private/protected-verify.env tanpa mencetaknya
-bash -c '
-set -e
-if [ -f storage/app/private/protected-verify.env ]; then
-    set -a
-    source storage/app/private/protected-verify.env
-    set +a
-    declare -A MAP=(
-        ["waka_kurikulum"]="$WAKA_PASSWORD"
-        ["haris-budiawan"]="$HARIS_PASSWORD"
-        ["ryawidyaningtyas"]="$RYAWIDYANINGTYAS_PASSWORD"
-        ["tim_kesiswaan"]="$TIM_KESISWAAN_PASSWORD"
-        ["17766"]="$SISWA_17766_PASSWORD"
-    )
-    for u in waka_kurikulum haris-budiawan ryawidyaningtyas tim_kesiswaan 17766; do
-        pw="${MAP[$u]}"
-        jar=$(mktemp)
-        csrf=$(curl -s -c "$jar" http://127.0.0.1:85/login | grep -oP '\''name="_token" value="\K[^"]+'\'' | head -n1)
-        web_code=$(curl -s -b "$jar" -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/login \
-            --data-urlencode "_token=$csrf" --data-urlencode "username=$u" --data-urlencode "password=$pw")
-        rm -f "$jar"
-        api_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:85/api/v1/auth/login \
-            -H "Accept: application/json" -H "Content-Type: application/json" \
-            -d "{\"username\":\"$u\",\"password\":\"$pw\"}")
-        echo "Login $u -> Web: HTTP $web_code (expected 302), API v1: HTTP $api_code (expected 200)"
-    done
-fi
-'
-
-# 6. Konfirmasi integritas live DB
-echo "Live DB SHA256: $(sha256sum database/database.sqlite)"
-echo "User count: $(sqlite3 database/database.sqlite 'SELECT count(*) FROM users;')"
+# 5. Uji verifikasi penuh pasca-patch (login 5 akun terlindung, token, sesi, DB SHA256)
+/root/backup/live-verify.sh
 ```
 
 ### Prosedur Rollback Langkah 0
 
-Jika terjadi kendala pada routing setelah patch:
+Jika terjadi kendala setelah patch:
 
 ```bash
 cd /var/www/SCP
+cp -a /root/backup/live-files-pre-patch/* /var/www/SCP/
+systemctl reload php8.3-fpm
+php artisan config:clear
+php artisan route:clear
+rm -f /root/backup/ALLOW_LIVE_PATCH
+/root/backup/live-verify.sh
+echo "Rollback Langkah 0 selesai."
+```
 
 # 1. Pulihkan berkas routes asli dari backup
 cp -a /root/backup/live-files-pre-patch/* routes/

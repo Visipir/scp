@@ -30,12 +30,6 @@ class PasswordResetService
             ->orWhere('nip', $trimmed)
             ->first();
 
-        if ($user && empty($user->email)) {
-            throw ValidationException::withMessages([
-                'email' => 'Email belum terdaftar. Hubungi Waka Kurikulum.',
-            ]);
-        }
-
         if ($user && ! empty($user->email) && $user->email_verified_at !== null) {
             $userEmail = strtolower(trim($user->email));
             $code = sprintf('%06d', random_int(100000, 999999));
@@ -51,9 +45,18 @@ class PasswordResetService
 
             $this->mailConfig->sendPasswordResetCode($userEmail, $code);
         } else {
-            if (! empty($identifier)) {
-                MailSendLog::log('password_reset', (string) $identifier, false, 'Pengguna tidak ditemukan atau belum memiliki email terverifikasi');
-            }
+            // Anti-enumeration audit log: never log plaintext username or raw email
+            $maskedRecipient = str_contains($identifier, '@')
+                ? MailSendLog::maskEmail($identifier)
+                : '***';
+
+            MailSendLog::create([
+                'mail_type'     => 'password_reset',
+                'recipient'     => $maskedRecipient,
+                'status'        => 'failed',
+                'error_message' => 'Pengguna tidak ditemukan atau belum memiliki email terverifikasi',
+                'created_at'    => now(),
+            ]);
         }
 
         return [

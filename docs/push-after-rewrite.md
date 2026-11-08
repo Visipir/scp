@@ -39,11 +39,14 @@ Ikuti langkah-langkah berikut secara berurutan:
    ```
 6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push, Tanpa Force)**:
    - Push ke remote iOS dilakukan secara normal tanpa `--force` (`git push origin main`).
-   - *Alasan:* Riwayat iOS yang telah dibersihkan mempertahankan root commit asli dan riwayat grafik parent; jika git menolak dengan status non-fast-forward, itu adalah sinyal bahwa remote memiliki pekerjaan yang belum digabungkan, bukan alasan untuk melakukan force-push.
+   - *Alasan:* Repositori iOS **TIDAK PERNAH di-rewrite** — seluruh 93 komit dalam riwayatnya telah dipindai dan menghasilkan 0 temuan. HEAD secara bersih berada 10 komit mendahului origin/main (`9be56e9..7f4ad93`). Push bersifat fast-forward murni. Jika git menolak dengan status non-fast-forward, git menolak secara otomatis untuk mencegah penimpaan perubahan tak terduga, bukan alasan untuk force-push.
    ```bash
    cd /root/scp-ios-clean
    git push origin main
    ```
+
+   > [!IMPORTANT]
+   > **Aturan Pasca-Push (Jangan Pernah Rewrite Riwayat Lagi):** Setelah kedua repositori didorong ke GitHub, riwayat komit tidak boleh di-rewrite lagi. Seluruh komit baru di masa mendatang harus berupa komit normal (`git commit`) dan dorongan normal (`git push origin <branch>`). Jangan pernah menjalankan `git-filter-repo`, rebase interaktif, atau push paksa (`--force`) setelah proses ini selesai.
 7. [ ] **Verifikasi Remote Tags dan Branches Pasca-Push**:
    - Periksa remote ref di kedua repositori:
    ```bash
@@ -72,11 +75,13 @@ Ikuti langkah-langkah berikut secara berurutan:
        /var/www/SCP/storage/app/private/credentials/student_credentials_latest.csv \
        /var/www/SCP/storage/app/private/credentials/teacher_credentials_latest.csv
      ```
-9. [ ] **Pemeriksaan Pra-Patch Dekripsi SMTP & Eksekusi Patch Live**:
+9. [ ] **Pemeriksaan Pra-Patch Dekripsi SMTP & Eksekusi Patch Terpadu Live**:
    - Jalankan `/root/backup/live-verify.sh`
    - Jalankan `/root/backup/check-smtp-decrypt.sh`. Jika FAIL, operator login ke `/settings/email`, simpan ulang password SMTP, dan uji coba sampai PASS.
+   - **PRASYARAT MUTLAK UNTUK LANGKAH 10:** Jika Langkah 9 dilewati, Langkah 10 WAJIB dilewati juga. Melewatkan Langkah 9 akan menyisakan berkas aplikasi kotor saat reset riwayat di Langkah 10 sehingga swap otomatis gagal.
    - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_PATCH && chmod 600 /root/backup/ALLOW_LIVE_PATCH`
-   - Terapkan patch `live-patch-routes.patch` dan `live-patch-smtp-guard.patch`.
+   - Terapkan patch terpadu `live-patch-app.patch` (`git apply --check /root/backup/live-patch-app.patch && git apply /root/backup/live-patch-app.patch`).
+   - Jalankan pembersihan/pembaruan cache dan reload PHP-FPM: `php artisan config:clear && php artisan route:clear && systemctl reload php8.3-fpm`.
    - Jalankan kembali `/root/backup/live-verify.sh`.
 10. [ ] **Eksekusi Swap .git History Live (Pindahkan ke `/root/backup/live-git-old`)**:
     - Jalankan `/root/backup/live-verify.sh`

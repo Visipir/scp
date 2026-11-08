@@ -53,12 +53,44 @@ class SmtpGuardTest extends TestCase
         $response = $service->requestResetCode('nonexistent_user@example.com');
 
         $this->assertTrue($response['success']);
+        $this->assertSame('Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.', $response['message']);
 
         $log = MailSendLog::latest('id')->first();
         $this->assertNotNull($log);
         $this->assertSame('password_reset', $log->mail_type);
         $this->assertSame('failed', $log->status);
+        $this->assertSame('n***r@example.com', $log->recipient);
         $this->assertStringContainsString('Pengguna tidak ditemukan atau belum memiliki email terverifikasi', $log->error_message);
+    }
+
+    public function test_forgot_password_for_user_without_email_returns_identical_response_and_logs_nothing_identifying(): void
+    {
+        Role::insert([
+            ['id' => 2, 'role_name' => 'Guru'],
+        ]);
+
+        $user = User::create([
+            'fullname'          => 'Guru Without Email',
+            'username'          => 'guru_no_email',
+            'password'          => bcrypt('test-secret-password-xyz'),
+            'role_id'           => 2,
+            'email'             => null,
+            'email_verified_at' => null,
+        ]);
+
+        $service = app(PasswordResetService::class);
+        $response = $service->requestResetCode('guru_no_email');
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.', $response['message']);
+
+        $log = MailSendLog::latest('id')->first();
+        $this->assertNotNull($log);
+        $this->assertSame('password_reset', $log->mail_type);
+        $this->assertSame('failed', $log->status);
+        $this->assertSame('***', $log->recipient);
+        $this->assertStringNotContainsString('guru_no_email', $log->recipient);
+        $this->assertStringNotContainsString('guru_no_email', (string) $log->error_message);
     }
 
     public function test_forgot_password_records_log_when_user_has_verified_email(): void
