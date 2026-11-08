@@ -86,7 +86,7 @@ Dokumen ini memetakan seluruh butir persyaratan Uji Kompetensi Keahlian (UKK) â€
    - Dari **331 pengujian otomatis**, sebanyak **330 lulus (PASS)** dan **1 dilewati (SKIP)** dengan **2348 assertions**:
      - `FetScheduleImportTest::test_pdf_sample_teachers_raw_jp_and_blocks_reconciliation` dilewati karena berkas contoh PDF jadwal FET di `storage/app/import-samples/` tidak dilacak di git. Format impor XML dan CSV terverifikasi penuh melalui synthetic fixtures. Parser PDF ditandai **NOT PROVEN**.
 
-6. **Pembatasan Laju (*Auth Throttles*) & Rute Legacy (`410 Gone`)**:
-   - Endpoint legacy `POST /api/login` telah dinonaktifkan dan mengembalikan **`410 Gone`**; endpoint login API yang didukung adalah `POST /api/v1/auth/login`.
+6. **Pembatasan Laju (*Auth Throttles*) & Rute Legacy (Throttle-Only)**:
+   - Endpoint login resmi yang didukung adalah `POST /api/v1/auth/login`. Endpoint legacy `POST /api/login` tetap aktif untuk kompatibilitas mundur namun didepresiasi dan dilindungi pembatasan laju `throttle:api-login` (5 percobaan per menit per username + IP; percobaan ke-6 mengembalikan `429`).
    - Endpoint reset password dan verifikasi kode email menggunakan pembatasan laju **6 permintaan per menit per IP** (`throttle:6,1`; permintaan ke-7 mengembalikan `429`), terverifikasi pada `AuthRateLimitingQ2Test`.
    - Arsip CSV kredensial sementara (`teacher_credentials_*.csv`, `student_credentials_*.csv`, `bulk_reset_teachers_*.csv`) di `storage/app/private/credentials/` wajib dihapus setelah disalin oleh operator menggunakan `rm -f /var/www/SCP/storage/app/private/credentials/*.csv`.

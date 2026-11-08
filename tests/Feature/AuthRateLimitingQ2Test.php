@@ -23,15 +23,60 @@ class AuthRateLimitingQ2Test extends TestCase
         RateLimiter::clear('forgot-password');
     }
 
-    public function test_legacy_api_login_returns_410_gone(): void
+    public function test_legacy_api_login_returns_token_with_valid_credentials(): void
     {
+        $user = $this->makeUser(2, ['password' => Hash::make('validPassword123!')]);
+
         $response = $this->postJson('/api/login', [
-            'username' => 'someuser',
-            'password' => 'somepass',
+            'username' => $user->username,
+            'password' => 'validPassword123!',
         ]);
 
-        $response->assertStatus(410);
-        $response->assertJsonStructure(['message']);
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'user',
+            'token',
+        ]);
+        $this->assertNotEmpty($response->json('token'));
+    }
+
+    public function test_legacy_api_login_throttles_on_6th_attempt(): void
+    {
+        $user = $this->makeUser(2, ['password' => Hash::make('validPassword123!')]);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $response = $this->postJson('/api/login', [
+                'username' => $user->username,
+                'password' => 'wrong-pass',
+            ]);
+            $this->assertEquals(401, $response->getStatusCode(), "Attempt {$i} should return 401");
+        }
+
+        $response6 = $this->postJson('/api/login', [
+            'username' => $user->username,
+            'password' => 'wrong-pass',
+        ]);
+        $response6->assertStatus(429);
+    }
+
+    public function test_api_v1_auth_login_remains_active_and_throttled(): void
+    {
+        $user = $this->makeUser(2, ['password' => Hash::make('validPassword123!')]);
+
+        $response = $this->postJson('/api/v1/auth/login', [
+            'username' => $user->username,
+            'password' => 'validPassword123!',
+            'device_name' => 'test-device',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'token',
+                'user',
+            ],
+        ]);
     }
 
     public function test_reset_password_token_rate_limited_to_6_per_minute(): void

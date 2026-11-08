@@ -38,7 +38,7 @@
 ## 2. Langkah 0: Aplikasi Patch Routes Live (`ALLOW_LIVE_PATCH`)
 
 > [!IMPORTANT]
-> Langkah ini menerapkan pembatasan laju (*rate limiting*) `throttle:6,1` pada endpoint reset password & verifikasi email, serta menonaktifkan endpoint legacy `/api/login` (410 Gone) pada instans live tanpa mengubah fungsionalitas lain.
+> Langkah ini menerapkan pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email pada instans live tanpa menonaktifkan endpoint apa pun (*throttle-only patch*). Varian 410 disimpan di `/root/backup/live-patch-routes-410.patch` (tidak direkomendasikan).
 
 ### Eksekusi Langkah 0
 
@@ -243,8 +243,9 @@ mv /var/www/SCP/.git_bak /var/www/SCP/.git
 # 2. Reset mixed ke commit live semula
 git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
 
-# 3. Pulihkan berkas docs/tests yang sempat di-checkout
+# 3. Pulihkan berkas docs/tests yang sempat di-checkout dan bersihkan berkas untracked baru
 git checkout -- .
+git clean -fd -- docs/ scripts/ tests/
 
 # 4. Kembalikan berkas sensitif dari backup jika diperlukan
 if [ -f /root/backup/sensitive/database_dump.sql ]; then

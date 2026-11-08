@@ -10,10 +10,15 @@
 
 Ikuti langkah-langkah berikut secara berurutan:
 
-1. [ ] **Rotasi Google Gemini API Key**:
+1. [ ] **Rotasi Google Gemini API Key & Verifikasi SSH**:
    - Buat API key baru di Google AI Studio / Google Cloud Console.
    - Buka `/waka/settings` di aplikasi web SCP dan simpan API key baru ke dalam konfigurasi sistem.
    - Hapus / nonaktifkan API key lama di konsol Google Cloud.
+   - **Operator Pre-Check Kunci SSH GitHub**:
+     ```bash
+     ssh -T git@github.com
+     ```
+     Greeting wajib menampilkan: `Hi Visipir! You've successfully authenticated...`. Jika menyapa akun selain `Visipir` atau ditolak, STOP segera.
 2. [ ] **Setel Repositori GitHub ke Status Privat**:
    - Buka pengaturan repositori web `git@github.com:Visipir/scp.git` -> Ubah visibilitas ke **Private**.
    - Buka pengaturan repositori iOS `git@github.com:Visipir/scp-ios.git` -> Ubah visibilitas ke **Private**.
@@ -38,7 +43,10 @@ Ikuti langkah-langkah berikut secara berurutan:
    cd /root/scp-ios-clean
    git push origin main
    ```
-7. [ ] **Kirim Permohonan Pembersihan Cache ke GitHub Support**:
+7. [ ] **Pengamanan Kunci SSH Server (Operator Decision)**:
+   - Kunci SSH `~/.ssh/id_ed25519` di server bersifat tanpa passphrase (*unencrypted*).
+   - Setelah push selesai dilakukan, operator dapat mencabut akses kunci ini dari akun GitHub (Settings -> SSH Keys) atau membatasi izin berkas di server jika tidak lagi digunakan.
+8. [ ] **Kirim Permohonan Pembersihan Cache ke GitHub Support**:
    - Jika salah satu repositori pernah berstatus publik atau memiliki fork/pull request, buka tiket di [GitHub Support](https://support.github.com/contact):
    - Minta GitHub menjalankan `git gc` dan menghapus unreachable commits, PR refs, dan cached commit views.
 8. [ ] **Unduh & Hapus Berkas Kredensial CSV**:
@@ -65,7 +73,7 @@ Ikuti langkah-langkah berikut secara berurutan:
 ## 2. Tabel Ringkasan Komit, Branch, Tag, dan Berkas Bundle
 
 ### A. Repositori Web (`/root/scp-clean`)
-- **Total Komit (`git rev-list --all --count`)**: `124`
+- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi)
 - **Branch Aktif**:
   - `feat/dark-console-ui`: HEAD (komit dokumentasi dan hardening route/privasi)
   - `main`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21` (17 komit)
@@ -75,7 +83,7 @@ Ikuti langkah-langkah berikut secara berurutan:
   - `331 tests, 330 passed, 1 skipped` (0 failures, 0 errors, 2348 assertions).
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
-- **Total Komit (`git rev-list --all --count`)**: `93`
+- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi)
 - **Branch Aktif**:
   - `main`: `7f4ad93b28ca8b1874ed7345a43dc4909de8af18`
 - **Komit di `origin/main` lama**:

@@ -28,11 +28,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Legacy endpoints (kept unchanged for existing clients)
-Route::post('/login', function () {
-    return response()->json([
-        'message' => 'Endpoint legacy /api/login telah dinonaktifkan (410 Gone). Gunakan /api/v1/auth/login.',
-    ], 410);
-});
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:api-login');
 Route::post('/forgot-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'forgotPassword'])->middleware('throttle:forgot-password');
 Route::post('/reset-password', [\App\Http\Controllers\Api\V1\ForgotPasswordController::class, 'resetPassword'])->middleware('throttle:6,1');
 

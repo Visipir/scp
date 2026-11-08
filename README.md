@@ -208,12 +208,12 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
 - **Manajemen Akun Tanpa Email oleh Waka**: Waka Kurikulum dapat memantau status pengguna dan melakukan reset kata sandi sementara secara manual maupun ekspor batch melalui menu **Manajemen Pengguna** (`/waka/users`).
 - **Pengaturan SMTP**: Dapat dikonfigurasi melalui GUI Waka Kurikulum di `/settings/email` atau via `.env`. Mendukung pengujian koneksi, proteksi TLS, dan fallback log mailer.
 - **Endpoint Autentikasi & Reset Password**:
-  - Login API Resmi: `POST /api/v1/auth/login` (Endpoint legacy `POST /api/login` telah dinonaktifkan dan mengembalikan **`410 Gone`**).
+  - Login API: `POST /api/v1/auth/login` (direkomendasikan). Endpoint legacy `POST /api/login` tetap aktif untuk kompatibilitas klien lama, namun didepresiasi dan dilindungi rate limit `throttle:api-login` (5 percobaan per menit per username + IP).
   - Request Code: `POST /api/v1/auth/forgot-password` (Web: `/forgot-password`)
   - Submit Code: `POST /api/v1/auth/reset-password` (Web: `/reset-password` dan `/reset-password-token`)
 - **Pembatasan Laju (*Auth Throttles*)**:
   - Endpoint reset password (`/reset-password`, `/reset-password-token`, `/api/reset-password`, `/api/v1/auth/reset-password`) dan verifikasi email (`/profile/email/verify`, `/api/v1/auth/email/verify`, `/api/v1/profile/email/verify`) dibatasi **6 permintaan per menit per IP** (`throttle:6,1`; permintaan ke-7 mengembalikan `429 Too Many Requests`).
-  - Endpoint login (`/login` dan `/api/v1/auth/login`) dibatasi **5 percobaan per menit per username + IP**.
+  - Endpoint login (`/login`, `/api/login`, dan `/api/v1/auth/login`) dibatasi **5 percobaan per menit per username + IP** (`throttle:api-login`).
 
 ---
 
