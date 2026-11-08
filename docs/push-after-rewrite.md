@@ -19,23 +19,26 @@ Ikuti langkah-langkah berikut secara berurutan:
      ssh -T git@github.com
      ```
      Greeting wajib menampilkan: `Hi Visipir! You've successfully authenticated...`. Jika menyapa akun selain `Visipir` atau ditolak, STOP segera.
-2. [ ] **Setel Repositori GitHub ke Status Privat**:
+2. [ ] **Setel Repositori GitHub ke Status Privat & Default Branch**:
    - Buka pengaturan repositori web `git@github.com:Visipir/scp.git` -> Ubah visibilitas ke **Private**.
    - Buka pengaturan repositori iOS `git@github.com:Visipir/scp-ios.git` -> Ubah visibilitas ke **Private**.
+   - Pastikan default branch di GitHub adalah **`main`** (Settings -> Branches). Branch `main` adalah branch utama untuk review dan deployment.
 3. [ ] **Jalankan Skrip Pemeriksaan Pra-Dorongan (*Pre-push Safety Check*)**:
    - Di direktori web: `cd /root/scp-clean && ./scripts/prepush-check.sh`
    - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/prepush-check.sh`
    - Keduanya wajib menghasilkan status `=== OK: Pre-push checks PASSED. ===`.
 4. [ ] **Eksekusi Force Push Repositori Web dari `/root/scp-clean`**:
+   - Urutan dorongan (*push order*): push branch `main` dan `feat/dark-console-ui` terlebih dahulu, lalu push tag `pre-restyle`.
    ```bash
    cd /root/scp-clean
-   git push --force origin --all
-   git push --force origin --tags
+   git push --force origin main feat/dark-console-ui
+   git push --force origin pre-restyle
    ```
+   - Verifikasi di GitHub bahwa default branch adalah `main`. Menghapus branch `feat/dark-console-ui` di GitHub bersifat opsional karena branch `main` berada pada komit yang identik.
 5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
    ```bash
    cd /root/scp-clean
-   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
+   ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
    ```
 6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push, Tanpa Force)**:
    - Push ke remote iOS dilakukan secara normal tanpa `--force` (`git push origin main`).
@@ -103,14 +106,14 @@ Ikuti langkah-langkah berikut secara berurutan:
 ## 2. Tabel Ringkasan Komit, Branch, Tag, dan Berkas Bundle
 
 ### A. Repositori Web (`/root/scp-clean`)
-- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi)
+- **Total Komit**: `$(git rev-list --all --count)` (134 komit setelah filter-repo)
 - **Branch Aktif**:
-  - `feat/dark-console-ui`: HEAD (komit dokumentasi dan hardening route/privasi)
-  - `main`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21` (17 komit)
+  - `main`: HEAD (default branch untuk review & deployment)
+  - `feat/dark-console-ui`: HEAD (komit identik dengan `main`; penghapusan di GitHub opsional)
 - **Tag**:
-  - `pre-restyle`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21`
+  - `pre-restyle`: `00d1c0ca1ac16ea8f74270a1db6048fd9a1bf448`
 - **Hasil Pengujian Unit/Fitur**:
-  - `337 tests, 336 passed, 1 skipped` (0 failures, 0 errors, 2371 assertions).
+  - `338 tests, 337 passed, 1 skipped` (0 failures, 0 errors, 2378 assertions).
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
 - **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi: 93)
@@ -156,15 +159,16 @@ cd /root/scp-clean
 git remote -v
 # origin git@github.com:Visipir/scp.git
 ```
-Jalankan dorongan paksa:
+Jalankan dorongan (push order):
 ```bash
-git push --force origin --all
-git push --force origin --tags
+git push --force origin main feat/dark-console-ui
+git push --force origin pre-restyle
 ```
+Verifikasi di GitHub (Settings -> Branches) bahwa default branch adalah `main` dan repositori berstatus Private. Menghapus branch `feat/dark-console-ui` di GitHub bersifat opsional karena branch `main` berada pada komit identik.
 
 Lakukan verifikasi pasca-dorongan:
 ```bash
-./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
+./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
 ```
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)

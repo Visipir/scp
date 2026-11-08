@@ -35,7 +35,24 @@ if git for-each-ref --format='%(refname)' | grep -q 'refs/original'; then
     echo "ERROR: refs/original exists. History rewriting artifacts not pruned." >&2
     exit 1
 fi
-echo "[PASS] Git refs verified (only main, feat/dark-console-ui, pre-restyle exist)"
+
+# Verify main == feat/dark-console-ui
+MAIN_REF=$(git rev-parse refs/heads/main)
+FEAT_REF=$(git rev-parse refs/heads/feat/dark-console-ui)
+if [ "$MAIN_REF" != "$FEAT_REF" ]; then
+    echo "ERROR: main ($MAIN_REF) does not match feat/dark-console-ui ($FEAT_REF)." >&2
+    exit 1
+fi
+
+# Verify pre-restyle is the only ref pointing at the old main
+TAG_REF=$(git rev-parse refs/tags/pre-restyle)
+OLD_MAIN_REFS=$(git for-each-ref --points-at "$TAG_REF" --format='%(refname)' | grep -v -E '^refs/remotes/origin/.*$' || true)
+if [ "$OLD_MAIN_REFS" != "refs/tags/pre-restyle" ]; then
+    echo "ERROR: Unexpected refs pointing at old main commit ($TAG_REF):" >&2
+    echo "$OLD_MAIN_REFS" >&2
+    exit 1
+fi
+echo "[PASS] Git refs verified: main == feat/dark-console-ui, pre-restyle is the only ref pointing at old main"
 
 # 4. Check deleted paths across all revisions
 DELETED_MATCHES=$(git log --all --name-only --format= -- "storage/app/seed" "storage/app/import-samples" "database/database_dump.sql" "credentials" | grep -v '^$' || true)

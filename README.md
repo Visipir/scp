@@ -32,6 +32,9 @@ git clone git@github.com:Visipir/scp.git
 cd scp
 ```
 
+> [!NOTE]
+> Branch utama dan *default branch* repositori untuk review maupun deployment adalah `main`. Seluruh fitur terkini berada di branch `main` (branch `feat/dark-console-ui` dipertahankan pada komit identik; menghapus branch `feat/dark-console-ui` di GitHub bersifat opsional). Repositori wajib berstatus Private.
+
 ### 3.2. Instal Dependensi
 ```bash
 composer install --no-dev --optimize-autoloader
