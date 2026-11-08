@@ -198,12 +198,16 @@ git remote set-url origin git@github.com:Visipir/scp.git || git remote add origi
 # 9. Mixed reset ke branch feat/dark-console-ui (working tree TIDAK disentuh/dihapus)
 git reset --mixed feat/dark-console-ui
 
-# 10. Periksa status working tree (harus hanya memuat docs/tests/scripts)
+# 10. Periksa status working tree
+# CATATAN URUTAN: Langkah 0 (Patch Routes) HARUS dijalankan sebelum Langkah 1.
+# Jika Langkah 1 dijalankan sendiri tanpa Langkah 0, git status --short akan menampilkan routes/*.php
+# sebagai termodifikasi (M). Jika patch memang diinginkan, jalankan Langkah 0 terlebih dahulu.
 git status --short
 
 # 11. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
 git checkout -- \
     .gitignore \
+    .env.testing.example \
     README.md \
     SCP_CONTEXT.md \
     docs/ \
@@ -243,9 +247,26 @@ mv /var/www/SCP/.git_bak /var/www/SCP/.git
 # 2. Reset mixed ke commit live semula
 git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
 
-# 3. Pulihkan berkas docs/tests yang sempat di-checkout dan bersihkan berkas untracked baru
+# 3. Bersihkan berkas untracked baru yang ada di clean tree tapi tidak di live HEAD
+# a. Dry-run pratinjau penghapusan:
+git clean -nd -- docs/ scripts/ tests/
+
+# b. Hapus secara presisi HANYA berkas yang ada di clean tree tapi tidak di live HEAD
+# (Daftar di bawah dikomputasi dari: git diff --name-only --diff-filter=A live_head clean_tip)
+rm -f \
+    docs/checklist-ukk.md \
+    docs/live-repo-cleanup.md \
+    docs/push-after-rewrite.md \
+    scripts/postpush-verify.sh \
+    scripts/prepush-check.sh \
+    tests/Feature/AuthRateLimitingQ2Test.php \
+    tests/Fixtures/synthetic_fet_timetable.csv \
+    tests/Fixtures/synthetic_fet_timetable.xml \
+    .env.testing.example
+rm -rf tests/Fixtures/ 2>/dev/null || true
+
+# c. Pulihkan seluruh berkas live asli yang terdaftar di git
 git checkout -- .
-git clean -fd -- docs/ scripts/ tests/
 
 # 4. Kembalikan berkas sensitif dari backup jika diperlukan
 if [ -f /root/backup/sensitive/database_dump.sql ]; then
