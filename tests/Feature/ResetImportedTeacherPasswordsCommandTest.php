@@ -24,6 +24,8 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
         $initialPass = \Illuminate\Support\Str::random(16);
         $newDefaultPass = \Illuminate\Support\Str::random(16);
         putenv('SEED_DEFAULT_PASSWORD=' . $newDefaultPass);
+        $_ENV['SEED_DEFAULT_PASSWORD'] = $newDefaultPass;
+        $_SERVER['SEED_DEFAULT_PASSWORD'] = $newDefaultPass;
 
         // Dummy teacher ID 2 (should be ignored)
         $dummyTeacher = $this->makeUser(2, ['id' => 2, 'username' => 'guru_andi', 'password' => Hash::make('old_pass')]);

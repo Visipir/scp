@@ -31,7 +31,24 @@ class RealAccountsSeeder extends Seeder
         }
 
         if (!File::exists($csvPath)) {
-            $this->command?->warn("RealAccountsSeeder: No CSV found at {$csvPath}. Skipping seeding.");
+            $this->command?->info("RealAccountsSeeder: No CSV found at {$csvPath}. Bootstrapping base roles and primary Waka Kurikulum account.");
+            \App\Models\Role::firstOrCreate(['id' => 1], ['role_name' => 'Waka Kurikulum']);
+            \App\Models\Role::firstOrCreate(['id' => 2], ['role_name' => 'Guru']);
+            \App\Models\Role::firstOrCreate(['id' => 3], ['role_name' => 'Tim Kesiswaan']);
+            \App\Models\Role::firstOrCreate(['id' => 4], ['role_name' => 'Siswa/Ortu']);
+            \App\Models\SystemConfiguration::firstOrCreate(['id' => 1], [
+                'active_cycle' => 'Putaran 1',
+                'is_schedule_locked' => false,
+            ]);
+            User::firstOrCreate(
+                ['username' => 'waka_kurikulum'],
+                [
+                    'fullname' => 'Pak Budi Kurikulum, M.Pd',
+                    'role_id' => 1,
+                    'password' => Hash::make($defaultPassword),
+                    'must_change_password' => false,
+                ]
+            );
             return;
         }
 

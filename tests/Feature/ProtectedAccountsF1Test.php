@@ -261,7 +261,10 @@ class ProtectedAccountsF1Test extends TestCase
         $this->assertSame($beforeProtected, $this->snapshotProtectedAccounts());
 
         // 3. RealAccountsSeeder
-        putenv('SEED_DEFAULT_PASSWORD=' . Str::random(16));
+        $randPass = Str::random(16);
+        putenv('SEED_DEFAULT_PASSWORD=' . $randPass);
+        $_ENV['SEED_DEFAULT_PASSWORD'] = $randPass;
+        $_SERVER['SEED_DEFAULT_PASSWORD'] = $randPass;
         $seedDir = storage_path('app/seed');
         if (!File::exists($seedDir)) {
             File::makeDirectory($seedDir, 0755, true);
