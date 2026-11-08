@@ -37,36 +37,61 @@ Ikuti langkah-langkah berikut secara berurutan:
    cd /root/scp-clean
    ./scripts/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-list --all --count)
    ```
-6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push)**:
-   - Ikuti panduan di [`docs/push-ios.md`](file:///root/scp-ios-clean/docs/push-ios.md):
+6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push, Tanpa Force)**:
+   - Push ke remote iOS dilakukan secara normal tanpa `--force` (`git push origin main`).
+   - *Alasan:* Riwayat iOS yang telah dibersihkan mempertahankan root commit asli dan riwayat grafik parent; jika git menolak dengan status non-fast-forward, itu adalah sinyal bahwa remote memiliki pekerjaan yang belum digabungkan, bukan alasan untuk melakukan force-push.
    ```bash
    cd /root/scp-ios-clean
    git push origin main
    ```
-7. [ ] **Pengamanan Kunci SSH Server (Operator Decision)**:
-   - Kunci SSH `~/.ssh/id_ed25519` di server bersifat tanpa passphrase (*unencrypted*).
-   - Setelah push selesai dilakukan, operator dapat mencabut akses kunci ini dari akun GitHub (Settings -> SSH Keys) atau membatasi izin berkas di server jika tidak lagi digunakan.
-8. [ ] **Kirim Permohonan Pembersihan Cache ke GitHub Support**:
-   - Jika salah satu repositori pernah berstatus publik atau memiliki fork/pull request, buka tiket di [GitHub Support](https://support.github.com/contact):
-   - Minta GitHub menjalankan `git gc` dan menghapus unreachable commits, PR refs, dan cached commit views.
-8. [ ] **Unduh & Hapus Berkas Kredensial CSV**:
-   - Pola berkas riil di `/var/www/SCP/storage/app/private/credentials/`: `teacher_credentials_*.csv`, `student_credentials_*.csv`, `bulk_reset_teachers_*.csv`:
+7. [ ] **Verifikasi Remote Tags dan Branches Pasca-Push**:
+   - Periksa remote ref di kedua repositori:
+   ```bash
+   git -C /root/scp-clean ls-remote --heads --tags origin
+   git -C /root/scp-ios-clean ls-remote --heads --tags origin
+   ```
+   - Target ref web yang sah: `refs/heads/main`, `refs/heads/feat/dark-console-ui`, `refs/tags/pre-restyle`.
+   - Target ref iOS yang sah: `refs/heads/main`.
+   - Jika ditemukan branch/tag asing di GitHub, hapus ref tersebut (`git push origin --delete <stale-ref>`).
+8. [ ] **Unduh & Hapus Berkas Kredensial CSV (Tanpa Menyisakan Arsip di Server)**:
+   - Pola berkas riil di `/var/www/SCP/storage/app/private/credentials/`:
      - `bulk_reset_teachers_20261107_145429_6caf.csv` (`9733` bytes, mode `0600`)
      - `student_credentials_20261107_025322_s4er.csv` (`128974` bytes, mode `0600`)
      - `student_credentials_latest.csv` (`128974` bytes, mode `0600`)
      - `teacher_credentials_latest.csv` (`9733` bytes, mode `0600`)
-   - Salin berkas ke mesin lokal via `scp`, distribusikan, lalu hapus dari server:
+   - Salin 4 berkas ke laptop via `scp`:
      ```bash
-     rm -f /var/www/SCP/storage/app/private/credentials/*.csv
+     scp "root@<SERVER_IP>:/var/www/SCP/storage/app/private/credentials/*.csv" ./
      ```
-9. [ ] **Eksekusi Langkah 0 Pembersihan Live (Patch Routes)**:
-   - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_PATCH`
-   - Jalankan Langkah 0 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
-10. [ ] **Eksekusi Langkah 1 Pembersihan Live (Swap .git History)**:
-    - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_CLEANUP`
+   - Bandingkan checksum `sha256sum` lokal di laptop dengan `sha256sum` di server.
+   - Hapus berkas persis di server setelah checksum identik; **jangan tinggalkan berkas arsip zip/tar apa pun di server**:
+     ```bash
+     rm -f \
+       /var/www/SCP/storage/app/private/credentials/bulk_reset_teachers_20261107_145429_6caf.csv \
+       /var/www/SCP/storage/app/private/credentials/student_credentials_20261107_025322_s4er.csv \
+       /var/www/SCP/storage/app/private/credentials/student_credentials_latest.csv \
+       /var/www/SCP/storage/app/private/credentials/teacher_credentials_latest.csv
+     ```
+9. [ ] **Pemeriksaan Pra-Patch Dekripsi SMTP & Eksekusi Patch Live**:
+   - Jalankan `/root/backup/live-verify.sh`
+   - Jalankan `/root/backup/check-smtp-decrypt.sh`. Jika FAIL, operator login ke `/settings/email`, simpan ulang password SMTP, dan uji coba sampai PASS.
+   - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_PATCH && chmod 600 /root/backup/ALLOW_LIVE_PATCH`
+   - Terapkan patch `live-patch-routes.patch` dan `live-patch-smtp-guard.patch`.
+   - Jalankan kembali `/root/backup/live-verify.sh`.
+10. [ ] **Eksekusi Swap .git History Live (Pindahkan ke `/root/backup/live-git-old`)**:
+    - Jalankan `/root/backup/live-verify.sh`
+    - Buat berkas gerbang: `touch /root/backup/ALLOW_LIVE_CLEANUP && chmod 600 /root/backup/ALLOW_LIVE_CLEANUP`
+    - Pindahkan `.git` lama langsung ke `/root/backup/live-git-old` (di luar web tree, JANGAN buat `.git_bak`).
     - Jalankan Langkah 1 pada [`docs/live-repo-cleanup.md`](file:///root/scp-clean/docs/live-repo-cleanup.md).
-11. [ ] **Pembersihan Cadangan Server Pasca-Penilaian**:
-    - Setelah penilaian/grading selesai, hapus direktori `/root/backup/` (berkas bundle, scan-terms, live-git-old, dan sensitive).
+    - Pastikan `git status --short` benar-benar kosong; jika ada file tak terduga, batalkan dan kembalikan `.git` dari `/root/backup/live-git-old`.
+    - Jalankan kembali `/root/backup/live-verify.sh`.
+11. [ ] **Pembersihan Token Uji Coba (Ketat & Terarah)**:
+    - Jalankan `/root/backup/live-verify.sh`
+    - Buat berkas gerbang: `touch /root/backup/ALLOW_TOKEN_CLEANUP && chmod 600 /root/backup/ALLOW_TOKEN_CLEANUP`
+    - Jalankan skrip audit token pada Step 11 RUNSHEET.md (verifikasi tepat 14 token uji coba ID 98–111, nama "ios", unconsumed, hanya 5 akun terlindung).
+    - Jalankan kembali `/root/backup/live-verify.sh`.
+12. [ ] **Pembersihan Cadangan Server Pasca-Penilaian**:
+    - Setelah penilaian/grading selesai, hapus direktori `/root/backup/` (`rm -rf /root/backup`). Tidak ada berkas `.git_bak` atau repositori cadangan di dalam `/var/www/SCP/`.
 
 ---
 
@@ -80,10 +105,10 @@ Ikuti langkah-langkah berikut secara berurutan:
 - **Tag**:
   - `pre-restyle`: `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21`
 - **Hasil Pengujian Unit/Fitur**:
-  - `331 tests, 330 passed, 1 skipped` (0 failures, 0 errors, 2348 assertions).
+  - `337 tests, 336 passed, 1 skipped` (0 failures, 0 errors, 2371 assertions).
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
-- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi)
+- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi: 93)
 - **Branch Aktif**:
   - `main`: `7f4ad93b28ca8b1874ed7345a43dc4909de8af18`
 - **Komit di `origin/main` lama**:
@@ -96,7 +121,8 @@ Ikuti langkah-langkah berikut secara berurutan:
 
 | Berkas Bundle | Ukuran | SHA-256 Checksum |
 |---|---|---|
-| `scp-clean-HEAD.bundle` | ~1.0 MB | *(Dihitung ulang pasca-komit final)* |
+| `final-web.bundle` / `scp-clean-HEAD.bundle` | 1,066,381 B | `c39cc65f8b31d970dc67f3abe6485dd16307e20559f1bd48fd19c3588f389b5e` |
+| `final-ios.bundle` | 517,965 B | `9eb42522b7a4f3162a3db1ba0c2e3434f718f42ff0fe019859e74e45e79ea616` |
 | `scp-pre-rewrite2.bundle` | 1.0 MB | `ed2beb3ce7a0cb84883cdd0b0c7ac97c2de4dd4d6a063d27897a4b8c204f25e2` |
 | `scp-pre-rewrite.bundle` | 1.2 MB | `11d5489892d08d9fb959e4d6f5813d8a2fbaf2da5aebfe0568ce6977e6d88eb4` |
 | `scp-pre-restyle-tag.bundle` | 486 KB | `66c588115e3fc0ca436478a3a209646736703034ddc0557a73f0bf57755f1520` |

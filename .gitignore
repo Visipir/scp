@@ -29,6 +29,7 @@ import-samples/
 /database/database_staging.sqlite
 /database/database_candidate.sqlite
 /.env.testing
+/.git_bak/
 /sqlite_to_mysql.sql
 /database/database_dump.sql
 *.dump.sql

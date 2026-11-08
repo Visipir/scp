@@ -180,8 +180,8 @@ cp -a /root/scp-clean/.git /var/www/SCP/.git_new
 # 5. Samakan kepemilikan .git_new dengan .git asli
 chown -R "$(stat -c '%U:%G' /var/www/SCP/.git)" /var/www/SCP/.git_new
 
-# 6. Swap direktori .git
-mv /var/www/SCP/.git /var/www/SCP/.git_bak
+# 6. Swap direktori .git (pindahkan .git lama ke /root/backup/live-git-old DI LUAR web tree)
+mv /var/www/SCP/.git /root/backup/live-git-old
 mv /var/www/SCP/.git_new /var/www/SCP/.git
 
 # 7. Verifikasi stat & ownership setelah swap (harus identik)
@@ -189,7 +189,7 @@ STAT_AFTER=$(stat -c '%u:%g %a' /var/www/SCP/.git)
 echo "Stat .git baru: $STAT_AFTER"
 if [ "$STAT_BEFORE" != "$STAT_AFTER" ]; then
     echo "PERINGATAN: Perbedaan stat terdeteksi! Mengembalikan kepemilikan..."
-    chown -R "$(stat -c '%U:%G' /var/www/SCP/.git_bak)" /var/www/SCP/.git
+    chown -R "$(stat -c '%U:%G' /root/backup/live-git-old)" /var/www/SCP/.git
 fi
 
 # 8. Set remote URL ke origin resmi
@@ -198,13 +198,7 @@ git remote set-url origin git@github.com:Visipir/scp.git || git remote add origi
 # 9. Mixed reset ke branch feat/dark-console-ui (working tree TIDAK disentuh/dihapus)
 git reset --mixed feat/dark-console-ui
 
-# 10. Periksa status working tree
-# CATATAN URUTAN: Langkah 0 (Patch Routes) HARUS dijalankan sebelum Langkah 1.
-# Jika Langkah 1 dijalankan sendiri tanpa Langkah 0, git status --short akan menampilkan routes/*.php
-# sebagai termodifikasi (M). Jika patch memang diinginkan, jalankan Langkah 0 terlebih dahulu.
-git status --short
-
-# 11. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
+# 10. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
 git checkout -- \
     .gitignore \
     .env.testing.example \
@@ -214,6 +208,19 @@ git checkout -- \
     phpunit.xml \
     scripts/ \
     tests/
+
+# 11. Periksa status working tree (wajib bersih/kosong tanpa drift)
+STATUS=$(git status --short)
+if [ -n "$STATUS" ]; then
+    echo "ERROR: git status --short tidak kosong! Drift tidak diharapkan:"
+    echo "$STATUS"
+    echo "Membatalkan dan melakukan rollback ke /root/backup/live-git-old..."
+    mv /var/www/SCP/.git /root/backup/live-git-failed
+    cp -a /root/backup/live-git-old /var/www/SCP/.git
+    git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
+    exit 1
+fi
+echo "PASS: git status --short bersih"
 
 # 12. Kadaluwarsa reflog & garbage collection untuk memusnahkan objek lama
 git reflog expire --expire=now --all
@@ -240,9 +247,9 @@ Jika terjadi anomali atau kesalahan pasca-swap riwayat:
 ```bash
 cd /var/www/SCP
 
-# 1. Kembalikan .git asli dari backup .git_bak
-mv /var/www/SCP/.git /var/www/SCP/.git_failed
-mv /var/www/SCP/.git_bak /var/www/SCP/.git
+# 1. Kembalikan .git asli dari backup /root/backup/live-git-old (di luar web tree)
+mv /var/www/SCP/.git /root/backup/live-git-failed
+cp -a /root/backup/live-git-old /var/www/SCP/.git
 
 # 2. Reset mixed ke commit live semula
 git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
