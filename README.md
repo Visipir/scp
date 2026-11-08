@@ -235,3 +235,19 @@ Impor berkas dilakukan melalui antarmuka web Waka Kurikulum dengan mekanisme **P
   ```bash
   rm -f /var/www/SCP/storage/app/private/credentials/*.csv
   ```
+
+---
+
+## 12. Paket Reviewer / Penguji (Reviewer Package)
+
+Arsip `scp-web-main-snapshot.zip` adalah paket snapshot mandiri dari commit tip `main` tanpa direktori `.git` dan tanpa riwayat komit lampau, dirancang untuk evaluasi kode sumber yang aman dan bersih:
+- **Isi Paket**: Seluruh kode sumber backend Laravel, template Blade, skrip frontend, migrasi database, seeder bootstrap, dan automated test suite lengkap.
+- **Cara Menjalankan**:
+  1. Ekstrak arsip: `unzip scp-web-main-snapshot.zip -d scp-web && cd scp-web`
+  2. Instal dependensi: `composer install && npm ci && npm run build`
+  3. Konfigurasi env: `cp .env.example .env && php artisan key:generate`
+  4. Siapkan database SQLite: `touch database/database.sqlite && php artisan migrate --force`
+  5. Bootstrap akun awal: `SEED_DEFAULT_PASSWORD="<KATA_SANDI_PILIHAN>" php artisan db:seed --class=RealAccountsSeeder --force`
+  6. Jalankan pengujian: `php artisan test`
+  7. Jalankan server lokal: `php artisan serve --port=8000`
+- **Akun Tersedia**: 5 akun terlindung penguji (`waka_kurikulum`, `haris-budiawan`, `ryawidyaningtyas`, `tim_kesiswaan`, `17766`). Kredensial untuk akun-akun ini telah diserahkan secara terpisah melalui kanal privat aman tanpa menyertakan kata sandi di dalam repositori.
