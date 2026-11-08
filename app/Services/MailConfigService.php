@@ -205,12 +205,24 @@ class MailConfigService
     {
         $config = SystemConfiguration::first();
 
+        $maskedPassword = '';
+        if (! empty($config?->mail_password)) {
+            try {
+                Crypt::decryptString($config->mail_password);
+                $maskedPassword = '••••••';
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                $maskedPassword = 'Password SMTP tidak dapat dibaca, simpan ulang';
+            } catch (\Throwable $e) {
+                $maskedPassword = 'Password SMTP tidak dapat dibaca, simpan ulang';
+            }
+        }
+
         return [
             'mail_host'         => $config?->mail_host ?? '',
             'mail_port'         => $config?->mail_port ?? 587,
             'mail_encryption'   => $config?->mail_encryption ?? 'tls',
             'mail_username'     => $config?->mail_username ?? '',
-            'mail_password'     => $config?->masked_mail_password ?? '',
+            'mail_password'     => $maskedPassword,
             'mail_from_address' => $config?->mail_from_address ?? '',
             'mail_from_name'    => $config?->mail_from_name ?? '',
             'mail_verify_peer'  => (bool) ($config?->mail_verify_peer ?? true),

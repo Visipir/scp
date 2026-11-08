@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MailSendLog;
 use App\Models\PasswordResetCode;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -49,6 +50,10 @@ class PasswordResetService
             );
 
             $this->mailConfig->sendPasswordResetCode($userEmail, $code);
+        } else {
+            if (! empty($identifier)) {
+                MailSendLog::log('password_reset', (string) $identifier, false, 'Pengguna tidak ditemukan atau belum memiliki email terverifikasi');
+            }
         }
 
         return [
