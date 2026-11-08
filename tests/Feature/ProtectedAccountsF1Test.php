@@ -48,7 +48,7 @@ class ProtectedAccountsF1Test extends TestCase
         User::create([
             'id'                   => 1,
             'username'             => 'waka_kurikulum',
-            'fullname'             => 'waka_kurikulum, M.Pd',
+            'fullname'             => 'Pak Budi Kurikulum, M.Pd',
             'role_id'              => 1,
             'password'             => Hash::make(Str::random(20), ['rounds' => 4]),
             'must_change_password' => false,
@@ -57,7 +57,7 @@ class ProtectedAccountsF1Test extends TestCase
         User::create([
             'id'                   => 4,
             'username'             => 'tim_kesiswaan',
-            'fullname'             => 'tim_kesiswaan',
+            'fullname'             => 'Pak Rudi Kesiswaan',
             'role_id'              => 3,
             'password'             => Hash::make(Str::random(20), ['rounds' => 4]),
             'must_change_password' => false,

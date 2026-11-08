@@ -67,7 +67,7 @@ class LoginValidationJ1Test extends TestCase
     {
         $user = User::create([
             'username'             => 'waka_kurikulum',
-            'fullname'             => 'waka_kurikulum, M.Pd',
+            'fullname'             => 'Pak Budi Kurikulum, M.Pd',
             'role_id'              => 1,
             'password'             => Hash::make(Str::random(24), ['rounds' => 4]),
             'must_change_password' => false,
@@ -103,10 +103,10 @@ class LoginValidationJ1Test extends TestCase
     public function test_j1_five_protected_accounts_can_login_via_web_and_api(): void
     {
         $accounts = [
-            ['id' => 1,    'username' => 'waka_kurikulum',   'fullname' => 'waka_kurikulum, M.Pd', 'role_id' => 1, 'class_id' => null],
+            ['id' => 1,    'username' => 'waka_kurikulum',   'fullname' => 'Pak Budi Kurikulum, M.Pd', 'role_id' => 1, 'class_id' => null],
             ['id' => 1723, 'username' => 'haris-budiawan',   'fullname' => 'HARIS BUDIAWAN, S.Pd',     'role_id' => 2, 'class_id' => null],
             ['id' => 1721, 'username' => 'ryawidyaningtyas', 'fullname' => 'RYAWIDYANINGTYAS, S.Pd',   'role_id' => 2, 'class_id' => null],
-            ['id' => 4,    'username' => 'tim_kesiswaan',    'fullname' => 'tim_kesiswaan',       'role_id' => 3, 'class_id' => null],
+            ['id' => 4,    'username' => 'tim_kesiswaan',    'fullname' => 'Pak Rudi Kesiswaan',       'role_id' => 3, 'class_id' => null],
             ['id' => 1164, 'username' => '17766',            'fullname' => '17766',    'role_id' => 4, 'class_id' => 3],
         ];
 

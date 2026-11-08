@@ -19,11 +19,11 @@ class UserSeeder extends Seeder
 
         // 1. Staff & Teachers
         $staffUsers = [
-            ['role_id' => 1, 'username' => 'waka_kurikulum', 'fullname' => 'waka_kurikulum, M.Pd'],
+            ['role_id' => 1, 'username' => 'waka_kurikulum', 'fullname' => 'Pak Budi Kurikulum, M.Pd'],
             ['role_id' => 2, 'username' => 'guru_andi',       'fullname' => 'Pak Andi Pratama, S.Kom'],
             ['role_id' => 2, 'username' => 'guru_siti',       'fullname' => 'Bu Siti Nurhaliza, S.T'],
             ['role_id' => 2, 'username' => 'guru_agus',       'fullname' => 'Pak Agus Santoso, S.Pd'],
-            ['role_id' => 3, 'username' => 'tim_kesiswaan',   'fullname' => 'tim_kesiswaan, S.Pd'],
+            ['role_id' => 3, 'username' => 'tim_kesiswaan',   'fullname' => 'Pak Rudi Kesiswaan, S.Pd'],
         ];
 
         foreach ($staffUsers as $data) {
