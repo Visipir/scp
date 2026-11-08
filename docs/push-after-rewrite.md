@@ -114,21 +114,19 @@ Ikuti langkah-langkah berikut secara berurutan:
 ## 2. Tabel Ringkasan Komit, Branch, Tag, dan Berkas Bundle
 
 ### A. Repositori Web (`/root/scp-clean`)
-- **Total Komit**: `$(git rev-list --all --count)` (134 komit setelah filter-repo)
+- **Total Komit**: Dihitung dinamis via `$(git rev-list --all --count)`
 - **Branch Aktif**:
-  - `main`: HEAD (default branch untuk review & deployment)
+  - `main`: HEAD (`$(git rev-parse HEAD)`) — default branch untuk review & deployment
   - `feat/dark-console-ui`: HEAD (komit identik dengan `main`; penghapusan di GitHub opsional)
 - **Tag**:
-  - `pre-restyle`: `00d1c0ca1ac16ea8f74270a1db6048fd9a1bf448`
+  - `pre-restyle`: `00d1c0ca1ac16ea8f74270a1db6048fd9a1bf448` (lihat bagian History Facts di bawah)
 - **Hasil Pengujian Unit/Fitur**:
   - `338 tests, 337 passed, 1 skipped` (0 failures, 0 errors, 2378 assertions).
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
-- **Total Komit**: `$(git rev-list --all --count)` (dihitung dinamis saat eksekusi: 93)
+- **Total Komit**: Dihitung dinamis via `$(git rev-list --all --count)`
 - **Branch Aktif**:
-  - `main`: `7f4ad93b28ca8b1874ed7345a43dc4909de8af18`
-- **Komit di `origin/main` lama**:
-  - `9be56e9d59ef7210456c45755740a9384eeaf352` (repositori iOS 10 komit mendahului origin)
+  - `main`: HEAD (`$(git rev-parse HEAD)`)
 - **Status Audit Keamanan**:
   - 0 pelanggaran NIS/NIP/prefix/secret pada seluruh riwayat komit.
   - **Keputusan**: Normal push tanpa rewriting history.
@@ -144,6 +142,16 @@ Ikuti langkah-langkah berikut secara berurutan:
 | `scp-pre-restyle-tag.bundle` | 486 KB | `66c588115e3fc0ca436478a3a209646736703034ddc0557a73f0bf57755f1520` |
 | `scp-ios-pre-rewrite2.bundle` | 515 KB | `d15405eddb51a863db4e81ef940eef42520bf89ab526d9bf047adc5b444c4784` |
 | `scp-ios-pre-rewrite.bundle` | 516 KB | `8c766cde3ef8ad51365a7c3d7821261a9bfa173f1d94147de8b02aa46cb0dc23` |
+
+### D. Fakta Riwayat Komit & Transisi Status (History Facts)
+- **Tag `pre-restyle`**:
+  - Menandai kondisi basis kode sebelum restilisasi antarmuka dark console UI.
+  - Pada riwayat bersih saat ini (`/root/scp-clean`), komit tag `pre-restyle` adalah `00d1c0ca1ac16ea8f74270a1db6048fd9a1bf448`. Perbedaan hash dari hash historis `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21` disebabkan oleh pembersihan file sensitif/scratch dan pengabaian komit kosong saat proses filter-repo. Pohon direktori kerja (`tree`) terverifikasi semantik identik.
+  - Pada cadangan bundle historis (`/root/backup/scp-pre-restyle-tag.bundle`), ref `pre-restyle` tercatat di `5a73e1644a77b64d9ed4bfc945b84ceb44b63c21`.
+- **Branch `feat/dark-console-ui` dan `main`**:
+  - Branch `main` dimajukan secara fast-forward (`git branch -f main feat/dark-console-ui`) sehingga keduanya berada pada komit tip yang sama (`$(git rev-parse HEAD)`).
+- **Pengurangan 19 Berkas**:
+  - 19 berkas internal tooling, scratch script, dump SQL, diagram, dan konteks AI (`.agents`, `.claude`, `agent`, `skills-lock.json`, `SCP_CONTEXT.md`, `SCP_UseCase_Diagram.drawio`, `db_skansaba.sql`, `restore_config.sql`, dan 11 file PHP scratch) telah sepenuhnya dihapus dari seluruh commit tree riwayat git. Tidak ada satupun blob maupun commit message yang mereferensikan berkas tersebut.
 
 ---
 
