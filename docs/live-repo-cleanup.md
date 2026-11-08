@@ -139,21 +139,20 @@ fi
 
 cd /var/www/SCP
 
-# 1. Pindahkan 3 berkas sensitif tidak terlacak ke direktori aman terisolasi
+# 1. Pindahkan berkas sensitif, dump SQL, diagram, AI skills, dan skrip scratch ke direktori aman terisolasi
 mkdir -p /root/backup/sensitive
 chmod 700 /root/backup/sensitive
 
-if [ -f /var/www/SCP/database/database_dump.sql ]; then
-    mv /var/www/SCP/database/database_dump.sql /root/backup/sensitive/
-fi
-if [ -f /var/www/SCP/sqlite_to_mysql.sql ]; then
-    mv /var/www/SCP/sqlite_to_mysql.sql /root/backup/sensitive/
-fi
-if [ -f /var/www/SCP/.env.testing ]; then
-    mv /var/www/SCP/.env.testing /root/backup/sensitive/
-fi
+for f in database/database_dump.sql sqlite_to_mysql.sql .env.testing \
+         db_skansaba.sql restore_config.sql SCP_CONTEXT.md SCP_UseCase_Diagram.drawio \
+         add_periods.php create_ineffective_days.php dump_sqlite.php generate_models.php \
+         patch_conflict.php patch_controllers.php patch_journal.php patch_schedule.php \
+         restore_controllers.php restore_models.php rewrite_controllers.php \
+         skills-lock.json .agents .claude agent; do
+    [ -e "/var/www/SCP/$f" ] && mv "/var/www/SCP/$f" /root/backup/sensitive/
+done
 chmod 600 /root/backup/sensitive/* 2>/dev/null || true
-echo "Berkas sensitif berhasil diamankan di /root/backup/sensitive/"
+echo "Berkas sensitif, SQL, AI, dan scratch berhasil diamankan di /root/backup/sensitive/"
 
 # 2. Catat stat & ownership .git asli
 STAT_BEFORE=$(stat -c '%u:%g %a' /var/www/SCP/.git)
@@ -192,7 +191,6 @@ git checkout -- \
     .gitignore \
     .env.testing.example \
     README.md \
-    SCP_CONTEXT.md \
     docs/ \
     phpunit.xml \
     scripts/ \
@@ -265,16 +263,16 @@ rm -rf tests/Fixtures/ 2>/dev/null || true
 # c. Pulihkan seluruh berkas live asli yang terdaftar di git
 git checkout -- .
 
-# 4. Kembalikan berkas sensitif dari backup jika diperlukan
-if [ -f /root/backup/sensitive/database_dump.sql ]; then
-    cp -a /root/backup/sensitive/database_dump.sql /var/www/SCP/database/
-fi
-if [ -f /root/backup/sensitive/sqlite_to_mysql.sql ]; then
-    cp -a /root/backup/sensitive/sqlite_to_mysql.sql /var/www/SCP/
-fi
-if [ -f /root/backup/sensitive/.env.testing ]; then
-    cp -a /root/backup/sensitive/.env.testing /var/www/SCP/
-fi
+# 4. Kembalikan berkas sensitif, dump SQL, AI skills, diagram, dan skrip scratch dari backup jika diperlukan
+for f in database_dump.sql sqlite_to_mysql.sql .env.testing \
+         db_skansaba.sql restore_config.sql SCP_CONTEXT.md SCP_UseCase_Diagram.drawio \
+         add_periods.php create_ineffective_days.php dump_sqlite.php generate_models.php \
+         patch_conflict.php patch_controllers.php patch_journal.php patch_schedule.php \
+         restore_controllers.php restore_models.php rewrite_controllers.php \
+         skills-lock.json .agents .claude agent; do
+    [ -e "/root/backup/sensitive/$f" ] && cp -a "/root/backup/sensitive/$f" /var/www/SCP/ 2>/dev/null || true
+done
+[ -f /var/www/SCP/database_dump.sql ] && mv /var/www/SCP/database_dump.sql /var/www/SCP/database/ 2>/dev/null || true
 
 # 5. Bersihkan direktori failed jika verifikasi rollback selesai
 rm -rf /var/www/SCP/.git_failed

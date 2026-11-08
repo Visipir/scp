@@ -39,3 +39,23 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# AI agent skills & scratch
+/.agents/
+/.claude/
+/agent/
+/skills-lock.json
+/SCP_CONTEXT.md
+/SCP_UseCase_Diagram.drawio
+
+# SQL dumps
+/*.sql
+
+# Development scratch PHP scripts in repository root
+/add_periods.php
+/create_ineffective_days.php
+/dump_sqlite.php
+/generate_models.php
+/patch_*.php
+/restore_*.php
+/rewrite_controllers.php

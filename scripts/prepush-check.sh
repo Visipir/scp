@@ -45,6 +45,19 @@ if [ -n "$DELETED_MATCHES" ]; then
 fi
 echo "[PASS] Deleted sensitive paths absent from history"
 
+# 4.5 Check stray scratch, SQL dumps, AI skills, and context files are absent from tracked files
+FORBIDDEN_TRACKED=$(git ls-files -- \
+    "*.sql" ".agents" ".claude" "agent" "skills-lock.json" \
+    "SCP_CONTEXT.md" "SCP_UseCase_Diagram.drawio" \
+    "add_periods.php" "create_ineffective_days.php" "dump_sqlite.php" "generate_models.php" \
+    "patch_*.php" "restore_*.php" "rewrite_controllers.php" || true)
+if [ -n "$FORBIDDEN_TRACKED" ]; then
+    echo "ERROR: Forbidden stray scratch/SQL/AI files tracked in git:" >&2
+    echo "$FORBIDDEN_TRACKED" >&2
+    exit 1
+fi
+echo "[PASS] Stray scratch, SQL, context, and AI files absent from tracked files"
+
 # 5. Check forbidden strings in history
 FORBIDDEN_PW="pass""word123"
 if [ -n "$(git log --all -S "$FORBIDDEN_PW" --oneline)" ]; then
