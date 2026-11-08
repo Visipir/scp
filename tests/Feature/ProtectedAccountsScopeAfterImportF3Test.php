@@ -71,7 +71,7 @@ class ProtectedAccountsScopeAfterImportF3Test extends TestCase
             'major'         => 'AK',
         ]);
 
-        // 2. Create the 5 protected accounts + Wali Kelas XII RPL 1 + another BK (CANDRA RAHADIAN)
+        // 2. Create the 5 protected accounts + Wali Kelas XII RPL 1 + another BK (Guru Bk Contoh)
         $waka = User::create([
             'id'                   => 1,
             'username'             => 'waka_kurikulum',
@@ -121,8 +121,8 @@ class ProtectedAccountsScopeAfterImportF3Test extends TestCase
 
         $waliXiiRpl1 = User::create([
             'id'                   => 1711,
-            'username'             => 'diah-utaminingsih',
-            'fullname'             => 'DIAH UTAMININGSIH, S.T',
+            'username'             => 'wali-xii-rpl1',
+            'fullname'             => 'WALI KELAS CONTOH, S.T',
             'role_id'              => 2,
             'password'             => Hash::make(Str::random(16), ['rounds' => 4]),
             'must_change_password' => false,
@@ -130,8 +130,8 @@ class ProtectedAccountsScopeAfterImportF3Test extends TestCase
 
         $otherBk = User::create([
             'id'                   => 1759,
-            'username'             => 'candra-rahadian',
-            'fullname'             => 'CANDRA RAHADIAN, S.Pd',
+            'username'             => 'guru-bk-contoh',
+            'fullname'             => 'GURU BK CONTOH, S.Pd',
             'role_id'              => 2,
             'password'             => Hash::make(Str::random(16), ['rounds' => 4]),
             'must_change_password' => false,

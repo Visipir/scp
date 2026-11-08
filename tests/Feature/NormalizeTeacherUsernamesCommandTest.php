@@ -24,7 +24,7 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
         $teacher = $this->makeUser(2, [
             'id' => 100,
             'username' => 'guru_6aa0e473a0ac6',
-            'fullname' => 'RUSDIYANTO, S.Pd',
+            'fullname' => 'GURU CONTOH SATU, S.Pd',
         ]);
 
         $this->artisan('teachers:normalize-usernames')
@@ -44,12 +44,12 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
         $teacher1 = $this->makeUser(2, [
             'id' => 101,
             'username' => 'guru_6aa0e473a0ac6',
-            'fullname' => 'RUSDIYANTO, S.Pd',
+            'fullname' => 'GURU CONTOH SATU, S.Pd',
         ]);
         $teacher2 = $this->makeUser(2, [
             'id' => 102,
             'username' => 'guru_6aa0e473df9dd',
-            'fullname' => 'RUSDIYANTO, M.Pd', // Duplicate name
+            'fullname' => 'GURU CONTOH SATU, M.Pd', // Duplicate name
         ]);
 
         $token = $teacher1->createToken('test')->plainTextToken;
@@ -59,8 +59,8 @@ class NormalizeTeacherUsernamesCommandTest extends TestCase
             ->expectsOutputToContain('Successfully normalized 2 teacher usernames')
             ->assertSuccessful();
 
-        $this->assertSame('rusdiyanto', $teacher1->fresh()->username);
-        $this->assertSame('rusdiyanto-2', $teacher2->fresh()->username);
+        $this->assertSame('guru-contoh-satu', $teacher1->fresh()->username);
+        $this->assertSame('guru-contoh-satu-2', $teacher2->fresh()->username);
         $this->assertSame('guru_andi', $dummyTeacher->fresh()->username); // Preserved
 
         // Tokens should be revoked

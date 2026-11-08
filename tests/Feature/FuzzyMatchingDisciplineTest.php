@@ -27,38 +27,38 @@ class FuzzyMatchingDisciplineTest extends TestCase
 
     public function test_negative_pairs_never_auto_matched()
     {
-        // 1. SRI SUNARTINI vs SRI SUNARSIH must be AMBIGUOUS, never exact or fuzzy matched
-        $res1 = $this->empService->compareNamesTokenWise('SRI SUNARTINI, S.Pd.', 'SRI SUNARSIH, S.Pd.');
+        // 1. SRI PRATAMA vs SRI PRANATA must be AMBIGUOUS, never exact or fuzzy matched
+        $res1 = $this->empService->compareNamesTokenWise('SRI PRATAMA, S.Pd.', 'SRI PRANATA, S.Pd.');
         $this->assertSame('ambiguous', $res1['status']);
     }
 
     public function test_ambiguous_threshold_low_scores_become_new_and_high_remain_ambiguous()
     {
-        $teacherSunartini = $this->makeUser(2, ['fullname' => 'SRI SUNARTINI, S.Pd.']);
-        $teacherHeru = $this->makeUser(2, ['fullname' => 'MUHAMMAD HERU PURNOMO, M.S.I']);
-        $existing = collect([$teacherSunartini, $teacherHeru]);
+        $teacherPratama = $this->makeUser(2, ['fullname' => 'SRI PRATAMA, S.Pd.']);
+        $teacherHeru = $this->makeUser(2, ['fullname' => 'MUHAMMAD KURNIAWAN, M.S.I']);
+        $existing = collect([$teacherPratama, $teacherHeru]);
 
-        // SRI SULASTRI -> score < 70% -> NEW
-        $match1 = $this->empService->matchTeacher(['name' => 'Dra. SRI SULASTRI'], $existing);
+        // SRI WULANDARI -> score < 70% -> NEW
+        $match1 = $this->empService->matchTeacher(['name' => 'Dra. SRI WULANDARI'], $existing);
         $this->assertSame('new', $match1['category']);
 
-        // SRI WIDAYATI -> score < 70% -> NEW
-        $match2 = $this->empService->matchTeacher(['name' => 'SRI WIDAYATI, S.Pd., M.Pd.'], $existing);
+        // SRI LESTARI -> score < 70% -> NEW
+        $match2 = $this->empService->matchTeacher(['name' => 'SRI LESTARI, S.Pd., M.Pd.'], $existing);
         $this->assertSame('new', $match2['category']);
 
-        // SRI NUR ARAFAH -> score < 70% -> NEW
-        $match3 = $this->empService->matchTeacher(['name' => 'SRI NUR ARAFAH, S.Pd'], $existing);
+        // SRI UTAMI -> score < 70% -> NEW
+        $match3 = $this->empService->matchTeacher(['name' => 'SRI UTAMI, S.Pd'], $existing);
         $this->assertSame('new', $match3['category']);
 
-        // MUHAMMAD FURQON -> score < 70% -> NEW
-        $match4 = $this->empService->matchTeacher(['name' => 'MUHAMMAD FURQON, S.Sos'], $existing);
+        // MUHAMMAD CONTOH -> score < 70% -> NEW
+        $match4 = $this->empService->matchTeacher(['name' => 'MUHAMMAD CONTOH, S.Sos'], $existing);
         $this->assertSame('new', $match4['category']);
 
-        // SRI SUNARTINI vs SRI SUNARSIH -> score >= 70% -> AMBIGUOUS
-        $teacherSunarsih = $this->makeUser(2, ['fullname' => 'SRI SUNARSIH, S.Pd.']);
-        $existingWithBoth = collect([$teacherSunarsih]);
-        $matchSunartini = $this->empService->matchTeacher(['name' => 'SRI SUNARTINI, S.Pd.'], $existingWithBoth);
-        $this->assertSame('ambiguous', $matchSunartini['category']);
+        // SRI PRATAMA vs SRI PRANATA -> score >= 70% -> AMBIGUOUS
+        $teacherPranata = $this->makeUser(2, ['fullname' => 'SRI PRANATA, S.Pd.']);
+        $existingWithBoth = collect([$teacherPranata]);
+        $matchPratama = $this->empService->matchTeacher(['name' => 'SRI PRATAMA, S.Pd.'], $existingWithBoth);
+        $this->assertSame('ambiguous', $matchPratama['category']);
     }
 
     public function test_user_with_nip_a_vs_source_nip_b_with_same_name_is_new()
@@ -153,11 +153,11 @@ class FuzzyMatchingDisciplineTest extends TestCase
 
     public function test_degree_mismatch_warning_in_fuzzy()
     {
-        $teacher = $this->makeUser(2, ['fullname' => 'MUHAMMAD HERU PURNOMO, M.S.I']);
+        $teacher = $this->makeUser(2, ['fullname' => 'MUHAMMAD KURNIAWAN, M.S.I']);
         $existing = collect([$teacher]);
 
         $match = $this->empService->matchTeacher([
-            'name' => 'MUHAMAD HERU PURNOMO, S.Pd.',
+            'name' => 'MUHAMAD KURNIAWAN, S.Pd.',
         ], $existing);
 
         $this->assertSame('fuzzy', $match['category']);
@@ -171,24 +171,24 @@ class FuzzyMatchingDisciplineTest extends TestCase
     {
         // 1. ANASTASIA vs ANASTYA must be FUZZY
         $res1 = $this->empService->compareNamesTokenWise(
-            'ANASTASIA RATNA SULISTIYANI, S.Pd',
-            'ANASTYA RATNA SULISTIYANI, S.Pd'
+            'ANASTASIA KUSUMA PUTRI, S.Pd',
+            'ANASTYA KUSUMA PUTRI, S.Pd'
         );
         $this->assertSame('fuzzy', $res1['status']);
         $this->assertGreaterThanOrEqual(85.0, $res1['score']);
 
         // 2. MUHLASHIN vs MUHLASIN must be FUZZY
         $res2 = $this->empService->compareNamesTokenWise(
-            'AHMAD MUHLASHIN, S.Pd.',
-            'AHMAD MUHLASIN, S.Pd.'
+            'AHMAD PRADANA, S.Pd.',
+            'AHMAD PERDANA, S.Pd.'
         );
         $this->assertSame('fuzzy', $res2['status']);
         $this->assertGreaterThanOrEqual(85.0, $res2['score']);
 
         // 3. SUSILAWATI vs SUSILOWATI must be FUZZY
         $res3 = $this->empService->compareNamesTokenWise(
-            'TRI SUSILAWATI, S.T., M.Pd',
-            'TRI SUSILOWATI, S.T., M.Pd'
+            'TRI WIJAYAWATI, S.T., M.Pd',
+            'TRI WIJAYOWATI, S.T., M.Pd'
         );
         $this->assertSame('fuzzy', $res3['status']);
         $this->assertGreaterThanOrEqual(85.0, $res3['score']);
@@ -196,39 +196,39 @@ class FuzzyMatchingDisciplineTest extends TestCase
 
     public function test_exact_pair_matches_with_score_100()
     {
-        $res = $this->empService->compareNamesTokenWise('AMAT SUKARDI, S.Pd.', 'AMAT SUKARDI, S.Pd.');
+        $res = $this->empService->compareNamesTokenWise('GURU CONTOH TESTING, S.Pd.', 'GURU CONTOH TESTING, S.Pd.');
         $this->assertSame('exact', $res['status']);
         $this->assertEquals(100.0, $res['score']);
     }
 
     public function test_fuzzy_candidates_never_auto_assigned_in_match_teacher()
     {
-        $teacher = $this->makeUser(2, ['fullname' => 'AHMAD MUHLASIN, S.Pd.']);
+        $teacher = $this->makeUser(2, ['fullname' => 'AHMAD PERDANA, S.Pd.']);
         $existing = collect([$teacher]);
 
-        // When source row has typo 'AHMAD MUHLASHIN'
-        $match = $this->empService->matchTeacher(['name' => 'AHMAD MUHLASHIN, S.Pd.'], $existing);
+        // When source row has typo 'AHMAD PRADANA'
+        $match = $this->empService->matchTeacher(['name' => 'AHMAD PRADANA, S.Pd.'], $existing);
 
         // Status must be fuzzy, NOT matched
         $this->assertSame('fuzzy', $match['category']);
-        // The candidate must be Ahmad Muhlasin
+        // The candidate must be Ahmad Perdana
         $this->assertSame($teacher->id, $match['user']->id);
         $this->assertNotEmpty($match['candidates']);
     }
 
     public function test_two_different_source_names_mapping_to_same_user_is_detected_as_collision()
     {
-        $teacher = $this->makeUser(2, ['fullname' => 'AMAT SUKARDI, S.Pd.']);
+        $teacher = $this->makeUser(2, ['fullname' => 'GURU CONTOH TESTING, S.Pd.']);
 
         // Suppose two rows in preview both resolve to the same user
         $previewRows = [
             [
-                'name'         => 'AMAT SUKARDI, S.Pd.',
+                'name'         => 'GURU CONTOH TESTING, S.Pd.',
                 'matched_user' => ['id' => $teacher->id],
                 'status'       => 'matched',
             ],
             [
-                'name'         => 'AMAT SUKARDI REKAYASA',
+                'name'         => 'GURU CONTOH TESTING REKAYASA',
                 'matched_user' => ['id' => $teacher->id],
                 'status'       => 'fuzzy',
             ],

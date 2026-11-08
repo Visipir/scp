@@ -32,7 +32,7 @@ class ResetImportedTeacherPasswordsCommandTest extends TestCase
         $importedTeacher = $this->makeUser(2, [
             'id' => 1718,
             'username' => 'guru_6aa0e473a0ac6',
-            'fullname' => 'RUSDIYANTO, S.Pd',
+            'fullname' => 'GURU CONTOH SATU, S.Pd',
             'password' => Hash::make($initialPass),
             'must_change_password' => false,
         ]);

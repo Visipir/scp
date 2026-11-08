@@ -29,8 +29,8 @@ class UserPasswordResetAndExportTest extends TestCase
 
         $waka = $this->makeUser(1);
         $teacher = $this->makeUser(2, [
-            'username'             => 'rusdiyanto',
-            'fullname'             => 'RUSDIYANTO, S.Pd',
+            'username'             => 'guru-contoh-satu',
+            'fullname'             => 'GURU CONTOH SATU, S.Pd',
             'nip'                  => '198001012005011001',
             'password'             => Hash::make('OldPass123!'),
             'must_change_password' => false,
@@ -54,7 +54,7 @@ class UserPasswordResetAndExportTest extends TestCase
         $this->assertCount(1, $creds);
         $tempPassword = $creds[0]['temporary_password'];
         $this->assertNotEmpty($tempPassword);
-        $this->assertNotSame('rusdiyanto', $tempPassword);
+        $this->assertNotSame('guru-contoh-satu', $tempPassword);
         $this->assertNotSame('OldPass123!', $tempPassword);
 
         $teacher->refresh();
@@ -64,7 +64,7 @@ class UserPasswordResetAndExportTest extends TestCase
 
         Storage::disk('local')->assertExists($csvPath);
         $csvContent = Storage::disk('local')->get($csvPath);
-        $this->assertStringContainsString('rusdiyanto', $csvContent);
+        $this->assertStringContainsString('guru-contoh-satu', $csvContent);
         $this->assertStringContainsString($tempPassword, $csvContent);
     }
 
@@ -139,7 +139,7 @@ class UserPasswordResetAndExportTest extends TestCase
     {
         $class = SchoolClass::create(['class_name' => 'X RPL 1', 'academic_year' => '2026/2027']);
         $waka = $this->makeUser(1, ['username' => 'waka_demo']);
-        $guru = $this->makeUser(2, ['username' => 'rusdiyanto']);
+        $guru = $this->makeUser(2, ['username' => 'guru-contoh-satu']);
         $wali = $this->makeUser(2, ['username' => 'wali-demo']);
         HomeroomAssignment::create(['user_id' => $wali->id, 'class_id' => $class->id, 'academic_year' => '2026/2027']);
         $bk = $this->makeUser(3, ['username' => 'sri-wahyuningsih']);
