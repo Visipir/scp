@@ -131,23 +131,23 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 
 1. **Aturan a (Pencegahan Konflik Jadwal)**:
    - Validasi ketat menggunakan relasi interval `Start_A < End_B AND End_A > Start_B` pada Guru, Ruangan, dan Rombel untuk hari dan putaran siklus yang sama. Operasi pembaruan (*edit*) mengecualikan *record* dirinya sendiri.
-   - *Implementasi*: [`app/Services/ScheduleConflictService.php`](file:///var/www/SCP/app/Services/ScheduleConflictService.php).
+   - *Implementasi*: [`app/Services/ScheduleConflictService.php`](app/Services/ScheduleConflictService.php).
 
 2. **Aturan b (Sakelar Putaran Global)**:
    - Penggantian status siklus aktif (`Putaran 1` / `Putaran 2`) oleh Waka Kurikulum berdampak global pada filter bawaan jadwal KBM di dashboard guru dan pencarian jadwal.
-   - *Implementasi*: [`app/Http/Controllers/SystemConfigurationController.php`](file:///var/www/SCP/app/Http/Controllers/SystemConfigurationController.php) dan [`app/Http/Controllers/DashboardController.php`](file:///var/www/SCP/app/Http/Controllers/DashboardController.php).
+   - *Implementasi*: [`app/Http/Controllers/SystemConfigurationController.php`](app/Http/Controllers/SystemConfigurationController.php) dan [`app/Http/Controllers/DashboardController.php`](app/Http/Controllers/DashboardController.php).
 
 3. **Aturan c (Penguncian Jadwal Server-Side)**:
    - Saat `is_schedule_locked = true`, seluruh operasi penambahan, pengubahan, dan penghapusan jadwal diblokir di sisi server (`HTTP 403 Forbidden`) dan tombol aksi antarmuka disembunyikan.
-   - *Implementasi*: [`app/Http/Middleware/CheckScheduleLock.php`](file:///var/www/SCP/app/Http/Middleware/CheckScheduleLock.php) dan [`resources/views/schedules/index.blade.php`](file:///var/www/SCP/resources/views/schedules/index.blade.php).
+   - *Implementasi*: [`app/Http/Middleware/CheckScheduleLock.php`](app/Http/Middleware/CheckScheduleLock.php) dan [`resources/views/schedules/index.blade.php`](resources/views/schedules/index.blade.php).
 
 4. **Aturan d (Sinkronisasi Izin ke Jurnal)**:
    - Permohonan izin berstatus `Pending` secara bawaan. Presensi siswa otomatis tersinkronisasi menjadi `Izin` atau `Sakit` hanya saat guru pengajar mata pelajaran membuat jurnal pada hari KBM bersangkutan.
-   - *Implementasi*: [`app/Services/JournalService.php`](file:///var/www/SCP/app/Services/JournalService.php) dan [`app/Services/LeaveRequestService.php`](file:///var/www/SCP/app/Services/LeaveRequestService.php).
+   - *Implementasi*: [`app/Services/JournalService.php`](app/Services/JournalService.php) dan [`app/Services/LeaveRequestService.php`](app/Services/LeaveRequestService.php).
 
 5. **Aturan e (Peringatan Dashboard Keterlambatan Jurnal)**:
    - Peringatan jurnal guru muncul otomatis di dashboard setelah `end_time + 30 menit` jika guru belum mengisi jurnal KBM, dihitung dinamis saat request tanpa ketergantungan *cron job*.
-   - *Implementasi*: [`app/Services/DashboardService.php`](file:///var/www/SCP/app/Services/DashboardService.php).
+   - *Implementasi*: [`app/Services/DashboardService.php`](app/Services/DashboardService.php).
 
 ### 6.2. 14 Arahan Revisi Penguji (Pak Haris, B1–B14)
 
