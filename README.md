@@ -77,7 +77,29 @@ SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealA
 ```
 
 ### 3.6. Menjalankan Aplikasi
-- **Lingkungan Produksi**: Konfigurasikan Nginx menuju direktori `public/`.
+- **Lingkungan Produksi**: Konfigurasikan Nginx menuju direktori `public/`:
+  ```nginx
+  server {
+      listen 80;
+      server_name example.com;
+      root /var/www/your-app/public;
+
+      index index.php index.html;
+
+      location / {
+          try_files $uri $uri/ /index.php?$query_string;
+      }
+
+      location ~ \.php$ {
+          include snippets/fastcgi-php.conf;
+          fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+      }
+
+      location ~ /\.(?!well-known).* {
+          deny all;
+      }
+  }
+  ```
 - **Lingkungan Uji / Lokal**:
   ```bash
   php artisan serve --host=0.0.0.0 --port=8000

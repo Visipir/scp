@@ -2,7 +2,7 @@
 
 Dokumen ini memetakan seluruh rute web terotentikasi (`routes/web.php`) terhadap rute API v1 (`routes/api.php`) untuk mencapai paritas fitur mobile penuh pada aplikasi iOS native.
 
-## 0. Pemeriksaan Nginx (`/etc/nginx/sites-enabled/scp-api`)
+## 0. Pemeriksaan Nginx (`/etc/nginx/sites-available/your-app`)
 - **Status `client_max_body_size`:** **SUDAH TERKONFIGURASI** (`client_max_body_size 50m;` baris 15).
 - **FastCGI PHP:** `upload_max_filesize=50M` dan `post_max_size=55M` (baris 30-31).
 - **Catatan:** Siap melayani unggah berkas materi pembelajaran/ujian hingga 50 MB (51.200 KB) tanpa perubahan konfigurasi web server.

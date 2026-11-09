@@ -38,13 +38,14 @@
 ## 2. Langkah 0: Aplikasi Patch Terpadu Live (`ALLOW_LIVE_PATCH`)
 
 > [!IMPORTANT]
-> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `6955134366e320aa65ebb8fef747003b6ef237609eccd1f714f3da3a542cb323`) yang mencakup berkas aplikasi:
+> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0`) yang HANYA mencakup berkas aplikasi (tanpa menyentuh atau menghapus berkas dump SQL / kredensial):
 > 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email (`routes/api.php`, `routes/auth.php`, `routes/web.php`).
 > 2. Perlindungan fallback dekripsi password SMTP (`MailConfigService.php`) jika key rusak.
 > 3. Validasi batasan panjang prompt AI chat (`ChatController.php`).
 > 4. Perlindungan anti-enumerasi akun dan anonymized audit logging pada forgot-password (`PasswordResetService.php`).
 > 5. Bootstrap fallback akun Waka Kurikulum pertama saat `accounts.csv` tidak tersedia (`RealAccountsSeeder.php`).
-> 6. Pembersihan dump SQL sensitif dari direktori database.
+>
+> *(Catatan Keamanan: Patch lawas yang menyertakan penghapusan dump SQL telah diganti namanya menjadi `/root/backup/live-patch-app-WITH-DUMP.patch.SENSITIVE` (mode 600). Berkas ini mengandung data sensitif dari riwayat lama dan DILARANG KERAS disalin ke laptop, arsip zip, git repository, atau kanal chat).*
 >
 > > **ATURAN MUTLAK:** Jika patch tidak dapat diterapkan secara bersih (baik verifikasi SHA-256 gagal maupun `git apply --check` gagal), **JANGAN JALANKAN LANGKAH 0 ATAU LANGKAH 1**. Hentikan proses dan periksa perbedaan direktori kerja.
 >
@@ -62,7 +63,7 @@ if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
 fi
 
 # 0b. Verifikasi Checksum Patch Terpadu
-echo "6955134366e320aa65ebb8fef747003b6ef237609eccd1f714f3da3a542cb323  /root/backup/live-patch-app.patch" | sha256sum -c -
+echo "82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0  /root/backup/live-patch-app.patch" | sha256sum -c -
 if [ $? -ne 0 ]; then
     echo "ERROR: Checksum /root/backup/live-patch-app.patch tidak cocok! Membatalkan eksekusi."
     exit 1
@@ -150,6 +151,7 @@ if [ ! -f /root/backup/ALLOW_LIVE_CLEANUP ]; then
 fi
 
 cd /var/www/SCP
+set -euo pipefail
 
 # 1. Pindahkan berkas sensitif, dump SQL, diagram, AI skills, dan skrip scratch ke direktori aman terisolasi
 mkdir -p /root/backup/sensitive
@@ -161,10 +163,35 @@ for f in database/database_dump.sql sqlite_to_mysql.sql .env.testing \
          patch_conflict.php patch_controllers.php patch_journal.php patch_schedule.php \
          restore_controllers.php restore_models.php rewrite_controllers.php \
          skills-lock.json .agents .claude agent; do
-    [ -e "/var/www/SCP/$f" ] && mv "/var/www/SCP/$f" /root/backup/sensitive/
+    if [ -e "/var/www/SCP/$f" ]; then
+        DEST="/root/backup/sensitive/$(basename "$f")"
+        if [ -e "$DEST" ]; then
+            echo "ERROR: Berkas tujuan $DEST sudah ada di backup sensitif! Berhenti." >&2
+            exit 1
+        fi
+        mv "/var/www/SCP/$f" "$DEST"
+        echo "Pindah berkas sensitif: $f -> $DEST"
+    fi
 done
 chmod 600 /root/backup/sensitive/* 2>/dev/null || true
 echo "Berkas sensitif, SQL, AI, dan scratch berhasil diamankan di /root/backup/sensitive/"
+
+# 1b. Pindahkan berkas lawas docs/scripts yang dipindahkan di main ke /root/backup/live-removed-files/ (Preservasi Tanpa Hapus)
+mkdir -p /root/backup/live-removed-files
+chmod 700 /root/backup/live-removed-files
+
+for f in docs/deploy-runbook.md docs/promote-candidate.md scripts/promote-candidate.sh; do
+    if [ -e "/var/www/SCP/$f" ]; then
+        DEST="/root/backup/live-removed-files/$f"
+        if [ -e "$DEST" ]; then
+            echo "ERROR: Berkas tujuan $DEST sudah ada di live-removed-files! Berhenti." >&2
+            exit 1
+        fi
+        mkdir -p "$(dirname "$DEST")"
+        mv "/var/www/SCP/$f" "$DEST"
+        echo "Pindah berkas repositori dipindahkan: $f -> $DEST"
+    fi
+done
 
 # 2. Catat stat & ownership .git asli
 STAT_BEFORE=$(stat -c '%u:%g %a' /var/www/SCP/.git)
@@ -198,8 +225,7 @@ git remote set-url origin git@github.com:Visipir/scp.git || git remote add origi
 # 9. Mixed reset ke branch main (working tree TIDAK disentuh/dihapus)
 git reset --mixed main
 
-# 10. Bersihkan berkas lama yang dipindahkan ke subdirektori ops & checkout allowlist berkas non-aplikasi
-git clean -f -- docs/ scripts/
+# 10. Checkout allowlist berkas non-aplikasi (computed allowlist)
 git checkout -- \
     .gitattributes \
     .gitignore \
@@ -282,7 +308,18 @@ rm -rf tests/Fixtures/ 2>/dev/null || true
 # c. Pulihkan seluruh berkas live asli yang terdaftar di git
 git checkout -- .
 
-# 4. Kembalikan berkas sensitif, dump SQL, AI skills, diagram, dan skrip scratch dari backup jika diperlukan
+# 4. Kembalikan berkas yang dipindahkan dari live-removed-files
+if [ -d /root/backup/live-removed-files ]; then
+    for f in docs/deploy-runbook.md docs/promote-candidate.md scripts/promote-candidate.sh; do
+        if [ -e "/root/backup/live-removed-files/$f" ]; then
+            mkdir -p "/var/www/SCP/$(dirname "$f")"
+            cp -a "/root/backup/live-removed-files/$f" "/var/www/SCP/$f"
+            echo "Dipulihkan dari live-removed-files: $f"
+        fi
+    done
+fi
+
+# 5. Kembalikan berkas sensitif, dump SQL, AI skills, diagram, dan skrip scratch dari backup jika diperlukan
 for f in database_dump.sql sqlite_to_mysql.sql .env.testing \
          db_skansaba.sql restore_config.sql SCP_CONTEXT.md SCP_UseCase_Diagram.drawio \
          add_periods.php create_ineffective_days.php dump_sqlite.php generate_models.php \
@@ -293,7 +330,7 @@ for f in database_dump.sql sqlite_to_mysql.sql .env.testing \
 done
 [ -f /var/www/SCP/database_dump.sql ] && mv /var/www/SCP/database_dump.sql /var/www/SCP/database/ 2>/dev/null || true
 
-# 5. Bersihkan direktori failed jika verifikasi rollback selesai
+# 6. Bersihkan direktori failed jika verifikasi rollback selesai
 rm -rf /var/www/SCP/.git_failed
 php artisan config:clear
 php artisan route:clear

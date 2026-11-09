@@ -7,8 +7,8 @@ EXPECTED_COUNT="${3:-}"
 SCAN_TERMS_FILE="${SCAN_TERMS_FILE:-/root/backup/scan-terms.txt}"
 VERIFY_DIR="/tmp/verify"
 
-if [ -z "$TARGET_URL" ]; then
-    echo "Usage: $0 <git_clone_url> <expected_main_tip_hash> [expected_commit_count]" >&2
+if [ -z "$TARGET_URL" ] || [ -z "$EXPECTED_MAIN_HASH" ] || [ -z "$EXPECTED_COUNT" ]; then
+    echo "Usage: $0 <git_clone_url_or_local_path> <expected_main_tip_hash> <expected_commit_count>" >&2
     exit 1
 fi
 
@@ -22,26 +22,22 @@ git clone --branch main "$TARGET_URL" "$VERIFY_DIR"
 cd "$VERIFY_DIR"
 
 # 1. Verify remote HEAD of main against expected local tip hash
-if [ -n "$EXPECTED_MAIN_HASH" ]; then
-    REMOTE_MAIN_HEAD=$(git rev-parse HEAD)
-    if [ "$REMOTE_MAIN_HEAD" != "$EXPECTED_MAIN_HASH" ]; then
-        echo "ERROR: Remote main tip hash ($REMOTE_MAIN_HEAD) does not match expected ($EXPECTED_MAIN_HASH)!" >&2
-        rm -rf "$VERIFY_DIR"
-        exit 1
-    fi
-    echo "[PASS] Remote main tip hash matches: $REMOTE_MAIN_HEAD"
+REMOTE_MAIN_HEAD=$(git rev-parse HEAD)
+if [ "$REMOTE_MAIN_HEAD" != "$EXPECTED_MAIN_HASH" ]; then
+    echo "ERROR: Remote main tip hash ($REMOTE_MAIN_HEAD) does not match expected ($EXPECTED_MAIN_HASH)!" >&2
+    rm -rf "$VERIFY_DIR"
+    exit 1
 fi
+echo "[PASS] Remote main tip hash matches: $REMOTE_MAIN_HEAD"
 
-# 2. Verify commit count equality if provided
-if [ -n "$EXPECTED_COUNT" ]; then
-    ACTUAL_COUNT=$(git rev-list --all --count)
-    if [ "$ACTUAL_COUNT" -ne "$EXPECTED_COUNT" ]; then
-        echo "ERROR: Commit count mismatch! Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT" >&2
-        rm -rf "$VERIFY_DIR"
-        exit 1
-    fi
-    echo "[PASS] Commit count matches: $ACTUAL_COUNT"
+# 2. Verify commit count equality
+ACTUAL_COUNT=$(git rev-list --all --count)
+if [ "$ACTUAL_COUNT" -ne "$EXPECTED_COUNT" ]; then
+    echo "ERROR: Commit count mismatch! Expected: $EXPECTED_COUNT, Actual: $ACTUAL_COUNT" >&2
+    rm -rf "$VERIFY_DIR"
+    exit 1
 fi
+echo "[PASS] Commit count matches: $ACTUAL_COUNT"
 
 # 2. Check deleted paths
 DELETED_MATCHES=$(git log --all --name-only --format= -- "storage/app/seed" "storage/app/import-samples" "database/database_dump.sql" "credentials" | grep -v '^$' || true)
