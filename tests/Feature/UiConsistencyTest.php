@@ -23,7 +23,7 @@ class UiConsistencyTest extends TestCase
 
     public function test_waka_can_access_all_12_required_pages_with_uniform_titles(): void
     {
-        $waka = $this->makeUser(1, ['email' => 'waka@school.sch.id', 'email_verified_at' => now()]);
+        $waka = $this->makeUser(1, ['email' => 'waka@example.test', 'email_verified_at' => now()]);
 
         $pages = [
             '/dashboard' => 'Dashboard',

@@ -139,6 +139,20 @@ git status routes/
 > [!IMPORTANT]
 > Langkah ini mengganti riwayat git `.git` di `/var/www/SCP` dengan riwayat bersih dari `/root/scp-clean`, memindahkan berkas sensitif yang tidak ter-track, dan menyelaraskan working tree melalui mixed reset.
 
+### Pra-Pemeriksaan Prediksi Status Bersih (Read-Only Precheck)
+
+Sebelum mengeksekusi Langkah 1, operator dapat menjalankan perintah pra-pemeriksaan read-only berikut untuk memverifikasi bahwa working tree live setelah swap riwayat akan berstatus sepenuhnya bersih (*empty status*):
+
+```bash
+comm -23 \
+  <(find /var/www/SCP -path /var/www/SCP/.git -prune -o -type f -print | sed 's|^/var/www/SCP/||' | sort) \
+  <(git -C /root/scp-clean ls-files | sort) | \
+  git -C /root/scp-clean check-ignore --no-index --stdin -n -v | \
+  grep '^::' | awk '{print $2}'
+```
+
+*Hasil yang diharapkan*: Tepat 3 berkas relokasi (`docs/deploy-runbook.md`, `docs/promote-candidate.md`, `scripts/promote-candidate.sh`). Ketiga berkas ini dipindahkan ke `/root/backup/live-removed-files/` pada sub-langkah 1b di bawah. Berkas `.env` (diabaikan baris 4 `.gitignore`) dan `.phpunit.result.cache` (diabaikan baris 8 `.gitignore`) otomatis diabaikan, sehingga status working tree pasca-swap dipastikan bersih/kosong (*empty*).
+
 ### Eksekusi Langkah 1
 
 Jalankan perintah berikut di direktori server:

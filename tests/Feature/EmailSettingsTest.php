@@ -78,9 +78,9 @@ class EmailSettingsTest extends TestCase
             'mail_host'         => 'smtp.office365.com',
             'mail_port'         => 587,
             'mail_encryption'   => 'tls',
-            'mail_username'     => 'admin@school.sch.id',
+            'mail_username'     => 'admin@example.test',
             'mail_password'     => 'newMailPassword123',
-            'mail_from_address' => 'admin@school.sch.id',
+            'mail_from_address' => 'admin@example.test',
             'mail_from_name'    => 'Official School Mailer',
         ];
 
@@ -90,7 +90,7 @@ class EmailSettingsTest extends TestCase
         $config = SystemConfiguration::first();
         $this->assertSame('smtp.office365.com', $config->mail_host);
         $this->assertSame(587, $config->mail_port);
-        $this->assertSame('admin@school.sch.id', $config->mail_username);
+        $this->assertSame('admin@example.test', $config->mail_username);
 
         // Password stored in DB must NOT be plain text
         $this->assertNotSame('newMailPassword123', $config->mail_password);
@@ -109,9 +109,9 @@ class EmailSettingsTest extends TestCase
             'mail_host'         => 'smtp.updated.com',
             'mail_port'         => 465,
             'mail_encryption'   => 'ssl',
-            'mail_username'     => 'updated@gmail.com',
+            'mail_username'     => 'updated@example.test',
             'mail_password'     => '', // Left empty so existing is retained
-            'mail_from_address' => 'updated@gmail.com',
+            'mail_from_address' => 'updated@example.test',
             'mail_from_name'    => 'Updated Name',
         ]);
 
@@ -210,7 +210,7 @@ class EmailSettingsTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Gagal membaca password email. Silakan simpan ulang password email di Pengaturan Email.');
 
-        $service->sendTestEmail('user@test.com', 'User Test');
+        $service->sendTestEmail('user@example.test', 'User Test');
     }
 
     public function test_mail_send_logs_recorded_with_masked_email(): void
@@ -218,7 +218,7 @@ class EmailSettingsTest extends TestCase
         Mail::fake();
 
         $waka = $this->makeUser(1, [
-            'email'             => 'fikricavan13@gmail.com',
+            'email'             => 'user@example.test',
             'email_verified_at' => now(),
         ]);
         $this->makeConfig([
@@ -231,7 +231,7 @@ class EmailSettingsTest extends TestCase
 
         $this->assertDatabaseHas('mail_send_logs', [
             'mail_type' => 'test',
-            'recipient' => 'f***3@gmail.com',
+            'recipient' => 'u***r@example.test',
             'status'    => 'success',
         ]);
     }
