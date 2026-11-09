@@ -38,12 +38,13 @@
 ## 2. Langkah 0: Aplikasi Patch Terpadu Live (`ALLOW_LIVE_PATCH`)
 
 > [!IMPORTANT]
-> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0`) yang mencakup 7 berkas aplikasi:
+> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `6955134366e320aa65ebb8fef747003b6ef237609eccd1f714f3da3a542cb323`) yang mencakup berkas aplikasi:
 > 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email (`routes/api.php`, `routes/auth.php`, `routes/web.php`).
 > 2. Perlindungan fallback dekripsi password SMTP (`MailConfigService.php`) jika key rusak.
 > 3. Validasi batasan panjang prompt AI chat (`ChatController.php`).
 > 4. Perlindungan anti-enumerasi akun dan anonymized audit logging pada forgot-password (`PasswordResetService.php`).
 > 5. Bootstrap fallback akun Waka Kurikulum pertama saat `accounts.csv` tidak tersedia (`RealAccountsSeeder.php`).
+> 6. Pembersihan dump SQL sensitif dari direktori database.
 >
 > > **ATURAN MUTLAK:** Jika patch tidak dapat diterapkan secara bersih (baik verifikasi SHA-256 gagal maupun `git apply --check` gagal), **JANGAN JALANKAN LANGKAH 0 ATAU LANGKAH 1**. Hentikan proses dan periksa perbedaan direktori kerja.
 >
@@ -61,7 +62,7 @@ if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
 fi
 
 # 0b. Verifikasi Checksum Patch Terpadu
-echo "82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0  /root/backup/live-patch-app.patch" | sha256sum -c -
+echo "6955134366e320aa65ebb8fef747003b6ef237609eccd1f714f3da3a542cb323  /root/backup/live-patch-app.patch" | sha256sum -c -
 if [ $? -ne 0 ]; then
     echo "ERROR: Checksum /root/backup/live-patch-app.patch tidak cocok! Membatalkan eksekusi."
     exit 1
@@ -197,8 +198,10 @@ git remote set-url origin git@github.com:Visipir/scp.git || git remote add origi
 # 9. Mixed reset ke branch main (working tree TIDAK disentuh/dihapus)
 git reset --mixed main
 
-# 10. Checkout HANYA berkas kategori aman (docs, tests, scripts, fixtures)
+# 10. Bersihkan berkas lama yang dipindahkan ke subdirektori ops & checkout allowlist berkas non-aplikasi
+git clean -f -- docs/ scripts/
 git checkout -- \
+    .gitattributes \
     .gitignore \
     .env.testing.example \
     README.md \
@@ -257,18 +260,23 @@ git reset --mixed 7ee509f6cb5d6e951966b3f4d6ed443b6aba3435
 git clean -nd -- docs/ scripts/ tests/
 
 # b. Hapus secara presisi HANYA berkas yang ada di clean tree tapi tidak di live HEAD
-# (Daftar di bawah dikomputasi dari: git diff --name-only --diff-filter=A live_head clean_tip)
+# (Daftar di bawah dikomputasi dari: git diff --name-only --diff-filter=A 7ee509f clean_tip)
 rm -f \
+    .gitattributes \
+    .env.testing.example \
     docs/checklist-ukk.md \
+    docs/ops/deploy-runbook.md \
     docs/ops/live-repo-cleanup.md \
+    docs/ops/promote-candidate.md \
     docs/ops/push-after-rewrite.md \
     scripts/ops/postpush-verify.sh \
     scripts/ops/prepush-check.sh \
+    scripts/ops/promote-candidate.sh \
     tests/Feature/AuthRateLimitingQ2Test.php \
     tests/Feature/SmtpGuardTest.php \
     tests/Fixtures/synthetic_fet_timetable.csv \
-    tests/Fixtures/synthetic_fet_timetable.xml \
-    .env.testing.example
+    tests/Fixtures/synthetic_fet_timetable.xml
+rm -rf docs/ops scripts/ops
 rm -rf tests/Fixtures/ 2>/dev/null || true
 
 # c. Pulihkan seluruh berkas live asli yang terdaftar di git

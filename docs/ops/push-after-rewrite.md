@@ -23,33 +23,45 @@ Ikuti langkah-langkah berikut secara berurutan:
    - Buka pengaturan repositori web `git@github.com:Visipir/scp.git` -> Ubah visibilitas ke **Private**.
    - Buka pengaturan repositori iOS `git@github.com:Visipir/scp-ios.git` -> Ubah visibilitas ke **Private**.
    - Pastikan default branch di GitHub adalah **`main`** (Settings -> Branches). Branch `main` adalah branch utama untuk review dan deployment.
-3. [ ] **Jalankan Skrip Pemeriksaan Pra-Dorongan (*Pre-push Safety Check*)**:
+3. [ ] **Jalankan Pemeriksaan Remote & Pra-Dorongan (*Pre-Push Check*)**:
+   - Periksa status remote origin:
+     ```bash
+     cd /root/scp-clean && git ls-remote origin
+     cd /root/scp-ios-clean && git ls-remote origin
+     ```
+     *Catatan Ekspektasi:* Jika repositori GitHub baru dibuat / kosong, output kosong (*nothing returned*). Jika repositori memuat riwayat lama, daftar refs akan muncul dan First Push akan menimpa riwayat lama tersebut.
    - Di direktori web: `cd /root/scp-clean && ./scripts/ops/prepush-check.sh`
    - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/ops/prepush-check.sh`
    - Keduanya wajib menghasilkan status `=== OK: Pre-push checks PASSED. ===`.
-4. [ ] **Eksekusi Force Push Repositori Web dari `/root/scp-clean`**:
-   - Urutan dorongan (*push order*): push branch `main` dan `feat/dark-console-ui` terlebih dahulu, lalu push tag `pre-restyle`.
-   ```bash
-   cd /root/scp-clean
-   git push --force origin main feat/dark-console-ui
-   git push --force origin pre-restyle
-   ```
-   - Verifikasi di GitHub bahwa default branch adalah `main`. Menghapus branch `feat/dark-console-ui` di GitHub bersifat opsional karena branch `main` berada pada komit yang identik.
+4. [ ] **Eksekusi FIRST PUSH (Inisialisasi Repositori Bersih)**:
+   - **Repositori Web (`/root/scp-clean`)**: Force push dilakukan HANYA pada first push untuk mengunggah riwayat bersih dan menggantikan riwayat lama di GitHub:
+     ```bash
+     cd /root/scp-clean
+     git push --force origin main feat/dark-console-ui
+     git push --force origin pre-restyle
+     ```
+   - **Repositori iOS (`/root/scp-ios-clean`)**: Plain push normal tanpa force:
+     ```bash
+     cd /root/scp-ios-clean
+     git push origin main
+     ```
 5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
    ```bash
    cd /root/scp-clean
    ./scripts/ops/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
    ```
-6. [ ] **Eksekusi Push Repositori iOS dari `/root/scp-ios-clean` (Normal Push, Tanpa Force)**:
-   - Push ke remote iOS dilakukan secara normal tanpa `--force` (`git push origin main`).
-   - *Alasan:* Repositori iOS **TIDAK PERNAH di-rewrite** — seluruh 93 komit dalam riwayatnya telah dipindai dan menghasilkan 0 temuan. HEAD secara bersih berada 10 komit mendahului origin/main (`9be56e9..7f4ad93`). Push bersifat fast-forward murni. Jika git menolak dengan status non-fast-forward, git menolak secara otomatis untuk mencegah penimpaan perubahan tak terduga, bukan alasan untuk force-push.
-   ```bash
-   cd /root/scp-ios-clean
-   git push origin main
-   ```
+6. [ ] **Aturan LATER PUSHES (Dorongan Rutin Berikutnya)**:
+   - Untuk semua komit fitur atau perbaikan di masa mendatang, gunakan dorongan normal tanpa force:
+     ```bash
+     # Web
+     cd /root/scp-clean
+     git push origin main
 
-   > [!IMPORTANT]
-   > **Aturan Pasca-Push (Jangan Pernah Rewrite Riwayat Lagi):** Setelah kedua repositori didorong ke GitHub, riwayat komit tidak boleh di-rewrite lagi. Seluruh komit baru di masa mendatang harus berupa komit normal (`git commit`) dan dorongan normal (`git push origin <branch>`). Jangan pernah menjalankan `git-filter-repo`, rebase interaktif, atau push paksa (`--force`) setelah proses ini selesai.
+     # iOS
+     cd /root/scp-ios-clean
+     git push origin main
+     ```
+   - **PENTING:** Jika dorongan ditolak (non-fast-forward / rejected), **STOP SEGERA dan konsultasikan dengan operator**. Jangan pernah gunakan `git push --force` lagi setelah First Push selesai.
 7. [ ] **Verifikasi Remote Tags dan Branches Pasca-Push**:
    - Periksa remote ref di kedua repositori:
    ```bash
@@ -169,23 +181,35 @@ Ikuti langkah-langkah berikut secara berurutan:
 ## 4. Eksekusi Dorongan (*Push Execution*)
 
 ### A. Repositori Web (`/root/scp-clean`)
-Pastikan remote origin benar:
+Pastikan remote origin benar dan cek kondisi remote:
 ```bash
 cd /root/scp-clean
 git remote -v
 # origin git@github.com:Visipir/scp.git
+
+# Pemeriksaan awal remote (kosong = repo baru; non-kosong = riwayat lama akan digantikan)
+git ls-remote origin
 ```
-Jalankan dorongan (push order):
+
+#### 1. FIRST PUSH (Inisialisasi Riwayat Bersih)
+Jalankan dorongan paksa untuk menggantikan riwayat lama di GitHub:
 ```bash
 git push --force origin main feat/dark-console-ui
 git push --force origin pre-restyle
 ```
-Verifikasi di GitHub (Settings -> Branches) bahwa default branch adalah `main` dan repositori berstatus Private. Menghapus branch `feat/dark-console-ui` di GitHub bersifat opsional karena branch `main` berada pada komit identik.
-
-Lakukan verifikasi pasca-dorongan:
+Verifikasi pasca-dorongan:
 ```bash
 ./scripts/ops/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
 ```
+
+#### 2. LATER PUSHES (Pengembangan Rutin Selanjutnya)
+Untuk perubahan selanjutnya, dorong secara normal:
+```bash
+git push origin main
+```
+*Jika ditolak (non-fast-forward), STOP dan tanyakan kepada operator. JANGAN gunakan `--force`.*
+
+---
 
 ### B. Repositori iOS (`/root/scp-ios-clean`)
 Pastikan remote origin benar:
@@ -193,24 +217,36 @@ Pastikan remote origin benar:
 cd /root/scp-ios-clean
 git remote -v
 # origin git@github.com:Visipir/scp-ios.git
+
+git ls-remote origin
 ```
-Jalankan dorongan normal (tanpa `--force`):
+
+#### 1. FIRST PUSH & LATER PUSHES (Selalu Plain Push)
+Repositori iOS selalu menggunakan dorongan normal tanpa `--force`:
 ```bash
 git push origin main
 ```
 
+---
+
 ### C. Jalur Alternatif: Push dari Mesin Lokal (Laptop) via Bundle
 Jika koneksi SSH keluar dari server tidak digunakan, salin berkas `/root/backup/final-web.bundle` dan `/root/backup/final-ios.bundle` ke mesin lokal Anda:
 ```bash
-# Web
+# Web - First Push
 git clone final-web.bundle scp && cd scp
 git remote set-url origin git@github.com:Visipir/scp.git
+git ls-remote origin
 ./scripts/ops/prepush-check.sh
 git push --force origin main feat/dark-console-ui && git push --force origin pre-restyle
+./scripts/ops/postpush-verify.sh git@github.com:Visipir/scp.git $(git rev-parse HEAD) $(git rev-list --all --count)
 
-# iOS
+# Web - Later Pushes
+git push origin main
+
+# iOS - First Push & Later Pushes
 git clone final-ios.bundle scp-ios && cd scp-ios
 git remote set-url origin git@github.com:Visipir/scp-ios.git
+git ls-remote origin
 ./scripts/ops/prepush-check.sh
 git push origin main
 ```
