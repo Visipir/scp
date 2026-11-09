@@ -44,7 +44,7 @@ class EmailSettingsTest extends TestCase
             'mail_encryption'   => 'tls',
             'mail_username'     => 'testuser',
             'mail_password'     => Crypt::encryptString('supersecretpassword'),
-            'mail_from_address' => 'noreply@sekolah.sch.id',
+            'mail_from_address' => 'noreply@example.test',
             'mail_from_name'    => 'SMK Negeri 1',
         ]);
 
@@ -127,7 +127,7 @@ class EmailSettingsTest extends TestCase
         Mail::fake();
 
         $waka = $this->makeUser(1, [
-            'email'             => 'waka.test@sekolah.sch.id',
+            'email'             => 'waka.test@example.test',
             'email_verified_at' => now(),
         ]);
         $this->makeConfig([
@@ -136,18 +136,18 @@ class EmailSettingsTest extends TestCase
             'mail_encryption'   => 'tls',
             'mail_username'     => 'mailer',
             'mail_password'     => Crypt::encryptString('pass'),
-            'mail_from_address' => 'noreply@sekolah.sch.id',
+            'mail_from_address' => 'noreply@example.test',
             'mail_from_name'    => 'SMK Test',
         ]);
 
         $response = $this->apiAs($waka)->postJson('/api/v1/system/email-settings/test');
         $response->assertOk()
             ->assertJson([
-                'message' => 'Email tes berhasil dikirimkan ke: waka.test@sekolah.sch.id',
+                'message' => 'Email tes berhasil dikirimkan ke: waka.test@example.test',
             ]);
 
         Mail::assertSent(\App\Mail\TestMail::class, function ($mail) {
-            return $mail->hasTo('waka.test@sekolah.sch.id');
+            return $mail->hasTo('waka.test@example.test');
         });
     }
 
@@ -156,7 +156,7 @@ class EmailSettingsTest extends TestCase
         Mail::fake();
 
         $wakaUnverified = $this->makeUser(1, [
-            'email'             => 'waka.unverified@sekolah.sch.id',
+            'email'             => 'waka.unverified@example.test',
             'email_verified_at' => null,
         ]);
         $this->makeConfig([

@@ -83,7 +83,7 @@ class EmployeeImportTest extends TestCase
             'fullname' => 'Budi Santoso',
             'username' => 'budi.santoso',
             'nip'      => '197505052000031001',
-            'email'    => 'budi@smk.sch.id',
+            'email'    => 'budi@example.test',
         ]);
 
         // Create an existing teacher with slight name variance for fuzzy match

@@ -237,7 +237,7 @@
                         </div>
                         <div>
                             <x-input-label for="add_email" value="Alamat Email (Opsional)" />
-                            <x-text-input id="add_email" name="email" type="email" placeholder="nama@sekolah.sch.id" />
+                            <x-text-input id="add_email" name="email" type="email" placeholder="nama@example.test" />
                         </div>
                         <div>
                             <x-input-label for="add_password" value="Password Awal" />
@@ -308,7 +308,7 @@
                         </div>
                         <div>
                             <x-input-label for="edit_email" value="Alamat Email (Opsional)" />
-                            <x-text-input id="edit_email" name="email" type="email" x-model="editUser.email" placeholder="nama@sekolah.sch.id" />
+                            <x-text-input id="edit_email" name="email" type="email" x-model="editUser.email" placeholder="nama@example.test" />
                         </div>
                         <div>
                             <x-input-label for="edit_role_id" value="Peran (Role)" />

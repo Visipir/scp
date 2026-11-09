@@ -49,9 +49,9 @@ class RealAccountsSeederTest extends TestCase
         File::put(
             $this->csvPath,
             "username,name,role,class_id,email\n" .
-            "waka.kurikulum,Waka Kurikulum,1,,waka@sekolah.sch.id\n" .
-            "tim.kesiswaan,Tim Kesiswaan,3,,kesiswaan@sekolah.sch.id\n" .
-            "wali.x.rpl.1,Wali X RPL 1,3,{$classA->id},wali@sekolah.sch.id\n"
+            "waka.kurikulum,Waka Kurikulum,1,,waka@example.test\n" .
+            "tim.kesiswaan,Tim Kesiswaan,3,,kesiswaan@example.test\n" .
+            "wali.x.rpl.1,Wali X RPL 1,3,{$classA->id},wali@example.test\n"
         );
 
         $this->seed(RealAccountsSeeder::class);

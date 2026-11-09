@@ -99,7 +99,7 @@
                                 name="mail_username"
                                 id="mail_username"
                                 value="{{ old('mail_username', $settings['mail_username']) }}"
-                                placeholder="user@sekolah.sch.id"
+                                placeholder="user@example.test"
                                 class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_username')
@@ -137,7 +137,7 @@
                                 name="mail_from_address"
                                 id="mail_from_address"
                                 value="{{ old('mail_from_address', $settings['mail_from_address']) }}"
-                                placeholder="noreply@sekolah.sch.id"
+                                placeholder="noreply@example.test"
                                 class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_from_address')

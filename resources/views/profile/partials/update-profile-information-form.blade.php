@@ -203,7 +203,7 @@
                         name="email" 
                         type="email" 
                         class="mt-1 block w-full text-xs" 
-                        placeholder="nama@sekolah.sch.id" 
+                        placeholder="nama@example.test" 
                         required 
                     />
                     <p class="mt-1 text-[11px] text-zinc-500 dark:text-[#97979B]">

@@ -73,8 +73,8 @@ class TeacherEmailImportTest extends TestCase
 
         $csvContent = <<<CSV
 NIP,NAMA,EMAIL
-198001012005011001,Budi Santoso,budi.santoso@smk.sch.id
-198502022008022002,Siti Aminah,siti.aminah@smk.sch.id
+198001012005011001,Budi Santoso,budi.santoso@example.test
+198502022008022002,Siti Aminah,siti.aminah@example.test
 CSV;
 
         $tempPath = tempnam(sys_get_temp_dir(), 'email_test_') . '.csv';
@@ -93,8 +93,8 @@ CSV;
         $teacher1->refresh();
         $teacher2->refresh();
 
-        $this->assertSame('budi.santoso@smk.sch.id', $teacher1->email);
-        $this->assertSame('siti.aminah@smk.sch.id', $teacher2->email);
+        $this->assertSame('budi.santoso@example.test', $teacher1->email);
+        $this->assertSame('siti.aminah@example.test', $teacher2->email);
 
         @unlink($tempPath);
     }

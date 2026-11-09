@@ -270,7 +270,7 @@ class ProtectedAccountsF1Test extends TestCase
             File::makeDirectory($seedDir, 0755, true);
         }
         $csvPath = $seedDir . '/accounts.csv';
-        File::put($csvPath, "username,name,role,email\nwaka_kurikulum,NAMA BARU WAKA,1,waka@smk.id\ntim_kesiswaan,NAMA BARU TIM,3,tim@smk.id\n");
+        File::put($csvPath, "username,name,role,email\nwaka_kurikulum,NAMA BARU WAKA,1,waka@example.test\ntim_kesiswaan,NAMA BARU TIM,3,tim@example.test\n");
 
         try {
             app(RealAccountsSeeder::class)->run();
@@ -303,7 +303,7 @@ class ProtectedAccountsF1Test extends TestCase
                     'status'       => 'matched',
                     'name'         => 'HARIS BUDIAWAN, S.Pd., M.Kom',
                     'nip'          => '198501012010011001',
-                    'email'        => 'haris@smkn.sch.id',
+                    'email'        => 'haris@example.test',
                     'matched_user' => [
                         'id'       => $haris->id,
                         'username' => $haris->username,
@@ -318,7 +318,7 @@ class ProtectedAccountsF1Test extends TestCase
         $this->assertSame(['haris-budiawan'], $empResult['protected_preserved']);
         $this->assertSame($beforeProtected, $this->snapshotProtectedAccounts());
         $this->assertSame('198501012010011001', $haris->fresh()->nip);
-        $this->assertSame('haris@smkn.sch.id', $haris->fresh()->email);
+        $this->assertSame('haris@example.test', $haris->fresh()->email);
 
         // 2. TeacherEmailImportService commit: does NOT overwrite existing email on protected account,
         //    and only populates email when currently null (e.g. ryawidyaningtyas)
@@ -331,13 +331,13 @@ class ProtectedAccountsF1Test extends TestCase
                     'teacher_id'       => $haris->id,
                     'teacher_username' => $haris->username,
                     'teacher_fullname' => $haris->fullname,
-                    'new_email'        => 'overwrite-attempt@smkn.sch.id',
+                    'new_email'        => 'overwrite-attempt@example.test',
                 ],
                 [
                     'teacher_id'       => $rya->id,
                     'teacher_username' => $rya->username,
                     'teacher_fullname' => $rya->fullname,
-                    'new_email'        => 'rya@smkn.sch.id',
+                    'new_email'        => 'rya@example.test',
                 ],
             ],
         ], now()->addHour());
@@ -345,8 +345,8 @@ class ProtectedAccountsF1Test extends TestCase
         $emailResult = app(TeacherEmailImportService::class)->commit($emailToken);
         $this->assertSame(1, $emailResult['updated']);
         $this->assertSame(['haris-budiawan'], $emailResult['skipped_protected']);
-        $this->assertSame('haris@smkn.sch.id', $haris->fresh()->email);
-        $this->assertSame('rya@smkn.sch.id', $rya->fresh()->email);
+        $this->assertSame('haris@example.test', $haris->fresh()->email);
+        $this->assertSame('rya@example.test', $rya->fresh()->email);
         $this->assertSame($beforeProtected, $this->snapshotProtectedAccounts());
     }
 }

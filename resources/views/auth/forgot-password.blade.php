@@ -20,7 +20,7 @@
         <!-- Email or Username/NIS -->
         <div>
             <x-input-label for="identifier" value="Email atau Nama Pengguna / NIS" />
-            <x-text-input id="identifier" class="block mt-1 w-full" type="text" name="identifier" :value="old('identifier', old('email'))" placeholder="nama@sekolah.sch.id atau NIS/Username" required autofocus />
+            <x-text-input id="identifier" class="block mt-1 w-full" type="text" name="identifier" :value="old('identifier', old('email'))" placeholder="nama@example.test atau NIS/Username" required autofocus />
             <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-2" />
         </div>
 
