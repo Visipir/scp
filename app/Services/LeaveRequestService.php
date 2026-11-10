@@ -89,7 +89,7 @@ class LeaveRequestService
                 ->get();
 
             if ($attendances->isNotEmpty()) {
-                $targetStatus = (stripos((string) $leaveRequest->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
+                $targetStatus = LeaveRequest::determineStatusFromReason($leaveRequest->reason);
 
                 foreach ($attendances as $attendance) {
                     $isFromLeave = (int) $attendance->leave_request_id === (int) $leaveRequest->id

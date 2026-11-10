@@ -107,8 +107,11 @@ class JournalService
                 if (isset($manualAbsences[$student->id])) {
                     $status = $manualAbsences[$student->id]['status'];
                     $notes = $manualAbsences[$student->id]['notes'];
+                    if ($leave = $leavesByStudent->get($student->id)) {
+                        $leaveRequestId = $leave->id;
+                    }
                 } elseif ($leave = $leavesByStudent->get($student->id)) {
-                    $status = (stripos((string) $leave->reason, 'sakit') !== false) ? 'Sakit' : 'Izin';
+                    $status = LeaveRequest::determineStatusFromReason($leave->reason);
                     $notes = 'Izin resmi (Pengajuan surat izin disetujui)';
                     $leaveRequestId = $leave->id;
                 }
@@ -234,17 +237,21 @@ class JournalService
 
         return $students->map(function (User $student) use ($leaves) {
             $leave = $leaves->get($student->id);
+            $leaveStatus = $leave ? LeaveRequest::determineStatusFromReason($leave->reason) : null;
 
             return [
                 'student_id'        => (int) $student->id,
                 'fullname'          => $student->fullname,
                 'username'          => $student->username,
                 'on_approved_leave' => $leave !== null,
+                'default_status'    => $leaveStatus ?? 'Hadir',
                 'leave'             => $leave ? [
-                    'id'         => (int) $leave->id,
-                    'start_date' => $leave->start_date?->toDateString(),
-                    'end_date'   => $leave->end_date?->toDateString(),
-                    'reason'     => $leave->reason,
+                    'id'             => (int) $leave->id,
+                    'start_date'     => $leave->start_date?->toDateString(),
+                    'end_date'       => $leave->end_date?->toDateString(),
+                    'reason'         => $leave->reason,
+                    'status'         => $leaveStatus,
+                    'decision_label' => $leave->decisionLabel(),
                 ] : null,
             ];
         })->values()->all();

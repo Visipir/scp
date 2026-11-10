@@ -39,6 +39,39 @@ class LeaveRequest extends Model
     }
 
     /**
+     * Determine attendance status ('Sakit' or 'Izin') from leave request reason.
+     */
+    public function getAttendanceStatusAttribute(): string
+    {
+        return self::determineStatusFromReason($this->reason);
+    }
+
+    public static function determineStatusFromReason(?string $reason): string
+    {
+        if (empty($reason)) {
+            return 'Izin';
+        }
+
+        $sicknessKeywords = [
+            'sakit', 'demam', 'flu', 'batuk', 'pilek', 'pusing', 'mual', 'muntah',
+            'dokter', 'puskesmas', 'opname', 'rawat', 'medis', 'klinik', 'hospital',
+            'isoman', 'tipes', 'tifus', 'cacar', 'diare', 'cedera', 'kesehatan',
+            'istirahat medis', 'kondisi badan', 'badan panas', 'panas dingin', 'bedrest', 'bed rest',
+        ];
+
+        $pattern = '/\b(' . implode('|', array_map('preg_quote', $sicknessKeywords)) . ')\b/i';
+        if (preg_match($pattern, $reason)) {
+            return 'Sakit';
+        }
+
+        if (stripos($reason, 'sakit') !== false) {
+            return 'Sakit';
+        }
+
+        return 'Izin';
+    }
+
+    /**
      * Human-readable decision label:
      * - "Menunggu"
      * - "Disetujui oleh BK: <nama>" / "Disetujui oleh Wali: <nama>"

@@ -33,7 +33,47 @@
                     selectedDate: '{{ old('date', $defaultDate ?? now()->format('Y-m-d')) }}',
                     schedulesMap: {{ Js::from($schedules->mapWithKeys(fn($s) => [$s->id => ['id' => $s->id, 'class_id' => $s->class_id, 'class_name' => $s->schoolClass->class_name ?? '']])) }},
                     studentsByClass: {{ Js::from($studentsByClass ?? []) }},
-                    absentStudents: {{ Js::from(old('absent_students', [])) }},
+                    absentStudents: {{ Js::from($initialAbsentStudents ?? old('absent_students', [])) }},
+                    isSyncingLeaves: false,
+                    init() {
+                        this.$watch('selectedScheduleId', () => this.syncApprovedLeaves());
+                        this.$watch('selectedDate', () => this.syncApprovedLeaves());
+                    },
+                    async syncApprovedLeaves() {
+                        if (!this.selectedScheduleId || !this.selectedDate) return;
+                        this.isSyncingLeaves = true;
+                        try {
+                            const res = await fetch(`{{ route('journals.leaves') }}?schedule_id=${this.selectedScheduleId}&date=${this.selectedDate}`, {
+                                headers: { 'Accept': 'application/json' }
+                            });
+                            if (res.ok) {
+                                const data = await res.json();
+                                const newLeaves = data.leaves || [];
+                                const manualEntries = this.absentStudents.filter(item => !item.is_approved_leave);
+                                const manualIds = new Set(manualEntries.map(item => String(item.student_id)));
+
+                                const leaveEntries = [];
+                                for (const leave of newLeaves) {
+                                    if (!manualIds.has(String(leave.student_id))) {
+                                        leaveEntries.push({
+                                            student_id: String(leave.student_id),
+                                            status: leave.status,
+                                            notes: leave.notes,
+                                            is_approved_leave: true,
+                                            leave_id: leave.leave_id,
+                                            leave_reason: leave.leave_reason,
+                                            decision_label: leave.decision_label
+                                        });
+                                    }
+                                }
+                                this.absentStudents = [...leaveEntries, ...manualEntries];
+                            }
+                        } catch (e) {
+                            console.error('Failed to sync approved leaves:', e);
+                        } finally {
+                            this.isSyncingLeaves = false;
+                        }
+                    },
                     get currentClassId() {
                         return this.schedulesMap[this.selectedScheduleId]?.class_id;
                     },
@@ -135,7 +175,7 @@
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <x-input-label value="Presensi Siswa (Default: Seluruh Siswa Hadir)" />
-                        <span class="text-[11px] font-mono font-semibold" :class="absentStudents.length > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'" x-text="absentStudents.length > 0 ? (absentStudents.length + ' siswa dicatat tidak hadir / izin keluar') : 'Semua hadir'"></span>
+                        <span class="text-[11px] font-mono font-semibold" :class="absentStudents.length > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'" x-text="absentStudents.length > 0 ? (absentStudents.length + ' siswa dicatat tidak hadir / izin' + (absentStudents.some(s => s.is_approved_leave) ? ' (termasuk izin disetujui BK)' : '')) : 'Semua hadir'"></span>
                     </div>
 
                     <div class="p-3.5 bg-zinc-50 dark:bg-[#19191C] border border-zinc-200 dark:border-[#2B2B30] rounded-lg space-y-3">
@@ -164,7 +204,17 @@
                         {{-- Absent List --}}
                         <div class="space-y-2.5" x-show="absentStudents.length > 0">
                             <template x-for="(item, idx) in absentStudents" :key="idx">
-                                <div class="p-3 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2">
+                                <div class="p-3 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2" :class="item.is_approved_leave ? 'border-l-4 border-l-blue-500 dark:border-l-sky-500' : ''">
+                                    {{-- Banner Izin yang disetujui BK --}}
+                                    <div x-show="item.is_approved_leave" class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-mono text-blue-700 dark:text-sky-300 bg-blue-50/80 dark:bg-[#16222F] px-2.5 py-1 rounded border border-blue-200/80 dark:border-sky-700/50">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <svg class="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span class="font-bold shrink-0" x-text="item.decision_label ? item.decision_label : 'Izin Resmi Disetujui'"></span>:
+                                            <span class="truncate max-w-xs text-zinc-700 dark:text-[#EDEDF0]" x-text="item.leave_reason"></span>
+                                        </div>
+                                        <span class="text-[10px] text-blue-600/80 dark:text-sky-400 font-semibold">(Otomatis Terpilih <strong x-text="item.status"></strong>)</span>
+                                    </div>
+
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <div class="flex items-center gap-1.5 shrink-0">
                                             <span class="font-mono text-zinc-400 dark:text-[#5B5B61] text-xs font-bold w-5" x-text="(idx + 1) + '.'"></span>
@@ -185,7 +235,7 @@
                                                 <option value="Terlambat">Terlambat</option>
                                             </select>
                                         </div>
-                                        <button type="button" @click="removeAbsentStudent(idx)" class="self-end sm:self-auto text-zinc-400 dark:text-[#5B5B61] hover:text-rose-600 dark:hover:text-rose-400 p-1.5 transition cursor-pointer rounded hover:bg-rose-50 dark:hover:bg-rose-500/10" title="Hapus Catatan">
+                                        <button type="button" @click="removeAbsentStudent(idx)" class="self-end sm:self-auto text-zinc-400 dark:text-[#5B5B61] hover:text-rose-600 dark:hover:text-rose-400 p-1.5 transition cursor-pointer rounded hover:bg-rose-50 dark:hover:bg-rose-500/10" :title="item.is_approved_leave ? 'Abaikan izin resmi / tandai hadir' : 'Hapus Catatan'">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>

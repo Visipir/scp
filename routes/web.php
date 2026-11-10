@@ -112,6 +112,7 @@ Route::middleware(['auth'])->prefix('journals')->name('journals.')->group(functi
     Route::get('/', [JournalController::class, 'index'])->name('index')->middleware('role:1,2,3');
     Route::middleware('role:2')->group(function () {
         Route::get('/create', [JournalController::class, 'create'])->name('create');
+        Route::get('/leaves', [JournalController::class, 'leaves'])->name('leaves');
         Route::post('/', [JournalController::class, 'store'])->name('store');
         Route::put('/{journal}', [JournalController::class, 'update'])->name('update');
     });

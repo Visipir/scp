@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreJournalRequest;
 use App\Models\IneffectiveDay;
 use App\Models\Journal;
+use App\Models\LeaveRequest;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Services\JournalService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -85,7 +87,78 @@ class JournalController extends Controller
             ->get(['id', 'fullname', 'username', 'gender', 'class_id'])
             ->groupBy('class_id');
 
-        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass', 'todayName', 'todaySchedules'));
+        $allStudentIds = $studentsByClass->flatten(1)->pluck('id')->all();
+        $approvedLeaves = LeaveRequest::with(['decidedBy', 'verifier'])
+            ->where('status_approval', 'Approved')
+            ->whereIn('student_id', $allStudentIds)
+            ->whereDate('start_date', '<=', $defaultDate)
+            ->whereDate('end_date', '>=', $defaultDate)
+            ->get()
+            ->keyBy('student_id');
+
+        $initialAbsentStudents = old('absent_students');
+        if ($initialAbsentStudents === null && $defaultSchedule) {
+            $classStudents = $studentsByClass->get($defaultSchedule->class_id, collect());
+            $initialAbsentStudents = [];
+            foreach ($classStudents as $std) {
+                if ($leave = $approvedLeaves->get($std->id)) {
+                    $initialAbsentStudents[] = [
+                        'student_id'        => (string) $std->id,
+                        'status'            => $leave->attendance_status,
+                        'notes'             => 'Izin resmi (Pengajuan surat izin disetujui)',
+                        'is_approved_leave' => true,
+                        'leave_id'          => $leave->id,
+                        'leave_reason'      => $leave->reason,
+                        'decision_label'    => $leave->decisionLabel(),
+                    ];
+                }
+            }
+        }
+
+        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass', 'todayName', 'todaySchedules', 'initialAbsentStudents'));
+    }
+
+    /**
+     * Fetch approved leaves for a schedule and date (JSON for dynamic journal form sync).
+     */
+    public function leaves(Request $request): JsonResponse
+    {
+        $scheduleId = $request->query('schedule_id');
+        $date = $request->query('date', now('Asia/Jakarta')->toDateString());
+
+        if (! $scheduleId) {
+            return response()->json(['leaves' => []]);
+        }
+
+        $schedule = Schedule::find($scheduleId);
+        if (! $schedule) {
+            return response()->json(['leaves' => []]);
+        }
+
+        $studentIds = User::where('class_id', $schedule->class_id)
+            ->where('role_id', 4)
+            ->pluck('id');
+
+        $leaves = LeaveRequest::with(['decidedBy', 'verifier'])
+            ->where('status_approval', 'Approved')
+            ->whereIn('student_id', $studentIds)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->get();
+
+        $data = $leaves->map(function ($leave) {
+            return [
+                'student_id'        => (string) $leave->student_id,
+                'status'            => $leave->attendance_status,
+                'notes'             => 'Izin resmi (Pengajuan surat izin disetujui)',
+                'is_approved_leave' => true,
+                'leave_id'          => (int) $leave->id,
+                'leave_reason'      => $leave->reason,
+                'decision_label'    => $leave->decisionLabel(),
+            ];
+        });
+
+        return response()->json(['leaves' => $data]);
     }
 
     public function store(StoreJournalRequest $request, JournalService $journals): RedirectResponse
