@@ -304,7 +304,7 @@
                                         'rejected'  => 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
                                         'cancelled' => 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700',
                                         'expired'   => 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700',
-                                        default     => 'bg-zinc-100 text-zinc-700',
+                                        default     => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                                     };
                                     $statusLabel = match($swap->status) {
                                         'approved'  => 'Disetujui',
@@ -529,7 +529,7 @@
                                 'cancelled'        => 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700',
                                 'expired'          => 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
                                 'conflict_blocked' => 'bg-purple-50 text-purple-800 border-purple-300 dark:bg-[#25182D] dark:text-purple-300 dark:border-purple-700/60',
-                                default            => 'bg-zinc-100 text-zinc-700 border-zinc-200',
+                                default            => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                             };
                             $eventLabel = match($log->event) {
                                 'requested'        => 'Permintaan Diajukan',

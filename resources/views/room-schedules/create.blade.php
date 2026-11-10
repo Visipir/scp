@@ -4,7 +4,7 @@
             <a href="{{ route('room-schedules.index') }}" class="text-zinc-400 hover:text-indigo-600 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
-            <h2 class="font-bold text-xl text-zinc-900 leading-tight">
+            <h2 class="font-bold text-xl text-zinc-900 dark:text-[#EDEDF0] leading-tight">
                 Tambah Jadwal Ruangan
             </h2>
         </div>
@@ -37,7 +37,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('room-schedules.store') }}" class="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
+            <form method="POST" action="{{ route('room-schedules.store') }}" class="bg-white dark:bg-[#1D1D21] rounded-xl shadow-sm border border-zinc-200 dark:border-[#2B2B30] overflow-hidden">
                 @csrf
                 <div class="p-6 space-y-6">
                     
@@ -45,7 +45,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <x-input-label for="room_id" value="Ruangan / Lab *" />
-                            <select id="room_id" name="room_id" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            <select id="room_id" name="room_id" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm" required>
                                 <option value="">-- Pilih Ruangan --</option>
                                 @foreach($rooms as $room)
                                     <option value="{{ $room->id }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>{{ $room->room_name }}</option>
@@ -56,7 +56,7 @@
                         
                         <div>
                             <x-input-label for="class_id" value="Kelas *" />
-                            <select id="class_id" name="class_id" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            <select id="class_id" name="class_id" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm" required>
                                 <option value="">-- Pilih Kelas --</option>
                                 @foreach($classes as $c)
                                     <option value="{{ $c->id }}" {{ old('class_id') == $c->id ? 'selected' : '' }}>{{ $c->class_name }}</option>
@@ -70,7 +70,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <x-input-label for="teacher_id" value="Guru (Opsional)" />
-                            <select id="teacher_id" name="teacher_id" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <select id="teacher_id" name="teacher_id" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm">
                                 <option value="">-- Pilih Guru --</option>
                                 @foreach($teachers as $teacher)
                                     <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>{{ $teacher->fullname }}</option>
@@ -86,13 +86,13 @@
                         </div>
                     </div>
 
-                    <hr class="border-zinc-100">
+                    <hr class="border-zinc-100 dark:border-[#2B2B30]">
 
                     <!-- Waktu -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <div>
                             <x-input-label for="day_of_week" value="Hari *" />
-                            <select id="day_of_week" name="day_of_week" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            <select id="day_of_week" name="day_of_week" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm" required>
                                 @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $day)
                                     <option value="{{ $day }}" {{ old('day_of_week') == $day ? 'selected' : '' }}>{{ $day }}</option>
                                 @endforeach
@@ -102,7 +102,7 @@
 
                         <div>
                             <x-input-label for="period" value="Jam Ke- *" />
-                            <select id="period" name="period" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            <select id="period" name="period" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm" required>
                                 @for($i = 1; $i <= 12; $i++)
                                     <option value="{{ $i }}" {{ old('period') == $i ? 'selected' : '' }}>{{ $i }}</option>
                                 @endfor
@@ -112,7 +112,7 @@
                         
                         <div>
                             <x-input-label for="cycle_type" value="Putaran *" />
-                            <select id="cycle_type" name="cycle_type" class="mt-1 block w-full border-zinc-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            <select id="cycle_type" name="cycle_type" class="mt-1 block w-full border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] rounded-md shadow-sm" required>
                                 <option value="Putaran 1" {{ old('cycle_type') == 'Putaran 1' ? 'selected' : '' }}>Putaran 1 (35m)</option>
                                 <option value="Putaran 2" {{ (old('cycle_type') ?? 'Putaran 2') == 'Putaran 2' ? 'selected' : '' }}>Putaran 2 (40m/45m)</option>
                             </select>
@@ -122,7 +122,7 @@
 
                 </div>
                 
-                <div class="bg-zinc-50 px-6 py-4 flex items-center justify-end">
+                <div class="bg-zinc-50 dark:bg-[#1E1E22] border-t border-zinc-100 dark:border-[#2B2B30] px-6 py-4 flex items-center justify-end">
                     <x-primary-button>
                         Simpan Jadwal
                     </x-primary-button>

@@ -54,6 +54,26 @@
         .font-mono {
             font-family: var(--font-mono);
         }
+        /* Dark Mode Resilience Rules */
+        html.dark a.bg-white,
+        html.dark select.bg-white,
+        html.dark input.bg-white,
+        html.dark textarea.bg-white {
+            background-color: var(--surface-card) !important;
+            border-color: var(--border-hairline) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark input[type="text"],
+        html.dark input[type="search"],
+        html.dark input[type="date"],
+        html.dark input[type="time"],
+        html.dark input[type="month"],
+        html.dark select,
+        html.dark textarea {
+            background-color: var(--bg-page) !important;
+            border-color: var(--border-hairline) !important;
+            color: var(--text-primary) !important;
+        }
     </style>
 </head>
 <body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white transition-colors duration-150" 
@@ -113,7 +133,7 @@
                         </div>
                     @endif
 
-                    <div class="h-4 w-px bg-zinc-200 dark:border-[#2B2B30]"></div>
+                    <div class="h-4 w-px bg-zinc-200 dark:bg-[#2B2B30]"></div>
 
                     <!-- Date info -->
                     <div class="text-[11px] text-zinc-500 dark:text-[#97979B] font-mono">

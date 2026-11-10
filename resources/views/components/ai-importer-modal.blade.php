@@ -79,12 +79,12 @@
                 x-transition:leave="ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-2xl border border-zinc-200/80 divide-y divide-zinc-200/80"
+                class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1D1D21] text-left shadow-2xl transition-all w-full max-w-2xl border border-zinc-200/80 dark:border-[#2B2B30] divide-y divide-zinc-200/80 dark:divide-[#2B2B30]"
                 @click.stop
             >
                 <div class="p-5 sm:p-6 flex items-start justify-between gap-4">
                     <div>
-                        <h2 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+                        <h2 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
                             <svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                             </svg>
@@ -95,12 +95,12 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 text-[11px] font-mono font-semibold" x-text="'Model: ' + selectedModel">
+                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] text-[11px] font-mono font-semibold" x-text="'Model: ' + selectedModel">
                         </span>
                         <button 
                             type="button" 
                             @click="if(!isUploading) open = false"
-                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer disabled:opacity-40"
+                            class="p-1.5 rounded-md text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer disabled:opacity-40"
                             :disabled="isUploading"
                         >
                             <span class="sr-only">Tutup</span>
@@ -140,13 +140,13 @@
 
                             @if(in_array($type, ['Jadwal Pelajaran', 'Jadwal Ruangan']))
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
+                                    <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] uppercase tracking-wider mb-2">
                                         Pilih Siklus Putaran Target
                                     </label>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <label 
                                             class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition"
-                                            :class="targetCycle === 'Putaran 1' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300 bg-white'"
+                                            :class="targetCycle === 'Putaran 1' ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C]' : 'border-zinc-200 dark:border-[#2B2B30] hover:border-zinc-300 dark:hover:border-[#3A3A3F] bg-white dark:bg-[#232327]'"
                                         >
                                             <input 
                                                 type="radio" 
@@ -156,7 +156,7 @@
                                                 class="mt-0.5 text-zinc-900 focus:ring-zinc-900 border-zinc-300"
                                             />
                                             <div>
-                                                <span class="font-bold text-xs text-zinc-900 block font-mono">PUTARAN 1</span>
+                                                <span class="font-bold text-xs text-zinc-900 dark:text-[#EDEDF0] block font-mono">PUTARAN 1</span>
                                                 <span class="text-[11px] text-zinc-500 block mt-0.5">
                                                     Jadwal blok standar 35 menit per JP (Mulai 08.00 WIB pada hari Senin).
                                                 </span>
@@ -165,7 +165,7 @@
 
                                         <label 
                                             class="flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition"
-                                            :class="targetCycle === 'Putaran 2' ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300 bg-white'"
+                                            :class="targetCycle === 'Putaran 2' ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C]' : 'border-zinc-200 dark:border-[#2B2B30] hover:border-zinc-300 dark:hover:border-[#3A3A3F] bg-white dark:bg-[#232327]'"
                                         >
                                             <input 
                                                 type="radio" 
@@ -175,7 +175,7 @@
                                                 class="mt-0.5 text-zinc-900 focus:ring-zinc-900 border-zinc-300"
                                             />
                                             <div>
-                                                <span class="font-bold text-xs text-zinc-900 block font-mono">PUTARAN 2 (Khusus TP 2026/2027)</span>
+                                                <span class="font-bold text-xs text-zinc-900 dark:text-[#EDEDF0] block font-mono">PUTARAN 2 (Khusus TP 2026/2027)</span>
                                                 <span class="text-[11px] text-zinc-500 block mt-0.5">
                                                     Durasi dinamis: Upacara Senin, Literasi Selasa, 40m Rabu-Kamis, Sholat Jumat.
                                                 </span>
@@ -186,13 +186,13 @@
                             @endif
 
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
+                                <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] uppercase tracking-wider mb-2">
                                     Pilih Model Google Gemini AI
                                 </label>
                                 <select 
                                     name="ai_model" 
                                     x-model="selectedModel"
-                                    class="w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-xs font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition"
+                                    class="w-full rounded-xl border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-xs font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition"
                                 >
                                     <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Gemini 3.5 Flash Lite — Cepat &amp; Hemat Kuota)</option>
                                     <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Gemini 3.1 Flash Lite — Alternatif Kuota Tinggi)</option>
@@ -207,7 +207,7 @@
                             <div>
                                 <div
                                     class="relative flex flex-col items-center justify-center p-6 sm:p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors group"
-                                    :class="fileName ? 'border-emerald-500 bg-emerald-50/20' : 'border-zinc-300 hover:border-zinc-500 bg-zinc-50/50'"
+                                    :class="fileName ? 'border-emerald-500 bg-emerald-50/20 dark:bg-[#16281D]' : 'border-zinc-300 dark:border-[#2B2B30] hover:border-zinc-500 bg-zinc-50/50 dark:bg-[#19191C]'"
                                     @click="$refs.pdfInput.click()"
                                     @dragover.prevent=""
                                     @drop.prevent="
@@ -219,7 +219,7 @@
                                     "
                                 >
                                     <div class="text-center space-y-2 pointer-events-none">
-                                        <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500 group-hover:bg-[#26262A]'">
+                                        <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="fileName ? 'bg-emerald-100 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300' : 'bg-zinc-100 dark:bg-[#232327] text-zinc-500 dark:text-[#97979B] group-hover:bg-[#26262A]'">
                                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                             </svg>
@@ -227,13 +227,13 @@
                                         <div class="text-xs">
                                             <template x-if="!fileName">
                                                 <div>
-                                                    <span class="font-bold text-zinc-900 group-hover:underline">Klik untuk pilih berkas PDF</span>
+                                                    <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] group-hover:underline">Klik untuk pilih berkas PDF</span>
                                                     <span class="text-zinc-500"> atau seret dokumen ke sini</span>
                                                     <p class="text-[11px] text-zinc-400 font-mono mt-1">Maksimal 15MB (.pdf)</p>
                                                 </div>
                                             </template>
                                             <template x-if="fileName">
-                                                <div class="font-mono text-zinc-800">
+                                                <div class="font-mono text-zinc-800 dark:text-[#EDEDF0]">
                                                     <div class="font-bold text-emerald-800 flex items-center justify-center gap-1.5">
                                                         <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                                                         <span x-text="fileName"></span>
@@ -262,7 +262,7 @@
                                 <button
                                     type="button"
                                     @click="open = false"
-                                    class="px-4 py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
+                                    class="px-4 py-2.5 border border-zinc-200 dark:border-[#2B2B30] rounded-lg text-xs font-semibold text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                                 >
                                     Batal
                                 </button>

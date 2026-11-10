@@ -61,10 +61,10 @@
         @endif
 
         {{-- TABEL DAFTAR HARI TIDAK EFEKTIF --}}
-        <div class="bg-white border border-zinc-200/80 rounded-lg overflow-hidden shadow-xs">
-            <div class="p-5 border-b border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50">
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-lg overflow-hidden shadow-xs">
+            <div class="p-5 border-b border-zinc-200/80 dark:border-[#2B2B30] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50 dark:bg-[#19191C]">
                 <div>
-                    <h2 class="text-sm font-bold text-zinc-900 tracking-tight">
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
                         Daftar Tanggal Tidak Efektif
                     </h2>
                     <p class="text-xs text-zinc-500 mt-0.5">
@@ -76,7 +76,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-zinc-200/80 bg-zinc-50 text-[11px] font-bold font-mono text-zinc-500 uppercase tracking-wider">
+                        <tr class="border-b border-zinc-200/80 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] text-[11px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
                             <th class="py-3 px-4">Tanggal &amp; Hari</th>
                             <th class="py-3 px-4">Keterangan / Agenda</th>
                             <th class="py-3 px-4">Th. Ajaran</th>
@@ -84,7 +84,7 @@
                             <th class="py-3 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200/60 text-xs text-zinc-700">
+                    <tbody class="divide-y divide-zinc-200/60 dark:divide-[#2B2B30] text-xs text-zinc-700 dark:text-[#EDEDF0]">
                         @forelse($ineffectiveDays as $day)
                             @php
                                 $isToday = $day->date->isToday();
@@ -93,7 +93,7 @@
                             <tr class="hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 font-medium' : '' }}">
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-bold text-zinc-900 font-mono">
+                                        <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] font-mono">
                                             {{ $day->date->translatedFormat('l, d M Y') }}
                                         </span>
                                         @if($isToday)
@@ -105,14 +105,14 @@
                                                 Mendatang
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-500">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-[#232327] text-zinc-500 dark:text-[#97979B]">
                                                 Selesai
                                             </span>
                                         @endif
                                     </div>
                                 </td>
                                 <td class="py-3.5 px-4">
-                                    <span class="text-zinc-900 font-medium">{{ $day->description }}</span>
+                                    <span class="text-zinc-900 dark:text-[#EDEDF0] font-medium">{{ $day->description }}</span>
                                 </td>
                                 <td class="py-3.5 px-4 font-mono text-[11px] text-zinc-600">
                                     {{ $day->academic_year ?? '-' }}
@@ -152,7 +152,7 @@
                                         <button 
                                             type="button" 
                                             @click="showModal = true"
-                                            class="text-xs text-zinc-900 font-semibold underline hover:text-black mt-1"
+                                            class="text-xs text-zinc-900 dark:text-[#EDEDF0] font-semibold underline hover:text-black dark:hover:text-white mt-1"
                                         >
                                             Tambah Hari Tidak Efektif Sekarang
                                         </button>
@@ -165,7 +165,7 @@
             </div>
 
             @if($ineffectiveDays->hasPages())
-                <div class="p-4 border-t border-zinc-200/80 bg-zinc-50/50">
+                <div class="p-4 border-t border-zinc-200/80 dark:border-[#2B2B30] bg-zinc-50/50 dark:bg-[#19191C]">
                     {{ $ineffectiveDays->links() }}
                 </div>
             @endif
@@ -204,13 +204,13 @@
                     x-transition:leave="ease-in duration-150"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                    class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all w-full max-w-lg border border-zinc-200/80 divide-y divide-zinc-200/80"
+                    class="relative transform overflow-hidden rounded-xl bg-white dark:bg-[#1D1D21] text-left shadow-2xl transition-all w-full max-w-lg border border-zinc-200/80 dark:border-[#2B2B30] divide-y divide-zinc-200/80 dark:divide-[#2B2B30]"
                     @click.stop
                 >
                     <!-- Header -->
                     <div class="p-5 sm:p-6 flex items-start justify-between gap-4">
                         <div>
-                            <h2 id="modal-title" class="text-base font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+                            <h2 id="modal-title" class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
                                 <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                 </svg>
@@ -223,7 +223,7 @@
                         <button 
                             type="button" 
                             @click="showModal = false"
-                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
+                            class="p-1.5 rounded-md text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                         >
                             <span class="sr-only">Tutup</span>
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -238,20 +238,20 @@
 
                         {{-- Mode Selector: Tunggal vs Rentang --}}
                         <div>
-                            <label class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] uppercase tracking-wider mb-2">
                                 Tipe Tanggal
                             </label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="!isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-[#26262A]'"
+                                    :class="!isRange ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="false" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Satu Hari Saja</span>
                                 </label>
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="isRange ? 'border-zinc-900 bg-zinc-50 text-zinc-900 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-[#26262A]'"
+                                    :class="isRange ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="true" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Rentang Hari (Libur)</span>
@@ -267,7 +267,7 @@
                                     id="start_date" 
                                     name="start_date" 
                                     type="date" 
-                                    class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                                     value="{{ old('start_date', now()->format('Y-m-d')) }}" 
                                     required 
                                 />
@@ -280,7 +280,7 @@
                                     id="end_date" 
                                     name="end_date" 
                                     type="date" 
-                                    class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                                     value="{{ old('end_date') }}" 
                                 />
                                 <x-input-error :messages="$errors->get('end_date')" class="mt-1" />
@@ -295,7 +295,7 @@
                                 name="description" 
                                 type="text" 
                                 placeholder="Contoh: Class Meeting Semester Ganjil, Libur Nasional Maulid Nabi" 
-                                class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                                 value="{{ old('description') }}" 
                                 required 
                             />
@@ -309,17 +309,17 @@
                                 id="academic_year" 
                                 name="academic_year" 
                                 type="text" 
-                                class="w-full rounded-md border-zinc-300 bg-zinc-50 px-3 py-2 text-sm font-mono text-zinc-700 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-700 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                                 value="{{ old('academic_year', '2026/2027') }}" 
                             />
                             <x-input-error :messages="$errors->get('academic_year')" class="mt-1" />
                         </div>
 
-                        <div class="flex items-center justify-between gap-4 pt-3 border-t border-zinc-200/80">
+                        <div class="flex items-center justify-between gap-4 pt-3 border-t border-zinc-200/80 dark:border-[#2B2B30]">
                             <button 
                                 type="button" 
                                 @click="showModal = false"
-                                class="px-4 py-2 border border-zinc-200 rounded-md text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-[#26262A] transition cursor-pointer"
+                                class="px-4 py-2 border border-zinc-200 dark:border-[#2B2B30] rounded-md text-xs font-semibold text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                             >
                                 Batal
                             </button>

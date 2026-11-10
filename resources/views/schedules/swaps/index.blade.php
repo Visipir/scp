@@ -131,23 +131,23 @@
                                 </div>
                                 <div>
                                     @if($swap->status === 'pending')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-amber-50 dark:bg-[#282115] text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60">
                                             Menunggu Persetujuan
                                         </span>
                                     @elseif($swap->status === 'approved')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60">
                                             Disetujui
                                         </span>
                                     @elseif($swap->status === 'rejected')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-rose-50 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60">
                                             Ditolak
                                         </span>
                                     @elseif($swap->status === 'cancelled')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-zinc-100 text-zinc-700 border border-zinc-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]">
                                             Dibatalkan
                                         </span>
                                     @else
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-slate-100 dark:bg-[#232327] text-slate-700 dark:text-[#EDEDF0] border border-slate-200 dark:border-[#2B2B30]">
                                             Kedaluwarsa
                                         </span>
                                     @endif
@@ -245,23 +245,23 @@
                                 </div>
                                 <div>
                                     @if($swap->status === 'pending')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-amber-50 dark:bg-[#282115] text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60">
                                             Menunggu Respon Target
                                         </span>
                                     @elseif($swap->status === 'approved')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60">
                                             Disetujui
                                         </span>
                                     @elseif($swap->status === 'rejected')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-rose-50 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60">
                                             Ditolak
                                         </span>
                                     @elseif($swap->status === 'cancelled')
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-zinc-100 text-zinc-700 border border-zinc-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]">
                                             Dibatalkan
                                         </span>
                                     @else
-                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                                        <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-slate-100 dark:bg-[#232327] text-slate-700 dark:text-[#EDEDF0] border border-slate-200 dark:border-[#2B2B30]">
                                             Kedaluwarsa
                                         </span>
                                     @endif
@@ -446,7 +446,7 @@
                         <button
                             type="button"
                             @click="activeTab = 'inbox'"
-                            class="px-4 py-2 text-xs font-semibold uppercase text-zinc-600 hover:text-zinc-900 transition min-h-[44px]"
+                            class="px-4 py-2 text-xs font-semibold uppercase text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] transition min-h-[44px]"
                         >
                             Batal
                         </button>

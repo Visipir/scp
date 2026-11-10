@@ -7,7 +7,7 @@
                     Edit Jadwal Pelajaran (Sistem Blok Jam)
                 </h1>
             </div>
-            <a href="{{ route('schedules.index') }}" class="text-xs font-semibold uppercase tracking-wider text-zinc-600 hover:text-zinc-900">
+            <a href="{{ route('schedules.index') }}" class="text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0]">
                 &larr; Kembali
             </a>
         </div>
@@ -86,10 +86,10 @@
         x-init="updateTimes()"
     >
         {{-- Ringkasan Struktur Blok Jam Aktif (Dinamis per Hari & Putaran) --}}
-        <div class="bg-zinc-50 border border-zinc-200/80 rounded-lg p-4 font-mono text-xs text-zinc-700">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-200/60 pb-2.5 mb-2.5">
-                <span class="font-bold text-zinc-900 flex items-center gap-2">
-                    <span>Struktur Waktu Operasional: <span class="text-zinc-900 font-extrabold" x-text="cycle + ' — Hari ' + day"></span></span>
+        <div class="bg-zinc-50 dark:bg-[#1E1E22] border border-zinc-200/80 dark:border-[#2B2B30] rounded-lg p-4 font-mono text-xs text-zinc-700 dark:text-[#EDEDF0]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-200/60 dark:border-[#2B2B30] pb-2.5 mb-2.5">
+                <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] flex items-center gap-2">
+                    <span>Struktur Waktu Operasional: <span class="text-zinc-900 dark:text-[#EDEDF0] font-extrabold" x-text="cycle + ' — Hari ' + day"></span></span>
                 </span>
                 <span class="text-[11px] text-zinc-500 font-semibold" x-show="cycle === 'Putaran 2'">
                     <span x-show="day === 'Senin'">Upacara Bendera: 07.00–08.00 (Non-KBM)</span>
@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        <div class="bg-white border border-zinc-200/80 rounded-lg p-6 sm:p-8 shadow-none">
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-lg p-6 sm:p-8 shadow-none">
             <form method="POST" action="{{ route('schedules.update', $schedule) }}" class="space-y-5">
                 @csrf
                 @method('PUT')
@@ -129,7 +129,7 @@
                 @if(auth()->user()->role_id === 1)
                     <div>
                         <x-input-label for="teacher_id" value="Guru Pengajar" />
-                        <select id="teacher_id" name="teacher_id" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" required>
+                        <select id="teacher_id" name="teacher_id" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" required>
                             @foreach($teachers as $teacher)
                                 <option value="{{ $teacher->id }}" @selected(old('teacher_id', $schedule->teacher_id) == $teacher->id)>
                                     {{ $teacher->fullname }} ({{ $teacher->username }})
@@ -141,14 +141,14 @@
                 @else
                     <div>
                         <x-input-label value="Guru Pengajar" />
-                        <input type="text" class="w-full rounded-md border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 cursor-not-allowed shadow-none" value="{{ $schedule->teacher->fullname }}" readonly disabled />
+                        <input type="text" class="w-full rounded-md border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-500 dark:text-[#97979B] cursor-not-allowed shadow-none" value="{{ $schedule->teacher->fullname }}" readonly disabled />
                     </div>
                 @endif
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <x-input-label for="class_id" value="Kelas" />
-                        <select id="class_id" name="class_id" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" required>
+                        <select id="class_id" name="class_id" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" required>
                             @foreach($classes as $class)
                                 <option value="{{ $class->id }}" @selected(old('class_id', $schedule->class_id) == $class->id)>{{ $class->class_name }} {{ $class->academic_year ? '('.$class->academic_year.')' : '' }}</option>
                             @endforeach
@@ -157,7 +157,7 @@
                     </div>
                     <div>
                         <x-input-label for="room_id" value="Ruangan" />
-                        <select id="room_id" name="room_id" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition">
+                        <select id="room_id" name="room_id" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition">
                             <option value="">-- Tanpa Ruangan --</option>
                             @foreach($rooms as $room)
                                 <option value="{{ $room->id }}" @selected(old('room_id', $schedule->room_id) == $room->id)>{{ $room->room_name }}</option>
@@ -175,7 +175,7 @@
                             name="cycle_type" 
                             x-model="cycle" 
                             @change="onContextChange()" 
-                            class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                             required
                         >
                             @foreach(['Putaran 1','Putaran 2'] as $c)
@@ -192,7 +192,7 @@
                             name="day_of_week" 
                             x-model="day" 
                             @change="onContextChange()" 
-                            class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                             required
                         >
                             @foreach(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'] as $d)
@@ -212,7 +212,7 @@
                             name="start_period" 
                             x-model="startPeriod" 
                             @change="updateTimes()" 
-                            class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                             required
                         >
                             <template x-for="(p, num) in currentPeriods" :key="'edit-start-' + num">
@@ -231,7 +231,7 @@
                             name="end_period" 
                             x-model="endPeriod" 
                             @change="updateTimes()" 
-                            class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none transition" 
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
                             required
                         >
                             <template x-for="(p, num) in currentPeriods" :key="'edit-end-' + num">
@@ -256,32 +256,32 @@
                     </label>
                 </div>
 
-                <div x-show="manualTime" x-cloak class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-zinc-50 border border-zinc-200 rounded-md">
+                <div x-show="manualTime" x-cloak class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-md">
                     <div>
                         <x-input-label for="manual_edit_start_time" value="Waktu Mulai Manual (HH:mm)" />
-                        <input type="time" id="manual_edit_start_time" x-model="startTime" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900" />
+                        <input type="time" id="manual_edit_start_time" x-model="startTime" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]" />
                     </div>
                     <div>
                         <x-input-label for="manual_edit_end_time" value="Waktu Selesai Manual (HH:mm)" />
-                        <input type="time" id="manual_edit_end_time" x-model="endTime" class="w-full rounded-md border-zinc-300 bg-white px-3 py-2 text-sm font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900" />
+                        <input type="time" id="manual_edit_end_time" x-model="endTime" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]" />
                     </div>
                 </div>
 
                 <!-- Live Period Summary Card -->
-                <div class="p-3.5 bg-zinc-50 border border-zinc-200/80 rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+                <div class="p-3.5 bg-zinc-50 dark:bg-[#232327] border border-zinc-200/80 dark:border-[#2B2B30] rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
                     <div class="flex items-center gap-2">
                         <span class="text-zinc-400">Alokasi Waktu:</span>
-                        <span class="font-bold text-zinc-900" x-text="'Jam ' + startPeriod + (startPeriod != endPeriod ? ' – ' + endPeriod : '')"></span>
+                        <span class="font-bold text-zinc-900 dark:text-[#EDEDF0]" x-text="'Jam ' + startPeriod + (startPeriod != endPeriod ? ' – ' + endPeriod : '')"></span>
                         <span class="text-zinc-400">&bull;</span>
-                        <span class="font-bold text-zinc-700" x-text="startTime + ' – ' + endTime + ' WIB'"></span>
+                        <span class="font-bold text-zinc-700 dark:text-[#EDEDF0]" x-text="startTime + ' – ' + endTime + ' WIB'"></span>
                     </div>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-zinc-200 text-zinc-900 font-bold self-start sm:self-auto" x-text="totalJp + ' JP (' + totalMinutes + ' Menit)'">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-zinc-200 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] border border-transparent dark:border-[#2B2B30] font-bold self-start sm:self-auto" x-text="totalJp + ' JP (' + totalMinutes + ' Menit)'">
                     </span>
                 </div>
 
-                <div class="flex items-center gap-3 pt-3 border-t border-zinc-100">
+                <div class="flex items-center gap-3 pt-3 border-t border-zinc-100 dark:border-[#2B2B30]">
                     <x-primary-button>Perbarui Jadwal</x-primary-button>
-                    <a href="{{ route('schedules.index') }}" class="text-xs font-semibold uppercase tracking-wider text-zinc-500 hover:text-zinc-900 px-3 py-2">Batal</a>
+                    <a href="{{ route('schedules.index') }}" class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] px-3 py-2">Batal</a>
                 </div>
             </form>
         </div>

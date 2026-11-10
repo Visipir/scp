@@ -72,10 +72,10 @@
         @endif
 
         {{-- ==================== 1. VISUAL CALENDAR CARD ==================== --}}
-        <div class="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl shadow-xs overflow-hidden">
             
             {{-- Navigation & Month Selector Bar --}}
-            <div class="p-4 sm:p-5 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="p-4 sm:p-5 border-b border-zinc-200 dark:border-[#2B2B30] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#1D1D21]">
                 {{-- Month Title & Previous / Next Controls --}}
                 <div class="flex items-center gap-3">
                     <div class="inline-flex items-center rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] p-0.5 shadow-2xs">
@@ -100,7 +100,7 @@
                     </div>
 
                     <div>
-                        <h2 class="text-lg sm:text-xl font-black text-zinc-900 tracking-tight font-mono flex items-center gap-2">
+                        <h2 class="text-lg sm:text-xl font-black text-zinc-900 dark:text-[#EDEDF0] tracking-tight font-mono flex items-center gap-2">
                             <span>{{ $monthNames[$month] }}</span>
                             <span class="text-zinc-400 font-semibold">{{ $year }}</span>
                         </h2>
@@ -113,7 +113,7 @@
                         <select 
                             name="month" 
                             onchange="this.form.submit()" 
-                            class="rounded-lg border-zinc-300 bg-white py-1.5 pl-3 pr-8 text-xs font-semibold text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none cursor-pointer"
+                            class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none cursor-pointer"
                         >
                             @foreach($monthNames as $mNum => $mName)
                                 <option value="{{ $mNum }}" @selected($month == $mNum)>{{ $mName }}</option>
@@ -123,7 +123,7 @@
                         <select 
                             name="year" 
                             onchange="this.form.submit()" 
-                            class="rounded-lg border-zinc-300 bg-white py-1.5 pl-3 pr-8 text-xs font-semibold font-mono text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-none cursor-pointer"
+                            class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none cursor-pointer"
                         >
                             @foreach(range(2025, 2028) as $y)
                                 <option value="{{ $y }}" @selected($year == $y)>{{ $y }}</option>
@@ -153,8 +153,8 @@
             </div>
 
             {{-- Mini Stats Bar: Statistik Bulan Terpilih --}}
-            <div class="px-4 py-2.5 bg-zinc-50/70 border-b border-zinc-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-zinc-200/80 shadow-2xs">
+            <div class="px-4 py-2.5 bg-zinc-50/70 dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -162,11 +162,11 @@
                     </span>
                     <div class="min-w-0">
                         <div class="text-[9px] font-mono uppercase text-zinc-400 font-bold truncate">Hari Efektif KBM</div>
-                        <div class="font-bold text-zinc-900 font-mono text-xs sm:text-sm leading-tight">{{ $statsEffectiveDays }} Hari</div>
+                        <div class="font-bold text-zinc-900 dark:text-[#EDEDF0] font-mono text-xs sm:text-sm leading-tight">{{ $statsEffectiveDays }} Hari</div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-zinc-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -178,7 +178,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-zinc-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -190,7 +190,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-zinc-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-zinc-100 text-zinc-700 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -198,15 +198,15 @@
                     </span>
                     <div class="min-w-0">
                         <div class="text-[9px] font-mono uppercase text-zinc-400 font-bold truncate">Total Hari Kalender</div>
-                        <div class="font-bold text-zinc-800 font-mono text-xs sm:text-sm leading-tight">{{ $statsTotalDays }} Hari</div>
+                        <div class="font-bold text-zinc-800 dark:text-[#EDEDF0] font-mono text-xs sm:text-sm leading-tight">{{ $statsTotalDays }} Hari</div>
                     </div>
                 </div>
             </div>
 
             {{-- Color Legend Bar --}}
-            <div class="px-4 py-2 bg-white border-b border-zinc-200 flex flex-wrap items-center justify-between gap-y-1.5 text-[11px] text-zinc-600">
+            <div class="px-4 py-2 bg-white dark:bg-[#1D1D21] border-b border-zinc-200 dark:border-[#2B2B30] flex flex-wrap items-center justify-between gap-y-1.5 text-[11px] text-zinc-600 dark:text-[#97979B]">
                 <div class="flex flex-wrap items-center gap-x-3.5 gap-y-1">
-                    <span class="font-bold text-zinc-800 uppercase tracking-wider font-mono text-[10px]">Keterangan:</span>
+                    <span class="font-bold text-zinc-800 dark:text-[#EDEDF0] uppercase tracking-wider font-mono text-[10px]">Keterangan:</span>
                     
                     <div class="flex items-center gap-1.5">
                         <span class="w-3 h-3 rounded-xs bg-rose-500 shadow-2xs"></span>
@@ -239,7 +239,7 @@
             </div>
 
             {{-- Day Names Header (Minggu s/d Sabtu) --}}
-            <div class="grid grid-cols-7 border-b border-zinc-200 bg-zinc-50/90 text-center py-2 text-xs font-bold uppercase tracking-wider font-mono">
+            <div class="grid grid-cols-7 border-b border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/90 dark:bg-[#232327] text-center py-2 text-xs font-bold uppercase tracking-wider font-mono">
                 <div class="text-rose-600"><span class="sm:hidden">Min</span><span class="hidden sm:inline">Minggu</span></div>
                 <div class="text-zinc-700"><span class="sm:hidden">Sen</span><span class="hidden sm:inline">Senin</span></div>
                 <div class="text-zinc-700"><span class="sm:hidden">Sel</span><span class="hidden sm:inline">Selasa</span></div>
@@ -250,7 +250,7 @@
             </div>
 
             {{-- Unified Calendar Grid: Crisp 1px borders --}}
-            <div class="grid grid-cols-7 bg-zinc-200 gap-px border-b border-zinc-200">
+            <div class="grid grid-cols-7 bg-zinc-200 dark:bg-[#2B2B30] gap-px border-b border-zinc-200 dark:border-[#2B2B30]">
                 @foreach($calendarGrid as $day)
                     @php
                         $hasEvents = !empty($day['events']);
@@ -342,27 +342,27 @@
             </div>
 
             {{-- Section: Agenda & Hari Libur Bulan Ini --}}
-            <div class="p-4 sm:p-5 bg-zinc-50/50">
+            <div class="p-4 sm:p-5 bg-zinc-50/50 dark:bg-[#19191C] border-t border-zinc-200 dark:border-[#2B2B30]">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-bold text-zinc-900 uppercase font-mono tracking-wider flex items-center gap-2">
+                    <h3 class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase font-mono tracking-wider flex items-center gap-2">
                         <span>Agenda &amp; Hari Libur Bulan {{ $monthNames[$month] }} {{ $year }}</span>
-                        <span class="px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-700 text-[10px] font-mono">{{ $monthEvents->count() }}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] text-[10px] font-mono">{{ $monthEvents->count() }}</span>
                     </h3>
                 </div>
 
                 @if($monthEvents->isNotEmpty())
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         @foreach($monthEvents as $mEv)
-                            <div class="bg-white p-3.5 rounded-lg border border-zinc-200 shadow-2xs flex flex-col justify-between hover:border-zinc-300 transition">
+                            <div class="bg-white dark:bg-[#232327] p-3.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] shadow-2xs flex flex-col justify-between hover:border-zinc-300 dark:hover:border-[#3A3A3F] transition">
                                 <div>
                                     <div class="flex items-start justify-between gap-2">
-                                        <h4 class="font-bold text-zinc-900 text-xs sm:text-sm line-clamp-1">{{ $mEv->title }}</h4>
+                                        <h4 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm line-clamp-1">{{ $mEv->title }}</h4>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shrink-0
                                             {{ match($mEv->category) {
                                                 'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200',
                                                 'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200',
                                                 'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200',
-                                                default          => 'bg-zinc-100 text-zinc-700 border border-zinc-200',
+                                                default          => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                                             } }}">
                                             {{ ucwords(str_replace('_', ' ', $mEv->category)) }}
                                         </span>
@@ -406,7 +406,7 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="py-6 text-center text-zinc-400 text-xs bg-white rounded-lg border border-dashed border-zinc-200">
+                    <div class="py-6 text-center text-zinc-400 dark:text-[#97979B] text-xs bg-white dark:bg-[#232327] rounded-lg border border-dashed border-zinc-200 dark:border-[#2B2B30]">
                         Tidak ada agenda sekolah atau hari libur khusus pada bulan {{ $monthNames[$month] }} {{ $year }}.
                     </div>
                 @endif
@@ -449,12 +449,12 @@
                     x-transition:leave="ease-in duration-150" 
                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="relative bg-white border border-zinc-200 rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full p-5 sm:p-6"
+                    class="relative bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full p-5 sm:p-6"
                 >
-                    <div class="flex items-start justify-between gap-3 border-b border-zinc-100 pb-3 mb-4">
+                    <div class="flex items-start justify-between gap-3 border-b border-zinc-100 dark:border-[#2B2B30] pb-3 mb-4">
                         <div>
                             <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Detail Agenda / Tanggal</span>
-                            <h3 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight mt-0.5" x-text="selectedFormattedDate"></h3>
+                            <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight mt-0.5" x-text="selectedFormattedDate"></h3>
                         </div>
                         <button 
                             type="button" 
@@ -470,9 +470,9 @@
                     {{-- If Day Has Events --}}
                     <div x-show="selectedEvents && selectedEvents.length > 0" class="space-y-3">
                         <template x-for="event in selectedEvents" :key="event.id">
-                            <div class="p-3.5 rounded-lg border border-zinc-200 bg-zinc-50/60 space-y-2">
+                            <div class="p-3.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/60 dark:bg-[#232327] space-y-2">
                                 <div class="flex items-start justify-between gap-2">
-                                    <h4 class="font-bold text-zinc-900 text-xs sm:text-sm" x-text="event.title"></h4>
+                                    <h4 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm" x-text="event.title"></h4>
                                     <span 
                                         class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider shrink-0"
                                         :class="{
@@ -491,7 +491,7 @@
                                     <span x-text="event.start_date + ' s/d ' + event.end_date"></span>
                                 </div>
 
-                                <div class="pt-1 flex items-center justify-between border-t border-zinc-200/60 text-xs">
+                                <div class="pt-1 flex items-center justify-between border-t border-zinc-200/60 dark:border-[#2B2B30] text-xs">
                                     <span class="text-zinc-500 text-[11px]">Kewajiban Jurnal KBM:</span>
                                     <span 
                                         class="font-semibold text-[11px] inline-flex items-center gap-1"
@@ -502,7 +502,7 @@
                                     </span>
                                 </div>
 
-                                <div x-show="event.description" class="text-[11px] text-zinc-600 bg-white p-2 rounded border border-zinc-100 leading-relaxed" x-text="event.description"></div>
+                                <div x-show="event.description" class="text-[11px] text-zinc-600 dark:text-[#97979B] bg-white dark:bg-[#1D1D21] p-2 rounded border border-zinc-100 dark:border-[#2B2B30] leading-relaxed" x-text="event.description"></div>
                             </div>
                         </template>
                     </div>
@@ -514,7 +514,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
                         </div>
-                        <p class="font-semibold text-zinc-800">Hari Efektif KBM Berjalan Normal</p>
+                        <p class="font-semibold text-zinc-800 dark:text-[#EDEDF0]">Hari Efektif KBM Berjalan Normal</p>
                         <p class="text-zinc-400 text-[11px]">Tidak ada agenda sekolah atau hari libur yang tercatat pada tanggal ini.</p>
                     </div>
 
@@ -546,9 +546,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- Manual Add Form -->
-            <div class="bg-white border border-zinc-200 rounded-xl p-5 shadow-xs flex flex-col justify-between" id="manual-add-form">
+            <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 shadow-xs flex flex-col justify-between" id="manual-add-form">
                 <div>
-                    <h3 class="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-3 mb-4 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] border-b border-zinc-100 dark:border-[#2B2B30] pb-3 mb-4 flex items-center justify-between">
                         <span>Tambah Agenda / Hari Libur Manual</span>
                         <span class="text-[10px] font-mono text-zinc-400 font-normal uppercase">Form Entry</span>
                     </h3>
@@ -556,21 +556,21 @@
                         @csrf
                         <div>
                             <x-input-label for="title" value="Nama Agenda / Keterangan Libur *" />
-                            <input type="text" id="title" name="title" required placeholder="Contoh: Libur Hari Raya, Ujian Sekolah, dsb." class="mt-1 block w-full rounded-md border-zinc-300 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                            <input type="text" id="title" name="title" required placeholder="Contoh: Libur Hari Raya, Ujian Sekolah, dsb." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <x-input-label for="start_date" value="Tanggal Mulai *" />
-                                <input type="date" id="start_date" name="start_date" required class="mt-1 block w-full rounded-md border-zinc-300 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                                <input type="date" id="start_date" name="start_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                             </div>
                             <div>
                                 <x-input-label for="end_date" value="Tanggal Selesai *" />
-                                <input type="date" id="end_date" name="end_date" required class="mt-1 block w-full rounded-md border-zinc-300 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                                <input type="date" id="end_date" name="end_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                             </div>
                         </div>
                         <div>
                             <x-input-label for="category" value="Kategori *" />
-                            <select id="category" name="category" required class="mt-1 block w-full rounded-md border-zinc-300 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900">
+                            <select id="category" name="category" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                 <option value="libur_nasional">Libur Nasional</option>
                                 <option value="libur_bersama">Libur Bersama</option>
                                 <option value="agenda_sekolah">Agenda Sekolah</option>
@@ -584,7 +584,7 @@
                         </div>
                         <div>
                             <x-input-label for="description" value="Catatan Tambahan (Opsional)" />
-                            <textarea id="description" name="description" rows="2" placeholder="Catatan atau keterangan opsional..." class="mt-1 block w-full rounded-md border-zinc-300 text-xs text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"></textarea>
+                            <textarea id="description" name="description" rows="2" placeholder="Catatan atau keterangan opsional..." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]"></textarea>
                         </div>
                         <div class="pt-2">
                             <button type="submit" class="w-full px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
@@ -596,10 +596,10 @@
             </div>
 
             <!-- Import CSV & AI Card -->
-            <div class="bg-white border border-zinc-200/80 rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-5 shadow-xs flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
-                        <h3 class="text-sm font-bold text-zinc-900">Import File Kaldik (CSV / AI)</h3>
+                        <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Import File Kaldik (CSV / AI)</h3>
                         <span class="text-[10px] font-mono text-zinc-400 uppercase">Mass Upload</span>
                     </div>
 
@@ -629,10 +629,10 @@
         </div>
 
         {{-- ==================== 3. TABLE LIST ==================== --}}
-        <div class="bg-white border border-zinc-200/80 rounded-xl overflow-hidden shadow-xs">
-            <div class="p-5 border-b border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50">
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
+            <div class="p-5 border-b border-zinc-200/80 dark:border-[#2B2B30] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50 dark:bg-[#19191C]">
                 <div>
-                    <h2 class="text-sm font-bold text-zinc-900 tracking-tight">
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
                         Daftar Lengkap Agenda &amp; Hari Tidak Efektif
                     </h2>
                     <p class="text-xs text-zinc-500 mt-0.5 font-mono">
@@ -644,7 +644,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-zinc-200/80 bg-zinc-50 text-[11px] font-bold font-mono text-zinc-500 uppercase tracking-wider">
+                        <tr class="border-b border-zinc-200/80 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] text-[11px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
                             <th class="py-3 px-4">Rentang Tanggal</th>
                             <th class="py-3 px-4">Nama Agenda / Kegiatan</th>
                             <th class="py-3 px-4">Kategori</th>
@@ -652,9 +652,9 @@
                             <th class="py-3 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-200/60 text-xs text-zinc-700">
+                    <tbody class="divide-y divide-zinc-200/60 dark:divide-[#2B2B30] text-xs text-zinc-700 dark:text-[#EDEDF0]">
                         @forelse($calendars as $cal)
-                            <tr class="hover:bg-[#232327] transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/30' : '' }}">
+                            <tr class="hover:bg-[#232327] transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/30 dark:bg-[#232327]/30' : '' }}">
                                 <td class="py-3 px-4 whitespace-nowrap font-mono">
                                     @if($cal->start_date->equalTo($cal->end_date))
                                         {{ $cal->start_date->translatedFormat('d M Y') }}
@@ -662,7 +662,7 @@
                                         {{ $cal->start_date->translatedFormat('d M') }} &ndash; {{ $cal->end_date->translatedFormat('d M Y') }}
                                     @endif
                                 </td>
-                                <td class="py-3 px-4 font-semibold text-zinc-900">
+                                <td class="py-3 px-4 font-semibold text-zinc-900 dark:text-[#EDEDF0]">
                                     {{ $cal->title }}
                                     @if($cal->description)
                                         <span class="block text-[11px] font-normal text-zinc-400 mt-0.5">{{ $cal->description }}</span>
@@ -674,7 +674,7 @@
                                             'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200',
                                             'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200',
                                             'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200',
-                                            default          => 'bg-zinc-100 text-zinc-700 border border-zinc-200',
+                                            default          => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                                         } }}">
                                         {{ ucwords(str_replace('_', ' ', $cal->category)) }}
                                     </span>

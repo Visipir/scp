@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3">
-                <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-[#26262A] transition" title="Kembali ke Repositori">
+                <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition" title="Kembali ke Repositori">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                     </svg>
@@ -13,7 +13,7 @@
                             Detail Konten #{{ $exam->id }}
                         </span>
                     </div>
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mt-0.5">
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5">
                         {{ $exam->title }}
                     </h1>
                 </div>
@@ -25,7 +25,7 @@
                 @endphp
 
                 @if($canManage)
-                    <a href="{{ route('exams.edit', $exam) }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-[#26262A] text-xs font-semibold rounded-lg transition shadow-xs">
+                    <a href="{{ route('exams.edit', $exam) }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-50 dark:hover:bg-[#26262A] text-xs font-semibold rounded-lg transition shadow-xs">
                         <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                         </svg>
@@ -54,7 +54,7 @@
         @endphp
 
         <!-- Main Overview Card -->
-        <div class="bg-white border border-zinc-200/90 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/90 dark:border-[#2B2B30] rounded-2xl shadow-sm overflow-hidden">
             {{-- Top Accent Bar --}}
             <div class="h-1.5 w-full {{ $exam->category === 'ujian' ? 'bg-rose-500' : ($exam->category === 'bank_soal' ? 'bg-sky-500' : 'bg-emerald-500') }}"></div>
 
@@ -67,7 +67,7 @@
                             {{ $badge['label'] }}
                         </span>
 
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-zinc-100 text-zinc-800 text-xs font-mono font-bold uppercase tracking-wider border border-zinc-200">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-[#EDEDF0] text-xs font-mono font-bold uppercase tracking-wider border border-zinc-200 dark:border-[#2B2B30]">
                             Kelas: {{ $exam->schoolClass->class_name }}
                         </span>
                     </div>
@@ -80,30 +80,30 @@
                 <!-- Subject & Title -->
                 <div>
                     <div class="text-xs font-mono font-semibold text-zinc-500 uppercase tracking-wider mb-1">
-                        Mata Pelajaran: <span class="text-zinc-800">{{ $exam->subject }}</span>
+                        Mata Pelajaran: <span class="text-zinc-800 dark:text-[#EDEDF0]">{{ $exam->subject }}</span>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 leading-tight">
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] leading-tight">
                         {{ $exam->title }}
                     </h2>
                 </div>
 
                 <!-- Schedule & Teacher Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-zinc-50/80 rounded-xl border border-zinc-100 font-mono text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-zinc-50/80 dark:bg-[#232327] rounded-xl border border-zinc-100 dark:border-[#2B2B30] font-mono text-xs">
                     <div>
                         <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Tanggal Pelaksanaan</div>
-                        <div class="font-bold text-zinc-900">
+                        <div class="font-bold text-zinc-900 dark:text-[#EDEDF0]">
                             {{ \Carbon\Carbon::parse($exam->exam_date)->translatedFormat('l, d F Y') }}
                         </div>
                     </div>
                     <div>
                         <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Rentang Waktu</div>
-                        <div class="font-bold text-zinc-900">
+                        <div class="font-bold text-zinc-900 dark:text-[#EDEDF0]">
                             {{ $exam->time_window ?? 'Fleksibel / Penugasan' }}
                         </div>
                     </div>
                     <div>
                         <div class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Pengajar Pengampu</div>
-                        <div class="font-bold text-zinc-900 truncate">
+                        <div class="font-bold text-zinc-900 dark:text-[#EDEDF0] truncate">
                             {{ $exam->teacher->fullname ?? 'Guru Pengampu' }}
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                         <label class="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                             Instruksi &amp; Petunjuk Pembelajaran
                         </label>
-                        <div class="p-5 rounded-xl bg-zinc-50 border border-zinc-200/70 text-sm text-zinc-700 whitespace-pre-line leading-relaxed">
+                        <div class="p-5 rounded-xl bg-zinc-50 dark:bg-[#232327] border border-zinc-200/70 dark:border-[#2B2B30] text-sm text-zinc-700 dark:text-[#EDEDF0] whitespace-pre-line leading-relaxed">
                             {{ $exam->description }}
                         </div>
                     </div>
@@ -130,13 +130,13 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <!-- File Download -->
                         @if($exam->material_file_path)
-                            <div class="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
+                            <div class="flex items-center justify-between p-4 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-xl">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <div class="w-12 h-12 rounded-xl bg-zinc-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
                                         {{ $exam->file_extension ?? 'FILE' }}
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-xs font-bold text-zinc-900 truncate" title="{{ $exam->file_name }}">
+                                        <div class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] truncate" title="{{ $exam->file_name }}">
                                             {{ $exam->file_name ?? basename($exam->material_file_path) }}
                                         </div>
                                         <div class="text-[11px] text-zinc-500 font-mono mt-0.5">
@@ -153,7 +153,7 @@
                                 </a>
                             </div>
                         @else
-                            <div class="p-4 bg-zinc-50 border border-dashed border-zinc-200 rounded-xl text-center text-xs text-zinc-400 italic flex items-center justify-center">
+                            <div class="p-4 bg-zinc-50 dark:bg-[#232327] border border-dashed border-zinc-200 dark:border-[#2B2B30] rounded-xl text-center text-xs text-zinc-400 dark:text-[#97979B] italic flex items-center justify-center">
                                 Tidak ada berkas lampiran yang diunggah
                             </div>
                         @endif
@@ -185,7 +185,7 @@
                                 </a>
                             </div>
                         @else
-                            <div class="p-4 bg-zinc-50 border border-dashed border-zinc-200 rounded-xl text-center text-xs text-zinc-400 italic flex items-center justify-center">
+                            <div class="p-4 bg-zinc-50 dark:bg-[#232327] border border-dashed border-zinc-200 dark:border-[#2B2B30] rounded-xl text-center text-xs text-zinc-400 dark:text-[#97979B] italic flex items-center justify-center">
                                 Tidak ada tautan CBT online
                             </div>
                         @endif
@@ -194,12 +194,12 @@
             </div>
 
             <!-- Footer Details -->
-            <div class="px-6 sm:px-8 py-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500 font-mono">
+            <div class="px-6 sm:px-8 py-4 bg-zinc-50 dark:bg-[#1D1D21] border-t border-zinc-100 dark:border-[#2B2B30] flex items-center justify-between text-xs text-zinc-500 dark:text-[#97979B] font-mono">
                 <div>
                     Dipublikasikan: {{ $exam->created_at->translatedFormat('d M Y, H:i') }} WIB
                 </div>
                 <div>
-                    Status: <span class="font-bold text-zinc-800 uppercase">{{ $exam->status }}</span>
+                    Status: <span class="font-bold text-zinc-800 dark:text-[#EDEDF0] uppercase">{{ $exam->status }}</span>
                 </div>
             </div>
         </div>
