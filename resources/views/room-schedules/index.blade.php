@@ -129,13 +129,13 @@
 
                             <div class="p-5 sm:p-6 space-y-5">
                                 @if(!$config || !$config->effective_gemini_api_key)
-                                    <div class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
-                                        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <div class="p-4 rounded-lg bg-amber-50 dark:bg-[#282115] border border-amber-200 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-3">
+                                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                                         </svg>
                                         <div>
                                             <span class="font-bold">Google Gemini API Key belum terpasang.</span>
-                                            <p class="mt-0.5 text-amber-800">
+                                            <p class="mt-0.5 text-amber-800 dark:text-amber-300">
                                                 Silakan masukkan API Key di menu <a href="{{ route('waka.settings') }}" class="underline font-semibold">Pengaturan Sistem Kurikulum</a> sebelum mengimpor dokumen jadwal PDF.
                                             </p>
                                         </div>
@@ -386,14 +386,14 @@
                                             @endphp
                                             <td class="border-r border-zinc-200 dark:border-[#2B2B30] p-2 align-middle text-center relative group">
                                                 @if($sched)
-                                                    <div class="bg-indigo-50/80 border border-indigo-200/80 rounded-lg p-2 flex flex-col items-center justify-center text-center relative">
+                                                    <div class="bg-indigo-50/80 dark:bg-[#19191C] border border-indigo-200/80 dark:border-[#2B2B30] rounded-lg p-2 flex flex-col items-center justify-center text-center relative">
                                                         <!-- Ruangan Kelas -->
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-600 text-white shadow-xs">
                                                             {{ $sched->room->room_name ?? 'R. KBM' }}
                                                         </span>
 
                                                         @if(!empty($sched->subject))
-                                                            <div class="text-[10px] font-medium text-zinc-700 leading-tight mt-1 max-w-[130px] truncate" title="{{ $sched->subject }}">
+                                                            <div class="text-[10px] font-medium text-zinc-700 dark:text-[#EDEDF0] leading-tight mt-1 max-w-[130px] truncate" title="{{ $sched->subject }}">
                                                                 {{ $sched->subject }}
                                                             </div>
                                                         @endif

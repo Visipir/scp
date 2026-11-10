@@ -47,15 +47,15 @@
 
         {{-- STATUS HARI INI CARD --}}
         @if($todayEvent)
-            <div class="bg-amber-50/90 border border-amber-200 rounded-lg p-4 sm:p-5 flex items-start gap-3.5 shadow-xs">
+            <div class="bg-amber-50/90 dark:bg-[#282115] border border-amber-200 dark:border-amber-700/60 rounded-lg p-4 sm:p-5 flex items-start gap-3.5 shadow-xs">
                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-500 text-white font-mono text-[10px] font-bold uppercase shrink-0 mt-0.5">
                     HARI INI
                 </span>
                 <div class="text-xs">
-                    <h3 class="font-bold text-amber-950 text-sm">
+                    <h3 class="font-bold text-amber-950 dark:text-amber-200 text-sm">
                         Hari Ini Tidak Efektif KBM: {{ $todayEvent->title }}
                     </h3>
-                    <p class="text-amber-800 mt-0.5 leading-relaxed">
+                    <p class="text-amber-800 dark:text-amber-300 mt-0.5 leading-relaxed">
                         Kategori: <strong class="font-semibold">{{ ucwords(str_replace('_', ' ', $todayEvent->category)) }}</strong> &bull; 
                         Tanggal: <span class="font-mono font-medium">{{ $todayEvent->start_date->translatedFormat('d M Y') }} s/d {{ $todayEvent->end_date->translatedFormat('d M Y') }}</span>.
                         Seluruh guru dibebaskan dari batas waktu &amp; peringatan keterlambatan pengisian jurnal.
@@ -63,7 +63,7 @@
                 </div>
             </div>
         @else
-            <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-lg p-3 sm:px-4 sm:py-3 flex items-center justify-between text-xs text-emerald-800 font-medium">
+            <div class="bg-emerald-50/70 dark:bg-[#16281D] border border-emerald-200/80 dark:border-emerald-700/60 rounded-lg p-3 sm:px-4 sm:py-3 flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 font-medium">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                     <span>Status Hari Ini ({{ Carbon\Carbon::today()->translatedFormat('l, d F Y') }}): <strong>KBM Efektif Berjalan Normal</strong> (Peringatan pengisian jurnal aktif).</span>
@@ -155,7 +155,7 @@
             {{-- Mini Stats Bar: Statistik Bulan Terpilih --}}
             <div class="px-4 py-2.5 bg-zinc-50/70 dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
-                    <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold">
+                    <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -167,31 +167,31 @@
                 </div>
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
-                    <span class="w-6 h-6 rounded-md bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 font-bold">
+                    <span class="w-6 h-6 rounded-md bg-rose-100 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                     </span>
                     <div class="min-w-0">
                         <div class="text-[9px] font-mono uppercase text-zinc-400 font-bold truncate">Libur &amp; KBM Off</div>
-                        <div class="font-bold text-rose-700 font-mono text-xs sm:text-sm leading-tight">{{ $statsOffDays }} Hari</div>
+                        <div class="font-bold text-rose-700 dark:text-rose-400 font-mono text-xs sm:text-sm leading-tight">{{ $statsOffDays }} Hari</div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
-                    <span class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold">
+                    <span class="w-6 h-6 rounded-md bg-indigo-100 dark:bg-[#16222F] text-indigo-700 dark:text-sky-300 flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                         </svg>
                     </span>
                     <div class="min-w-0">
                         <div class="text-[9px] font-mono uppercase text-zinc-400 font-bold truncate">Agenda Bulan Ini</div>
-                        <div class="font-bold text-indigo-900 font-mono text-xs sm:text-sm leading-tight">{{ $monthEvents->count() }} Kegiatan</div>
+                        <div class="font-bold text-indigo-900 dark:text-sky-300 font-mono text-xs sm:text-sm leading-tight">{{ $monthEvents->count() }} Kegiatan</div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
-                    <span class="w-6 h-6 rounded-md bg-zinc-100 text-zinc-700 flex items-center justify-center shrink-0 font-bold">
+                    <span class="w-6 h-6 rounded-md bg-zinc-100 dark:bg-[#19191C] text-zinc-700 dark:text-[#97979B] flex items-center justify-center shrink-0 font-bold">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -359,9 +359,9 @@
                                         <h4 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm line-clamp-1">{{ $mEv->title }}</h4>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shrink-0
                                             {{ match($mEv->category) {
-                                                'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200',
-                                                'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200',
-                                                'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200',
+                                                'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
+                                                'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
+                                                'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-[#16222F] dark:text-sky-300 dark:border-sky-700/60',
                                                 default          => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                                             } }}">
                                             {{ ucwords(str_replace('_', ' ', $mEv->category)) }}
@@ -476,9 +476,9 @@
                                     <span 
                                         class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider shrink-0"
                                         :class="{
-                                            'bg-rose-100 text-rose-800 border border-rose-200': event.category === 'libur_nasional',
-                                            'bg-amber-100 text-amber-800 border border-amber-200': event.category === 'libur_bersama',
-                                            'bg-purple-100 text-purple-800 border border-purple-200': event.category === 'agenda_sekolah'
+                                            'bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60': event.category === 'libur_nasional',
+                                            'bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60': event.category === 'libur_bersama',
+                                            'bg-purple-100 dark:bg-[#25182D] text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700/60': event.category === 'agenda_sekolah'
                                         }"
                                         x-text="event.category.replace('_', ' ')"
                                     ></span>
@@ -509,7 +509,7 @@
 
                     {{-- If Day Has No Events --}}
                     <div x-show="!selectedEvents || selectedEvents.length === 0" class="py-6 text-center text-xs text-zinc-500 space-y-2">
-                        <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 dark:bg-[#16281D] text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-2 border border-emerald-200 dark:border-emerald-700/60">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
@@ -671,9 +671,9 @@
                                 <td class="py-3 px-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider
                                         {{ match($cal->category) {
-                                            'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200',
-                                            'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200',
-                                            'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200',
+                                            'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
+                                            'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
+                                            'agenda_sekolah' => 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-[#16222F] dark:text-sky-300 dark:border-sky-700/60',
                                             default          => 'bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30]',
                                         } }}">
                                         {{ ucwords(str_replace('_', ' ', $cal->category)) }}

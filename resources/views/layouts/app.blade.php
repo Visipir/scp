@@ -55,7 +55,9 @@
             font-family: var(--font-mono);
         }
         /* Dark Mode Resilience Rules */
-        html.dark a.bg-white,
+        html.dark div.bg-white:not([class*="dark:bg-"]),
+        html.dark section.bg-white:not([class*="dark:bg-"]),
+        html.dark a.bg-white:not([class*="dark:bg-"]),
         html.dark select.bg-white,
         html.dark input.bg-white,
         html.dark textarea.bg-white {

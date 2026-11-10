@@ -426,7 +426,7 @@
                                        target="_blank" 
                                        rel="noopener noreferrer" 
                                        title="Buka CBT / Tautan Online"
-                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50/80 hover:bg-indigo-100 border border-indigo-200 rounded-md transition shadow-xs">
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-sky-300 bg-indigo-50/80 dark:bg-[#16222F] hover:bg-indigo-100 dark:hover:bg-[#203144] border border-indigo-200 dark:border-sky-700/60 rounded-md transition shadow-xs">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                         </svg>
@@ -612,7 +612,7 @@
 
                                     <!-- External CBT Link Card -->
                                     <template x-if="activeExam?.external_link">
-                                        <div class="flex items-center justify-between p-3 sm:p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl gap-3">
+                                        <div class="flex items-center justify-between p-3 sm:p-3.5 bg-indigo-50/70 dark:bg-[#16222F] border border-indigo-200 dark:border-sky-700/60 rounded-xl gap-3">
                                             <div class="flex items-center gap-3 min-w-0">
                                                 <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
                                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -620,8 +620,8 @@
                                                     </svg>
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <div class="text-xs font-bold text-indigo-950">Tautan Ujian / CBT Online</div>
-                                                    <div class="text-[11px] text-indigo-700 truncate font-mono mt-0.5" x-text="activeExam?.external_link"></div>
+                                                    <div class="text-xs font-bold text-indigo-950 dark:text-sky-200">Tautan Ujian / CBT Online</div>
+                                                    <div class="text-[11px] text-indigo-700 dark:text-sky-300 truncate font-mono mt-0.5" x-text="activeExam?.external_link"></div>
                                                 </div>
                                             </div>
                                             <a :href="activeExam?.external_link" 

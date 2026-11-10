@@ -187,7 +187,7 @@
                             </div>
 
                             @if($swap->note)
-                                <div class="text-xs text-zinc-600 dark:text-zinc-300 italic bg-zinc-50 dark:bg-zinc-800 p-2.5 rounded">
+                                <div class="text-xs text-zinc-600 dark:text-[#97979B] italic bg-zinc-50 dark:bg-[#232327] border border-zinc-200/60 dark:border-[#2B2B30] p-2.5 rounded">
                                     Catatan: &ldquo;{{ $swap->note }}&rdquo;
                                 </div>
                             @endif
@@ -199,7 +199,7 @@
                                         <button
                                             type="submit"
                                             :disabled="actionLoading"
-                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 rounded-lg border border-rose-200 transition min-h-[44px]"
+                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-[#2D1618] hover:bg-rose-100 dark:hover:bg-[#3D1D20] disabled:opacity-50 rounded-lg border border-rose-200 dark:border-rose-700/60 transition min-h-[44px]"
                                         >
                                             Tolak
                                         </button>

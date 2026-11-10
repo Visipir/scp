@@ -41,16 +41,16 @@
 
         {{-- STATUS HARI INI CARD --}}
         @if($todayIneffective)
-            <div class="bg-amber-50/80 border border-amber-200/80 rounded-lg p-5 flex items-start justify-between gap-4">
+            <div class="bg-amber-50/80 dark:bg-[#282115] border border-amber-200/80 dark:border-amber-700/60 rounded-lg p-5 flex items-start justify-between gap-4">
                 <div class="flex items-start gap-3.5">
                     <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-500 text-white font-mono text-[10px] font-bold uppercase shrink-0 mt-0.5">
                         HARI INI
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-950">
+                        <h3 class="text-sm font-bold text-amber-950 dark:text-amber-200">
                             Hari Ini Ditetapkan Sebagai Hari Tidak Efektif KBM
                         </h3>
-                        <p class="text-xs text-amber-800 mt-0.5">
+                        <p class="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
                             Keterangan: <span class="font-semibold">{{ $todayIneffective->description }}</span> &bull; 
                             Tahun Ajaran: <span class="font-mono">{{ $todayIneffective->academic_year ?? '-' }}</span>.
                             Guru dibebaskan dari kewajiban pengisian jurnal.
@@ -90,18 +90,18 @@
                                 $isToday = $day->date->isToday();
                                 $isFuture = $day->date->isFuture();
                             @endphp
-                            <tr class="hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 font-medium' : '' }}">
+                            <tr class="hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 dark:bg-amber-950/20 font-medium' : '' }}">
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] font-mono">
                                             {{ $day->date->translatedFormat('l, d M Y') }}
                                         </span>
                                         @if($isToday)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60">
                                                 Hari Ini
                                             </span>
                                         @elseif($isFuture)
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 border border-blue-200 dark:border-sky-700/60">
                                                 Mendatang
                                             </span>
                                         @else

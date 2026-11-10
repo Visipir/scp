@@ -102,7 +102,7 @@
                         <span>Izin Siswa</span>
                     </div>
                     @if($pendingLeaveCount > 0)
-                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
+                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white/20 text-white border border-white/30' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
                             {{ $pendingLeaveCount }}
                         </span>
                     @endif
@@ -237,7 +237,7 @@
                         </svg>
                         <span>Isi Jurnal KBM</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('journals.create') ? 'bg-white text-zinc-950' : 'bg-[#16281D] text-emerald-300 border border-emerald-700/60' }}">
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('journals.create') ? 'bg-white/20 text-white border border-white/30' : 'bg-[#16281D] text-emerald-300 border border-emerald-700/60' }}">
                         + Input
                     </span>
                 </a>
@@ -400,7 +400,7 @@
                         <span>Izin Siswa</span>
                     </div>
                     @if($pendingLeaveCount > 0)
-                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
+                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white/20 text-white border border-white/30' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
                             {{ $pendingLeaveCount }}
                         </span>
                     @endif
@@ -502,7 +502,7 @@
                         </svg>
                         <span>Ajukan Izin</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-white text-zinc-950' : 'bg-[#0093dd]/20 text-[#0093dd] border border-[#0093dd]/30' }}">
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-white/20 text-white border border-white/30' : 'bg-[#0093dd]/20 text-[#0093dd] border border-[#0093dd]/30' }}">
                         + Form
                     </span>
                 </a>

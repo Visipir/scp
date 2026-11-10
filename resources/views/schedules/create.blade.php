@@ -102,7 +102,7 @@
             <!-- List of breaks & non-KBM for current day -->
             <div class="flex flex-wrap gap-2 text-[11px]">
                 <template x-for="brk in currentBreaks" :key="brk.name">
-                    <div class="px-2.5 py-1.5 rounded border border-amber-200/80 bg-amber-50/80 text-amber-900 flex items-center gap-1.5">
+                    <div class="px-2.5 py-1.5 rounded border border-amber-200/80 dark:border-amber-700/60 bg-amber-50/80 dark:bg-[#282115] text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                         <span class="font-bold" x-text="brk.name"></span>:
                         <span x-text="brk.start_time + '–' + brk.end_time + ' (' + brk.duration + 'm)'"></span>

@@ -85,21 +85,21 @@
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono font-medium">
-                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60">
                         Hadir: {{ $hadirCount }}
                     </span>
                     @if($sakitCount > 0)
-                        <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                        <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-[#25182D] text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700/60">
                             Sakit: {{ $sakitCount }}
                         </span>
                     @endif
                     @if($izinCount > 0)
-                        <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                        <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 border border-blue-200 dark:border-sky-700/60">
                             Izin: {{ $izinCount }}
                         </span>
                     @endif
                     @if($alpaCount > 0)
-                        <span class="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                        <span class="px-2 py-0.5 rounded bg-rose-50 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60">
                             Alpa: {{ $alpaCount }}
                         </span>
                     @endif
@@ -138,8 +138,8 @@
                         </div>
                     </div>
                 @else
-                    <div class="flex items-center gap-2.5 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200/70 p-3 rounded-md">
-                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div class="flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] border border-emerald-200/70 dark:border-emerald-700/60 p-3 rounded-md">
+                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span><strong>Nihil</strong> &mdash; Seluruh {{ $totalStudents }} siswa hadir dalam KBM (tidak ada siswa yang sakit, izin, atau alpa).</span>
                     </div>
                 @endif
