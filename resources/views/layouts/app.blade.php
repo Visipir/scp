@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full antialiased">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'School Class Progress') }}</title>
@@ -78,17 +78,17 @@
 </head>
 <body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white transition-colors duration-150" 
       x-data="{ sidebarOpen: false }">
-    <div class="min-h-screen flex flex-col md:flex-row bg-[var(--bg-page)]">
+    <div class="min-h-screen flex flex-col lg:flex-row bg-[var(--bg-page)]">
         <!-- Sidebar & Navigation System -->
         @include('layouts.navigation')
 
         <!-- Main Workspace Area -->
-        <div class="flex-1 flex flex-col min-w-0 md:pl-64 xl:pl-72 transition-all duration-200 bg-[var(--bg-page)]">
+        <div class="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72 transition-all duration-200 bg-[var(--bg-page)]">
             <!-- Desktop Top Utility Bar -->
             @php
                 $globalConfig = \App\Models\SystemConfiguration::first();
             @endphp
-            <header class="hidden md:flex h-14 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
+            <header class="hidden lg:flex h-14 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
                 <!-- Left: Minimalist Breadcrumb Trail -->
                 @php
                     $breadcrumbMap = [
@@ -149,16 +149,16 @@
 
             <!-- Page Heading Slot -->
             @isset($header)
-                <div class="bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] px-6 lg:px-8 py-5 transition-colors duration-150">
-                    <div class="max-w-7xl mx-auto">
+                <div class="bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] px-6 lg:px-8 py-5 transition-colors duration-150 min-w-0">
+                    <div class="max-w-7xl mx-auto w-full min-w-0">
                         {{ $header }}
                     </div>
                 </div>
             @endisset
 
             <!-- Page Content -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-[var(--bg-page)]">
-                <div class="max-w-7xl mx-auto">
+            <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 bg-[var(--bg-page)]">
+                <div class="max-w-7xl mx-auto w-full min-w-0">
                     {{ $slot }}
                 </div>
             </main>

@@ -154,9 +154,9 @@
         </div>
 
         {{-- 2. CONTROL HUB (Row 1: Filters & Search, Row 2: Day Chips) --}}
-        <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-3.5 sm:p-4 space-y-3 shadow-2xs">
-            {{-- Row 1: Putaran tabs, Guru select, Kelas select, Search (flex-1), View toggle & Aturan Jam --}}
-            <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
+        <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-3.5 sm:p-4 space-y-3 shadow-2xs min-w-0 max-w-full overflow-hidden">
+            {{-- Row 1: Putaran tabs, Guru select, Kelas select, Search, View toggle & Aturan Jam (Fluid Responsive Reflow) --}}
+            <div class="flex flex-wrap items-center gap-2.5">
                 {{-- Putaran Switcher --}}
                 <div class="inline-flex rounded-lg border border-zinc-200 dark:border-[#2B2B30] p-0.5 bg-zinc-100 dark:bg-[#121214] text-xs font-semibold shrink-0">
                     @foreach(['Putaran 1', 'Putaran 2'] as $cycle)
@@ -178,13 +178,13 @@
 
                 {{-- Admin Filter Dropdowns (Role 1) --}}
                 @if(auth()->user()->role_id === 1)
-                    <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2 shrink-0">
+                    <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <input type="hidden" name="cycle" value="{{ $cycleFilter }}">
 
                         <select 
                             name="teacher_id" 
                             onchange="this.form.submit()" 
-                            class="h-9 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
                         >
                             <option value="">Semua Guru ({{ $teachers->count() }})</option>
                             @foreach($teachers as $t)
@@ -197,7 +197,7 @@
                         <select 
                             name="class_id" 
                             onchange="this.form.submit()" 
-                            class="h-9 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
                         >
                             <option value="">Semua Kelas ({{ $classes->count() }})</option>
                             @foreach($classes as $c)
@@ -218,8 +218,8 @@
                     </form>
                 @endif
 
-                {{-- Search Bar (flex-1) with icon placed inside input --}}
-                <div class="relative flex-1 min-w-[180px]">
+                {{-- Search Bar with icon placed inside input --}}
+                <div class="relative w-full sm:flex-1 sm:min-w-[180px]">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
@@ -242,7 +242,7 @@
                 </div>
 
                 {{-- View Toggle & Aturan Jam --}}
-                <div class="flex items-center gap-2 shrink-0 justify-end">
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
                     {{-- View Mode Switcher --}}
                     <div class="inline-flex rounded-lg border border-zinc-200 dark:border-[#2B2B30] p-0.5 bg-zinc-100 dark:bg-[#121214] text-xs font-semibold">
                         <button 
@@ -310,7 +310,7 @@
                     </button>
                 </div>
             @endif
-            <div class="pt-2.5 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none">
+            <div class="pt-2.5 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none min-w-0 w-full">
                 <button 
                     type="button" 
                     @click="activeDay = 'all'"

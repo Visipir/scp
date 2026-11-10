@@ -60,7 +60,7 @@
         @endif
 
         {{-- Top Control Bar --}}
-        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5">
+        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 min-w-0 max-w-full">
             <form method="GET" action="{{ route('users.index') }}" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
                     <label for="role_id_filter" class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-[#97979B] shrink-0">
@@ -106,8 +106,8 @@
         </div>
 
         {{-- Tabel Data Pengguna --}}
-        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
-            <div class="overflow-x-auto">
+        <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs min-w-0 max-w-full">
+            <div class="overflow-x-auto min-w-0 w-full">
                 <table class="min-w-full divide-y divide-zinc-200 dark:divide-[#2B2B30] text-left">
                     <thead class="bg-zinc-50 dark:bg-[#232327] text-zinc-500 dark:text-[#97979B] text-xs font-semibold uppercase tracking-wider">
                         <tr>
@@ -157,11 +157,11 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3.5 text-right font-medium">
-                                    <div class="inline-flex items-center gap-3">
+                                    <div class="inline-flex items-center gap-1.5">
                                         <button 
                                             type="button" 
                                             @click="editUser = { id: {{ $user->id }}, fullname: '{{ addslashes($user->fullname) }}', username: '{{ addslashes($user->username) }}', email: '{{ addslashes($user->email ?? '') }}', role_id: '{{ $user->role_id }}', class_id: '{{ $user->class_id ?? '' }}' }; editModalOpen = true"
-                                            class="text-zinc-900 dark:text-[#EDEDF0] hover:text-[#0093dd] dark:hover:text-[#0093dd] font-semibold transition"
+                                            class="px-2.5 py-1.5 text-xs text-zinc-900 dark:text-[#EDEDF0] hover:text-[#0093dd] dark:hover:text-[#0093dd] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-md font-semibold transition cursor-pointer min-h-[36px] flex items-center"
                                         >
                                             Edit
                                         </button>
@@ -169,7 +169,7 @@
                                         <form method="POST" action="{{ route('users.reset-password', $user) }}" class="inline" onsubmit="return confirm('Reset password ke username untuk {{ $user->fullname }}?')">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold transition">
+                                            <button type="submit" class="px-2.5 py-1.5 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-md font-semibold transition cursor-pointer min-h-[36px] flex items-center">
                                                 Reset PW
                                             </button>
                                         </form>
@@ -177,7 +177,7 @@
                                         <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline" onsubmit="return confirm('Yakin ingin menghapus {{ $user->fullname }}?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-rose-600 dark:text-rose-400 hover:underline font-semibold transition" {{ auth()->id() === $user->id ? 'disabled' : '' }}>
+                                            <button type="submit" class="px-2.5 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md font-semibold transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-40" {{ auth()->id() === $user->id ? 'disabled' : '' }}>
                                                 Hapus
                                             </button>
                                         </form>

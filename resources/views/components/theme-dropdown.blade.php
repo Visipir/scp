@@ -1,4 +1,4 @@
-@props(['align' => 'right', 'dropup' => false])
+@props(['align' => 'right', 'dropup' => false, 'size' => 'default'])
 
 @php
 $alignmentClasses = match ($align) {
@@ -9,15 +9,20 @@ $alignmentClasses = match ($align) {
 $verticalClasses = $dropup 
     ? 'bottom-full mb-2 origin-bottom' 
     : 'top-full mt-2 origin-top';
+
+$buttonSizeClass = match ($size) {
+    'mobile' => 'w-11 h-11',
+    default  => 'w-9 h-9 sm:w-8 sm:h-8',
+};
 @endphp
 
 <div class="relative inline-block text-left" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
-    <!-- Trigger Button -->
+    <!-- Trigger Button (Responsive Tap Target) -->
     <button 
         type="button" 
         id="theme-toggle-btn"
         @click="open = !open" 
-        class="p-1.5 text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150 cursor-pointer flex items-center justify-center shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0093dd]"
+        class="{{ $buttonSizeClass }} text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150 cursor-pointer flex items-center justify-center shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0093dd] shrink-0"
         :title="$store.theme ? ($store.theme.mode === 'system' ? 'Tema: Otomatis (Sistem)' : ($store.theme.mode === 'light' ? 'Tema: Terang' : 'Tema: Gelap')) : 'Pengaturan Tema'"
         aria-label="Pilih Tema Tampilan"
         aria-haspopup="true"
