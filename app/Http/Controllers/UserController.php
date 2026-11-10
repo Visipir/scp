@@ -39,8 +39,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $classes = SchoolClass::orderBy('class_name')->get();
-        return view('users.create', compact('classes'));
+        return redirect()->route('users.index');
     }
 
     public function store(Request $request)
@@ -66,8 +65,7 @@ class UserController extends Controller
     public function edit(Request $request, User $user)
     {
         abort_unless($this->userService->canManageUser($request->user(), $user), 403, 'Akses ditolak.');
-        $classes = SchoolClass::orderBy('class_name')->get();
-        return view('users.edit', compact('user', 'classes'));
+        return redirect()->route('users.index');
     }
 
     public function update(Request $request, User $user)

@@ -77,9 +77,9 @@ class ScheduleController extends Controller
             ->with('success', 'Jadwal blok jam pelajaran berhasil ditambahkan.');
     }
 
-    public function edit(Schedule $schedule): View
+    public function edit(Request $request, Schedule $schedule, ScheduleService $schedules): View
     {
-        $this->authorizeTeacher($schedule);
+        $schedules->authorizeTeacher($request->user(), $schedule);
 
         $classes = SchoolClass::all();
         $rooms = Room::all();
