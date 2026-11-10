@@ -181,7 +181,7 @@
             {{-- Category Segmented Tabs --}}
             <div class="flex flex-wrap items-center gap-2 border-b border-zinc-100 dark:border-[#2B2B30] pb-3">
                 <a href="{{ route('exams.index', request()->except('category', 'page')) }}"
-                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-zinc-900 dark:bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]' }}">
+                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ !request()->filled('category') ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]' }}">
                     <span>Semua Konten</span>
                     <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono {{ !request()->filled('category') ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-[#232327] text-zinc-600 dark:text-[#97979B]' }}">
                         {{ $stats['total'] }}
@@ -311,7 +311,7 @@
                         </a>
                     @endif
                     @if(in_array(auth()->user()->role_id, [1, 2]))
-                        <a href="{{ route('exams.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-lg uppercase tracking-wider transition">
+                        <a href="{{ route('exams.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-lg uppercase tracking-wider transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
@@ -593,7 +593,7 @@
                                     <template x-if="activeExam?.has_file">
                                         <div class="flex items-center justify-between p-3 sm:p-3.5 bg-zinc-50/80 dark:bg-[#232327] hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] rounded-xl transition gap-3">
                                             <div class="flex items-center gap-3 min-w-0">
-                                                <div class="w-10 h-10 rounded-lg bg-zinc-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0"
+                                                <div class="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-[#1D1D21] text-zinc-800 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30] font-mono font-bold text-xs flex items-center justify-center shrink-0"
                                                      x-text="activeExam?.file_ext || 'FILE'"></div>
                                                 <div class="min-w-0">
                                                     <div class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] truncate" x-text="activeExam?.file_name"></div>
@@ -601,7 +601,7 @@
                                                 </div>
                                             </div>
                                             <a :href="activeExam?.download_url" 
-                                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition shadow-xs shrink-0 cursor-pointer">
+                                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-lg transition shadow-xs shrink-0 cursor-pointer">
                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                                 </svg>
@@ -663,7 +663,7 @@
                                             Ubah
                                         </a>
                                     </template>
-                                    <button type="button" @click="closeDetail()" class="px-4 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition shadow-xs cursor-pointer">
+                                    <button type="button" @click="closeDetail()" class="px-4 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-[#2B2B30] dark:hover:bg-[#3A3A3F] dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition shadow-xs cursor-pointer">
                                         Tutup
                                     </button>
                                 </div>

@@ -393,7 +393,7 @@
                                 <template x-if="selectedFileName">
                                     <div class="flex items-center justify-between p-3 bg-white dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-xl shadow-xs text-left" @click.stop>
                                         <div class="flex items-center gap-3 min-w-0">
-                                            <div class="w-10 h-10 rounded-lg bg-zinc-900 dark:bg-[#0093dd] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0"
+                                            <div class="w-10 h-10 rounded-lg bg-[#0093dd] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0"
                                                  x-text="selectedFileExt"></div>
                                             <div class="min-w-0">
                                                 <div class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] truncate" x-text="selectedFileName"></div>
@@ -440,12 +440,12 @@
                     </div>
 
                     <!-- UPLOAD PROGRESS BAR -->
-                    <div x-show="isUploading" x-cloak class="p-4 bg-zinc-900 dark:bg-[#232327] text-white rounded-xl space-y-2">
+                    <div x-show="isUploading" x-cloak class="p-4 bg-sky-50 dark:bg-[#232327] border border-sky-200 dark:border-[#2B2B30] text-sky-950 dark:text-white rounded-xl space-y-2">
                         <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium" x-text="uploadProgressText"></span>
-                            <span class="font-mono font-bold" x-text="uploadProgress + '%'"></span>
+                            <span class="font-medium text-sky-900 dark:text-zinc-200" x-text="uploadProgressText"></span>
+                            <span class="font-mono font-bold text-sky-950 dark:text-white" x-text="uploadProgress + '%'"></span>
                         </div>
-                        <div class="w-full bg-zinc-800 dark:bg-[#19191C] rounded-full h-2 overflow-hidden">
+                        <div class="w-full bg-sky-100 dark:bg-[#19191C] rounded-full h-2 overflow-hidden">
                             <div class="bg-[#0093dd] h-2 rounded-full transition-all duration-150" :style="`width: ${uploadProgress}%`"></div>
                         </div>
                     </div>
@@ -462,7 +462,7 @@
                         <button type="button" 
                                 :disabled="isUploading"
                                 @click="submitForm()" 
-                                class="inline-flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs disabled:opacity-50 cursor-pointer">
+                                class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs disabled:opacity-50 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                             </svg>

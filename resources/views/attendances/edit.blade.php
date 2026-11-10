@@ -118,7 +118,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none">
+                <button type="submit" class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                     Simpan Perubahan Presensi
                 </button>
                 <a href="{{ route('journals.show', $journal) }}" class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0]">

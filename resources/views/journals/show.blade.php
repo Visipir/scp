@@ -14,7 +14,7 @@
                     &larr; Kembali
                 </a>
                 @if(auth()->user()->role_id === 2 && \Carbon\Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta')))
-                    <a href="{{ route('attendances.edit', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition">
+                    <a href="{{ route('attendances.edit', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-2xs">
                         Edit Presensi
                     </a>
                 @endif

@@ -132,7 +132,7 @@
                         @if($exam->material_file_path)
                             <div class="flex items-center justify-between p-4 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-xl">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-12 h-12 rounded-xl bg-zinc-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                                    <div class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-[#EDEDF0] border border-zinc-200 dark:border-[#2B2B30] font-mono font-bold text-xs flex items-center justify-center shrink-0">
                                         {{ $exam->file_extension ?? 'FILE' }}
                                     </div>
                                     <div class="min-w-0">
@@ -145,7 +145,7 @@
                                     </div>
                                 </div>
                                 <a href="{{ route('exams.download', $exam) }}" 
-                                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition shadow-xs shrink-0">
+                                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-xs shrink-0">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                     </svg>

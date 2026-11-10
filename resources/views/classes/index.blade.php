@@ -16,7 +16,7 @@
             <button 
                 type="button" 
                 @click="addModalOpen = true"
-                class="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-900 dark:bg-zinc-800 hover:bg-black dark:hover:bg-zinc-700 text-white text-xs font-semibold rounded-lg border border-transparent dark:border-zinc-700 transition cursor-pointer"
+                class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg border border-zinc-200 dark:border-[#2B2B30] transition cursor-pointer shadow-2xs"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 <span>Tambah Kelas</span>

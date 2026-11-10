@@ -41,7 +41,7 @@
     <button 
         type="button" 
         @click="open = true" 
-        class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-xs font-semibold rounded-md hover:bg-black transition shadow-xs cursor-pointer"
+        class="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0093dd] text-white text-xs font-semibold rounded-md hover:bg-[#0082c4] transition shadow-xs cursor-pointer"
     >
         <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -268,7 +268,7 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-900 hover:bg-black text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer disabled:opacity-50"
+                                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer disabled:opacity-50"
                                     :disabled="isUploading"
                                     @click="
                                         if (!fileName) { 

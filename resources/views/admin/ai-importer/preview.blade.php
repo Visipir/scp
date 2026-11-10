@@ -37,7 +37,7 @@
                         </thead>
                         <tbody class="bg-white dark:bg-[#1D1D21] divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                             @forelse($data as $row)
-                                <tr class="hover:bg-[#232327] transition">
+                                <tr class="hover:bg-zinc-50 dark:hover:bg-[#232327] transition">
                                     @foreach($row as $value)
                                         <td class="px-4 py-3 whitespace-nowrap text-zinc-600 dark:text-[#EDEDF0]">{{ is_array($value) ? json_encode($value) : (string)$value }}</td>
                                     @endforeach
@@ -58,7 +58,7 @@
                     <form action="{{ route('ai-importer.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="cache_key" value="{{ $cacheKey }}">
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-xs">
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-xs">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>

@@ -323,7 +323,7 @@
                     <a href="{{ route('exams.index') }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-lg transition">
                         Batal
                     </a>
-                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs cursor-pointer">
+                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs cursor-pointer">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>

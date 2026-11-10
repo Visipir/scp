@@ -279,7 +279,7 @@
                                             </button>
                                             <button
                                                 type="submit"
-                                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-900 hover:bg-black text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer disabled:opacity-50"
+                                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] text-white font-semibold text-xs uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer disabled:opacity-50"
                                                 :disabled="isUploading"
                                                 @click="if (!fileName) { $refs.pdfInput.click(); }"
                                             >

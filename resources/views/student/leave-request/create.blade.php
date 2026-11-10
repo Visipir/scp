@@ -140,7 +140,7 @@
 
                 {{-- Submit Button --}}
                 <div class="pt-3">
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white font-semibold text-xs uppercase tracking-wider rounded-md transition shadow-none focus:outline-none focus:ring-2 focus:ring-[#0093dd] focus:ring-offset-2">
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white font-semibold text-xs uppercase tracking-wider rounded-md transition shadow-none focus:outline-none focus:ring-2 focus:ring-[#0093dd] focus:ring-offset-2">
                         Kirim Permohonan Izin
                     </button>
                 </div>

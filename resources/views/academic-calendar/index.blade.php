@@ -48,7 +48,7 @@
         {{-- STATUS HARI INI CARD --}}
         @if($todayEvent)
             <div class="bg-amber-50/90 dark:bg-[#282115] border border-amber-200 dark:border-amber-700/60 rounded-lg p-4 sm:p-5 flex items-start gap-3.5 shadow-xs">
-                <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-500 text-white font-mono text-[10px] font-bold uppercase shrink-0 mt-0.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-500 text-zinc-950 font-mono text-[10px] font-bold uppercase shrink-0 mt-0.5">
                     HARI INI
                 </span>
                 <div class="text-xs">
@@ -142,7 +142,7 @@
 
                     <a 
                         href="#manual-add-form" 
-                        class="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-black text-white text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+                        class="px-3 py-1.5 rounded-lg bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -259,27 +259,27 @@
                         $isToday = $day['isToday'];
                         $cat = $day['primaryCategory'];
 
-                        // High-contrast, clear holiday coloring for dark console
+                        // Dual light/dark high-contrast holiday & status coloring
                         if (!$isCurrent) {
-                            $cellBg = 'bg-[#19191C] hover:bg-[#232327] text-zinc-500 opacity-40';
-                            $dateTextColor = 'text-zinc-500 font-normal';
+                            $cellBg = 'bg-zinc-50/70 hover:bg-zinc-100/70 dark:bg-[#19191C] dark:hover:bg-[#232327] opacity-60';
+                            $dateTextColor = 'text-zinc-400 dark:text-zinc-500 font-normal';
                         } elseif ($cat === 'libur_nasional') {
-                            $cellBg = 'bg-[#2D1618] hover:bg-[#3D1E20] border-t-2 border-rose-500';
-                            $dateTextColor = 'text-rose-400 font-bold';
+                            $cellBg = 'bg-rose-50/80 hover:bg-rose-100/70 dark:bg-[#2D1618] dark:hover:bg-[#3D1E20] border-t-2 border-rose-500';
+                            $dateTextColor = 'text-rose-700 dark:text-rose-400 font-bold';
                         } elseif ($cat === 'libur_bersama') {
-                            $cellBg = 'bg-[#282115] hover:bg-[#382F1E] border-t-2 border-amber-400';
-                            $dateTextColor = 'text-amber-400 font-bold';
+                            $cellBg = 'bg-amber-50/80 hover:bg-amber-100/70 dark:bg-[#282115] dark:hover:bg-[#382F1E] border-t-2 border-amber-400';
+                            $dateTextColor = 'text-amber-800 dark:text-amber-400 font-bold';
                         } elseif ($cat === 'agenda_sekolah') {
                             $cellBg = $day['isKbmOff'] 
-                                ? 'bg-[#25182D] hover:bg-[#352240] border-t-2 border-purple-500' 
-                                : 'bg-[#16222F] hover:bg-[#1E3042] border-t-2 border-sky-500';
-                            $dateTextColor = $isSunday ? 'text-rose-400 font-bold' : ($day['isKbmOff'] ? 'text-purple-300 font-bold' : 'text-sky-300 font-bold');
+                                ? 'bg-purple-50/80 hover:bg-purple-100/70 dark:bg-[#25182D] dark:hover:bg-[#352240] border-t-2 border-purple-500' 
+                                : 'bg-sky-50/80 hover:bg-sky-100/70 dark:bg-[#16222F] dark:hover:bg-[#1E3042] border-t-2 border-sky-500';
+                            $dateTextColor = $isSunday ? 'text-rose-700 dark:text-rose-400 font-bold' : ($day['isKbmOff'] ? 'text-purple-700 dark:text-purple-300 font-bold' : 'text-sky-700 dark:text-sky-300 font-bold');
                         } elseif ($isSunday) {
-                            $cellBg = 'bg-[#231517] hover:bg-[#2D1618]';
-                            $dateTextColor = 'text-rose-400 font-bold';
+                            $cellBg = 'bg-rose-50/30 hover:bg-rose-100/50 dark:bg-[#231517] dark:hover:bg-[#2D1618]';
+                            $dateTextColor = 'text-rose-600 dark:text-rose-400 font-bold';
                         } else {
-                            $cellBg = 'bg-[#1D1D21] hover:bg-[#232327]';
-                            $dateTextColor = 'text-[#EDEDF0] font-semibold';
+                            $cellBg = 'bg-white hover:bg-zinc-50 dark:bg-[#1D1D21] dark:hover:bg-[#232327]';
+                            $dateTextColor = 'text-zinc-900 dark:text-[#EDEDF0] font-semibold';
                         }
                     @endphp
 
@@ -293,7 +293,7 @@
                         {{-- Day Header (Number + Badges) --}}
                         <div class="flex items-center justify-between">
                             @if($isToday)
-                                <span class="w-6 h-6 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center font-mono shadow-xs ring-2 ring-zinc-900 ring-offset-1">
+                                <span class="w-6 h-6 rounded-full bg-[#0093dd] text-white font-bold text-xs flex items-center justify-center font-mono shadow-xs ring-2 ring-[#0093dd] ring-offset-1">
                                     {{ $day['dayNumber'] }}
                                 </span>
                             @else
@@ -304,7 +304,7 @@
 
                             {{-- Multiple events badge (only show if > 1) --}}
                             @if(count($day['events']) > 1)
-                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-zinc-900/10 text-zinc-700">
+                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-zinc-200 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">
                                     {{ count($day['events']) }}
                                 </span>
                             @endif
@@ -317,7 +317,7 @@
                                     @php
                                         $pillStyle = match($ev['category']) {
                                             'libur_nasional' => 'bg-rose-600 text-white shadow-2xs',
-                                            'libur_bersama'  => 'bg-amber-500 text-white shadow-2xs',
+                                            'libur_bersama'  => 'bg-amber-600 text-white shadow-2xs',
                                             'agenda_sekolah' => $ev['is_kbm_off'] ? 'bg-purple-600 text-white shadow-2xs' : 'bg-sky-600 text-white shadow-2xs',
                                             default          => 'bg-zinc-800 text-white',
                                         };
@@ -533,7 +533,7 @@
                         <button 
                             type="button" 
                             @click="detailModalOpen = false" 
-                            class="px-4 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition cursor-pointer"
+                            class="px-4 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-[#2B2B30] dark:hover:bg-[#3A3A3F] dark:text-[#EDEDF0] text-xs font-semibold rounded-md transition cursor-pointer"
                         >
                             Tutup
                         </button>
@@ -587,7 +587,7 @@
                             <textarea id="description" name="description" rows="2" placeholder="Catatan atau keterangan opsional..." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]"></textarea>
                         </div>
                         <div class="pt-2">
-                            <button type="submit" class="w-full px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                            <button type="submit" class="w-full px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                                 Simpan Agenda
                             </button>
                         </div>
@@ -614,7 +614,7 @@
                             <span class="block text-[11px] text-zinc-500 dark:text-[#97979B] mb-2">Format: Title, StartDate (YYYY-MM-DD), EndDate, Category, IsKBMOff (1/0)</span>
                             <input type="file" name="file" accept=".csv,text/csv" required class="block w-full text-xs text-zinc-600 dark:text-[#97979B] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-[#2B2B30] file:text-zinc-800 dark:file:text-[#EDEDF0] hover:file:bg-zinc-300 dark:hover:file:bg-[#3A3A3F]">
                         </div>
-                        <button type="submit" class="w-full px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                        <button type="submit" class="w-full px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                             Unggah &amp; Ekstrak CSV
                         </button>
                     </form>

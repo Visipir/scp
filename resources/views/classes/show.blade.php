@@ -43,7 +43,7 @@
                     Export CSV
                 </a>
                 <a href="{{ route('classes.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 hover:bg-black dark:bg-[#0093dd] dark:hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md shadow-none transition">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-[#2B2B30] text-xs font-semibold rounded-md shadow-2xs transition">
                     &larr; Semua Kelas
                 </a>
             </div>
