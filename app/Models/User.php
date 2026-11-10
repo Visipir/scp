@@ -143,13 +143,13 @@ class User extends Authenticatable
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        $swapScheduleIds = ScheduleSwap::where('status', 'Approved')
+        $swapScheduleIds = ScheduleSwap::whereIn('status', ['approved', 'Approved'])
             ->where(function ($q) {
                 $q->where('requester_id', $this->id)
-                  ->orWhere('substitute_id', $this->id);
+                  ->orWhere('target_id', $this->id);
             })
-            ->get(['requester_schedule_id', 'substitute_schedule_id'])
-            ->flatMap(fn ($s) => [$s->requester_schedule_id, $s->substitute_schedule_id])
+            ->get(['requester_schedule_id', 'target_schedule_id'])
+            ->flatMap(fn ($s) => [$s->requester_schedule_id, $s->target_schedule_id])
             ->filter()
             ->unique()
             ->values()

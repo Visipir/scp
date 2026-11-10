@@ -30,7 +30,7 @@
 
         {{-- Info Ringkas Jurnal --}}
         <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-lg p-5 space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-100 text-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-100 dark:border-[#2B2B30] text-xs">
                 <div>
                     <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-sm block">
                         {{ $journal->schedule->subject ?? 'Mata Pelajaran' }}
