@@ -1,16 +1,7 @@
 <x-guest-layout>
-    <!-- Brand Header -->
     <div class="mb-6">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-9 h-9 object-contain shrink-0">
-                <div class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">
-                    School Class Progress
-                </div>
-            </div>
-        </div>
-        <h2 class="text-lg font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0]">Masuk ke Akun</h2>
-        <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-1">Silakan masukkan username dan kata sandi Anda</p>
+        <h1 class="text-xl font-bold tracking-tight auth-header-title">Masuk ke Akun</h1>
+        <p class="text-xs text-muted-token mt-1">Silakan masukkan username dan kata sandi Anda untuk melanjutkan</p>
     </div>
 
     <!-- Session Status -->

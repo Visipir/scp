@@ -9,6 +9,10 @@
                 ? $val->getTimestamp()
                 : (strtotime((string) $val) ?: 1));
     }
+    $hasCustomBg = $sysConfig && !empty($sysConfig->login_background_path);
+    $bgUrl = $hasCustomBg
+        ? route('login.background', ['v' => $bgTimestamp])
+        : 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Front_view_of_SMKN_1_Bantul.jpg';
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full antialiased">
@@ -206,29 +210,25 @@
 
             <!-- Bottom Minimalist Footer -->
             <footer class="w-full py-4 text-center text-xs font-mono auth-footer">
-                <span>School Class Progress &copy; {{ date('Y') }} &bull; SMK Negeri 1 Bawang</span>
+                <span>School Class Progress &copy; {{ date('Y') }} &bull; SMK Negeri 1 Bantul</span>
             </footer>
         </div>
 
         {{-- KOLOM KANAN: GAMBAR LATAR BELAKANG PENUH TINGGI (Hanya Desktop >= lg, tidak diunduh di mobile) --}}
         <div class="hidden lg:block relative h-full w-full overflow-hidden auth-gradient">
             <picture class="absolute inset-0 w-full h-full block">
-                <source media="(min-width: 1024px)" srcset="{{ route('login.background', ['v' => $bgTimestamp]) }}">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="" aria-hidden="true" class="w-full h-full object-cover">
+                <source media="(min-width: 1024px)" srcset="{{ $bgUrl }}">
+                <img src="{{ $bgUrl }}" alt="SMK Negeri 1 Bantul" class="w-full h-full object-cover" data-bg-fallback="{{ route('login.background', ['v' => $bgTimestamp]) }}">
             </picture>
 
             {{-- Subtle Gradient Overlay ensuring contrast over all image areas --}}
             <div class="absolute inset-0 auth-overlay"></div>
 
-            {{-- Decorative Branding Text Overlay --}}
+            {{-- Branding Text Overlay (Clean, no decorative status pulse or fake badge) --}}
             <div class="absolute bottom-10 left-10 right-10 z-10 text-white pointer-events-none">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-mono mb-3">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Sistem Informasi Akademik</span>
-                </div>
                 <h1 class="text-2xl xl:text-3xl font-extrabold tracking-tight">School Class Progress</h1>
-                <p class="text-xs xl:text-sm text-white/80 mt-1 max-w-lg leading-relaxed">
-                    Platform terpadu untuk monitoring jurnal mengajar guru, absensi siswa real-time, dan manajemen kurikulum sekolah.
+                <p class="text-xs xl:text-sm text-white/80 mt-1.5 max-w-lg leading-relaxed">
+                    Sistem monitoring jurnal kelas, absensi siswa terpadu, dan manajemen kurikulum SMK Negeri 1 Bantul.
                 </p>
             </div>
         </div>
