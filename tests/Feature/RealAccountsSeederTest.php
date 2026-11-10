@@ -40,6 +40,9 @@ class RealAccountsSeederTest extends TestCase
         } else {
             File::delete($this->csvPath);
         }
+        putenv('SEED_DEFAULT_PASSWORD=TestingSeederSecret123!');
+        $_ENV['SEED_DEFAULT_PASSWORD'] = 'TestingSeederSecret123!';
+        $_SERVER['SEED_DEFAULT_PASSWORD'] = 'TestingSeederSecret123!';
         parent::tearDown();
     }
 
@@ -87,6 +90,7 @@ class RealAccountsSeederTest extends TestCase
         $password = 'TestBootstrapSecret123!';
         putenv("SEED_DEFAULT_PASSWORD={$password}");
         $_ENV['SEED_DEFAULT_PASSWORD'] = $password;
+        $_SERVER['SEED_DEFAULT_PASSWORD'] = $password;
 
         $this->seed(RealAccountsSeeder::class);
 
