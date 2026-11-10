@@ -21,7 +21,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {{-- KOLOM 1: FORM UTAMA KONFIGURASI SMTP (col-span-8) --}}
+            {{-- Form konfigurasi SMTP --}}
             <div class="lg:col-span-8 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                 <div class="p-5 sm:p-6">
                     <h2 class="text-base font-semibold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
@@ -192,7 +192,7 @@
                 </form>
             </div>
 
-            {{-- KOLOM 2: UJI PENGIRIMAN & PANDUAN (col-span-4) --}}
+            {{-- Uji pengiriman dan panduan --}}
             <div class="lg:col-span-4 space-y-6">
                 {{-- Uji Coba Pengiriman Email --}}
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 sm:p-6 space-y-4">
@@ -241,7 +241,7 @@
 
         </div>
 
-        {{-- PANEL RIWAYAT PENGIRIMAN EMAIL (20 Terakhir) --}}
+        {{-- Riwayat pengiriman email --}}
         <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
             <div class="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>

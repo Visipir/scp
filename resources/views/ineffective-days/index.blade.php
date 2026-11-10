@@ -39,7 +39,7 @@
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>
         @endif
 
-        {{-- STATUS HARI INI CARD --}}
+        {{-- Status hari ini --}}
         @if($todayIneffective)
             <div class="bg-amber-50/80 dark:bg-[#282115] border border-amber-200/80 dark:border-amber-700/60 rounded-lg p-5 flex items-start justify-between gap-4">
                 <div class="flex items-start gap-3.5">
@@ -60,7 +60,7 @@
             </div>
         @endif
 
-        {{-- TABEL DAFTAR HARI TIDAK EFEKTIF --}}
+        {{-- Tabel daftar hari tidak efektif --}}
         <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-lg overflow-hidden shadow-xs">
             <div class="p-5 border-b border-zinc-200/80 dark:border-[#2B2B30] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50 dark:bg-[#19191C]">
                 <div>
@@ -171,7 +171,7 @@
             @endif
         </div>
 
-        {{-- MODAL POPUP TAMBAH HARI TIDAK EFEKTIF --}}
+        {{-- Modal tambah hari tidak efektif --}}
         <div 
             x-show="showModal" 
             x-cloak 

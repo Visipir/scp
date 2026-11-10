@@ -58,7 +58,7 @@
                 @method('PUT')
 
                 <div class="p-6 sm:p-8 space-y-8">
-                    <!-- SECTION 1: KATEGORI KONTEN -->
+                    <!-- Kategori konten -->
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <label class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono">
@@ -122,7 +122,7 @@
                         <x-input-error :messages="$errors->get('category')" class="mt-1.5" />
                     </div>
 
-                    <!-- SECTION 2: KELAS & MAPEL -->
+                    <!-- Kelas & mata pelajaran -->
                     <div class="pt-6 border-t border-zinc-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Kelas Sasaran -->
                         <div>
@@ -153,7 +153,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 3: JUDUL KONTEN -->
+                    <!-- Judul konten -->
                     <div class="pt-6 border-t border-zinc-100">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             4. Judul Materi / Asesmen <span class="text-rose-500">*</span>
@@ -166,7 +166,7 @@
                         <x-input-error :messages="$errors->get('title')" class="mt-1" />
                     </div>
 
-                    <!-- SECTION 4: TANGGAL & RENTANG WAKTU -->
+                    <!-- Tanggal & rentang waktu -->
                     <div class="pt-6 border-t border-zinc-100">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             5. Tanggal &amp; Waktu Pelaksanaan <span class="text-rose-500">*</span>
@@ -202,7 +202,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 5: PETUNJUK / DESKRIPSI -->
+                    <!-- Petunjuk / deskripsi -->
                     <div class="pt-6 border-t border-zinc-100">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             6. Petunjuk Belajar / Catatan Instruksi <span class="text-zinc-400 font-normal lowercase">(opsional)</span>
@@ -213,7 +213,7 @@
                         <x-input-error :messages="$errors->get('description')" class="mt-1" />
                     </div>
 
-                    <!-- SECTION 6: KELOLA BERKAS & TAUTAN -->
+                    <!-- Lampiran berkas & tautan -->
                     <div class="pt-6 border-t border-zinc-100 space-y-4">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono">
                             7. Lampiran Berkas &amp; Tautan Eksternal

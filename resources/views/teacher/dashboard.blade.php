@@ -13,7 +13,7 @@
 
     <div class="space-y-6">
 
-        {{-- PENDING SCHEDULE SWAP REQUESTS ALERT --}}
+        {{-- Notifikasi tukar jadwal pending --}}
         @if(($pendingSwapCount ?? 0) > 0)
             <div class="bg-blue-50 dark:bg-[#16222F] border border-blue-200 dark:border-sky-800/60 rounded-xl p-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -37,7 +37,7 @@
             </div>
         @endif
 
-        {{-- KBM DILIBURKAN BANNER --}}
+        {{-- Banner libur KBM --}}
         @if($kbmSuspendedEvent ?? false)
             <div class="bg-amber-50 dark:bg-[#2A2215] border border-amber-200 dark:border-amber-700/60 rounded-xl p-5">
                 <div class="flex items-start gap-3.5">
@@ -57,7 +57,7 @@
             </div>
         @endif
 
-        {{-- 1. SWISS MINIMALIST NOTIFICATION ALERTS (Unfilled Journals) --}}
+        {{-- Peringatan jurnal belum terisi --}}
         @if(!empty($alerts))
             <div class="space-y-3">
                 @foreach($alerts as $schedule)
@@ -91,7 +91,7 @@
             </div>
         @endif
 
-        {{-- ================= PANEL KHUSUS WALI KELAS ================= --}}
+        {{-- Panel perwalian kelas --}}
         @if($homeroomClass)
             <div class="bg-emerald-50 dark:bg-[#15231B] border border-emerald-300 dark:border-emerald-700/60 rounded-xl p-5 sm:p-6 shadow-xs">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-emerald-200 dark:border-emerald-800/40">

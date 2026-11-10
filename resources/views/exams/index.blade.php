@@ -482,7 +482,7 @@
             </div>
         @endif
 
-        {{-- ==================== INTERACTIVE QUICK DETAIL MODAL (ALPINE.JS) ==================== --}}
+        {{-- Modal detail materi/ujian --}}
         <div x-show="detailModalOpen" 
              x-cloak 
              class="fixed inset-0 z-50 overflow-y-auto" 

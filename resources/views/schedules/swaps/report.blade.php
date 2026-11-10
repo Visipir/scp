@@ -278,7 +278,7 @@
             </form>
         </div>
 
-        {{-- TAB 1: DAFTAR TUKAR JADWAL --}}
+        {{-- Daftar tukar jadwal --}}
         <div x-show="activeTab === 'swaps'" class="space-y-4">
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
                 <div class="overflow-x-auto">
@@ -427,7 +427,7 @@
             </div>
         </div>
 
-        {{-- TAB 2: REKAP PER GURU --}}
+        {{-- Rekap per guru --}}
         <div x-show="activeTab === 'teachers'" class="space-y-4">
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
                 <div class="p-4 border-b border-zinc-200 dark:border-[#2B2B30] flex items-center justify-between">
@@ -511,7 +511,7 @@
             </div>
         </div>
 
-        {{-- TAB 3: LOG AKTIVITAS (AUDIT TRAIL) --}}
+        {{-- Log aktivitas --}}
         <div x-show="activeTab === 'logs'" class="space-y-4">
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
                 <div class="p-4 border-b border-zinc-200 dark:border-[#2B2B30]">
@@ -590,7 +590,7 @@
             </div>
         </div>
 
-        {{-- DETAIL DRAWER (SLIDE-OVER) --}}
+        {{-- Drawer detail --}}
         <div 
             x-show="drawerOpen" 
             style="display: none;"

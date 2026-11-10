@@ -18,9 +18,8 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             
-            {{-- KOLOM 1: KONTROL PUTARAN & KUNCI JADWAL + INTEGRASI TERKAIT --}}
+            {{-- Kontrol putaran dan kunci jadwal --}}
             <div class="space-y-6">
-                {{-- SECTION 1: KONTROL SISTEM PUTARAN & KUNCI JADWAL --}}
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                     <div class="p-5 sm:p-6">
                         <h2 class="text-base font-semibold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
@@ -114,7 +113,7 @@
                     </div>
                 </div>
 
-                {{-- CALLOUTS: EMAIL & FET IMPORTER --}}
+                {{-- Integrasi email dan FET --}}
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 sm:p-6 space-y-5">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div class="space-y-1">
@@ -169,7 +168,7 @@
                 </div>
             </div>
 
-            {{-- KOLOM 2: KONFIGURASI GOOGLE GEMINI AI --}}
+            {{-- Konfigurasi Google Gemini AI --}}
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                 <div class="p-5 sm:p-6">
                     <div class="flex items-center justify-between gap-4">

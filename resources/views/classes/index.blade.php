@@ -213,9 +213,7 @@
             {{ $classes->links() }}
         </div>
 
-        {{-- ============================================== --}}
-        {{-- MODAL: Import Data Siswa                       --}}
-        {{-- ============================================== --}}
+        {{-- Modal import data siswa --}}
         <div x-show="importModalOpen" x-cloak style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-0">
                 <div x-show="importModalOpen" x-transition.opacity class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs" @click="if(!isUploading) importModalOpen = false"></div>
@@ -312,9 +310,7 @@
             </div>
         </div>
 
-        {{-- ============================================== --}}
-        {{-- MODAL: Tambah Rombel Kelas                     --}}
-        {{-- ============================================== --}}
+        {{-- Modal tambah rombel kelas --}}
         <div x-show="addModalOpen" x-cloak style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-0">
                 <div x-show="addModalOpen" x-transition.opacity class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs" @click="addModalOpen = false"></div>
@@ -349,9 +345,7 @@
             </div>
         </div>
 
-        {{-- ============================================== --}}
-        {{-- MODAL: Edit Rombel Kelas                       --}}
-        {{-- ============================================== --}}
+        {{-- Modal edit rombel kelas --}}
         <div x-show="editModalOpen" x-cloak style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-0">
                 <div x-show="editModalOpen" x-transition.opacity class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs" @click="editModalOpen = false"></div>
@@ -380,9 +374,7 @@
             </div>
         </div>
 
-        {{-- ============================================== --}}
-        {{-- MODAL: Export Presensi                        --}}
-        {{-- ============================================== --}}
+        {{-- Modal export presensi --}}
         <div x-show="exportModalOpen" x-cloak style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-0">
                 <div x-show="exportModalOpen" x-transition.opacity class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs" @click="exportModalOpen = false"></div>

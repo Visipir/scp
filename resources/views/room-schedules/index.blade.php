@@ -62,7 +62,7 @@
                 <x-alert-banner type="info">{{ session('info') }}</x-alert-banner>
             @endif
 
-            {{-- MODAL POPUP IMPOR JADWAL FET PDF OTOMATIS DENGAN AI --}}
+            {{-- Modal impor jadwal FET --}}
             @if(auth()->user()->role_id === 1)
                 <div 
                     x-show="showImport" 

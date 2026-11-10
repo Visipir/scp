@@ -114,7 +114,7 @@
                 @csrf
 
                 <div class="p-6 sm:p-8 space-y-8">
-                    <!-- SECTION 1: KATEGORI KONTEN -->
+                    <!-- Kategori konten -->
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <label class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono">
@@ -187,7 +187,7 @@
                         <x-input-error :messages="$errors->get('category')" class="mt-1.5" />
                     </div>
 
-                    <!-- SECTION 2: KELAS TUJUAN (MULTI-BROADCAST) -->
+                    <!-- Kelas sasaran -->
                     <div class="pt-6 border-t border-zinc-100 dark:border-[#2C2C30]">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                             <div>
@@ -255,7 +255,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 3: MATA PELAJARAN & JUDUL -->
+                    <!-- Mata pelajaran & judul -->
                     <div class="pt-6 border-t border-zinc-100 dark:border-[#2C2C30] grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Mata Pelajaran -->
                         <div>
@@ -294,7 +294,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 4: TANGGAL & RENTANG WAKTU -->
+                    <!-- Tanggal & rentang waktu -->
                     <div class="pt-6 border-t border-zinc-100 dark:border-[#2C2C30]">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             5. Tanggal &amp; Waktu Pelaksanaan <span class="text-rose-500">*</span>
@@ -333,7 +333,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 5: PETUNJUK / DESKRIPSI -->
+                    <!-- Petunjuk / deskripsi -->
                     <div class="pt-6 border-t border-zinc-100 dark:border-[#2C2C30]">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             6. Petunjuk Belajar / Catatan Instruksi <span class="text-zinc-400 font-normal lowercase">(opsional)</span>
@@ -345,7 +345,7 @@
                         <x-input-error :messages="$errors->get('description')" class="mt-1" />
                     </div>
 
-                    <!-- SECTION 6: LAMPIRAN BERKAS & TAUTAN CBT EKSTERNAL -->
+                    <!-- Lampiran berkas & tautan CBT -->
                     <div class="pt-6 border-t border-zinc-100 dark:border-[#2C2C30] space-y-4">
                         <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono">
                             7. Lampiran Berkas &amp; Tautan Eksternal
@@ -439,7 +439,7 @@
                         </div>
                     </div>
 
-                    <!-- UPLOAD PROGRESS BAR -->
+                    <!-- Progress upload -->
                     <div x-show="isUploading" x-cloak class="p-4 bg-sky-50 dark:bg-[#232327] border border-sky-200 dark:border-[#2B2B30] text-sky-950 dark:text-white rounded-xl space-y-2">
                         <div class="flex items-center justify-between text-xs">
                             <span class="font-medium text-sky-900 dark:text-zinc-200" x-text="uploadProgressText"></span>

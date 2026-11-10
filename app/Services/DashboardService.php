@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Attendance;
 use App\Models\Journal;
 use App\Models\Schedule;
+use App\Models\ScheduleSwap;
 use App\Models\SystemConfiguration;
 use App\Models\User;
 use Carbon\Carbon;
@@ -97,13 +98,30 @@ class DashboardService
             ->where('cycle_type', $activeCycle)
             ->get();
 
-        $swapService = $this->getSwapService();
-        foreach ($allSchedules as $sched) {
-            $effective = $swapService->getEffectiveTeacherForSchedule($sched->id, $today);
-            if ($effective['is_swapped']) {
-                $sched->teacher_id = $effective['teacher_id'];
-                $sched->swap_id = $effective['swap_id'];
-                $sched->setRelation('teacher', User::find($effective['teacher_id']));
+        $todayDateString = $today->toDateString();
+        $todaySwaps = ScheduleSwap::with(['requester', 'target'])
+            ->whereDate('swap_date', $todayDateString)
+            ->where('status', 'approved')
+            ->get();
+
+        if ($todaySwaps->isNotEmpty()) {
+            foreach ($allSchedules as $sched) {
+                $swap = $todaySwaps->first(function ($s) use ($sched) {
+                    return (int) $s->requester_schedule_id === (int) $sched->id
+                        || (int) $s->target_schedule_id === (int) $sched->id;
+                });
+
+                if ($swap) {
+                    $effectiveTeacher = ((int) $swap->requester_schedule_id === (int) $sched->id)
+                        ? $swap->target
+                        : $swap->requester;
+
+                    if ($effectiveTeacher) {
+                        $sched->teacher_id = $effectiveTeacher->id;
+                        $sched->swap_id = $swap->id;
+                        $sched->setRelation('teacher', $effectiveTeacher);
+                    }
+                }
             }
         }
 

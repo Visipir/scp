@@ -188,7 +188,7 @@
     
     <div class="min-h-screen w-full lg:grid lg:grid-cols-2">
         
-        {{-- KOLOM KIRI: FORM & AUTH CARD (Desktop & Mobile single column < 1024px) --}}
+        {{-- Form autentikasi --}}
         <div class="flex flex-col justify-between min-h-screen p-5 sm:p-8 lg:p-10 xl:p-12 z-10">
             <!-- Top Minimalist Brand Header -->
             <header class="w-full flex items-center justify-between">
@@ -214,7 +214,7 @@
             </footer>
         </div>
 
-        {{-- KOLOM KANAN: GAMBAR LATAR BELAKANG PENUH TINGGI (Hanya Desktop >= lg, tidak diunduh di mobile) --}}
+        {{-- Latar visual desktop --}}
         <div class="hidden lg:block relative h-full w-full overflow-hidden auth-gradient">
             <picture class="absolute inset-0 w-full h-full block">
                 <source media="(min-width: 1024px)" srcset="{{ $bgUrl }}">

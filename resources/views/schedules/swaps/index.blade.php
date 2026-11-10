@@ -109,7 +109,7 @@
             </button>
         </div>
 
-        {{-- TAB 1: INBOX (Permintaan Masuk) --}}
+        {{-- Permintaan masuk --}}
         <div x-show="activeTab === 'inbox'" class="space-y-4">
             @if($inbox->isEmpty())
                 <div class="bg-white dark:bg-[#1C1C1E] border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 text-center text-zinc-500 dark:text-zinc-400 text-sm">
@@ -223,7 +223,7 @@
             @endif
         </div>
 
-        {{-- TAB 2: OUTBOX (Permintaan Keluar) --}}
+        {{-- Permintaan keluar --}}
         <div x-show="activeTab === 'outbox'" class="space-y-4">
             @if($outbox->isEmpty())
                 <div class="bg-white dark:bg-[#1C1C1E] border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 text-center text-zinc-500 dark:text-zinc-400 text-sm">
@@ -320,7 +320,7 @@
             @endif
         </div>
 
-        {{-- TAB 3: FORM AJUKAN PERTUKARAN --}}
+        {{-- Formulir pengajuan pertukaran --}}
         <div x-show="activeTab === 'create'" class="bg-white dark:bg-[#1C1C1E] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-xs">
             <div class="border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-5">
                 <h2 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Formulir Pengajuan Tukar Jadwal</h2>
@@ -332,7 +332,6 @@
             <form method="POST" action="{{ route('schedule-swaps.store') }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;" class="space-y-5">
                 @csrf
 
-                    {{-- Step 1: Tanggal Berlaku --}}
                     <div>
                         <label for="swap_date" class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                             1. Tanggal Berlaku Pertukaran
@@ -349,7 +348,6 @@
                         >
                     </div>
 
-                    {{-- Step 2: Jadwal Milik Pemohon --}}
                     <div>
                         <label for="requester_schedule_id" class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                             2. Pilih Jadwal Anda Yang Ingin Ditukar (Putaran: {{ $activeCycle }})
@@ -382,7 +380,6 @@
 
                     <div x-show="candidateError" class="text-xs text-rose-500 font-medium" x-text="candidateError"></div>
 
-                    {{-- Step 3: Pilih Guru Target & Jadwal Target --}}
                     <div x-show="selectedScheduleId && !loadingCandidates">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -428,7 +425,6 @@
                         </div>
                     </div>
 
-                    {{-- Step 4: Catatan --}}
                     <div>
                         <label for="note" class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                             Catatan / Alasan Pertukaran (Opsional)

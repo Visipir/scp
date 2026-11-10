@@ -312,7 +312,7 @@ class ForgotPasswordTest extends TestCase
             'password'          => Hash::make($oldPass),
         ]);
 
-        // Step 1: Request code using username
+        // Request code using username
         $postResponse = $this->post('/forgot-password', [
             'identifier' => 'web_teacher',
         ]);
@@ -326,7 +326,7 @@ class ForgotPasswordTest extends TestCase
         // Update record with known plain code
         $record->update(['code_hash' => Hash::make('112233')]);
 
-        // Step 2: Submit code & new password
+        // Submit code and new password
         $resetResponse = $this->post('/reset-password', [
             'identifier'            => 'web_teacher',
             'code'                  => '112233',

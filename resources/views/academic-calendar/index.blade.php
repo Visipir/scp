@@ -45,7 +45,7 @@
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>
         @endif
 
-        {{-- STATUS HARI INI CARD --}}
+        {{-- Status hari ini --}}
         @if($todayEvent)
             <div class="bg-amber-50/90 dark:bg-[#282115] border border-amber-200 dark:border-amber-700/60 rounded-lg p-4 sm:p-5 flex items-start gap-3.5 shadow-xs">
                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-500 text-zinc-950 font-mono text-[10px] font-bold uppercase shrink-0 mt-0.5">
@@ -71,7 +71,7 @@
             </div>
         @endif
 
-        {{-- ==================== 1. VISUAL CALENDAR CARD ==================== --}}
+        {{-- Kalender visual --}}
         <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl shadow-xs overflow-hidden">
             
             {{-- Navigation & Month Selector Bar --}}
@@ -414,7 +414,7 @@
 
         </div>
 
-        {{-- ==================== DAY DETAIL MODAL (ALPINE.JS) ==================== --}}
+        {{-- Modal detail hari --}}
         <div 
             x-show="detailModalOpen" 
             x-cloak 
@@ -542,7 +542,7 @@
             </div>
         </div>
 
-        {{-- ==================== 2. FORMS GRID (MANUAL + IMPORT) ==================== --}}
+        {{-- Form agenda dan import --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- Manual Add Form -->
@@ -628,7 +628,7 @@
 
         </div>
 
-        {{-- ==================== 3. TABLE LIST ==================== --}}
+        {{-- Daftar agenda --}}
         <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
             <div class="p-5 border-b border-zinc-200/80 dark:border-[#2B2B30] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50 dark:bg-[#19191C]">
                 <div>

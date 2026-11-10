@@ -480,7 +480,7 @@
                 @endif
             </div>
         @else
-            {{-- VIEW A: STRUCTURED DATA TABLE (Default on Desktop) --}}
+            {{-- Tampilan tabel --}}
             <div x-show="viewMode === 'table'" class="space-y-4">
                 <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-2xs">
                     <div class="overflow-x-auto">
@@ -630,7 +630,7 @@
                 </div>
             </div>
 
-            {{-- VIEW B: TIMELINE CARDS (Daily Agenda View - Default on Mobile) --}}
+            {{-- Tampilan kartu linimasa --}}
             <div x-show="viewMode === 'cards'" class="space-y-6">
                 {{-- Empty Filter State --}}
                 <div x-show="totalMatches === 0" x-cloak class="p-12 text-center bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl shadow-2xs space-y-2">
@@ -778,7 +778,7 @@
                 @endforeach
             </div>
 
-            {{-- VIEW C: WEEKLY TIMETABLE GRID (Board View) --}}
+            {{-- Tampilan kisi mingguan --}}
             <div x-show="viewMode === 'grid'" class="overflow-x-auto pb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 min-w-[850px]">
                     @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $day)

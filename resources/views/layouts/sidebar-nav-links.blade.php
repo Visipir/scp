@@ -12,7 +12,7 @@
 <!-- Navigation Groups -->
 <div class="space-y-6">
 
-    <!-- ================= GROUP 1: MAIN (Semua Role) ================= -->
+    <!-- Menu utama semua role -->
     <div>
         <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
             MAIN
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <!-- ================= 2. KHUSUS WAKA KURIKULUM (Role 1: Admin & Full Control) ================= -->
+    <!-- Menu khusus Waka Kurikulum -->
     @if(Auth::user()->role_id === 1)
         <!-- Sub-group 1: AKADEMIK -->
         <div>
@@ -218,7 +218,7 @@
         </div>
     @endif
 
-    <!-- ================= 3. KHUSUS GURU PENGAJAR (Role 2) ================= -->
+    <!-- Menu khusus Guru Pengajar -->
     @if(Auth::user()->role_id === 2)
         <!-- Sub-group 1: AKADEMIK -->
         <div>
@@ -321,7 +321,7 @@
         </div>
     @endif
 
-    <!-- ================= KHUSUS WALI KELAS ================= -->
+    <!-- Menu khusus Wali Kelas -->
     @if(Auth::user()->isHomeroomTeacher())
         @php
             $waliHomeroom = Auth::user()->homeroomAssignment;
@@ -380,7 +380,7 @@
         @endif
     @endif
 
-    <!-- ================= 4. KHUSUS TIM KESISWAAN / BK (Role 3 atau Guru BK) ================= -->
+    <!-- Menu khusus Tim Kesiswaan / Guru BK -->
     @if(Auth::user()->role_id === 3 || Auth::user()->counselorAssignments()->exists())
         <!-- Sub-group 1: KESISWAAN -->
         <div>
@@ -483,7 +483,7 @@
         </div>
     @endif
 
-    <!-- ================= 5. KHUSUS SISWA & ORANG TUA (Role 4) ================= -->
+    <!-- Menu khusus Siswa dan Orang Tua -->
     @if(Auth::user()->role_id === 4)
         <!-- Sub-group 1: PORTAL SISWA -->
         <div>

@@ -25,7 +25,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             
-            {{-- KOLOM 1: FORM PENGATURAN & UNGGAH GAMBAR --}}
+            {{-- Form pengaturan gambar latar --}}
             <div class="space-y-6">
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                     <div class="p-5 sm:p-6">
@@ -110,7 +110,7 @@
                 </div>
             </div>
 
-            {{-- KOLOM 2: STATUS & PRATINJAU SAAT INI --}}
+            {{-- Pratinjau latar aktif --}}
             <div class="space-y-6">
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                     <div class="p-5 sm:p-6">

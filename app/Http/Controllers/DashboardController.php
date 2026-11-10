@@ -91,11 +91,20 @@ class DashboardController extends Controller
                         ->where('role_id', 4)
                         ->pluck('id');
 
+                    $rawLeaveStats = \App\Models\LeaveRequest::whereIn('student_id', $studentIds)
+                        ->selectRaw("
+                            COUNT(*) as total,
+                            SUM(CASE WHEN status_approval IN ('Pending', 'Menunggu') THEN 1 ELSE 0 END) as pending,
+                            SUM(CASE WHEN status_approval = 'Approved' THEN 1 ELSE 0 END) as approved,
+                            SUM(CASE WHEN status_approval = 'Rejected' THEN 1 ELSE 0 END) as rejected
+                        ")
+                        ->first();
+
                     $leaveStats = [
-                        'pending'  => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->whereIn('status_approval', ['Pending', 'Menunggu'])->count(),
-                        'approved' => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Approved')->count(),
-                        'rejected' => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->where('status_approval', 'Rejected')->count(),
-                        'total'    => \App\Models\LeaveRequest::whereIn('student_id', $studentIds)->count(),
+                        'pending'  => (int) ($rawLeaveStats?->pending ?? 0),
+                        'approved' => (int) ($rawLeaveStats?->approved ?? 0),
+                        'rejected' => (int) ($rawLeaveStats?->rejected ?? 0),
+                        'total'    => (int) ($rawLeaveStats?->total ?? 0),
                     ];
 
                     $todayAttendances = \App\Models\Attendance::whereIn('student_id', $studentIds)
