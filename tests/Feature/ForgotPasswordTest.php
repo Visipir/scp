@@ -38,6 +38,28 @@ class ForgotPasswordTest extends TestCase
         Mail::assertNothingQueued();
     }
 
+    public function test_forgot_password_for_user_without_email_returns_guard_message(): void
+    {
+        $user = $this->makeUser(4, [
+            'username' => 'siswa_no_email',
+            'email'    => null,
+        ]);
+
+        // API Request returns 422 with clear message
+        $apiRes = $this->postJson('/api/forgot-password', [
+            'identifier' => 'siswa_no_email',
+        ]);
+        $apiRes->assertStatus(422)
+            ->assertJsonValidationErrors(['email'])
+            ->assertSee('Email belum terdaftar. Hubungi Waka Kurikulum.');
+
+        // Web Request redirects back with error
+        $webRes = $this->post('/forgot-password', [
+            'identifier' => 'siswa_no_email',
+        ]);
+        $webRes->assertSessionHasErrors(['email' => 'Email belum terdaftar. Hubungi Waka Kurikulum.']);
+    }
+
     public function test_forgot_password_does_not_send_email_if_email_is_unverified(): void
     {
         Mail::fake();

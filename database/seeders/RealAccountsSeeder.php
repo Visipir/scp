@@ -46,7 +46,7 @@ class RealAccountsSeeder extends Seeder
                     'fullname' => 'Pak Budi Kurikulum, M.Pd',
                     'role_id' => 1,
                     'password' => Hash::make($defaultPassword),
-                    'must_change_password' => false,
+                    'must_change_password' => true,
                 ]
             );
             return;

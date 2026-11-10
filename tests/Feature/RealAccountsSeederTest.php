@@ -37,6 +37,8 @@ class RealAccountsSeederTest extends TestCase
     {
         if ($this->originalCsvContent !== null) {
             File::put($this->csvPath, $this->originalCsvContent);
+        } else {
+            File::delete($this->csvPath);
         }
         parent::tearDown();
     }
@@ -74,6 +76,25 @@ class RealAccountsSeederTest extends TestCase
         // DatabaseSeeder MUST NOT reference RealAccountsSeeder
         $dbSeederSource = File::get(database_path('seeders/DatabaseSeeder.php'));
         $this->assertStringNotContainsString('RealAccountsSeeder', $dbSeederSource);
+    }
+
+    public function test_real_accounts_seeder_bootstrap_branch_creates_waka_with_must_change_password_true(): void
+    {
+        if (File::exists($this->csvPath)) {
+            File::delete($this->csvPath);
+        }
+
+        $password = 'TestBootstrapSecret123!';
+        putenv("SEED_DEFAULT_PASSWORD={$password}");
+        $_ENV['SEED_DEFAULT_PASSWORD'] = $password;
+
+        $this->seed(RealAccountsSeeder::class);
+
+        $waka = User::where('username', 'waka_kurikulum')->first();
+        $this->assertNotNull($waka);
+        $this->assertSame(1, (int) $waka->role_id);
+        $this->assertTrue((bool) $waka->must_change_password);
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($password, $waka->password));
     }
 
     public function test_real_accounts_seeder_throws_when_password_env_missing(): void

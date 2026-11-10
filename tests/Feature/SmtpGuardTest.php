@@ -63,7 +63,7 @@ class SmtpGuardTest extends TestCase
         $this->assertStringContainsString('Pengguna tidak ditemukan atau belum memiliki email terverifikasi', $log->error_message);
     }
 
-    public function test_forgot_password_for_user_without_email_returns_identical_response_and_logs_nothing_identifying(): void
+    public function test_forgot_password_for_user_without_email_triggers_missing_email_guard(): void
     {
         Role::insert([
             ['id' => 2, 'role_name' => 'Guru'],
@@ -78,19 +78,11 @@ class SmtpGuardTest extends TestCase
             'email_verified_at' => null,
         ]);
 
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectExceptionMessage('Email belum terdaftar. Hubungi Waka Kurikulum.');
+
         $service = app(PasswordResetService::class);
-        $response = $service->requestResetCode('guru_no_email');
-
-        $this->assertTrue($response['success']);
-        $this->assertSame('Jika akun ditemukan dan memiliki email terverifikasi, kode dikirim.', $response['message']);
-
-        $log = MailSendLog::latest('id')->first();
-        $this->assertNotNull($log);
-        $this->assertSame('password_reset', $log->mail_type);
-        $this->assertSame('failed', $log->status);
-        $this->assertSame('***', $log->recipient);
-        $this->assertStringNotContainsString('guru_no_email', $log->recipient);
-        $this->assertStringNotContainsString('guru_no_email', (string) $log->error_message);
+        $service->requestResetCode('guru_no_email');
     }
 
     public function test_forgot_password_records_log_when_user_has_verified_email(): void

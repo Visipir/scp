@@ -35,65 +35,94 @@
 
 ---
 
-## 2. Langkah 0: Aplikasi Patch Terpadu Live (`ALLOW_LIVE_PATCH`)
+## 2. Langkah 0: Aplikasi Patch Terpadu Live
 
 > [!IMPORTANT]
-> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah ini menerapkan patch terpadu `/root/backup/live-patch-app.patch` (SHA-256: `82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0`) yang HANYA mencakup berkas aplikasi (tanpa menyentuh atau menghapus berkas dump SQL / kredensial):
-> 1. Pembatasan laju (*rate limiting*) `throttle:api-login` pada endpoint legacy `POST /api/login` (tetap aktif), serta `throttle:6,1` pada endpoint reset password & verifikasi email (`routes/api.php`, `routes/auth.php`, `routes/web.php`).
-> 2. Perlindungan fallback dekripsi password SMTP (`MailConfigService.php`) jika key rusak.
-> 3. Validasi batasan panjang prompt AI chat (`ChatController.php`).
-> 4. Perlindungan anti-enumerasi akun dan anonymized audit logging pada forgot-password (`PasswordResetService.php`).
-> 5. Bootstrap fallback akun Waka Kurikulum pertama saat `accounts.csv` tidak tersedia (`RealAccountsSeeder.php`).
->
-> *(Catatan Keamanan: Patch lawas yang menyertakan penghapusan dump SQL telah diganti namanya menjadi `/root/backup/live-patch-app-WITH-DUMP.patch.SENSITIVE` (mode 600). Berkas ini mengandung data sensitif dari riwayat lama dan DILARANG KERAS disalin ke laptop, arsip zip, git repository, atau kanal chat).*
->
-> > **ATURAN MUTLAK:** Jika patch tidak dapat diterapkan secara bersih (baik verifikasi SHA-256 gagal maupun `git apply --check` gagal), **JANGAN JALANKAN LANGKAH 0 ATAU LANGKAH 1**. Hentikan proses dan periksa perbedaan direktori kerja.
->
-> **Jika operator melewati Langkah 0, operator WAJIB melewati Langkah 1 juga.** Melewatkan Langkah 0 akan menyebabkan perbedaan pada berkas aplikasi saat `git reset --mixed main` di Langkah 1, sehingga `git status --short` tidak akan bersih dan swap riwayat otomatis dibatalkan.
+> **PRASYARAT MUTLAK UNTUK LANGKAH 1:** Langkah 1 (swap `.git`) mewajibkan patch tampilan auth (Patch A) dan patch logika aplikasi (Patch B) telah diterapkan ke working tree live (atau menggunakan patch gabungan `/root/backup/live-patch-app.patch`). Jika salah satu patch belum diterapkan, `git reset --mixed main` pada Langkah 1 akan meninggalkan *unstaged changes* pada working tree dan membatalkan swap.
 
-### Eksekusi Langkah 0
+---
 
-Jalankan perintah berikut di direktori server:
+### Langkah 0a: Aplikasi Patch Tampilan Login Live (`ALLOW_LOGIN_PATCH`)
+
+> [!NOTE]
+> **Kapan Langkah 0a Dijalankan:** Patch ini (`/root/backup/live-patch-login.patch`, 8 berkas tampilan auth) adalah perbaikan UI/kosmetik murni untuk mendukung mode gelap/terang pada halaman login dan reset password (scoped CSS tokens, `<meta name="color-scheme">`, pre-paint init script, tombol toggle tema). Aman dijalankan secara independen tanpa menyentuh rute, kontroler, service, atau servis background (PHP-FPM/Nginx).
+>
+> **Gate File:** `/root/backup/ALLOW_LOGIN_PATCH`
+
+```bash
+# 0. Verifikasi Gate File
+if [ ! -f /root/backup/ALLOW_LOGIN_PATCH ]; then
+    echo "ERROR: Gate file /root/backup/ALLOW_LOGIN_PATCH tidak ditemukan!"
+    exit 1
+fi
+
+# 1. Backup berkas tampilan auth live sebelum patch (8 berkas)
+cd /var/www/SCP
+mkdir -p /root/backup/live-files-pre-login-patch
+cp -a resources/views/layouts/guest.blade.php       resources/views/components/theme-dropdown.blade.php       resources/views/auth/confirm-password.blade.php       resources/views/auth/first-change-password.blade.php       resources/views/auth/forgot-password.blade.php       resources/views/auth/register.blade.php       resources/views/auth/reset-password-code.blade.php       resources/views/auth/verify-email.blade.php       /root/backup/live-files-pre-login-patch/
+
+# 2. Uji coba patch kering (dry-run) dan terapkan patch
+patch -p1 --dry-run < /root/backup/live-patch-login.patch
+if [ $? -ne 0 ]; then
+    echo "ERROR: Patch login tidak dapat diterapkan secara bersih! Batalkan."
+    exit 1
+fi
+patch -p1 < /root/backup/live-patch-login.patch
+
+# 3. Bersihkan cache template Blade
+php artisan view:clear
+
+# 4. Verifikasi variabel tema login aktif
+curl -s http://127.0.0.1:8000/login | grep -q -- '--auth-bg: #1a1a1e' && echo "PASS: Tema login aktif"
+```
+
+**Rollback Langkah 0a:**
+```bash
+cp -a /root/backup/live-files-pre-login-patch/* /var/www/SCP/
+cd /var/www/SCP && php artisan view:clear
+rm -f /root/backup/ALLOW_LOGIN_PATCH
+```
+
+---
+
+### Langkah 0b: Aplikasi Patch Logika Aplikasi Live (`ALLOW_LIVE_PATCH`)
+
+> [!IMPORTANT]
+> **Gate File:** `/root/backup/ALLOW_LIVE_PATCH`
+> Jika Langkah 0a telah diterapkan, terapkan `/root/backup/live-patch-rest.patch` (7 berkas). Jika Langkah 0a belum diterapkan, terapkan `/root/backup/live-patch-app.patch` (15 berkas).
 
 ```bash
 # 0. Verifikasi Gate File & Pra-Verifikasi Sistem
 if [ ! -f /root/backup/ALLOW_LIVE_PATCH ]; then
-    echo "ERROR: Gate file /root/backup/ALLOW_LIVE_PATCH tidak ditemukan. Abort."
+    echo "ERROR: Gate file /root/backup/ALLOW_LIVE_PATCH tidak ditemukan!"
     exit 1
 fi
-
-# 0b. Verifikasi Checksum Patch Terpadu
-echo "82536e12ea4e27c7b518972f004057521a2cd0ff542648b01d8de398b38ac8e0  /root/backup/live-patch-app.patch" | sha256sum -c -
-if [ $? -ne 0 ]; then
-    echo "ERROR: Checksum /root/backup/live-patch-app.patch tidak cocok! Membatalkan eksekusi."
-    exit 1
-fi
-
 /root/backup/live-verify.sh
 
 cd /var/www/SCP
 
-# 1. Backup berkas aplikasi yang akan dimodifikasi (7 berkas)
-mkdir -p /root/backup/live-files-pre-patch
-cp -a routes/api.php routes/auth.php routes/web.php \
-      app/Http/Controllers/ChatController.php \
-      app/Services/MailConfigService.php app/Services/PasswordResetService.php \
-      database/seeders/RealAccountsSeeder.php \
-      /root/backup/live-files-pre-patch/
-echo "Backup berkas aplikasi selesai di /root/backup/live-files-pre-patch/"
-
-# 2. Uji coba patch kering (dry-run)
-git apply --check /root/backup/live-patch-app.patch || patch -p1 --dry-run < /root/backup/live-patch-app.patch
-if [ $? -ne 0 ]; then
-    echo "ERROR: Patch dry-run gagal! Patch tidak berlaku bersih. Jangan jalankan Langkah 0 atau 1."
-    exit 1
+# 1. Tentukan patch yang sesuai
+if grep -q -- '--auth-bg: #1a1a1e' resources/views/layouts/guest.blade.php; then
+    echo "Langkah 0a sudah diterapkan. Menerapkan live-patch-rest.patch..."
+    PATCH_FILE="/root/backup/live-patch-rest.patch"
+else
+    echo "Langkah 0a belum diterapkan. Menerapkan live-patch-app.patch gabungan..."
+    PATCH_FILE="/root/backup/live-patch-app.patch"
 fi
 
-# 3. Terapkan patch pada working tree live
-git apply /root/backup/live-patch-app.patch
-echo "Patch terpadu berhasil diterapkan."
+# 2. Backup berkas aplikasi sebelum modifikasi
+mkdir -p /root/backup/live-files-pre-patch
+cp -a routes/api.php routes/auth.php routes/web.php       app/Http/Controllers/ChatController.php       app/Services/MailConfigService.php app/Services/PasswordResetService.php       database/seeders/RealAccountsSeeder.php       /root/backup/live-files-pre-patch/
 
-# 4. Uji kelayakan konfigurasi, cache rute, dan reload PHP-FPM
+# 3. Dry-run dan terapkan patch
+git apply --check "$PATCH_FILE" || patch -p1 --dry-run < "$PATCH_FILE"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Patch aplikasi tidak dapat diterapkan secara bersih! Batalkan Langkah 0b dan Langkah 1."
+    exit 1
+fi
+git apply "$PATCH_FILE" || patch -p1 < "$PATCH_FILE"
+
+# 4. Bersihkan cache rute/konfigurasi dan reload PHP-FPM
 HAD_ROUTE_CACHE=0
 [ -f bootstrap/cache/routes-v7.php ] && HAD_ROUTE_CACHE=1
 php artisan config:clear
@@ -102,34 +131,17 @@ php artisan route:clear
 php artisan route:list > /dev/null
 systemctl reload php8.3-fpm
 
-# 5. Uji verifikasi penuh pasca-patch (login 5 akun terlindung, token, sesi, DB SHA256)
+# 5. Uji verifikasi penuh pasca-patch
 /root/backup/live-verify.sh
 ```
 
-### Prosedur Rollback Langkah 0
-
-Jika terjadi kendala setelah patch:
-
+**Rollback Langkah 0b:**
 ```bash
-cd /var/www/SCP
 cp -a /root/backup/live-files-pre-patch/* /var/www/SCP/
 systemctl reload php8.3-fpm
-php artisan config:clear
-php artisan route:clear
+cd /var/www/SCP && php artisan config:clear && php artisan route:clear
 rm -f /root/backup/ALLOW_LIVE_PATCH
 /root/backup/live-verify.sh
-echo "Rollback Langkah 0 selesai."
-```
-
-# 1. Pulihkan berkas routes asli dari backup
-cp -a /root/backup/live-files-pre-patch/* routes/
-
-# 2. Bersihkan cache route dan config
-php artisan config:clear
-php artisan route:clear
-
-# 3. Verifikasi git status pada routes
-git status routes/
 ```
 
 ---

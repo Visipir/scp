@@ -30,6 +30,13 @@ class PasswordResetService
             ->orWhere('nip', $trimmed)
             ->first();
 
+        // UKK B2 Guard: Existing account without registered email must direct user to Waka Kurikulum
+        if ($user && empty($user->email)) {
+            throw ValidationException::withMessages([
+                'email' => 'Email belum terdaftar. Hubungi Waka Kurikulum.',
+            ]);
+        }
+
         if ($user && ! empty($user->email) && $user->email_verified_at !== null) {
             $userEmail = strtolower(trim($user->email));
             $code = sprintf('%06d', random_int(100000, 999999));
@@ -50,13 +57,22 @@ class PasswordResetService
                 ? MailSendLog::maskEmail($identifier)
                 : '***';
 
-            MailSendLog::create([
-                'mail_type'     => 'password_reset',
-                'recipient'     => $maskedRecipient,
-                'status'        => 'failed',
-                'error_message' => 'Pengguna tidak ditemukan atau belum memiliki email terverifikasi',
-                'created_at'    => now(),
-            ]);
+            // Flood guard: de-duplicate failed log entries within 15 minutes
+            $recentLogExists = MailSendLog::where('mail_type', 'password_reset')
+                ->where('recipient', $maskedRecipient)
+                ->where('status', 'failed')
+                ->where('created_at', '>=', now()->subMinutes(15))
+                ->exists();
+
+            if (! $recentLogExists) {
+                MailSendLog::create([
+                    'mail_type'     => 'password_reset',
+                    'recipient'     => $maskedRecipient,
+                    'status'        => 'failed',
+                    'error_message' => 'Pengguna tidak ditemukan atau belum memiliki email terverifikasi',
+                    'created_at'    => now(),
+                ]);
+            }
         }
 
         return [

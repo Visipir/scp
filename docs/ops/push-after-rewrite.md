@@ -34,17 +34,42 @@ Ikuti langkah-langkah berikut secara berurutan:
    - Di direktori iOS: `cd /root/scp-ios-clean && ./scripts/ops/prepush-check.sh`
    - Keduanya wajib menghasilkan status `=== OK: Pre-push checks PASSED. ===`.
 4. [ ] **Eksekusi FIRST PUSH (Inisialisasi Repositori Bersih)**:
-   - **Repositori Web (`/root/scp-clean`)**: Force push dilakukan HANYA pada first push untuk mengunggah riwayat bersih dan menggantikan riwayat lama di GitHub:
+   - **Repositori Web (`/root/scp-clean`)**:
+     Sebelum melakukan push pertama, periksa status referensi remote. Jika remote kosong, lakukan plain push. Jika remote memuat riwayat lama, wajibkan konfirmasi teks `REPLACE-REMOTE` sebelum menjalankan `--force`:
      ```bash
      cd /root/scp-clean
-     git push --force origin main feat/dark-console-ui
-     git push --force origin pre-restyle
+
+     REMOTE_STATE=$(git ls-remote origin)
+
+     if [ -z "$REMOTE_STATE" ]; then
+         echo "Remote origin kosong. Menjalankan plain push pertama..."
+         git push origin main feat/dark-console-ui
+         git push origin refs/tags/pre-restyle
+     else
+         echo "PERINGATAN: Remote origin sudah memiliki referensi riwayat:"
+         echo "$REMOTE_STATE"
+         echo "STOP: Tindakan ini akan menimpa seluruh riwayat remote dengan riwayat bersih!"
+         read -r -p "Ketik 'REPLACE-REMOTE' untuk mengonfirmasi penggantian riwayat remote: " CONFIRMATION
+         if [ "$CONFIRMATION" = "REPLACE-REMOTE" ]; then
+             echo "Konfirmasi cocok. Menjalankan force push riwayat bersih..."
+             git push --force origin main feat/dark-console-ui
+             git push --force origin refs/tags/pre-restyle
+         else
+             echo "Konfirmasi tidak cocok atau dibatalkan. Keluar tanpa melakukan push."
+             exit 1
+         fi
+     fi
      ```
-   - **Repositori iOS (`/root/scp-ios-clean`)**: Plain push normal tanpa force:
+     > **Mengapa `--force-with-lease` tidak digunakan?** Karena setelah rewrite riwayat git, pohon commit lokal tidak memiliki common ancestor dengan riwayat remote, dan git lokal belum memiliki tracking branch ke commit remote lama. Opsi `--force-with-lease` mengharapkan referensi tracking lokal sesuai dengan remote, yang tidak berlaku dalam skenario penggantian total riwayat. Pengecekan eksplisit via `git ls-remote` dan konfirmasi `REPLACE-REMOTE` memberikan pengamanan operasional yang pasti.
+
+   - **Repositori iOS (`/root/scp-ios-clean`)**:
+     Selalu plain push normal tanpa `--force` (repositori iOS tidak pernah di-rewrite):
      ```bash
      cd /root/scp-ios-clean
+     git ls-remote origin
      git push origin main
      ```
+     *Jika dorongan ditolak (rejected), STOP dan tanyakan ke operator.*
 5. [ ] **Jalankan Verifikasi Pasca-Dorongan (*Post-Push Verification*)**:
    ```bash
    cd /root/scp-clean
@@ -201,10 +226,21 @@ if [ -z "$REMOTE_STATE" ]; then
     git push origin main feat/dark-console-ui
     git push origin refs/tags/pre-restyle
 else
-    echo "PERINGATAN: Remote origin sudah memiliki refs:"
+    echo "================================================================================"
+    echo "PERINGATAN: Remote origin sudah memiliki refs yang ada:"
+    echo "================================================================================"
     echo "$REMOTE_STATE"
-    echo "STOP: Teliti daftar refs di atas. Perintah berikutnya akan menggantikan riwayat remote lama dengan riwayat bersih:"
-    # Operator memutuskan dan mengonfirmasi secara sadar:
+    echo "================================================================================"
+    echo "Mendorong riwayat bersih akan menggantikan riwayat lama di remote secara permanen."
+    echo "Catatan: Opsi --force-with-lease tidak dapat digunakan karena klon bersih ini tidak"
+    echo "memiliki remote-tracking branch yang berbagi riwayat dengan commit di remote."
+    echo ""
+    read -r -p "Ketik 'REPLACE-REMOTE' untuk menyetujui penulisan ulang remote: " CONFIRM_PUSH
+    if [ "$CONFIRM_PUSH" != "REPLACE-REMOTE" ]; then
+        echo "Dibatalkan: Konfirmasi tidak cocok ('$CONFIRM_PUSH' != 'REPLACE-REMOTE'). Tidak ada yang di-push."
+        exit 1
+    fi
+    echo "Konfirmasi valid diterima. Menjalankan first push dengan --force..."
     git push --force origin main feat/dark-console-ui
     git push --force origin refs/tags/pre-restyle
 fi
@@ -234,21 +270,15 @@ git remote -v
 ```
 
 #### 1. FIRST PUSH (Inisialisasi Riwayat iOS)
-Jalankan blok skrip berikut yang membaca kondisi remote terlebih dahulu:
+Repositori iOS **SELALU menggunakan dorongan normal tanpa force** (`plain push`), baik pada dorongan pertama maupun selanjutnya:
 ```bash
 cd /root/scp-ios-clean
 
-# 1. Periksa remote state
-REMOTE_STATE=$(git ls-remote origin)
-
-if [ -z "$REMOTE_STATE" ]; then
-    echo "Remote origin iOS kosong. Menjalankan dorongan awal..."
-    git push origin main
-else
-    echo "PERINGATAN: Remote origin iOS sudah memiliki refs:"
-    echo "$REMOTE_STATE"
-    echo "STOP: Teliti daftar refs di atas sebelum melanjutkan."
-    git push origin main
+# 1. Dorongan plain push (jika ditolak, STOP SEGERA; jangan pernah force push)
+echo "Menjalankan dorongan iOS (plain push)..."
+if ! git push origin main; then
+    echo "ERROR: Dorongan ke origin/main ditolak. STOP SEGERA. Jangan gunakan --force."
+    exit 1
 fi
 
 # 2. Verifikasi pasca-dorongan iOS (dihitung secara runtime tanpa hash hardcoded):
@@ -276,10 +306,20 @@ git remote set-url origin git@github.com:Visipir/scp.git
 
 REMOTE_STATE=$(git ls-remote origin)
 if [ -z "$REMOTE_STATE" ]; then
+    echo "Remote origin kosong. Menjalankan dorongan awal..."
     git push origin refs/heads/main:refs/heads/main refs/heads/feat/dark-console-ui:refs/heads/feat/dark-console-ui
     git push origin refs/tags/pre-restyle:refs/tags/pre-restyle
 else
-    echo "STOP: Teliti remote refs sebelum force push:" && echo "$REMOTE_STATE"
+    echo "================================================================================"
+    echo "ATTENTION: Remote origin already contains existing references:"
+    echo "================================================================================"
+    echo "$REMOTE_STATE"
+    echo "================================================================================"
+    read -r -p "Type 'REPLACE-REMOTE' to confirm replacing remote history: " CONFIRM_PUSH
+    if [ "$CONFIRM_PUSH" != "REPLACE-REMOTE" ]; then
+        echo "Aborted: Confirmation mismatch ('$CONFIRM_PUSH' != 'REPLACE-REMOTE'). Nothing pushed."
+        exit 1
+    fi
     git push --force origin refs/heads/main:refs/heads/main refs/heads/feat/dark-console-ui:refs/heads/feat/dark-console-ui
     git push --force origin refs/tags/pre-restyle:refs/tags/pre-restyle
 fi

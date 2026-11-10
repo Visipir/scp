@@ -15,12 +15,15 @@ $verticalClasses = $dropup
     <!-- Trigger Button -->
     <button 
         type="button" 
+        id="theme-toggle-btn"
         @click="open = !open" 
-        class="p-1.5 text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150 cursor-pointer flex items-center justify-center shadow-2xs"
+        class="p-1.5 text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] border border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150 cursor-pointer flex items-center justify-center shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0093dd]"
         :title="$store.theme ? ($store.theme.mode === 'system' ? 'Tema: Otomatis (Sistem)' : ($store.theme.mode === 'light' ? 'Tema: Terang' : 'Tema: Gelap')) : 'Pengaturan Tema'"
         aria-label="Pilih Tema Tampilan"
         aria-haspopup="true"
+        aria-pressed="false"
         :aria-expanded="open"
+        :aria-pressed="$store.theme ? ($store.theme.isDark ? 'true' : 'false') : (document.documentElement.classList.contains('dark') ? 'true' : 'false')"
     >
         <!-- Sun icon when light mode selected -->
         <svg x-show="$store.theme?.mode === 'light'" x-cloak class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">

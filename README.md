@@ -76,6 +76,8 @@ Gunakan `RealAccountsSeeder` dengan kredensial yang disuplai via environment var
 SEED_DEFAULT_PASSWORD="<KATA_SANDI_AMAN_WAKA>" php artisan db:seed --class=RealAccountsSeeder --force
 ```
 
+> **Catatan Keamanan:** Akun Waka Kurikulum pertama yang dibuat melalui `RealAccountsSeeder` dibuat dengan status `must_change_password = true`. Pengguna **wajib mengganti kata sandi pada saat pertama kali login** sebelum dapat mengakses dashboard atau fitur aplikasi lainnya. Jika `SEED_DEFAULT_PASSWORD` kosong, seeder akan menolak eksekusi demi mencegah pembuatan akun dengan kata sandi kosong.
+
 ### 3.6. Menjalankan Aplikasi
 - **Lingkungan Produksi**: Konfigurasikan Nginx menuju direktori `public/`:
   ```nginx

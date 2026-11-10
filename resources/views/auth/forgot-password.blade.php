@@ -1,32 +1,40 @@
 <x-guest-layout>
     <div class="mb-4">
-        <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">Lupa Kata Sandi?</h2>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+        <h2 class="text-lg font-bold auth-header-title">Lupa Kata Sandi?</h2>
+        <p class="text-sm text-muted-token mt-1">
             Masukkan alamat email terdaftar atau Nama Pengguna / NIS akun Anda. Jika akun memiliki email terverifikasi, kami akan mengirimkan kode verifikasi 6 digit untuk mengatur ulang kata sandi.
         </p>
     </div>
 
     <!-- Alert untuk siswa/ortu tanpa email -->
-    <div class="mb-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+    <div class="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
         <strong>Informasi Siswa / Orang Tua:</strong> Bagi siswa atau orang tua yang belum mendaftarkan email di akun SCP, silakan hubungi wali kelas atau Waka Kurikulum untuk bantuan reset kata sandi.
     </div>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
         @csrf
 
         <!-- Email or Username/NIS -->
         <div>
             <x-input-label for="identifier" value="Email atau Nama Pengguna / NIS" />
-            <x-text-input id="identifier" class="block mt-1 w-full" type="text" name="identifier" :value="old('identifier', old('email'))" placeholder="nama@example.test atau NIS/Username" required autofocus />
-            <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-2" />
+            <x-text-input 
+                id="identifier" 
+                type="text" 
+                name="identifier" 
+                :value="old('identifier', old('email'))" 
+                required 
+                autofocus 
+                placeholder="email@sekolah.sch.id atau NIS/NIP"
+            />
+            <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-1.5" />
         </div>
 
-        <div class="flex items-center justify-between mt-6">
-            <a href="{{ route('login') }}" class="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition">
-                &larr; Kembali ke Login
+        <div class="flex items-center justify-between pt-2">
+            <a href="{{ route('login') }}" class="text-xs text-muted-token hover:underline transition">
+                &larr; Kembali ke login
             </a>
 
             <x-primary-button>
