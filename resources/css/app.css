@@ -10,13 +10,13 @@
    DARK DEVELOPER-CONSOLE DESIGN TOKENS (Single Source of Truth)
    ========================================================================== */
 :root {
-    --bg-page: #19191C;
-    --surface-card: #1D1D21;
-    --surface-nested: #232327;
-    --surface-hover: #26262A;
-    --border-hairline: #2B2B30;
-    --nav-active: #3A3A3F;
-    --nav-hover: #26262A;
+    --bg-page: #121215;
+    --surface-card: #222228;
+    --surface-nested: #18181E;
+    --surface-hover: #2B2B33;
+    --border-hairline: #363642;
+    --nav-active: #2C2C36;
+    --nav-hover: #222228;
     --text-primary: #EDEDF0;
     --text-secondary: #97979B;
     --text-muted: #5B5B61;
@@ -31,13 +31,13 @@
 
 html.dark {
     color-scheme: dark;
-    --bg-page: #19191C;
-    --surface-card: #1D1D21;
-    --surface-nested: #232327;
-    --surface-hover: #26262A;
-    --border-hairline: #2B2B30;
-    --nav-active: #3A3A3F;
-    --nav-hover: #26262A;
+    --bg-page: #121215;
+    --surface-card: #222228;
+    --surface-nested: #18181E;
+    --surface-hover: #2B2B33;
+    --border-hairline: #363642;
+    --nav-active: #2C2C36;
+    --nav-hover: #222228;
     --text-primary: #EDEDF0;
     --text-secondary: #97979B;
     --text-muted: #5B5B61;
@@ -102,7 +102,7 @@ body {
     color: var(--text-primary) !important;
 }
 
-/* 2. Cards, Surfaces & Panels (Flat, 1px Hairline #2B2B30, No Drop Shadows) */
+/* 2. Cards, Surfaces & Panels */
 .dark div.bg-white,
 .dark section.bg-white,
 .dark article.bg-white,
@@ -118,10 +118,24 @@ body {
 .dark label.bg-white,
 .dark p.bg-white,
 .dark ul.bg-white,
-.dark li.bg-white {
-    background-color: var(--surface-card) !important; /* #1D1D21 */
-    border-color: var(--border-hairline) !important; /* #2B2B30 */
-    box-shadow: none !important;
+.dark li.bg-white,
+.dark .bg-\[\#1D1D21\],
+.dark .dark\:bg-\[\#1D1D21\],
+.dark .bg-\[\#1E1E22\],
+.dark .dark\:bg-\[\#1E1E22\],
+.dark main div.rounded-xl.border,
+.dark main div.rounded-2xl.border,
+.dark main a.rounded-xl.border,
+.dark main a.rounded-2xl.border,
+.dark main section.rounded-xl.border,
+.dark main .rounded-xl.shadow-xs,
+.dark main .rounded-xl.shadow-sm,
+.dark main .rounded-xl.shadow-2xs,
+.dark main .rounded-2xl.shadow-xs,
+.dark main .rounded-2xl.shadow-sm,
+.dark main .rounded-2xl.shadow-2xs {
+    background-color: var(--surface-card) !important;
+    border-color: var(--border-hairline) !important;
 }
 
 /* Inset / Nested Surfaces */
@@ -352,9 +366,9 @@ body {
 .dark input[type="password"],
 .dark select,
 .dark textarea {
-    background-color: #19191C !important;
-    border-color: var(--border-hairline) !important; /* #2B2B30 */
-    color: var(--text-primary) !important; /* #EDEDF0 */
+    background-color: var(--surface-nested) !important;
+    border-color: var(--border-hairline) !important;
+    color: var(--text-primary) !important;
     box-shadow: none !important;
 }
 
@@ -367,19 +381,19 @@ body {
 .dark input[type="password"]:focus,
 .dark select:focus,
 .dark textarea:focus {
-    background-color: #161619 !important;
-    border-color: var(--accent) !important; /* #0093dd */
+    background-color: var(--bg-page) !important;
+    border-color: var(--accent) !important;
     outline: none !important;
     box-shadow: 0 0 0 2px rgba(0, 147, 221, 0.25) !important;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-    color: var(--text-muted) !important; /* #5B5B61 */
+    color: var(--text-muted) !important;
 }
 
 .dark select option {
-    background-color: #1D1D21 !important;
+    background-color: var(--surface-card) !important;
     color: var(--text-primary) !important;
 }
 
@@ -391,12 +405,12 @@ body {
 
 /* 7. Tables & Data Grids */
 .dark table {
-    border-color: var(--border-hairline) !important; /* #2B2B30 */
+    border-color: var(--border-hairline) !important;
 }
 
 .dark th {
-    background-color: #19191C !important;
-    color: var(--text-secondary) !important; /* #97979B */
+    background-color: var(--surface-nested) !important;
+    color: var(--text-secondary) !important;
     border-color: var(--border-hairline) !important;
     font-family: var(--font-mono);
 }
@@ -739,6 +753,16 @@ html:not(.dark) .border-\[\#2C2C30\] {
     border-color: var(--border-hairline) !important;
 }
 
+/* Dark Mode Hairline Borders Mapping */
+.dark .border-\[\#2B2B30\],
+.dark .dark\:border-\[\#2B2B30\],
+.dark .border-\[\#2C2C30\],
+.dark .dark\:border-\[\#2C2C30\],
+.dark .border-zinc-800,
+.dark .dark\:border-zinc-800 {
+    border-color: var(--border-hairline) !important;
+}
+
 html.light .bg-\[\#282115\],
 html:not(.dark) .bg-\[\#282115\] {
     background-color: #FEF3C7 !important; /* amber-100 */
@@ -828,6 +852,27 @@ html:not(.dark) .rounded-2xl.shadow-2xs {
 html.light .hover\:shadow-md:hover,
 html:not(.dark) .hover\:shadow-md:hover {
     box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.09), 0 2px 4px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Dark Mode Card Shadows & Elevation */
+html.dark div.rounded-xl.border,
+html.dark div.rounded-2xl.border,
+html.dark a.rounded-xl.border,
+html.dark a.rounded-2xl.border,
+html.dark section.rounded-xl.border,
+html.dark .rounded-xl.shadow-xs,
+html.dark .rounded-xl.shadow-sm,
+html.dark .rounded-xl.shadow-2xs,
+html.dark .rounded-2xl.shadow-xs,
+html.dark .rounded-2xl.shadow-sm,
+html.dark .rounded-2xl.shadow-2xs,
+html.dark .auth-card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.45), 0 1px 2px -1px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.dark .hover\:shadow-md:hover,
+html.dark .dark\:hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.55), 0 2px 4px -2px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Light Mode Inputs, Selects & Textareas */
