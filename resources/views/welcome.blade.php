@@ -48,7 +48,7 @@
 <body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white relative overflow-x-hidden min-h-screen flex flex-col justify-between transition-colors duration-150">
     
     <!-- Top Navigation -->
-    <header class="w-full px-6 py-5 flex justify-between items-center z-10 border-b border-zinc-200/80 dark:border-[#2B2B30]/80 bg-white/70 dark:bg-[#19191C]/70 backdrop-blur-sm sticky top-0">
+    <header class="w-full px-6 py-5 flex justify-between items-center z-10 border-b border-zinc-200/80 dark:border-[#2B2B30]/80 bg-white dark:bg-[#19191C] sticky top-0">
         <a href="/" class="flex items-center gap-2.5 group">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain shrink-0">
             <span class="text-base font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>

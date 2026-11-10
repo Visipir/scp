@@ -16,7 +16,7 @@
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>
         @endif
         @if($errors->any())
-            <div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-mono">
+            <div class="p-4 bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 rounded-xl text-rose-800 dark:text-rose-300 text-xs font-mono">
                 @foreach($errors->all() as $err)
                     <div>&bull; {{ $err }}</div>
                 @endforeach
@@ -119,11 +119,11 @@
                                 Latar Belakang Aktif
                             </h2>
                             @if($config->login_background_path)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">
                                     GAMBAR KHUSUS
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-zinc-500/20 text-zinc-400 border border-zinc-500/30">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-[#97979B] border border-zinc-300 dark:border-[#3A3A3F]">
                                     DEFAULT BRAND
                                 </span>
                             @endif
@@ -142,7 +142,7 @@
                                 <a 
                                     href="{{ route('login') }}" 
                                     target="_blank" 
-                                    class="text-[10px] bg-white/20 hover:bg-white/30 backdrop-blur text-white px-2 py-1 rounded transition"
+                                    class="text-[10px] bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-600 px-2.5 py-1 rounded transition"
                                 >
                                     Buka /login &nearr;
                                 </a>

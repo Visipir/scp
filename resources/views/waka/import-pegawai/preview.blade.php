@@ -45,9 +45,9 @@
         </div>
 
         @if($preview['summary']['no_email'] > 0)
-            <div class="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-300">
+            <div class="p-4 rounded-xl bg-purple-50 dark:bg-[#25182D] border border-purple-300 dark:border-purple-700/60 text-xs text-purple-900 dark:text-purple-300">
                 <p class="font-bold mb-1">Perhatian: Terdeteksi {{ $preview['summary']['no_email'] }} guru tanpa email.</p>
-                <p class="text-purple-300/80">Akun tetap dapat dibuat/diperbarui, namun login dengan OTP email tidak dapat digunakan sampai email diisi.</p>
+                <p class="text-purple-800/80 dark:text-purple-300/80">Akun tetap dapat dibuat/diperbarui, namun login dengan OTP email tidak dapat digunakan sampai email diisi.</p>
             </div>
         @endif
 
@@ -80,18 +80,18 @@
                                         @if($r['email'])
                                             <span class="text-zinc-700 dark:text-zinc-300">{{ $r['email'] }}</span>
                                         @else
-                                            <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-mono bg-purple-500/20 text-purple-300">tanpa email</span>
+                                            <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-mono bg-purple-100 dark:bg-[#25182D] text-purple-800 dark:text-purple-300">tanpa email</span>
                                         @endif
                                     </td>
                                     <td class="py-2 px-3">
                                         @if($r['status'] === 'matched')
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MATCHED</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">MATCHED</span>
                                         @elseif($r['status'] === 'fuzzy')
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30">FUZZY ({{ $r['match_score'] }}%)</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">FUZZY ({{ $r['match_score'] }}%)</span>
                                         @elseif($r['status'] === 'new')
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-sky-500/20 text-sky-400 border border-sky-500/30">NEW</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-sky-100 dark:bg-[#16222F] text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-700/60">NEW</span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30">AMBIGUOUS</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700/60">AMBIGUOUS</span>
                                         @endif
                                     </td>
                                     <td class="py-2 px-3">

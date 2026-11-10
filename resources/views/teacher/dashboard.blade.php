@@ -15,17 +15,17 @@
 
         {{-- PENDING SCHEDULE SWAP REQUESTS ALERT --}}
         @if(($pendingSwapCount ?? 0) > 0)
-            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-5">
+            <div class="bg-blue-50 dark:bg-[#16222F] border border-blue-200 dark:border-sky-800/60 rounded-xl p-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-start gap-3.5">
                         <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-[#0093dd] text-white">
                             TUKAR JADWAL
                         </span>
                         <div>
-                            <h3 class="text-sm font-bold text-blue-950 dark:text-blue-300 tracking-tight">
+                            <h3 class="text-sm font-bold text-blue-900 dark:text-sky-200 tracking-tight">
                                 Ada {{ $pendingSwapCount }} Permintaan Tukar Jadwal Menunggu Konfirmasi
                             </h3>
-                            <p class="text-xs text-blue-900/80 dark:text-blue-200/80 mt-1">
+                            <p class="text-xs text-blue-800 dark:text-sky-300 mt-1">
                                 Rekan guru telah mengajukan pertukaran jadwal mengajar dengan Anda. Harap tinjau dan konfirmasi.
                             </p>
                         </div>
@@ -39,16 +39,16 @@
 
         {{-- KBM DILIBURKAN BANNER --}}
         @if($kbmSuspendedEvent ?? false)
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5">
+            <div class="bg-amber-50 dark:bg-[#2A2215] border border-amber-200 dark:border-amber-700/60 rounded-xl p-5">
                 <div class="flex items-start gap-3.5">
-                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500 text-white">
                         KBM DILIBURKAN
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-950 dark:text-amber-300 tracking-tight">
+                        <h3 class="text-sm font-bold text-amber-950 dark:text-amber-200 tracking-tight">
                             Hari ini: {{ ucwords(str_replace("_", " ", $kbmSuspendedEvent->category)) }} - {{ $kbmSuspendedEvent->title }}
                         </h3>
-                        <p class="text-xs text-amber-900/80 dark:text-amber-200/80 mt-1">
+                        <p class="text-xs text-amber-900 dark:text-amber-300 mt-1">
                             Keterangan: <span class="font-semibold">{{ $kbmSuspendedEvent->description ?? "Tidak ada pembelajaran reguler." }}</span>.
                             Guru tidak diwajibkan mengirimkan jurnal pembelajaran harian untuk hari ini.
                         </p>
@@ -61,14 +61,14 @@
         @if(!empty($alerts))
             <div class="space-y-3">
                 @foreach($alerts as $schedule)
-                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5">
+                    <div class="bg-amber-50 dark:bg-[#2A2215] border border-amber-200 dark:border-amber-700/60 rounded-xl p-5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex items-start gap-3.5">
-                                <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                                <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 mt-0.5 bg-amber-500 text-white">
                                     PERINGATAN
                                 </span>
                                 <div>
-                                    <h3 class="text-sm font-bold text-amber-950 dark:text-white tracking-tight">
+                                    <h3 class="text-sm font-bold text-amber-950 dark:text-amber-200 tracking-tight">
                                         Jurnal KBM Belum Diisi!
                                     </h3>
                                     <p class="text-xs text-amber-900 dark:text-[#EDEDF0] mt-1 font-medium">
@@ -76,7 +76,7 @@
                                         <span class="font-bold">{{ $schedule->schoolClass?->class_name ?? '-' }}</span> &bull;
                                         <span>Ruang {{ $schedule->room?->room_name ?? '-' }}</span>
                                     </p>
-                                    <p class="text-[11px] font-mono text-amber-800 dark:text-amber-400 mt-1">
+                                    <p class="text-[11px] font-mono text-amber-800 dark:text-amber-300 mt-1">
                                         Selesai pukul {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }} (melewati batas toleransi 30 menit)
                                     </p>
                                 </div>
@@ -93,27 +93,27 @@
 
         {{-- ================= PANEL KHUSUS WALI KELAS ================= --}}
         @if($homeroomClass)
-            <div class="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/30 rounded-xl p-5 sm:p-6 shadow-xs">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-emerald-500/20">
+            <div class="bg-emerald-50 dark:bg-[#15231B] border border-emerald-300 dark:border-emerald-700/60 rounded-xl p-5 sm:p-6 shadow-xs">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-emerald-200 dark:border-emerald-800/40">
                     <div class="flex items-start gap-3.5">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/30">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-[#1E3025] text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-300 dark:border-emerald-600/50">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                             </svg>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono bg-emerald-500 text-white">
+                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono bg-emerald-600 text-white">
                                     WALI KELAS
                                 </span>
                                 <h3 class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
                                     Kelas Perwalian: {{ $homeroomClass->class_name }}
                                 </h3>
-                                <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-zinc-100 dark:bg-[#2C2C30] text-zinc-600 dark:text-[#97979B] border border-zinc-200 dark:border-[#3A3A3F]">
+                                <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-white dark:bg-[#1E3025] text-zinc-700 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/60">
                                     TP {{ $homeroomClass->academic_year ?? '2026/2027' }}
                                 </span>
                             </div>
-                            <p class="text-xs text-zinc-600 dark:text-[#97979B] mt-1">
+                            <p class="text-xs text-zinc-600 dark:text-emerald-200/80 mt-1">
                                 Kelola data {{ $homeroomStats['total_students'] ?? 0 }} siswa perwalian, cek presensi harian, evaluasi catatan kehadiran, dan pantau status izin siswa.
                             </p>
                         </div>
@@ -123,65 +123,65 @@
                 {{-- 4 Menu Utama Wali Kelas --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
                     <!-- 1. Cek List Siswa -->
-                    <a href="{{ route('classes.show', $homeroomClass->id) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                    <a href="{{ route('classes.show', $homeroomClass->id) }}" class="group bg-white dark:bg-[#1E3025] border border-emerald-200 dark:border-emerald-600/40 hover:border-emerald-500 rounded-lg p-3.5 transition flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                            <div class="flex items-center justify-between text-zinc-600 dark:text-emerald-200 mb-2">
                                 <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Cek List Siswa</span>
-                                <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">{{ $homeroomStats['total_students'] ?? 0 }} Siswa</span>
+                                <span class="text-xs font-bold text-zinc-900 dark:text-white">{{ $homeroomStats['total_students'] ?? 0 }} Siswa</span>
                             </div>
-                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Daftar siswa lengkap, nomor presensi, NIS, dan data rombel kelas.</p>
+                            <p class="text-xs text-zinc-600 dark:text-emerald-100/70">Daftar siswa lengkap, nomor presensi, NIS, dan data rombel kelas.</p>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div class="mt-3 pt-2 border-t border-emerald-100 dark:border-emerald-700/50 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                             <span>Buka Cek List &rarr;</span>
                         </div>
                     </a>
 
                     <!-- 2. Presensi Siswa -->
-                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E3025] border border-emerald-200 dark:border-emerald-600/40 hover:border-emerald-500 rounded-lg p-3.5 transition flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                            <div class="flex items-center justify-between text-zinc-600 dark:text-emerald-200 mb-2">
                                 <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Presensi Siswa</span>
-                                <span class="text-xs font-bold text-emerald-500">{{ $homeroomStats['attendance_summary']['hadir'] ?? 0 }} Hadir Hari Ini</span>
+                                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-300">{{ $homeroomStats['attendance_summary']['hadir'] ?? 0 }} Hadir Hari Ini</span>
                             </div>
-                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Rekap kehadiran harian/bulanan, persentase kehadiran, dan ekspor CSV.</p>
+                            <p class="text-xs text-zinc-600 dark:text-emerald-100/70">Rekap kehadiran harian/bulanan, persentase kehadiran, dan ekspor CSV.</p>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div class="mt-3 pt-2 border-t border-emerald-100 dark:border-emerald-700/50 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                             <span>Rekap Presensi &rarr;</span>
                         </div>
                     </a>
 
                     <!-- 3. Catatan Siswa -->
-                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                    <a href="{{ route('classes.show', ['class' => $homeroomClass->id, 'tab' => 'absences']) }}" class="group bg-white dark:bg-[#1E3025] border border-emerald-200 dark:border-emerald-600/40 hover:border-emerald-500 rounded-lg p-3.5 transition flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                            <div class="flex items-center justify-between text-zinc-600 dark:text-emerald-200 mb-2">
                                 <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Catatan Siswa</span>
-                                <span class="text-xs font-bold text-rose-500">{{ ($homeroomStats['attendance_summary']['alpa'] ?? 0) + ($homeroomStats['attendance_summary']['sakit'] ?? 0) + ($homeroomStats['attendance_summary']['izin'] ?? 0) }} Rekap Absen</span>
+                                <span class="text-xs font-bold text-rose-600 dark:text-rose-300">{{ ($homeroomStats['attendance_summary']['alpa'] ?? 0) + ($homeroomStats['attendance_summary']['sakit'] ?? 0) + ($homeroomStats['attendance_summary']['izin'] ?? 0) }} Rekap Absen</span>
                             </div>
-                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">Catatan per siswa yang tidak hadir, sakit, alpa, izin, atau terlambat.</p>
+                            <p class="text-xs text-zinc-600 dark:text-emerald-100/70">Catatan per siswa yang tidak hadir, sakit, alpa, izin, atau terlambat.</p>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div class="mt-3 pt-2 border-t border-emerald-100 dark:border-emerald-700/50 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                             <span>Lihat Catatan &rarr;</span>
                         </div>
                     </a>
 
                     <!-- 4. Izin Siswa (Approved BK maupun Tidak / Pending) -->
-                    <a href="{{ route('leave-requests.index', ['class_id' => $homeroomClass->id]) }}" class="group bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] hover:border-emerald-500 dark:hover:border-emerald-500/60 rounded-lg p-3.5 transition flex flex-col justify-between">
+                    <a href="{{ route('leave-requests.index', ['class_id' => $homeroomClass->id]) }}" class="group bg-white dark:bg-[#1E3025] border border-emerald-200 dark:border-emerald-600/40 hover:border-emerald-500 rounded-lg p-3.5 transition flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-between text-zinc-500 dark:text-[#97979B] mb-2">
+                            <div class="flex items-center justify-between text-zinc-600 dark:text-emerald-200 mb-2">
                                 <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Izin Siswa Perwalian</span>
                                 @if(($homeroomStats['leaves']['pending'] ?? 0) > 0)
-                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono">
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-[#282115] text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 font-mono">
                                         {{ $homeroomStats['leaves']['pending'] }} Menunggu BK
                                     </span>
                                 @else
-                                    <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ $homeroomStats['leaves']['total'] ?? 0 }} Total</span>
+                                    <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">{{ $homeroomStats['leaves']['total'] ?? 0 }} Total</span>
                                 @endif
                             </div>
-                            <p class="text-xs text-zinc-600 dark:text-[#97979B]">
+                            <p class="text-xs text-zinc-600 dark:text-emerald-100/70">
                                 Pantau izin siswa (Disetujui: {{ $homeroomStats['leaves']['approved'] ?? 0 }}, Ditolak: {{ $homeroomStats['leaves']['rejected'] ?? 0 }}, Menunggu: {{ $homeroomStats['leaves']['pending'] ?? 0 }}).
                             </p>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-[#2C2C30] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div class="mt-3 pt-2 border-t border-emerald-100 dark:border-emerald-700/50 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                             <span>Semua Izin Siswa &rarr;</span>
                         </div>
                     </a>
@@ -325,14 +325,14 @@
                         </div>
 
                         {{-- Nihil Message --}}
-                        <div x-show="absentStudents.length === 0" class="text-[11px] font-mono text-emerald-800 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/30 p-2.5 rounded text-center">
+                        <div x-show="absentStudents.length === 0" class="text-[11px] font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 p-2.5 rounded text-center">
                             &check; Seluruh siswa hadir (Nihil catatan ketidakhadiran)
                         </div>
 
                         {{-- Absent List --}}
                         <div class="space-y-2" x-show="absentStudents.length > 0">
                             <template x-for="(item, idx) in absentStudents" :key="idx">
-                                <div class="flex items-center gap-2 p-2 bg-white dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-md">
+                                <div class="flex items-center gap-2 p-2 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-md">
                                     <div class="flex-1 min-w-0">
                                         <select :name="'absent_students[' + idx + '][student_id]'" x-model="item.student_id" required class="w-full rounded border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1 px-2 text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
                                             <option value="">-- Pilih Siswa --</option>

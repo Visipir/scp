@@ -8,10 +8,10 @@ $borderAccent = match($type) {
     default => 'border-l-[#0093dd]',
 };
 $tagBg = match($type) {
-    'danger' => 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-    'warning' => 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    'success' => 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    default => 'bg-[#0093dd]/15 text-[#0093dd] border-[#0093dd]/30',
+    'danger' => 'bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700/60',
+    'warning' => 'bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60',
+    'success' => 'bg-emerald-100 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60',
+    default => 'bg-sky-100 dark:bg-[#16222F] text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700/60',
 };
 $label = match($type) {
     'danger' => 'ERROR',

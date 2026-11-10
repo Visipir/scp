@@ -73,11 +73,11 @@
                                     <td class="py-2 px-3 font-semibold text-zinc-900 dark:text-[#EDEDF0]">{{ $r['class_raw'] }}</td>
                                     <td class="py-2 px-3">
                                         @if($r['class'])
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">
                                                 {{ $r['class']['class_name'] }}
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700/60">
                                                 TIDAK DITEMUKAN
                                             </span>
                                         @endif

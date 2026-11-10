@@ -68,7 +68,7 @@
             @php
                 $globalConfig = \App\Models\SystemConfiguration::first();
             @endphp
-            <header class="hidden md:flex h-14 bg-white/90 dark:bg-[#19191C]/90 backdrop-blur-sm border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
+            <header class="hidden md:flex h-14 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
                 <!-- Left: Minimalist Breadcrumb Trail -->
                 @php
                     $breadcrumbMap = [

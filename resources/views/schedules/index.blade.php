@@ -428,7 +428,7 @@
                             <div class="font-bold text-zinc-900 dark:text-white">Blok Pagi 1</div>
                             <div class="text-zinc-500 mt-0.5">Jam 1–3 (08.00–09.45)</div>
                         </div>
-                        <div class="p-2.5 bg-amber-500/10 rounded-lg border border-amber-500/20 text-amber-800 dark:text-amber-300">
+                        <div class="p-2.5 bg-amber-50 dark:bg-[#282115] rounded-lg border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-300">
                             <div class="font-bold">Istirahat I</div>
                             <div class="mt-0.5">09.45–10.00 (15m)</div>
                         </div>
@@ -436,7 +436,7 @@
                             <div class="font-bold text-zinc-900 dark:text-white">Blok Pagi 2</div>
                             <div class="text-zinc-500 mt-0.5">Jam 4–6 (10.00–11.45)</div>
                         </div>
-                        <div class="p-2.5 bg-amber-500/10 rounded-lg border border-amber-500/20 text-amber-800 dark:text-amber-300">
+                        <div class="p-2.5 bg-amber-50 dark:bg-[#282115] rounded-lg border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-300">
                             <div class="font-bold">Ishoma</div>
                             <div class="mt-0.5">11.45–12.45 (60m)</div>
                         </div>

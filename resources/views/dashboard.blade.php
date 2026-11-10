@@ -106,13 +106,13 @@
                             <div>
                                 <h3 class="font-bold text-sm text-[#EDEDF0]">Guru Belum Mengisi Jurnal</h3>
                             </div>
-                            <span class="text-xs font-mono text-[#0093dd] bg-[#0093dd]/15 px-2.5 py-0.5 rounded-md border border-[#0093dd]/30 font-semibold">
+                            <span class="text-xs font-mono text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-[#16222F] px-2.5 py-0.5 rounded-md border border-sky-200 dark:border-sky-700/60 font-semibold">
                                 {{ $unfilledSchedules->count() ?? 0 }} Kelas Tertunda
                             </span>
                         </div>
                         <div class="divide-y divide-[#2B2B30] max-h-48 overflow-y-auto mt-2">
                             @forelse($unfilledSchedules ?? [] as $sched)
-                                <div class="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between hover:bg-[#232327]/60 px-2 rounded-md transition-colors">
+                                <div class="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between hover:bg-zinc-100 dark:hover:bg-[#232327] px-2 rounded-md transition-colors">
                                     <div>
                                         <div class="font-semibold text-xs text-[#EDEDF0]">{{ $sched->teacher->fullname ?? '-' }}</div>
                                         <div class="text-[#97979B] font-mono text-[11px] mt-0.5">
@@ -121,15 +121,15 @@
                                     </div>
                                     <div class="text-right flex items-center gap-2">
                                         @if(($sched->alert_status ?? '') === 'segera_berakhir')
-                                            <span class="text-[10px] font-mono text-amber-400 bg-amber-400/15 px-2 py-0.5 rounded border border-amber-400/30 font-semibold">
+                                            <span class="text-[10px] font-mono text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-[#282115] px-2 py-0.5 rounded border border-amber-200 dark:border-amber-700/60 font-semibold">
                                                 Segera Berakhir
                                             </span>
                                         @else
-                                            <span class="text-[10px] font-mono text-rose-400 bg-rose-400/15 px-2 py-0.5 rounded border border-rose-400/30 font-semibold">
+                                            <span class="text-[10px] font-mono text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-[#2D1618] px-2 py-0.5 rounded border border-rose-200 dark:border-rose-700/60 font-semibold">
                                                 Terlambat
                                             </span>
                                         @endif
-                                        <span class="font-mono text-[11px] text-[#0093dd] bg-[#0093dd]/10 px-2 py-0.5 rounded border border-[#0093dd]/20">
+                                        <span class="font-mono text-[11px] text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-[#16222F] px-2 py-0.5 rounded border border-sky-200 dark:border-sky-700/60">
                                             {{ \Carbon\Carbon::parse($sched->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sched->end_time)->format('H:i') }}
                                         </span>
                                     </div>
@@ -160,19 +160,19 @@
                             <div class="flex items-center gap-2">
                                 <h3 class="font-bold text-sm text-zinc-900 dark:text-[#EDEDF0]">Tukar Jadwal Hari Ini</h3>
                                 @if(!empty($todaySwaps['pending_count']) && $todaySwaps['pending_count'] > 0)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 dark:bg-[#282115] dark:text-amber-300 border border-amber-200 dark:border-amber-700/60">
                                         {{ $todaySwaps['pending_count'] }} Butuh Keputusan
                                     </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-mono text-[#0093dd] bg-[#0093dd]/15 px-2.5 py-0.5 rounded-md border border-[#0093dd]/30 font-semibold self-start sm:self-auto">
+                            <span class="text-xs font-mono text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-[#16222F] px-2.5 py-0.5 rounded-md border border-sky-200 dark:border-sky-700/60 font-semibold self-start sm:self-auto">
                                 {{ $todaySwaps['today_count'] ?? 0 }} Pertukaran Aktif Hari Ini
                             </span>
                         </div>
 
                         <div class="divide-y divide-zinc-200 dark:divide-[#2B2B30] max-h-48 overflow-y-auto mt-2">
                             @forelse($todaySwaps['approved'] ?? [] as $swap)
-                                <div class="py-2.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-zinc-50 dark:hover:bg-[#232327]/60 px-2 rounded-md transition-colors">
+                                <div class="py-2.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-zinc-50 dark:hover:bg-[#232327] px-2 rounded-md transition-colors">
                                     <div>
                                         <div class="font-semibold text-xs text-zinc-900 dark:text-[#EDEDF0] flex items-center gap-1.5">
                                             <span>{{ $swap->target?->fullname }}</span>
@@ -186,15 +186,15 @@
                                     </div>
                                     <div class="flex items-center gap-2 self-start sm:self-auto">
                                         @if($swap->isJournalFilled())
-                                            <span class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                            <span class="font-mono text-[10px] text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-700/60">
                                                 Jurnal Terisi
                                             </span>
                                         @else
-                                            <span class="font-mono text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                                            <span class="font-mono text-[10px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-[#282115] px-2 py-0.5 rounded border border-amber-200 dark:border-amber-700/60">
                                                 Belum Jurnal
                                             </span>
                                         @endif
-                                        <span class="font-mono text-[11px] text-[#0093dd] bg-[#0093dd]/10 px-2 py-0.5 rounded border border-[#0093dd]/20">
+                                        <span class="font-mono text-[11px] text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-[#16222F] px-2 py-0.5 rounded border border-sky-200 dark:border-sky-700/60">
                                             {{ substr($swap->requesterSchedule?->start_time, 0, 5) }} - {{ substr($swap->requesterSchedule?->end_time, 0, 5) }}
                                         </span>
                                     </div>
@@ -243,9 +243,9 @@
                 {{-- Status Pills --}}
                 @if($config && $config->is_schedule_locked)
                     <div class="flex flex-row md:flex-col gap-3 shrink-0">
-                        <div class="p-3 bg-[#0093dd]/10 border border-[#0093dd]/30 rounded-lg min-w-[140px]">
-                            <div class="text-[10px] font-mono text-[#0093dd] uppercase tracking-wider">Akses Jadwal</div>
-                            <div class="font-bold font-mono text-sm mt-0.5 text-[#0093dd] flex items-center gap-1.5">
+                        <div class="p-3 bg-sky-50 dark:bg-[#16222F] border border-sky-200 dark:border-sky-700/60 rounded-lg min-w-[140px]">
+                            <div class="text-[10px] font-mono text-sky-800 dark:text-[#0093dd] uppercase tracking-wider">Akses Jadwal</div>
+                            <div class="font-bold font-mono text-sm mt-0.5 text-sky-900 dark:text-sky-200 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#0093dd]"></span>
                                 Terkunci
                             </div>

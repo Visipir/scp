@@ -62,7 +62,7 @@
             <x-alert-banner type="danger">{{ session('error') }}</x-alert-banner>
         @endif
         @if($errors->any())
-            <div class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-700 dark:text-rose-300">
+            <div class="p-4 bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 rounded-xl text-xs text-rose-800 dark:text-rose-300">
                 <ul class="list-disc list-inside space-y-1">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -170,8 +170,8 @@
                                     </div>
                                 </div>
 
-                                <div class="p-3 bg-blue-50/60 dark:bg-blue-950/30 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
-                                    <div class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
+                                <div class="p-3 bg-blue-50 dark:bg-[#16222F] rounded-lg border border-blue-200 dark:border-sky-800/60">
+                                    <div class="text-[11px] font-semibold text-blue-700 dark:text-sky-300 uppercase tracking-wider mb-1">
                                         Jadwal Yang Akan Anda Gantikan (Milik Pemohon):
                                     </div>
                                     <div class="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
@@ -284,8 +284,8 @@
                                     </div>
                                 </div>
 
-                                <div class="p-3 bg-blue-50/60 dark:bg-blue-950/30 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
-                                    <div class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
+                                <div class="p-3 bg-blue-50 dark:bg-[#16222F] rounded-lg border border-blue-200 dark:border-sky-800/60">
+                                    <div class="text-[11px] font-semibold text-blue-700 dark:text-sky-300 uppercase tracking-wider mb-1">
                                         Jadwal Target Yang Diinginkan:
                                     </div>
                                     <div class="font-bold text-zinc-900 dark:text-zinc-100 text-sm">

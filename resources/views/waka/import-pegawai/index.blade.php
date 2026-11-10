@@ -14,12 +14,12 @@
 
     <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         @if(session('success'))
-            <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+            <div class="p-4 rounded-lg bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
                 {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+            <div class="p-4 rounded-lg bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 text-rose-800 dark:text-rose-300 text-xs font-medium">
                 {{ session('error') }}
             </div>
         @endif

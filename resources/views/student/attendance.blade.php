@@ -39,11 +39,11 @@
         {{-- Summary chips --}}
         @php
             $chips = [
-                'Hadir'     => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30',
-                'Sakit'     => 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30',
-                'Izin'      => 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-500/30',
-                'Alpa'      => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30',
-                'Terlambat' => 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-500/30',
+                'Hadir'     => 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-[#16281D] dark:text-emerald-300 dark:border-emerald-700/60',
+                'Sakit'     => 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
+                'Izin'      => 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-[#16222F] dark:text-sky-300 dark:border-sky-700/60',
+                'Alpa'      => 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
+                'Terlambat' => 'bg-purple-50 text-purple-800 border-purple-300 dark:bg-[#25182D] dark:text-purple-300 dark:border-purple-700/60',
             ];
         @endphp
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">

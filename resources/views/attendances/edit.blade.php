@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="p-3.5 bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200/80 dark:border-amber-500/30 rounded-lg text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5">
+        <div class="p-3.5 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5">
             <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
             <div class="leading-relaxed">
                 <strong>Siswa Izin Keluar di Tengah Pelajaran:</strong> Jika siswa semula hadir lalu izin meninggalkan kelas (misal: sakit ke UKS, dipanggil BK, dispensasi kegiatan, atau pulang darurat), ubah statusnya menjadi <strong>Izin</strong> atau <strong>Sakit</strong> dan tuliskan alasannya pada kolom catatan.
@@ -73,11 +73,11 @@
                                         <input type="radio" name="attendances[{{ $i }}][status]" value="{{ $status }}" x-model="currentStatus" class="peer sr-only" @checked($attendance->status === $status)>
                                         <span class="inline-block px-2.5 py-1 text-[11px] font-mono font-bold uppercase tracking-wider rounded border transition peer-checked:ring-1 peer-checked:ring-zinc-900 dark:peer-checked:ring-[#0093dd]
                                             {{ match($status) {
-                                                'Hadir' => 'peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-500/20 peer-checked:text-emerald-800 dark:peer-checked:text-emerald-400 peer-checked:border-emerald-300 dark:peer-checked:border-emerald-500/40',
-                                                'Izin'  => 'peer-checked:bg-blue-50 dark:peer-checked:bg-sky-500/20 peer-checked:text-blue-800 dark:peer-checked:text-sky-400 peer-checked:border-blue-300 dark:peer-checked:border-sky-500/40',
-                                                'Sakit' => 'peer-checked:bg-purple-50 dark:peer-checked:bg-purple-500/20 peer-checked:text-purple-800 dark:peer-checked:text-purple-400 peer-checked:border-purple-300 dark:peer-checked:border-purple-500/40',
-                                                'Alpa'  => 'peer-checked:bg-rose-50 dark:peer-checked:bg-rose-500/20 peer-checked:text-rose-800 dark:peer-checked:text-rose-400 peer-checked:border-rose-300 dark:peer-checked:border-rose-500/40',
-                                                'Terlambat' => 'peer-checked:bg-orange-50 dark:peer-checked:bg-amber-500/20 peer-checked:text-orange-800 dark:peer-checked:text-amber-400 peer-checked:border-orange-300 dark:peer-checked:border-amber-500/40',
+                                                'Hadir' => 'peer-checked:bg-emerald-50 dark:peer-checked:bg-[#16281D] peer-checked:text-emerald-800 dark:peer-checked:text-emerald-300 peer-checked:border-emerald-300 dark:peer-checked:border-emerald-700/60',
+                                                'Izin'  => 'peer-checked:bg-blue-50 dark:peer-checked:bg-[#16222F] peer-checked:text-blue-800 dark:peer-checked:text-sky-300 peer-checked:border-blue-300 dark:peer-checked:border-sky-700/60',
+                                                'Sakit' => 'peer-checked:bg-purple-50 dark:peer-checked:bg-[#25182D] peer-checked:text-purple-800 dark:peer-checked:text-purple-300 peer-checked:border-purple-300 dark:peer-checked:border-purple-700/60',
+                                                'Alpa'  => 'peer-checked:bg-rose-50 dark:peer-checked:bg-[#2D1618] peer-checked:text-rose-800 dark:peer-checked:text-rose-300 peer-checked:border-rose-300 dark:peer-checked:border-rose-700/60',
+                                                'Terlambat' => 'peer-checked:bg-orange-50 dark:peer-checked:bg-[#282115] peer-checked:text-orange-800 dark:peer-checked:text-amber-300 peer-checked:border-orange-300 dark:peer-checked:border-amber-700/60',
                                             } }} border-zinc-200 dark:border-[#2B2B30] text-zinc-500 dark:text-[#97979B] hover:border-zinc-400 dark:hover:border-[#3A3A3F]">
                                             {{ $status }}
                                         </span>
@@ -94,19 +94,19 @@
                                 </span>
                                 <div class="flex flex-wrap items-center gap-1 text-[10px]">
                                     <span class="text-zinc-400 dark:text-[#5B5B61] font-mono">Pilih Cepat:</span>
-                                    <button type="button" @click="currentStatus = 'Sakit'; noteText = 'Izin keluar kelas: sakit ke UKS'" class="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/25 border border-purple-200 dark:border-purple-500/30 transition font-mono">
+                                    <button type="button" @click="currentStatus = 'Sakit'; noteText = 'Izin keluar kelas: sakit ke UKS'" class="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-[#25182D] text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-[#352240] border border-purple-200 dark:border-purple-700/60 transition font-mono">
                                         + Ke UKS (Sakit)
                                     </button>
-                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: dipanggil Guru BK'" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/25 border border-blue-200 dark:border-blue-500/30 transition font-mono">
+                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: dipanggil Guru BK'" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 hover:bg-blue-100 dark:hover:bg-[#1E3042] border border-blue-200 dark:border-sky-700/60 transition font-mono">
                                         + Dipanggil BK
                                     </button>
-                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: dispensasi tugas/lomba sekolah'" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/25 border border-blue-200 dark:border-blue-500/30 transition font-mono">
+                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: dispensasi tugas/lomba sekolah'" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 hover:bg-blue-100 dark:hover:bg-[#1E3042] border border-blue-200 dark:border-sky-700/60 transition font-mono">
                                         + Dispensasi
                                     </button>
-                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: pulang lebih awal (dijemput)'" class="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/25 border border-amber-200 dark:border-amber-500/30 transition font-mono">
+                                    <button type="button" @click="currentStatus = 'Izin'; noteText = 'Izin keluar kelas: pulang lebih awal (dijemput)'" class="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-[#282115] text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-[#382F1E] border border-amber-200 dark:border-amber-700/60 transition font-mono">
                                         + Pulang Cepat
                                     </button>
-                                    <button type="button" @click="currentStatus = 'Alpa'; noteText = 'Meninggalkan kelas tanpa izin di tengah KBM'" class="px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-500/25 border border-rose-200 dark:border-rose-500/30 transition font-mono">
+                                    <button type="button" @click="currentStatus = 'Alpa'; noteText = 'Meninggalkan kelas tanpa izin di tengah KBM'" class="px-1.5 py-0.5 rounded bg-rose-50 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-[#3D1E20] border border-rose-200 dark:border-rose-700/60 transition font-mono">
                                         + Tanpa Izin
                                     </button>
                                 </div>

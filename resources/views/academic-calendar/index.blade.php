@@ -261,21 +261,21 @@
 
                         // High-contrast, clear holiday coloring for dark console
                         if (!$isCurrent) {
-                            $cellBg = 'bg-[#19191C]/60 hover:bg-[#232327] text-zinc-500 opacity-40';
+                            $cellBg = 'bg-[#19191C] hover:bg-[#232327] text-zinc-500 opacity-40';
                             $dateTextColor = 'text-zinc-500 font-normal';
                         } elseif ($cat === 'libur_nasional') {
-                            $cellBg = 'bg-rose-950/30 hover:bg-rose-950/50 border-t-2 border-rose-500';
+                            $cellBg = 'bg-[#2D1618] hover:bg-[#3D1E20] border-t-2 border-rose-500';
                             $dateTextColor = 'text-rose-400 font-bold';
                         } elseif ($cat === 'libur_bersama') {
-                            $cellBg = 'bg-amber-950/30 hover:bg-amber-950/50 border-t-2 border-amber-400';
+                            $cellBg = 'bg-[#282115] hover:bg-[#382F1E] border-t-2 border-amber-400';
                             $dateTextColor = 'text-amber-400 font-bold';
                         } elseif ($cat === 'agenda_sekolah') {
                             $cellBg = $day['isKbmOff'] 
-                                ? 'bg-purple-950/30 hover:bg-purple-950/50 border-t-2 border-purple-500' 
-                                : 'bg-sky-950/30 hover:bg-sky-950/50 border-t-2 border-sky-500';
+                                ? 'bg-[#25182D] hover:bg-[#352240] border-t-2 border-purple-500' 
+                                : 'bg-[#16222F] hover:bg-[#1E3042] border-t-2 border-sky-500';
                             $dateTextColor = $isSunday ? 'text-rose-400 font-bold' : ($day['isKbmOff'] ? 'text-purple-300 font-bold' : 'text-sky-300 font-bold');
                         } elseif ($isSunday) {
-                            $cellBg = 'bg-rose-950/20 hover:bg-rose-950/40';
+                            $cellBg = 'bg-[#231517] hover:bg-[#2D1618]';
                             $dateTextColor = 'text-rose-400 font-bold';
                         } else {
                             $cellBg = 'bg-[#1D1D21] hover:bg-[#232327]';

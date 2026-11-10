@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[11px] font-mono font-semibold mb-3">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 text-[11px] font-mono font-semibold mb-3">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
             Aktivasi Akun Siswa
         </div>
@@ -12,7 +12,7 @@
 
     {{-- Error messages --}}
     @if ($errors->any())
-        <div class="mb-4 p-3 rounded-md bg-rose-500/10 border border-rose-500/30 text-xs text-rose-700 dark:text-rose-300">
+        <div class="mb-4 p-3 rounded-md bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 text-xs text-rose-800 dark:text-rose-300">
             <ul class="list-disc list-inside space-y-1">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>

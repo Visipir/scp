@@ -16,10 +16,10 @@
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-[#EDEDF0] mt-0.5 flex items-center gap-2 flex-wrap">
                         {{ $class->class_name }}
                         @if($class->grade_level)
-                            <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 font-mono text-xs font-bold">{{ $class->grade_level }}</span>
+                            <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-800 dark:text-blue-300 font-mono text-xs font-bold">{{ $class->grade_level }}</span>
                         @endif
                         @if($class->major)
-                            <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 font-mono text-xs font-bold">{{ $class->major }}</span>
+                            <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-[#25182D] text-purple-800 dark:text-purple-300 font-mono text-xs font-bold">{{ $class->major }}</span>
                         @endif
                         <span class="px-2.5 py-0.5 rounded bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2C2C30] font-mono text-xs text-zinc-700 dark:text-[#EDEDF0] font-semibold">TP {{ $class->academic_year ?? '2026/2027' }}</span>
                     </h1>
@@ -53,12 +53,12 @@
     <div class="space-y-6" x-data="{ activeTab: '{{ in_array(request('tab'), ['students', 'absences']) ? request('tab') : 'students' }}', assignModalOpen: false }">
 
         @if(session('success'))
-            <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+            <div class="p-4 rounded-lg bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
                 {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+            <div class="p-4 rounded-lg bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 text-rose-800 dark:text-rose-300 text-xs font-medium">
                 {{ session('error') }}
             </div>
         @endif
@@ -67,7 +67,7 @@
         <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
                 <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-[#0093dd] flex items-center justify-center shrink-0">
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 dark:bg-[#16222F] text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700/60 flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-[#25182D] text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700/60 flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                         </svg>
@@ -314,9 +314,9 @@
                             </td>
                             <td class="px-3 py-3 text-center">
                                 @if($student->gender === 'L')
-                                    <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-mono text-[10px] font-bold">L</span>
+                                    <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 font-mono text-[10px] font-bold">L</span>
                                 @elseif($student->gender === 'P')
-                                    <span class="inline-block px-1.5 py-0.5 rounded bg-pink-50 dark:bg-pink-500/20 text-pink-700 dark:text-pink-300 font-mono text-[10px] font-bold">P</span>
+                                    <span class="inline-block px-1.5 py-0.5 rounded bg-pink-50 dark:bg-[#2D1625] text-pink-700 dark:text-pink-300 font-mono text-[10px] font-bold">P</span>
                                 @else
                                     <span class="text-zinc-300 dark:text-[#5B5B61]">-</span>
                                 @endif
@@ -324,21 +324,21 @@
                             <td class="px-3 py-3 text-center font-mono font-bold text-emerald-700 dark:text-emerald-400">
                                 {{ $h }}
                             </td>
-                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $s > 0 ? 'text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-500/10 rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
+                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $s > 0 ? 'text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-[#16222F] rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
                                 {{ $s }}
                             </td>
-                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $i > 0 ? 'text-amber-700 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-500/10 rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
+                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $i > 0 ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-[#282115] rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
                                 {{ $i }}
                             </td>
-                            <td class="px-3 py-3 text-center font-mono font-bold {{ $a > 0 ? 'text-rose-700 dark:text-rose-400 bg-rose-50/60 dark:bg-rose-500/10 rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
+                            <td class="px-3 py-3 text-center font-mono font-bold {{ $a > 0 ? 'text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-[#2D1618] rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
                                 {{ $a }}
                             </td>
-                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $t > 0 ? 'text-orange-700 dark:text-orange-400 bg-orange-50/50 dark:bg-orange-500/10 rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
+                            <td class="px-3 py-3 text-center font-mono font-semibold {{ $t > 0 ? 'text-purple-800 dark:text-purple-300 bg-purple-50 dark:bg-[#25182D] rounded' : 'text-zinc-400 dark:text-[#5B5B61]' }}">
                                 {{ $t }}
                             </td>
                             <td class="px-4 py-3 text-right font-mono">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
-                                    {{ $rate >= 90 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400' : ($rate >= 75 ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-400') }}">
+                                    {{ $rate >= 90 ? 'bg-emerald-100 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300' : ($rate >= 75 ? 'bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300' : 'bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300') }}">
                                     {{ $rate }}%
                                 </span>
                             </td>
@@ -382,10 +382,10 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider
-                                        {{ $att->status === 'Sakit' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-400' : '' }}
-                                        {{ $att->status === 'Izin' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400' : '' }}
-                                        {{ $att->status === 'Alpa' ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-400' : '' }}
-                                        {{ $att->status === 'Terlambat' ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-800 dark:text-orange-400' : '' }}
+                                        {{ $att->status === 'Sakit' ? 'bg-blue-100 dark:bg-[#16222F] text-blue-800 dark:text-sky-300' : '' }}
+                                        {{ $att->status === 'Izin' ? 'bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300' : '' }}
+                                        {{ $att->status === 'Alpa' ? 'bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300' : '' }}
+                                        {{ $att->status === 'Terlambat' ? 'bg-orange-100 dark:bg-[#282115] text-orange-800 dark:text-amber-300' : '' }}
                                     ">
                                         {{ $att->status }}
                                     </span>

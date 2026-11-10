@@ -39,11 +39,11 @@
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
         @endif
         @if(session('reset_credentials'))
-            <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-4 text-xs space-y-2">
+            <div class="bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-xl p-4 text-xs space-y-2">
                 <div class="font-semibold text-amber-900 dark:text-amber-300">
                     Kredensial Sementara (Tampil Sekali — Tersimpan di <code>storage/app/private/{{ session('reset_csv_path') }}</code>)
                 </div>
-                <div class="max-h-48 overflow-y-auto border border-amber-200/70 dark:border-amber-800/50 rounded-lg bg-white dark:bg-[#1E1E22] p-2.5 font-mono text-[11px]">
+                <div class="max-h-48 overflow-y-auto border border-amber-200/70 dark:border-amber-800/50 rounded-lg bg-white dark:bg-[#1A1A1D] p-2.5 font-mono text-[11px]">
                     @foreach(session('reset_credentials') as $cred)
                         <div class="py-0.5 text-zinc-800 dark:text-zinc-200">
                             {{ $cred['fullname'] }} ({{ $cred['username'] }}) &rarr; <span class="font-bold text-amber-700 dark:text-amber-400">{{ $cred['temporary_password'] }}</span>
@@ -139,10 +139,10 @@
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold 
-                                        {{ $user->role_id == 1 ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-400' : '' }}
-                                        {{ $user->role_id == 2 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' : '' }}
-                                        {{ $user->role_id == 3 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' : '' }}
-                                        {{ $user->role_id == 4 ? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300' : '' }}
+                                        {{ $user->role_id == 1 ? 'bg-indigo-100 text-indigo-800 dark:bg-[#1D1E36] dark:text-indigo-300' : '' }}
+                                        {{ $user->role_id == 2 ? 'bg-emerald-100 text-emerald-800 dark:bg-[#16281D] dark:text-emerald-300' : '' }}
+                                        {{ $user->role_id == 3 ? 'bg-amber-100 text-amber-800 dark:bg-[#282115] dark:text-amber-300' : '' }}
+                                        {{ $user->role_id == 4 ? 'bg-zinc-100 text-zinc-700 dark:bg-[#232327] dark:text-zinc-300' : '' }}
                                     ">
                                         {{ $roles[$user->role_id] ?? 'Unknown' }}
                                     </span>

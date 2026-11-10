@@ -15,8 +15,8 @@
 
     <div class="max-w-xl space-y-4">
         @if($kbmSuspendedEvent ?? false)
-            <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-300 flex items-center gap-2">
-                <span class="font-bold uppercase font-mono px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-500/20 text-[10px]">Info</span>
+            <div class="bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-300 flex items-center gap-2">
+                <span class="font-bold uppercase font-mono px-1.5 py-0.5 rounded bg-amber-200 dark:bg-[#3D2E1A] text-[10px] text-amber-900 dark:text-amber-300">Info</span>
                 <span>KBM Diliburkan: {{ $kbmSuspendedEvent->title }} - {{ $kbmSuspendedEvent->description }}</span>
             </div>
         @endif
@@ -148,7 +148,7 @@
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                     + Catat Tidak Hadir
                                 </button>
-                                <button type="button" @click="addLeavingMidClass()" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 text-[11px] font-bold text-amber-900 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-md transition cursor-pointer shadow-none">
+                                <button type="button" @click="addLeavingMidClass()" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 text-[11px] font-bold text-amber-900 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-[#382F1E] rounded-md transition cursor-pointer shadow-none">
                                     <svg class="w-3 h-3 text-amber-700 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
                                     + Izin Keluar di Tengah KBM
                                 </button>
@@ -156,7 +156,7 @@
                         </div>
 
                         {{-- Nihil Message --}}
-                        <div x-show="absentStudents.length === 0" class="text-xs font-mono text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/30 p-3 rounded-md flex items-center justify-center gap-2">
+                        <div x-show="absentStudents.length === 0" class="text-xs font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 p-3 rounded-md flex items-center justify-center gap-2">
                             <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Seluruh siswa hadir lengkap. (Nihil catatan ketidakhadiran / izin keluar)</span>
                         </div>
@@ -164,7 +164,7 @@
                         {{-- Absent List --}}
                         <div class="space-y-2.5" x-show="absentStudents.length > 0">
                             <template x-for="(item, idx) in absentStudents" :key="idx">
-                                <div class="p-3 bg-white dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2">
+                                <div class="p-3 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2">
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <div class="flex items-center gap-1.5 shrink-0">
                                             <span class="font-mono text-zinc-400 dark:text-[#5B5B61] text-xs font-bold w-5" x-text="(idx + 1) + '.'"></span>
@@ -198,19 +198,19 @@
                                             </label>
                                             <div class="flex flex-wrap items-center gap-1 text-[10px]">
                                                 <span class="text-zinc-400 dark:text-[#5B5B61] font-mono">Pilih Cepat:</span>
-                                                <button type="button" @click="setPreset(idx, 'Sakit', 'Izin keluar kelas: sakit ke UKS')" class="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/25 border border-purple-200 dark:border-purple-500/30 transition font-mono">
+                                                <button type="button" @click="setPreset(idx, 'Sakit', 'Izin keluar kelas: sakit ke UKS')" class="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-[#25182D] text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-[#352240] border border-purple-200 dark:border-purple-700/60 transition font-mono">
                                                     + Ke UKS (Sakit)
                                                 </button>
-                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: dipanggil Guru BK')" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/25 border border-blue-200 dark:border-blue-500/30 transition font-mono">
+                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: dipanggil Guru BK')" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 hover:bg-blue-100 dark:hover:bg-[#1E3042] border border-blue-200 dark:border-sky-700/60 transition font-mono">
                                                     + Dipanggil BK
                                                 </button>
-                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: dispensasi tugas/lomba sekolah')" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/25 border border-blue-200 dark:border-blue-500/30 transition font-mono">
+                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: dispensasi tugas/lomba sekolah')" class="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 hover:bg-blue-100 dark:hover:bg-[#1E3042] border border-blue-200 dark:border-sky-700/60 transition font-mono">
                                                     + Dispensasi
                                                 </button>
-                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: pulang lebih awal (dijemput)')" class="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/25 border border-amber-200 dark:border-amber-500/30 transition font-mono">
+                                                <button type="button" @click="setPreset(idx, 'Izin', 'Izin keluar kelas: pulang lebih awal (dijemput)')" class="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-[#282115] text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-[#382F1E] border border-amber-200 dark:border-amber-700/60 transition font-mono">
                                                     + Pulang Cepat
                                                 </button>
-                                                <button type="button" @click="setPreset(idx, 'Alpa', 'Meninggalkan kelas tanpa izin di tengah KBM')" class="px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-500/25 border border-rose-200 dark:border-rose-500/30 transition font-mono">
+                                                <button type="button" @click="setPreset(idx, 'Alpa', 'Meninggalkan kelas tanpa izin di tengah KBM')" class="px-1.5 py-0.5 rounded bg-rose-50 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-[#3D1E20] border border-rose-200 dark:border-rose-700/60 transition font-mono">
                                                     + Tanpa Izin
                                                 </button>
                                             </div>

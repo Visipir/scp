@@ -108,7 +108,7 @@
         </div>
 
         @if(session('success'))
-            <div class="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs text-emerald-800 dark:text-emerald-200">
+            <div class="mb-4 p-3 bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 rounded-lg text-xs text-emerald-800 dark:text-emerald-300">
                 {{ session('success') }}
             </div>
         @endif
@@ -132,7 +132,7 @@
                         <button 
                             type="button" 
                             @click="showRemoveModal = true" 
-                            class="px-3 py-1.5 text-xs font-semibold rounded-md bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 hover:bg-rose-100 transition"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 text-rose-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-[#3D1E20] transition"
                         >
                             Hapus
                         </button>
@@ -143,7 +143,7 @@
 
         {{-- Case 2: Unverified Email (Pending Code) --}}
         @if($user->email && ! $user->email_verified_at)
-            <div class="space-y-4 p-4 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-xl">
+            <div class="space-y-4 p-4 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-xl">
                 <div>
                     <div class="text-xs text-amber-900 dark:text-amber-200 font-medium">Email Menunggu Verifikasi:</div>
                     <div class="font-mono text-sm font-bold text-amber-950 dark:text-amber-100 mt-0.5">{{ $user->email }}</div>

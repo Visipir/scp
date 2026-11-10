@@ -82,7 +82,7 @@
                     @method('PATCH')
                     <button
                         type="submit"
-                        class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 border {{ ($config->is_schedule_locked ?? false) ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-300 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20' }}"
+                        class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 border {{ ($config->is_schedule_locked ?? false) ? 'bg-rose-50 dark:bg-[#2D1618] border-rose-300 dark:border-rose-700/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-[#3D1E20]' : 'bg-emerald-50 dark:bg-[#16281D] border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-[#1E3828]' }}"
                     >
                         {{ ($config->is_schedule_locked ?? false) ? 'Jadwal Terkunci' : 'Kunci Jadwal' }}
                     </button>
@@ -102,7 +102,7 @@
 
                 <a
                     href="{{ route('system-configuration.email') }}"
-                    class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 border border-blue-300 dark:border-sky-500/30 bg-blue-50 dark:bg-sky-500/10 text-blue-700 dark:text-sky-400 hover:bg-blue-100 dark:hover:bg-sky-500/20 text-center shrink-0"
+                    class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 border border-blue-300 dark:border-sky-700/60 bg-blue-50 dark:bg-[#16222F] text-blue-700 dark:text-sky-300 hover:bg-blue-100 dark:hover:bg-[#1E3042] text-center shrink-0"
                 >
                     Buka Pengaturan Email &rarr;
                 </a>

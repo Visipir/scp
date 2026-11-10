@@ -53,7 +53,7 @@
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider">Total Pengajuan</span>
-                    <div class="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-[#0093dd] flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 dark:bg-[#16222F] text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700/60 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                         </svg>
@@ -70,7 +70,7 @@
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Disetujui</span>
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                         </svg>
@@ -87,7 +87,7 @@
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Menunggu</span>
-                    <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -104,7 +104,7 @@
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400">Ditolak / Batal / Expired</span>
-                    <div class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -299,9 +299,9 @@
                             @forelse($swaps as $swap)
                                 @php
                                     $statusBadgeClass = match($swap->status) {
-                                        'approved'  => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800',
-                                        'pending'   => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800',
-                                        'rejected'  => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800',
+                                        'approved'  => 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-[#16281D] dark:text-emerald-300 dark:border-emerald-700/60',
+                                        'pending'   => 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
+                                        'rejected'  => 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
                                         'cancelled' => 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700',
                                         'expired'   => 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700',
                                         default     => 'bg-zinc-100 text-zinc-700',
@@ -523,12 +523,12 @@
                     @forelse($activityLogs as $log)
                         @php
                             $eventBadgeClass = match($log->event) {
-                                'requested'        => 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-800',
-                                'approved'         => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800',
-                                'rejected'         => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800',
+                                'requested'        => 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-[#16222F] dark:text-sky-300 dark:border-sky-700/60',
+                                'approved'         => 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-[#16281D] dark:text-emerald-300 dark:border-emerald-700/60',
+                                'rejected'         => 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
                                 'cancelled'        => 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700',
-                                'expired'          => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800',
-                                'conflict_blocked' => 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-800',
+                                'expired'          => 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
+                                'conflict_blocked' => 'bg-purple-50 text-purple-800 border-purple-300 dark:bg-[#25182D] dark:text-purple-300 dark:border-purple-700/60',
                                 default            => 'bg-zinc-100 text-zinc-700 border-zinc-200',
                             };
                             $eventLabel = match($log->event) {
@@ -651,9 +651,9 @@
                                     {{-- Status Banner --}}
                                     <div class="p-3 rounded-lg border flex items-center justify-between"
                                         :class="{
-                                            'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300': activeSwap.status === 'approved',
-                                            'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300': activeSwap.status === 'pending',
-                                            'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300': activeSwap.status === 'rejected',
+                                            'bg-emerald-50 dark:bg-[#16281D] border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300': activeSwap.status === 'approved',
+                                            'bg-amber-50 dark:bg-[#282115] border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300': activeSwap.status === 'pending',
+                                            'bg-rose-50 dark:bg-[#2D1618] border-rose-300 dark:border-rose-700/60 text-rose-800 dark:text-rose-300': activeSwap.status === 'rejected',
                                             'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-300': activeSwap.status === 'cancelled' || activeSwap.status === 'expired'
                                         }"
                                     >

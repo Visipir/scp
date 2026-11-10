@@ -17,20 +17,20 @@
 
     <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         @if(session('success'))
-            <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+            <div class="p-4 rounded-lg bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
                 {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+            <div class="p-4 rounded-lg bg-rose-50 dark:bg-[#2D1618] border border-rose-300 dark:border-rose-700/60 text-rose-800 dark:text-rose-300 text-xs font-medium">
                 {{ session('error') }}
             </div>
         @endif
 
         @if($config?->is_schedule_locked)
-            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+            <div class="p-4 rounded-xl bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-300 text-xs">
                 <p class="font-bold mb-1">Perhatian: Jadwal Pelajaran Saat Ini Sedang Dikunci</p>
-                <p class="text-amber-300/80">Waka Kurikulum telah mengunci jadwal. Buka kunci jadwal di menu Pengaturan Kurikulum sebelum melakukan import baru.</p>
+                <p class="text-amber-800/80 dark:text-amber-300/80">Waka Kurikulum telah mengunci jadwal. Buka kunci jadwal di menu Pengaturan Kurikulum sebelum melakukan import baru.</p>
             </div>
         @endif
 

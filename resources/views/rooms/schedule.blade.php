@@ -106,7 +106,7 @@
                                                 <div class="text-[10px] font-mono text-zinc-400 dark:text-[#5B5B61] font-medium mb-0.5">
                                                     P{{ $period['period'] }} &bull; {{ $period['start_time'] }}-{{ $period['end_time'] }}
                                                 </div>
-                                                <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-1.5 py-0.5 rounded">Kosong / Tersedia</span>
+                                                <span class="text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-700/60">Kosong / Tersedia</span>
                                             </div>
                                         @endif
                                     @endforeach
@@ -178,7 +178,7 @@
                                                     </div>
                                                 @else
                                                     <div class="h-full flex items-center">
-                                                        <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2 py-1 rounded border border-emerald-100 dark:border-emerald-500/30">Kosong / Tersedia</span>
+                                                        <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] px-2 py-1 rounded border border-emerald-300 dark:border-emerald-700/60">Kosong / Tersedia</span>
                                                     </div>
                                                 @endif
                                             </div>

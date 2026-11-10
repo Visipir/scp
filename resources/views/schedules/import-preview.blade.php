@@ -54,9 +54,9 @@
         </div>
 
         @if(!empty($preview['summary']['unmapped_teachers']))
-            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+            <div class="p-4 rounded-xl bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-300">
                 <p class="font-bold mb-1">Guru Belum Terpetakan di Database:</p>
-                <p class="text-amber-300/80">{{ implode(', ', $preview['summary']['unmapped_teachers']) }}</p>
+                <p class="text-amber-800/80 dark:text-amber-300/80">{{ implode(', ', $preview['summary']['unmapped_teachers']) }}</p>
             </div>
         @endif
 

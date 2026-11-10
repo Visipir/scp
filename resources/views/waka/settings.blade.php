@@ -77,7 +77,7 @@
                                 <label for="lock-toggle-btn" class="text-sm font-semibold text-zinc-900 dark:text-[#EDEDF0] tracking-tight block">
                                     Kunci Jadwal Mengajar (Lock Schedule)
                                 </label>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold {{ ($config->is_schedule_locked ?? false) ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold {{ ($config->is_schedule_locked ?? false) ? 'bg-rose-100 text-rose-800 dark:bg-[#2D1618] dark:text-rose-300 border border-rose-300 dark:border-rose-700/60' : 'bg-emerald-100 text-emerald-800 dark:bg-[#16281D] dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60' }}">
                                     {{ ($config->is_schedule_locked ?? false) ? 'Terkunci' : 'Terbuka' }}
                                 </span>
                             </div>
@@ -126,11 +126,11 @@
                                     Pengaturan Email (SMTP Server)
                                 </h3>
                                 @if(!empty($config->mail_host))
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-[#16281D] dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">
                                         Terkonfigurasi
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-[#282115] dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">
                                         Belum diatur
                                     </span>
                                 @endif
@@ -185,11 +185,11 @@
                             </p>
                         </div>
                         @if($config->effective_gemini_api_key)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold shrink-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60 text-xs font-semibold shrink-0">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> AI Aktif
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-xs font-semibold shrink-0">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-50 dark:bg-[#282115] text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60 text-xs font-semibold shrink-0">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400"></span> Belum Ada API Key
                             </span>
                         @endif

@@ -7,7 +7,7 @@
     </div>
 
     <!-- Alert untuk siswa/ortu tanpa email -->
-    <div class="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+    <div class="mb-4 p-3 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
         <strong>Informasi Siswa / Orang Tua:</strong> Bagi siswa atau orang tua yang belum mendaftarkan email di akun SCP, silakan hubungi wali kelas atau Waka Kurikulum untuk bantuan reset kata sandi.
     </div>
 

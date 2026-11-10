@@ -102,7 +102,7 @@
                         <span>Izin Siswa</span>
                     </div>
                     @if($pendingLeaveCount > 0)
-                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-amber-400/20 text-amber-300 border border-amber-400/30' }}">
+                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
                             {{ $pendingLeaveCount }}
                         </span>
                     @endif
@@ -237,7 +237,7 @@
                         </svg>
                         <span>Isi Jurnal KBM</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('journals.create') ? 'bg-white text-zinc-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' }}">
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('journals.create') ? 'bg-white text-zinc-950' : 'bg-[#16281D] text-emerald-300 border border-emerald-700/60' }}">
                         + Input
                     </span>
                 </a>
@@ -370,7 +370,7 @@
                             <span>Izin Siswa Perwalian</span>
                         </div>
                         @if($waliPendingLeaves > 0)
-                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md bg-[#282115] text-amber-300 border border-amber-700/60">
                                 {{ $waliPendingLeaves }}
                             </span>
                         @endif
@@ -400,7 +400,7 @@
                         <span>Izin Siswa</span>
                     </div>
                     @if($pendingLeaveCount > 0)
-                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-amber-400/20 text-amber-300 border border-amber-400/30' }}">
+                        <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold font-mono rounded-md {{ request()->routeIs('leave-requests.*') ? 'bg-white text-zinc-950' : 'bg-[#282115] text-amber-300 border border-amber-700/60' }}">
                             {{ $pendingLeaveCount }}
                         </span>
                     @endif
