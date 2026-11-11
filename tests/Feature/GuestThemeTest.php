@@ -51,8 +51,8 @@ class GuestThemeTest extends TestCase
             $response->assertSee('aria-pressed=', false);
 
             // 4. Token blocks (:root, html.dark, html.light)
-            $response->assertSee('--auth-bg: #1a1a1e;', false);
-            $response->assertSee('--auth-surface: #1D1D21;', false);
+            $response->assertSee('--auth-bg: #0F1014;', false);
+            $response->assertSee('--auth-surface: #20222A;', false);
             $response->assertSee('--auth-bg: #F4F4F6;', false);
             $response->assertSee('--auth-surface: #FFFFFF;', false);
             $response->assertSee('--auth-btn-bg: #007BB5;', false);

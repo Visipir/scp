@@ -94,20 +94,20 @@
         [x-cloak] { display: none !important; }
 
         :root, html.dark {
-            --auth-bg: #1a1a1e;
-            --auth-surface: #1D1D21;
+            --auth-bg: #0F1014;
+            --auth-surface: #20222A;
             --auth-text: #EDEDF0;
             --auth-muted: #A1A1A6;
-            --auth-border: #6E6E78;
-            --auth-input-bg: #151518;
-            --auth-input-border: #6E6E78;
+            --auth-border: #303342;
+            --auth-input-bg: #15161D;
+            --auth-input-border: #3A3D4E;
             --auth-input-text: #EDEDF0;
-            --auth-input-placeholder: #9E9EA4;
+            --auth-input-placeholder: #7E8294;
             --auth-link: #38BDF8;
             --auth-btn-bg: #007BB5;
             --auth-btn-text: #FFFFFF;
             --auth-btn-hover: #006699;
-            --auth-btn-disabled: #38383E;
+            --auth-btn-disabled: #272832;
             --auth-ring: #38BDF8;
             --auth-error: #F87171;
             --auth-success: #34D399;
@@ -152,6 +152,14 @@
             background-color: var(--auth-surface) !important;
             border: 1px solid var(--auth-border) !important;
             color: var(--auth-text) !important;
+        }
+
+        html.dark .auth-card {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        html.light .auth-card, html:not(.dark) .auth-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
         }
 
         .auth-header-title {

@@ -10,13 +10,13 @@
    DARK DEVELOPER-CONSOLE DESIGN TOKENS (Single Source of Truth)
    ========================================================================== */
 :root {
-    --bg-page: #121215;
-    --surface-card: #222228;
-    --surface-nested: #18181E;
-    --surface-hover: #2B2B33;
-    --border-hairline: #363642;
-    --nav-active: #2C2C36;
-    --nav-hover: #222228;
+    --bg-page: #0F1014;
+    --surface-card: #20222A;
+    --surface-nested: #15161D;
+    --surface-hover: #292B36;
+    --border-hairline: #303342;
+    --nav-active: #272935;
+    --nav-hover: #1C1D25;
     --text-primary: #EDEDF0;
     --text-secondary: #97979B;
     --text-muted: #5B5B61;
@@ -31,13 +31,13 @@
 
 html.dark {
     color-scheme: dark;
-    --bg-page: #121215;
-    --surface-card: #222228;
-    --surface-nested: #18181E;
-    --surface-hover: #2B2B33;
-    --border-hairline: #363642;
-    --nav-active: #2C2C36;
-    --nav-hover: #222228;
+    --bg-page: #0F1014;
+    --surface-card: #20222A;
+    --surface-nested: #15161D;
+    --surface-hover: #292B36;
+    --border-hairline: #303342;
+    --nav-active: #272935;
+    --nav-hover: #1C1D25;
     --text-primary: #EDEDF0;
     --text-secondary: #97979B;
     --text-muted: #5B5B61;
@@ -123,6 +123,8 @@ body {
 .dark .dark\:bg-\[\#1D1D21\],
 .dark .bg-\[\#1E1E22\],
 .dark .dark\:bg-\[\#1E1E22\],
+.dark main .bg-\[\#19191C\],
+.dark main .dark\:bg-\[\#19191C\],
 .dark main div.rounded-xl.border,
 .dark main div.rounded-2xl.border,
 .dark main a.rounded-xl.border,
