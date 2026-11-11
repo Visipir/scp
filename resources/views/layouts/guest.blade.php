@@ -1,3 +1,4 @@
+@props(['title' => null])
 @php
     $sysConfig = \App\Models\SystemConfiguration::first();
     $bgTimestamp = 1;
@@ -22,7 +23,7 @@
     <meta name="color-scheme" content="light dark">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'School Class Progress - Login') }}</title>
+    <title>{{ (isset($title) && filled($title)) ? $title . ' - ' : '' }}{{ config('app.name', 'School Class Progress') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">

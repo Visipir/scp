@@ -245,11 +245,12 @@ class ProtectedAccountsScopeAfterImportF3Test extends TestCase
 
         // 6. Verify 17766 (XII RPL 1) can submit leave request, visible to ryawidyaningtyas (BK) and Wali Kelas XII RPL 1,
         //    and decision is recorded
+        $todayStr = now()->format('Y-m-d');
         \Laravel\Sanctum\Sanctum::actingAs($siswa17766);
         $submitResp = $this->postJson('/api/v1/leave-requests', [
             'student_id' => $siswa17766->id,
-            'start_date' => '2026-11-10',
-            'end_date'   => '2026-11-10',
+            'start_date' => $todayStr,
+            'end_date'   => $todayStr,
             'reason'     => 'Izin keperluan keluarga penguji F3',
             'document'   => UploadedFile::fake()->create('surat.pdf', 100, 'application/pdf'),
         ]);

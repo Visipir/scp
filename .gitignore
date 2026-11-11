@@ -59,3 +59,5 @@ Thumbs.db
 /patch_*.php
 /restore_*.php
 /rewrite_controllers.php
+/graphify-out/
+

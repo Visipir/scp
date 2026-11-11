@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout :title="'Verifikasi Kode Reset'">
     <div class="mb-4">
         <h2 class="text-lg font-bold auth-header-title">Atur Ulang Kata Sandi</h2>
         <p class="text-sm text-muted-token mt-1">

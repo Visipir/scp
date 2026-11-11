@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout :title="'Masuk'">
     <div class="mb-6">
         <h1 class="text-xl font-bold tracking-tight auth-header-title">Masuk ke Akun</h1>
         <p class="text-xs text-muted-token mt-1">Silakan masukkan username dan kata sandi Anda untuk melanjutkan</p>

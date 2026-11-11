@@ -1,3 +1,26 @@
+@props(['title' => null])
+@php
+    $breadcrumbMap = [
+        'dashboard'            => 'Dashboard',
+        'schedules'            => 'Jadwal Pelajaran',
+        'room-schedules'       => 'Jadwal Ruangan',
+        'journals'             => 'Jurnal & Presensi',
+        'schedule-swaps'       => 'Laporan Tukar Jadwal',
+        'leave-requests'       => 'Izin Siswa',
+        'academic-calendar'    => 'Kalender Akademik',
+        'ineffective-days'     => 'Kalender Akademik',
+        'classes'              => 'Data Kelas',
+        'users'                => 'Manajemen Pengguna',
+        'exams'                => 'Materi & Ujian',
+        'waka'                 => 'Pengaturan Kurikulum',
+        'settings'             => 'Pengaturan Kurikulum',
+        'system-configuration' => 'Pengaturan Email',
+        'profile'              => 'Profil',
+    ];
+    $currentSegment = request()->segment(1) ?: 'dashboard';
+    $breadcrumbTitle = $breadcrumbMap[$currentSegment] ?? ucwords(str_replace('-', ' ', $currentSegment));
+    $pageTitle = (isset($title) && filled($title)) ? $title : $breadcrumbTitle;
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full antialiased">
 <head>
@@ -5,7 +28,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'School Class Progress') }}</title>
+    <title>{{ $pageTitle ? $pageTitle . ' - ' : '' }}{{ config('app.name', 'School Class Progress') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
@@ -92,27 +115,6 @@
             @endphp
             <header class="hidden lg:flex h-14 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
                 <!-- Left: Minimalist Breadcrumb Trail -->
-                @php
-                    $breadcrumbMap = [
-                        'dashboard'            => 'Dashboard',
-                        'schedules'            => 'Jadwal Pelajaran',
-                        'room-schedules'       => 'Jadwal Ruangan',
-                        'journals'             => 'Jurnal & Presensi',
-                        'schedule-swaps'       => 'Laporan Tukar Jadwal',
-                        'leave-requests'       => 'Izin Siswa',
-                        'academic-calendar'    => 'Kalender Akademik',
-                        'ineffective-days'     => 'Kalender Akademik',
-                        'classes'              => 'Data Kelas',
-                        'users'                => 'Manajemen Pengguna',
-                        'exams'                => 'Materi & Ujian',
-                        'waka'                 => 'Pengaturan Kurikulum',
-                        'settings'             => 'Pengaturan Kurikulum',
-                        'system-configuration' => 'Pengaturan Email',
-                        'profile'              => 'Profil',
-                    ];
-                    $currentSegment = request()->segment(1) ?: 'dashboard';
-                    $breadcrumbTitle = $breadcrumbMap[$currentSegment] ?? ucwords(str_replace('-', ' ', $currentSegment));
-                @endphp
                 <div class="flex items-center gap-2 text-xs">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-5 h-5 object-contain shrink-0">
                     <span class="text-zinc-700 dark:text-[#EDEDF0] font-sans font-semibold text-sm">{{ $breadcrumbTitle }}</span>

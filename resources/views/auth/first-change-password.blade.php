@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout :title="'Ganti Kata Sandi Pertama'">
     <div class="mb-6">
         <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 text-[11px] font-mono font-semibold mb-3">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
