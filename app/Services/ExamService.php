@@ -101,7 +101,7 @@ class ExamService
      */
     public function createExams(User $actor, array $data, ?UploadedFile $file = null): Collection
     {
-        abort_if(!in_array((int) $actor->role_id, [1, 2], true), 403, 'Akses terbatas untuk Pengajar dan Waka Kurikulum.');
+        abort_if(!in_array((int) $actor->role_id, [1, 2, 5], true), 403, 'Akses terbatas untuk Pengajar dan Waka Kurikulum.');
 
         $filePath = null;
         $fileName = null;
@@ -162,7 +162,7 @@ class ExamService
         ?UploadedFile $file = null,
         bool $removeFile = false
     ): Exam {
-        if ((int) $actor->role_id !== 1 && ((int) $actor->role_id !== 2 || (int) $exam->teacher_id !== (int) $actor->id)) {
+        if (!in_array((int) $actor->role_id, [1, 5], true) && ((int) $actor->role_id !== 2 || (int) $exam->teacher_id !== (int) $actor->id)) {
             abort(403, 'Anda tidak memiliki wewenang untuk mengubah konten ini.');
         }
 
@@ -216,7 +216,7 @@ class ExamService
      */
     public function deleteExam(User $actor, Exam $exam): void
     {
-        if ((int) $actor->role_id !== 1 && ((int) $actor->role_id !== 2 || (int) $exam->teacher_id !== (int) $actor->id)) {
+        if (!in_array((int) $actor->role_id, [1, 5], true) && ((int) $actor->role_id !== 2 || (int) $exam->teacher_id !== (int) $actor->id)) {
             abort(403, 'Anda tidak berwenang menghapus konten ini.');
         }
 

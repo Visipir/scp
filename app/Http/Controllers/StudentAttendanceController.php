@@ -30,6 +30,7 @@ class StudentAttendanceController extends Controller
         $children = $target['children'];
 
         ['summary' => $summary, 'records' => $records] = $service->forStudent($studentId, $month);
+        $records = $this->paginateCollection($records, 15);
 
         return view('student.attendance', compact(
             'student', 'summary', 'records', 'month', 'children', 'isParent'

@@ -106,41 +106,67 @@ class AiDocumentParserService
         $prompt = $this->getPrompt($documentType);
         $schema = $this->getSchema($documentType);
 
-        $parser = new \Smalot\PdfParser\Parser();
-        $pdf = $parser->parseFile($pdfPath);
-        $pages = $pdf->getPages();
-        $chunks = array_chunk($pages, 6, true);
-        
+        $pageTexts = [];
+        // 1. Try pdftotext CLI which handles complex streams and font encodings
+        $rawPdfText = @shell_exec(sprintf('pdftotext %s -', escapeshellarg($pdfPath)));
+        if (!empty($rawPdfText)) {
+            $splitPages = explode("\f", $rawPdfText);
+            foreach ($splitPages as $pIdx => $pContent) {
+                $trimmed = trim($pContent);
+                if ($trimmed !== '') {
+                    $pageTexts[$pIdx + 1] = $trimmed;
+                }
+            }
+        }
+
+        // 2. Fallback to Smalot if pdftotext produced no pages
+        if (empty($pageTexts)) {
+            try {
+                $parser = new \Smalot\PdfParser\Parser();
+                $pdf = $parser->parseFile($pdfPath);
+                foreach ($pdf->getPages() as $pIndex => $page) {
+                    $pText = trim($page->getText());
+                    if ($pText !== '') {
+                        $pageTexts[$pIndex + 1] = $pText;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Smalot parsing failed: ' . $e->getMessage());
+            }
+        }
+
         $allData = [];
 
-        foreach ($chunks as $chunkIdx => $chunkPages) {
-            $chunkText = '';
-            $pageNumbers = [];
+        // If pages text found, chunk into batches of 6 pages
+        if (!empty($pageTexts)) {
+            $chunks = array_chunk($pageTexts, 6, true);
+            foreach ($chunks as $chunkIdx => $chunkPages) {
+                $chunkText = '';
+                $pageNumbers = [];
 
-            foreach ($chunkPages as $pIndex => $page) {
-                $pText = trim($page->getText());
-                if ($pText !== '') {
-                    $pNum = $pIndex + 1;
+                foreach ($chunkPages as $pNum => $pText) {
                     $pageNumbers[] = $pNum;
                     $chunkText .= "--- Halaman {$pNum} ---\n" . $pText . "\n\n";
                 }
-            }
 
-            if (trim($chunkText) === '') {
-                continue;
-            }
+                if (trim($chunkText) === '') {
+                    continue;
+                }
 
-            $pagesLabel = implode(', ', $pageNumbers);
-            $data = $this->callGeminiApi($url, $chunkText, $prompt, $schema, 8192);
+                $data = $this->callGeminiApi($url, $chunkText, $prompt, $schema, 8192);
 
-            if (!empty($data)) {
-                $allData = array_merge($allData, $data);
-            }
+                if (!empty($data)) {
+                    $allData = array_merge($allData, $data);
+                }
 
-            // Pacing delay between chunks
-            if ($chunkIdx < count($chunks) - 1) {
-                sleep(1);
+                if ($chunkIdx < count($chunks) - 1) {
+                    sleep(1);
+                }
             }
+        } else {
+            // 3. Multimodal inline fallback for image/scanned PDFs
+            Log::info("Generic PDF: Falling back to multimodal inline PDF for {$documentType}");
+            $allData = $this->callGeminiApiWithPdf($url, $pdfPath, $prompt, $schema, 16384);
         }
 
         if (empty($allData)) {

@@ -48,14 +48,14 @@ class GuestThemeTest extends TestCase
             // 3. Accessible theme toggle with aria attributes
             $response->assertSee('id="theme-toggle-btn"', false);
             $response->assertSee('aria-label="Pilih Tema Tampilan"', false);
-            $response->assertSee('aria-pressed=', false);
+            $response->assertSee('aria-haspopup="menu"', false);
 
             // 4. Token blocks (:root, html.dark, html.light)
             $response->assertSee('--auth-bg: #0F1014;', false);
             $response->assertSee('--auth-surface: #20222A;', false);
             $response->assertSee('--auth-bg: #F4F4F6;', false);
             $response->assertSee('--auth-surface: #FFFFFF;', false);
-            $response->assertSee('--auth-btn-bg: #007BB5;', false);
+            $response->assertSee('--auth-btn-bg: #0073B1;', false);
 
             // 5. Shared guest layout class & card
             $response->assertSee('auth-body', false);

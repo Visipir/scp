@@ -14,7 +14,7 @@ $width = match ($width) {
 @endphp
 
 <div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
-    <div @click="open = ! open">
+    <div @click="open = ! open" @keydown.enter.prevent="open = ! open" @keydown.space.prevent="open = ! open">
         {{ $trigger }}
     </div>
 

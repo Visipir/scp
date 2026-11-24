@@ -21,6 +21,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#0F1014">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ (isset($title) && filled($title)) ? $title . ' - ' : '' }}{{ config('app.name', 'School Class Progress') }}</title>
@@ -29,17 +32,18 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
-    <!-- Typography: Inter & JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Typography: Self-hosted Plus Jakarta Sans & JetBrains Mono via Vite -->
 
     <!-- Theme Preference Initialization (Auto Device Detection / Stored / Cross-Tab Listener) -->
-    <script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         (function() {
             function applyTheme(override) {
                 try {
                     const savedTheme = override || localStorage.getItem('theme') || 'system';
+                    const colorMeta = document.querySelector('meta[name="color-scheme"]');
+                    if (colorMeta) {
+                        colorMeta.content = savedTheme === 'dark' ? 'dark' : (savedTheme === 'light' ? 'light' : 'light dark');
+                    }
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                     const isDark = savedTheme === 'dark' || (savedTheme === 'system' && prefersDark);
                     if (isDark) {
@@ -49,9 +53,9 @@
                         document.documentElement.classList.remove('dark');
                         document.documentElement.classList.add('light');
                     }
-                    const toggleBtn = document.getElementById('theme-toggle-btn');
-                    if (toggleBtn) {
-                        toggleBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    const themeMeta = document.querySelector('meta[name="theme-color"]');
+                    if (themeMeta) {
+                        themeMeta.content = isDark ? '#0F1014' : '#F4F4F6';
                     }
                 } catch (e) {
                     document.documentElement.classList.add('dark');
@@ -90,7 +94,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Scoped Auth / Guest Design Tokens & Fallback Styles (Independent of Vite build) -->
-    <style>
+    <style nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         [x-cloak] { display: none !important; }
 
         :root, html.dark {
@@ -104,9 +108,9 @@
             --auth-input-text: #EDEDF0;
             --auth-input-placeholder: #7E8294;
             --auth-link: #38BDF8;
-            --auth-btn-bg: #007BB5;
+            --auth-btn-bg: #0073B1;
             --auth-btn-text: #FFFFFF;
-            --auth-btn-hover: #006699;
+            --auth-btn-hover: #005D8F;
             --auth-btn-disabled: #272832;
             --auth-ring: #38BDF8;
             --auth-error: #F87171;
@@ -126,13 +130,13 @@
             --auth-input-bg: #FFFFFF;
             --auth-input-border: #8C8C91;
             --auth-input-text: #161619;
-            --auth-input-placeholder: #71717A;
-            --auth-link: #0273B2;
-            --auth-btn-bg: #007BB5;
+            --auth-input-placeholder: #52525B;
+            --auth-link: #0073B1;
+            --auth-btn-bg: #0073B1;
             --auth-btn-text: #FFFFFF;
-            --auth-btn-hover: #006699;
+            --auth-btn-hover: #005D8F;
             --auth-btn-disabled: #E4E4E7;
-            --auth-ring: #0273B2;
+            --auth-ring: #0073B1;
             --auth-error: #DC2626;
             --auth-success: #059669;
             --auth-overlay-bg: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(10, 16, 26, 0.65), rgba(10, 16, 26, 0.40));
@@ -142,7 +146,7 @@
         }
 
         body.auth-body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             letter-spacing: -0.011em;
             background-color: var(--auth-bg) !important;
             color: var(--auth-text) !important;
@@ -193,17 +197,21 @@
         }
     </style>
 </head>
-<body class="h-full auth-body relative overflow-x-hidden min-h-screen transition-colors duration-150">
-    
-    <div class="min-h-screen w-full lg:grid lg:grid-cols-2">
+<body class="h-full auth-body relative overflow-x-hidden min-h-dvh transition-colors duration-150">
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+    <div id="app-announcer" role="status" aria-live="polite" class="sr-only"></div>
+    <div class="min-h-dvh w-full lg:grid lg:grid-cols-2">
         
         {{-- Form autentikasi --}}
-        <div class="flex flex-col justify-between min-h-screen p-5 sm:p-8 lg:p-10 xl:p-12 z-10">
+        <div class="flex flex-col justify-between min-h-dvh p-5 sm:p-8 lg:p-10 xl:p-12 z-10">
             <!-- Top Minimalist Brand Header -->
             <header class="w-full flex items-center justify-between">
                 <a href="/" class="flex items-center gap-2.5 group">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo SCP" class="w-8 h-8 object-contain shrink-0">
-                    <span class="text-base font-bold auth-header-title tracking-tight">School Class Progress</span>
+                    <picture class="shrink-0">
+                        <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                        <img src="{{ asset('images/logo.png') }}" alt="" width="32" height="32" class="w-8 h-8 object-contain shrink-0">
+                    </picture>
+                    <span translate="no" class="text-base font-bold auth-header-title tracking-tight">School Class Progress</span>
                 </a>
 
                 <!-- Theme Preference Dropdown -->
@@ -211,7 +219,7 @@
             </header>
 
             <!-- Main Central Card Area -->
-            <main class="my-auto py-8 flex flex-col justify-center items-center w-full">
+            <main id="main-content" tabindex="-1" class="my-auto py-8 flex flex-col justify-center items-center w-full focus-visible:outline-none">
                 <div class="w-full sm:max-w-md px-6 py-7 sm:p-8 auth-card rounded-2xl shadow-xl dark:shadow-none transition-colors duration-150">
                     {{ $slot }}
                 </div>
@@ -227,7 +235,7 @@
         <div class="hidden lg:block relative h-full w-full overflow-hidden auth-gradient">
             <picture class="absolute inset-0 w-full h-full block">
                 <source media="(min-width: 1024px)" srcset="{{ $bgUrl }}">
-                <img src="{{ $bgUrl }}" alt="SMK Negeri 1 Bantul" class="w-full h-full object-cover" data-bg-fallback="{{ route('login.background', ['v' => $bgTimestamp]) }}">
+                <img src="{{ $bgUrl }}" alt="SMK Negeri 1 Bantul" width="1280" height="960" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover" data-bg-fallback="{{ route('login.background', ['v' => $bgTimestamp]) }}">
             </picture>
 
             {{-- Subtle Gradient Overlay ensuring contrast over all image areas --}}
@@ -235,8 +243,8 @@
 
             {{-- Branding Text Overlay (Clean, no decorative status pulse or fake badge) --}}
             <div class="absolute bottom-10 left-10 right-10 z-10 text-white pointer-events-none">
-                <h1 class="text-2xl xl:text-3xl font-extrabold tracking-tight">School Class Progress</h1>
-                <p class="text-xs xl:text-sm text-white/80 mt-1.5 max-w-lg leading-relaxed">
+                <p translate="no" class="text-2xl xl:text-3xl font-extrabold tracking-tight">School Class Progress</p>
+                <p class="text-xs xl:text-sm text-white/85 mt-1.5 max-w-lg leading-relaxed">
                     Sistem monitoring jurnal kelas, absensi siswa terpadu, dan manajemen kurikulum SMK Negeri 1 Bantul.
                 </p>
             </div>

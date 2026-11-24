@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Services\AiDocumentParserService;
 use Illuminate\Support\Facades\Cache;
@@ -39,7 +41,10 @@ class AiImporterController extends Controller
             $data = $aiService->parsePdf($pdfPath, $type, $aiModel);
             
             if (empty($data)) {
-                return back()->with('error', 'AI tidak menemukan data yang relevan di dokumen ini.');
+                $msg = 'AI tidak menemukan data yang relevan di dokumen ini.';
+                return $request->expectsJson()
+                    ? response()->json(['message' => $msg], 422)
+                    : back()->with('error', $msg);
             }
 
             // Apply cycle_type override if selected by user
@@ -54,11 +59,38 @@ class AiImporterController extends Controller
             $cacheKey = 'ai_import_' . auth()->id() . '_' . time();
             Cache::put($cacheKey, ['type' => $type, 'data' => $data, 'origin_url' => $originUrl, 'cycle_type' => $cycleType], now()->addMinutes(30));
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'redirect' => route('ai-importer.preview', ['key' => $cacheKey]),
+                ]);
+            }
+
             return view('admin.ai-importer.preview', compact('data', 'type', 'cacheKey', 'originUrl'));
             
         } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+            return $request->expectsJson()
+                ? response()->json(['message' => $e->getMessage()], 422)
+                : back()->with('error', $e->getMessage());
         }
+    }
+
+    public function preview(string $key): View|RedirectResponse
+    {
+        if (! str_starts_with($key, 'ai_import_' . auth()->id() . '_')) {
+            abort(403, 'Akses pratinjau import ditolak.');
+        }
+
+        $cacheData = Cache::get($key);
+        if (! $cacheData) {
+            return redirect()->route('dashboard')->with('error', 'Sesi import telah kedaluwarsa. Silakan unggah ulang.');
+        }
+
+        $data = $cacheData['data'];
+        $type = $cacheData['type'];
+        $originUrl = $cacheData['origin_url'] ?? url('/');
+        $cacheKey = $key;
+
+        return view('admin.ai-importer.preview', compact('data', 'type', 'cacheKey', 'originUrl'));
     }
 
     public function store(Request $request)
@@ -103,7 +135,11 @@ class AiImporterController extends Controller
 
                 case 'Jadwal Pelajaran':
                     foreach ($data as $row) {
-                        $cycleType = $row['cycle_type'] ?? 'Putaran 1';
+                        $cycleType = self::normalizeCycle($row['cycle_type'] ?? 'Putaran 1');
+                        $dayOfWeek = self::normalizeDay($row['day_of_week'] ?? 'Senin');
+                        $startTime = self::normalizeTime($row['start_time'] ?? '07:15:00');
+                        $endTime = self::normalizeTime($row['end_time'] ?? $startTime);
+
                         $class = SchoolClass::resolveOrCreate($row['class_name'], $cycleType);
                         $teacher = User::where('fullname', 'LIKE', "%{$row['teacher_name']}%")->where('role_id', 2)->first();
                         if (!$teacher) {
@@ -120,9 +156,9 @@ class AiImporterController extends Controller
 
                         // Infer period from start_time
                         $inferred = \App\Services\LessonHourService::inferPeriodsFromTime(
-                            $row['start_time'], 
-                            $row['end_time'] ?? $row['start_time'], 
-                            $row['day_of_week'], 
+                            $startTime, 
+                            $endTime, 
+                            $dayOfWeek, 
                             $cycleType
                         );
                         $startPeriod = $row['start_period'] ?? ($inferred['start_period'] ?? 1);
@@ -130,7 +166,7 @@ class AiImporterController extends Controller
 
                         // Lookup RoomSchedule based on class, day, period, cycle
                         $roomSchedule = \App\Models\RoomSchedule::where('class_id', $class->id)
-                            ->where('day_of_week', $row['day_of_week'])
+                            ->where('day_of_week', $dayOfWeek)
                             ->where('period', $startPeriod)
                             ->where('cycle_type', $cycleType)
                             ->first();
@@ -140,15 +176,15 @@ class AiImporterController extends Controller
                         Schedule::updateOrCreate(
                             [
                                 'class_id' => $class->id,
-                                'day_of_week' => $row['day_of_week'],
-                                'start_time' => $row['start_time'],
+                                'day_of_week' => $dayOfWeek,
+                                'start_time' => $startTime,
                                 'cycle_type' => $cycleType
                             ],
                             [
                                 'teacher_id' => $teacher->id,
                                 'room_id' => $roomId,
                                 'subject' => $row['subject'],
-                                'end_time' => $row['end_time'],
+                                'end_time' => $endTime,
                                 'start_period' => $startPeriod,
                                 'end_period' => $endPeriod
                             ]
@@ -159,11 +195,11 @@ class AiImporterController extends Controller
 
                 case 'Jadwal Ruangan':
                     foreach ($data as $row) {
-                        $cycle = $row['cycle_type'] ?? 'Putaran 1';
+                        $cycle = self::normalizeCycle($row['cycle_type'] ?? 'Putaran 1');
+                        $day = self::normalizeDay($row['day_of_week'] ?? 'Senin');
                         $class = SchoolClass::resolveOrCreate($row['class_name'], $cycle);
                         $room = Room::resolveOrCreate($row['room_name']);
                         
-                        $day = $row['day_of_week'];
                         $p1 = $row['start_period'] ?? $row['period'] ?? 1;
                         $p2 = $row['end_period'] ?? $row['period'] ?? $p1;
                         $startPeriod = min((int)$p1, (int)$p2);
@@ -202,7 +238,7 @@ class AiImporterController extends Controller
                             ],
                             [
                                 'end_date' => $row['end_date'],
-                                'category' => $row['category'],
+                                'category' => \App\Http\Controllers\AcademicCalendarController::normalizeCategory($row['category'] ?? null),
                                 'is_kbm_off' => $row['is_kbm_off']
                             ]
                         );
@@ -225,6 +261,41 @@ class AiImporterController extends Controller
             DB::rollBack();
             return back()->with('error', "Gagal menyimpan data: " . $e->getMessage());
         }
+    }
+
+    public static function normalizeDay(string $day): string
+    {
+        $d = strtolower(trim($day));
+        return match ($d) {
+            'senin', 'monday', 'mon' => 'Senin',
+            'selasa', 'tuesday', 'tue' => 'Selasa',
+            'rabu', 'wednesday', 'wed' => 'Rabu',
+            'kamis', 'thursday', 'thu' => 'Kamis',
+            'jumat', 'friday', 'fri' => 'Jumat',
+            'sabtu', 'saturday', 'sat' => 'Sabtu',
+            default => 'Senin',
+        };
+    }
+
+    public static function normalizeCycle(string $cycle): string
+    {
+        $c = strtolower(trim($cycle));
+        if (str_contains($c, '2') || str_contains($c, 'putaran 2')) {
+            return 'Putaran 2';
+        }
+        return 'Putaran 1';
+    }
+
+    public static function normalizeTime(?string $time): string
+    {
+        $t = trim((string)$time);
+        if ($t === '') {
+            return '07:00:00';
+        }
+        if (preg_match('/^(\d{1,2}):(\d{2})$/', $t, $m)) {
+            return sprintf('%02d:%02d:00', (int)$m[1], (int)$m[2]);
+        }
+        return $t;
     }
 
     public static function syncScheduleRooms(): void

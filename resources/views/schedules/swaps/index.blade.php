@@ -15,8 +15,8 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6 max-w-5xl" x-data="{
-        activeTab: '{{ $pendingCount > 0 ? 'inbox' : 'create' }}',
+    <div class="space-y-6" x-data="{
+        activeTab: '{{ in_array(request('tab'), ['inbox', 'outbox', 'create']) ? request('tab') : (request()->has('outbox_page') ? 'outbox' : ($pendingCount > 0 ? 'inbox' : 'create')) }}',
         selectedDate: '{{ now()->format('Y-m-d') }}',
         selectedScheduleId: '',
         candidates: [],
@@ -76,7 +76,7 @@
             <button
                 type="button"
                 @click="activeTab = 'inbox'"
-                :class="activeTab === 'inbox' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
+                :class="activeTab === 'inbox' ? 'bg-[#0073B1] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
                 class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition inline-flex items-center gap-2 min-h-[44px]"
             >
                 <span>Permintaan Masuk</span>
@@ -90,7 +90,7 @@
             <button
                 type="button"
                 @click="activeTab = 'outbox'"
-                :class="activeTab === 'outbox' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
+                :class="activeTab === 'outbox' ? 'bg-[#0073B1] text-white shadow-xs' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327]'"
                 class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition min-h-[44px]"
             >
                 Permintaan Keluar / Riwayat
@@ -102,7 +102,7 @@
                 :class="activeTab === 'create' ? 'bg-blue-600 text-white shadow-xs' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-blue-200 dark:border-blue-800'"
                 class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition min-h-[44px] ml-auto inline-flex items-center gap-1.5"
             >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 <span>Ajukan Tukar Jadwal</span>
@@ -194,23 +194,23 @@
 
                             @if($swap->status === 'pending')
                                 <div class="flex items-center justify-end gap-3 pt-2" x-data="{ actionLoading: false }">
-                                    <form method="POST" action="{{ route('schedule-swaps.reject', $swap) }}" @submit="if(actionLoading) { $event.preventDefault(); return false; } if(!confirm('Tolak permintaan tukar jadwal ini?')) { $event.preventDefault(); return false; } actionLoading = true;">
+                                    <form method="POST" action="{{ route('schedule-swaps.reject', $swap) }}" data-confirm="Tolak permintaan tukar jadwal ini?" data-confirm-title="Tolak Tukar Jadwal" @submit="if(actionLoading) { $event.preventDefault(); return false; } actionLoading = true;">
                                         @csrf
                                         <button
                                             type="submit"
                                             :disabled="actionLoading"
-                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-[#2D1618] hover:bg-rose-100 dark:hover:bg-[#3D1D20] disabled:opacity-50 rounded-lg border border-rose-200 dark:border-rose-700/60 transition min-h-[44px]"
+                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-[#2D1618] hover:bg-rose-100 dark:hover:bg-[#3D1D20] disabled:opacity-50 rounded-lg border border-rose-200 dark:border-rose-700/60 transition min-h-[44px] cursor-pointer"
                                         >
                                             Tolak
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('schedule-swaps.approve', $swap) }}" @submit="if(actionLoading) { $event.preventDefault(); return false; } if(!confirm('Setujui pertukaran jadwal ini? Anda akan mengajar kelas pemohon pada tanggal tersebut.')) { $event.preventDefault(); return false; } actionLoading = true;">
+                                    <form method="POST" action="{{ route('schedule-swaps.approve', $swap) }}" data-confirm="Setujui pertukaran jadwal ini? Anda akan mengajar kelas pemohon pada tanggal tersebut." data-confirm-title="Setujui Pertukaran Jadwal" data-confirm-variant="primary" @submit="if(actionLoading) { $event.preventDefault(); return false; } actionLoading = true;">
                                         @csrf
                                         <button
                                             type="submit"
                                             :disabled="actionLoading"
-                                            class="px-5 py-2 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg shadow-xs transition min-h-[44px]"
+                                            class="px-5 py-2 text-xs font-bold uppercase tracking-wider text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-lg shadow-xs transition min-h-[44px] cursor-pointer"
                                         >
                                             Setujui Pertukaran
                                         </button>
@@ -220,6 +220,12 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if(method_exists($inbox, 'hasPages') && $inbox->hasPages())
+                    <div class="pt-2 text-xs">
+                        {{ $inbox->links() }}
+                    </div>
+                @endif
             @endif
         </div>
 
@@ -302,12 +308,12 @@
 
                             @if($swap->status === 'pending')
                                 <div class="flex items-center justify-end pt-2">
-                                    <form method="POST" action="{{ route('schedule-swaps.cancel', $swap) }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } if(!confirm('Batalkan permintaan tukar jadwal ini?')) { $event.preventDefault(); return false; } isSubmitting = true;">
+                                    <form method="POST" action="{{ route('schedule-swaps.cancel', $swap) }}" data-confirm="Batalkan permintaan tukar jadwal ini?" data-confirm-title="Batalkan Tukar Jadwal" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;">
                                         @csrf
                                         <button
                                             type="submit"
                                             :disabled="isSubmitting"
-                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 rounded-lg transition min-h-[44px]"
+                                            class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 rounded-lg transition min-h-[44px] cursor-pointer"
                                         >
                                             Batalkan Permintaan
                                         </button>
@@ -317,6 +323,12 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if(method_exists($outbox, 'hasPages') && $outbox->hasPages())
+                    <div class="pt-2 text-xs">
+                        {{ $outbox->links() }}
+                    </div>
+                @endif
             @endif
         </div>
 
@@ -329,7 +341,7 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('schedule-swaps.store') }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;" class="space-y-5">
+            <form method="POST" action="{{ route('schedule-swaps.store') }}" @submit="if (!selectedTargetScheduleId) { $event.preventDefault(); candidateError = 'Pilih guru dan jadwal target terlebih dahulu.'; document.getElementById('target_schedule_id')?.focus(); return false; } if(isSubmitting) { $event.preventDefault(); return false; } candidateError = ''; isSubmitting = true;" class="space-y-5">
                 @csrf
 
                     <div>
@@ -371,14 +383,14 @@
 
                     {{-- Loading / Error indicator --}}
                     <div x-show="loadingCandidates" class="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Mencari guru dan jadwal yang tersedia...
+                        Mencari guru dan jadwal yang tersedia…
                     </div>
 
-                    <div x-show="candidateError" class="text-xs text-rose-500 font-medium" x-text="candidateError"></div>
+                    <div x-show="candidateError" role="alert" aria-live="polite" class="text-xs text-rose-500 font-medium" x-text="candidateError"></div>
 
                     <div x-show="selectedScheduleId && !loadingCandidates">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -433,7 +445,7 @@
                             name="note"
                             id="note"
                             rows="2"
-                            placeholder="Contoh: Mengikuti dinas luar sekolah / keperluan mendesak..."
+                            placeholder="Contoh: Mengikuti dinas luar sekolah / keperluan mendesak…"
                             class="w-full text-sm rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#2C2C2E] text-zinc-900 dark:text-zinc-100"
                         ></textarea>
                     </div>
@@ -448,11 +460,11 @@
                         </button>
                         <button
                             type="submit"
-                            :disabled="!selectedTargetScheduleId || isSubmitting"
-                            class="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-xs transition min-h-[44px]"
+                            :disabled="isSubmitting"
+                            class="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-xs transition min-h-[44px] cursor-pointer"
                         >
                             <span x-show="!isSubmitting">Kirim Permintaan Tukar</span>
-                            <span x-show="isSubmitting">Mengirim...</span>
+                            <span x-show="isSubmitting">Mengirim…</span>
                         </button>
                     </div>
                 </form>

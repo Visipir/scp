@@ -81,6 +81,43 @@ class DashboardController extends Controller
                 ->get(['id', 'fullname', 'class_id'])
                 ->groupBy('class_id');
 
+            $allStudentIds = $studentsByClass->flatten(1)->pluck('id')->all();
+            $approvedLeaves = \App\Models\LeaveRequest::with(['decidedBy', 'verifier'])
+                ->whereIn('status_approval', ['Approved', 'Pending'])
+                ->whereIn('student_id', $allStudentIds)
+                ->whereDate('start_date', '<=', $defaultDate)
+                ->whereDate('end_date', '>=', $defaultDate)
+                ->get()
+                ->keyBy('student_id');
+
+            $initialAbsentStudents = old('absent_students');
+            if ($initialAbsentStudents === null && $defaultSchedule) {
+                $classStudents = $studentsByClass->get($defaultSchedule->class_id, collect());
+                $initialAbsentStudents = [];
+                foreach ($classStudents as $std) {
+                    if ($leave = $approvedLeaves->get($std->id)) {
+                        $isApproved = $leave->status_approval === 'Approved';
+                        $initialAbsentStudents[] = [
+                            'student_id'        => (string) $std->id,
+                            'student_name'      => $std->fullname,
+                            'student_username'  => $std->username,
+                            'status'            => $leave->attendance_status,
+                            'category'          => $leave->category ?? $leave->attendance_status,
+                            'notes'             => $isApproved ? 'Izin resmi (Pengajuan surat izin disetujui)' : 'Izin (Menunggu persetujuan BK/Wali)',
+                            'is_approved_leave' => true,
+                            'status_approval'   => $leave->status_approval,
+                            'leave_id'          => $leave->id,
+                            'leave_reason'      => $leave->reason,
+                            'decision_label'    => $leave->decisionLabel(),
+                        ];
+                    }
+                }
+            }
+
+            $fillTimeCheck = $defaultSchedule
+                ? app(\App\Services\JournalService::class)->checkJournalFillTime($defaultSchedule, $defaultDate)
+                : ['allowed' => true, 'message' => null];
+
             $homeroomClass = null;
             $homeroomStats = null;
             if ($user->isHomeroomTeacher()) {
@@ -128,13 +165,13 @@ class DashboardController extends Controller
             return view('teacher.dashboard', compact(
                 'user', 'config', 'alerts', 'journalLateAlert', 'schedules', 'kbmSuspendedEvent',
                 'defaultSchedule', 'defaultDate', 'studentsByClass', 'pendingSwapCount',
-                'homeroomClass', 'homeroomStats', 'todayName', 'todaySchedules'
+                'homeroomClass', 'homeroomStats', 'todayName', 'todaySchedules',
+                'initialAbsentStudents', 'fillTimeCheck'
             ));
         }
 
-        if ($user->role_id === 1) {
+        if (in_array((int) $user->role_id, [1, 5], true)) {
             $unfilledSchedules = collect();
-            $attendanceStats = ['Hadir' => 0, 'Sakit' => 0, 'Izin' => 0, 'Alpa' => 0, 'Terlambat' => 0];
             $todayDay = $dashboards->indonesianDay(Carbon::now('Asia/Jakarta'));
             $todayHasSchedules = $todayDay !== null && Schedule::where('day_of_week', $todayDay)
                 ->where('cycle_type', $config?->active_cycle ?? 'Putaran 1')
@@ -142,12 +179,19 @@ class DashboardController extends Controller
 
             if (!$kbmSuspendedEvent) {
                 $unfilledSchedules = $dashboards->wakaUnfilledSchedules($config);
-                $attendanceStats = $dashboards->attendanceTodayCounts();
             }
+
+            $selectedMonth = $request->query('month', Carbon::now('Asia/Jakarta')->format('Y-m'));
+            $attendanceOverview = $dashboards->wakaAttendanceOverview($selectedMonth);
+            $attendanceStats = $attendanceOverview['today']['counts'];
 
             $todaySwaps = app(\App\Services\ScheduleSwapService::class)->getTodayApprovedSwapsForDashboard();
 
-            return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules', 'attendanceStats', 'todaySwaps', 'todayHasSchedules'));
+            return view('dashboard', compact(
+                'user', 'config', 'kbmSuspendedEvent', 'unfilledSchedules',
+                'attendanceStats', 'todaySwaps', 'todayHasSchedules',
+                'attendanceOverview', 'selectedMonth'
+            ));
         }
 
         return view('dashboard', compact('user', 'config', 'kbmSuspendedEvent'));

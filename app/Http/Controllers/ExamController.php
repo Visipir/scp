@@ -62,13 +62,13 @@ class ExamController extends Controller
     public function create()
     {
         $user = auth()->user();
-        if (!in_array($user->role_id, [1, 2])) {
+        if (!in_array((int) $user->role_id, [1, 2, 5], true)) {
             abort(403, 'Akses terbatas untuk Pengajar dan Waka Kurikulum.');
         }
 
         $allClasses = SchoolClass::orderBy('class_name')->get();
 
-        if ($user->role_id == 2) {
+        if ((int) $user->role_id === 2) {
             $schedules = Schedule::with('schoolClass')
                 ->where('teacher_id', $user->id)
                 ->get();
@@ -93,7 +93,7 @@ class ExamController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        if (!in_array($user->role_id, [1, 2])) {
+        if (!in_array((int) $user->role_id, [1, 2, 5], true)) {
             abort(403);
         }
 
@@ -147,7 +147,7 @@ class ExamController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role_id != 1 && ($user->role_id != 2 || $exam->teacher_id != $user->id)) {
+        if (!in_array((int) $user->role_id, [1, 5], true) && ((int) $user->role_id !== 2 || (int) $exam->teacher_id !== (int) $user->id)) {
             abort(403, 'Anda tidak memiliki wewenang untuk mengubah konten ini.');
         }
 
@@ -164,7 +164,7 @@ class ExamController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role_id != 1 && ($user->role_id != 2 || $exam->teacher_id != $user->id)) {
+        if (!in_array((int) $user->role_id, [1, 5], true) && ((int) $user->role_id !== 2 || (int) $exam->teacher_id !== (int) $user->id)) {
             abort(403);
         }
 

@@ -1,20 +1,21 @@
 @php
-    $pendingLeaveCount = (in_array(Auth::user()->role_id, [1, 3]) || Auth::user()->hasKesiswaanAccess()) 
+    $pendingLeaveCount = (in_array(Auth::user()->role_id, [1, 3, 5]) || Auth::user()->hasKesiswaanAccess()) 
         ? \App\Models\LeaveRequest::visibleTo(Auth::user())->whereIn('status_approval', ['Menunggu', 'Pending'])->count() 
         : 0;
     
-    $navActive = 'bg-sky-50 text-[#0093dd] dark:bg-[#3A3A3F] dark:text-white font-medium rounded-lg border border-sky-100 dark:border-transparent';
-    $navInactive = 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A] rounded-lg border border-transparent';
-    $iconActive = 'text-[#0093dd] dark:text-white';
-    $iconInactive = 'text-zinc-400 group-hover:text-zinc-600 dark:text-[#97979B] dark:group-hover:text-[#EDEDF0]';
+    $navActive = 'bg-sky-50 text-[#0073B1] dark:bg-sky-500/15 dark:text-sky-200 font-semibold rounded-lg border border-sky-200 dark:border-sky-500/30';
+    $navInactive = 'text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 dark:text-[#B4B6C2] dark:hover:text-[#F1F1F4] dark:hover:bg-[#262832] rounded-lg border border-transparent';
+    $iconActive = 'text-[#0073B1] dark:text-sky-300';
+    $iconInactive = 'text-zinc-500 group-hover:text-zinc-700 dark:text-[#9496A1] dark:group-hover:text-[#F1F1F4]';
+    $sectionLabel = 'px-3 mb-1.5 text-[11px] font-semibold text-zinc-600 dark:text-[#9496A1] uppercase tracking-wider font-mono';
 @endphp
 
 <!-- Navigation Groups -->
-<div class="space-y-6">
+<div class="space-y-4">
 
     <!-- Menu utama semua role -->
     <div>
-        <div class="px-3 mb-2 text-[10px] font-semibold text-zinc-500 dark:text-[#97979B] uppercase tracking-wider font-mono">
+        <div class="{{ $sectionLabel }}">
             MAIN
         </div>
         <div class="space-y-1">
@@ -22,7 +23,7 @@
                 href="{{ route('dashboard') }}" 
                 class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('dashboard') ? $navActive : $navInactive }}"
             >
-                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('dashboard') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('dashboard') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                 </svg>
                 <span>Dashboard</span>
@@ -43,7 +44,7 @@
                     href="{{ route('schedules.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('schedules.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                     <span>Jadwal Pelajaran</span>
@@ -54,10 +55,21 @@
                     href="{{ route('room-schedules.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('room-schedules.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
                     <span>Jadwal Ruangan</span>
+                </a>
+
+                <!-- Daftar Ruangan -->
+                <a 
+                    href="{{ route('rooms.index') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('rooms.*') ? $navActive : $navInactive }}"
+                >
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('rooms.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1.09" />
+                    </svg>
+                    <span>Daftar Ruangan</span>
                 </a>
 
                 <!-- Monitoring Jurnal & Presensi -->
@@ -65,10 +77,21 @@
                     href="{{ route('journals.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('journals.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                     </svg>
                     <span>Jurnal &amp; Presensi</span>
+                </a>
+
+                <!-- Rekap Presensi Bulanan -->
+                <a 
+                    href="{{ route('attendance.recap') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('attendance.recap') ? $navActive : $navInactive }}"
+                >
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('attendance.recap') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                    </svg>
+                    <span>Rekap Presensi Bulanan</span>
                 </a>
 
                 <!-- Laporan Tukar Jadwal -->
@@ -76,7 +99,7 @@
                     href="{{ route('schedule-swaps.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('schedule-swaps.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('schedule-swaps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedule-swaps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                     </svg>
                     <span>Laporan Tukar Jadwal</span>
@@ -96,7 +119,7 @@
                     class="flex items-center justify-between px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.*') ? $navActive : $navInactive }}"
                 >
                     <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                         </svg>
                         <span>Izin Siswa</span>
@@ -113,18 +136,19 @@
                     href="{{ route('academic-calendar.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                     <span>Kalender Akademik</span>
                 </a>
+
 
                 <!-- Bank Soal & Materi Ujian -->
                 <a 
                     href="{{ route('exams.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('exams.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                     <span>Materi &amp; Ujian</span>
@@ -141,9 +165,9 @@
                 <!-- Data Kelas -->
                 <a 
                     href="{{ route('classes.index') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('classes.*') ? $navActive : $navInactive }}"
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ (request()->routeIs('classes.*') && !request()->routeIs('classes.promotion*')) ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.*') && !request()->routeIs('classes.promotion*')) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                     </svg>
                     <span>Data Kelas</span>
@@ -154,65 +178,21 @@
                     href="{{ route('users.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('users.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('users.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('users.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                     </svg>
                     <span>Manajemen Pengguna</span>
                 </a>
 
-                <!-- Import Data Pegawai -->
-                <a 
-                    href="{{ route('waka.import-pegawai.index') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('waka.import-pegawai.*') ? $navActive : $navInactive }}"
-                >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.import-pegawai.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                    <span>Import Pegawai</span>
-                </a>
-
-                <!-- Import Wali Kelas & Guru BK -->
-                <a 
-                    href="{{ route('waka.import-wali-bk.index') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('waka.import-wali-bk.*') ? $navActive : $navInactive }}"
-                >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.import-wali-bk.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                    </svg>
-                    <span>Import Wali &amp; BK</span>
-                </a>
-
-                <!-- Pengaturan Sistem -->
+                <!-- Pengaturan Kurikulum -->
                 <a 
                     href="{{ route('waka.settings') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ (request()->routeIs('waka.settings') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*'))) ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ (request()->routeIs('waka.settings') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*'))) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('waka.settings') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*'))) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                     </svg>
                     <span>Pengaturan Kurikulum</span>
-                </a>
-
-                <!-- Tampilan Login -->
-                <a 
-                    href="{{ route('waka.settings.login-background') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('waka.settings.login-background*') ? $navActive : $navInactive }}"
-                >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.settings.login-background*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                    </svg>
-                    <span>Tampilan Login</span>
-                </a>
-
-                <!-- Pengaturan Email -->
-                <a 
-                    href="{{ route('system-configuration.email') }}" 
-                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('system-configuration.email*') ? $navActive : $navInactive }}"
-                >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('system-configuration.email*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                    </svg>
-                    <span>Pengaturan Email</span>
                 </a>
             </div>
         </div>
@@ -232,7 +212,7 @@
                     class="flex items-center justify-between px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('journals.create') ? $navActive : $navInactive }}"
                 >
                     <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.create') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.create') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                         </svg>
                         <span>Isi Jurnal KBM</span>
@@ -247,7 +227,7 @@
                     href="{{ route('journals.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('journals.index') || request()->routeIs('journals.show') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.index') || request()->routeIs('journals.show') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.index') || request()->routeIs('journals.show') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                     </svg>
                     <span>Riwayat Jurnal</span>
@@ -259,7 +239,7 @@
                     href="{{ route('classes.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('classes.*') && !Auth::user()->isHomeroomTeacher() ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.*') && !Auth::user()->isHomeroomTeacher() ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.*') && !Auth::user()->isHomeroomTeacher() ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                     </svg>
                     <span>Rekap Presensi Kelas</span>
@@ -279,7 +259,7 @@
                     href="{{ route('schedules.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('schedules.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                     <span>Jadwal Mengajar</span>
@@ -290,7 +270,7 @@
                     href="{{ route('room-schedules.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('room-schedules.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
                     <span>Jadwal Ruangan</span>
@@ -301,10 +281,21 @@
                     href="{{ route('schedule-swaps.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('schedule-swaps.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('schedule-swaps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedule-swaps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                     </svg>
                     <span>Tukar Jadwal</span>
+                </a>
+
+                <!-- Kalender Akademik -->
+                <a 
+                    href="{{ route('academic-calendar.index') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('academic-calendar.*') ? $navActive : $navInactive }}"
+                >
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span>Kalender Akademik</span>
                 </a>
 
                 <!-- Bank Soal & Materi Ujian -->
@@ -312,7 +303,7 @@
                     href="{{ route('exams.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('exams.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                     <span>Materi &amp; Ujian</span>
@@ -341,7 +332,7 @@
                         href="{{ route('classes.show', $waliClass->id) }}" 
                         class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ (request()->routeIs('classes.show') && request()->route('class')?->id == $waliClass->id && request('tab') !== 'absences') ? $navActive : $navInactive }}"
                     >
-                        <svg class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.show') && request()->route('class')?->id == $waliClass->id && request('tab') !== 'absences') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.show') && request()->route('class')?->id == $waliClass->id && request('tab') !== 'absences') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                         </svg>
                         <span>Cek List Siswa</span>
@@ -352,7 +343,7 @@
                         href="{{ route('classes.show', ['class' => $waliClass->id, 'tab' => 'absences']) }}" 
                         class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ (request()->routeIs('classes.show') && request('tab') === 'absences') ? $navActive : $navInactive }}"
                     >
-                        <svg class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.show') && request('tab') === 'absences') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.show') && request('tab') === 'absences') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                         </svg>
                         <span>Presensi &amp; Catatan Siswa</span>
@@ -364,7 +355,7 @@
                         class="flex items-center justify-between px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.*') ? $navActive : $navInactive }}"
                     >
                         <div class="flex items-center gap-3">
-                            <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Izin Siswa Perwalian</span>
@@ -394,7 +385,7 @@
                     class="flex items-center justify-between px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.*') ? $navActive : $navInactive }}"
                 >
                     <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                         </svg>
                         <span>Izin Siswa</span>
@@ -411,7 +402,7 @@
                     href="{{ route('journals.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('journals.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                     </svg>
                     <span>Presensi KBM</span>
@@ -430,7 +421,7 @@
                     href="{{ route('classes.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('classes.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                     </svg>
                     <span>Data Kelas</span>
@@ -441,7 +432,7 @@
                     href="{{ route('room-schedules.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('room-schedules.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
                     <span>Jadwal Ruangan</span>
@@ -452,7 +443,7 @@
                     href="{{ route('academic-calendar.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') || request()->routeIs('ineffective-days.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                     <span>Kalender Akademik</span>
@@ -463,7 +454,7 @@
                     href="{{ route('exams.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('exams.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                     <span>Materi &amp; Ujian</span>
@@ -474,7 +465,7 @@
                     href="{{ route('users.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('users.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('users.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('users.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                     </svg>
                     <span>Manajemen Pengguna</span>
@@ -497,12 +488,12 @@
                     class="flex items-center justify-between px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.create') ? $navActive : $navInactive }}"
                 >
                     <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.create') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.create') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>Ajukan Izin</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-white/20 text-white border border-white/30' : 'bg-[#0093dd]/20 text-[#0093dd] border border-[#0093dd]/30' }}">
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded font-mono {{ request()->routeIs('leave-requests.create') ? 'bg-[#0073B1] text-white' : 'bg-sky-50 dark:bg-sky-950/60 text-[#0073B1] dark:text-[#38BDF8] border border-sky-200 dark:border-sky-800/50' }}">
                         + Form
                     </span>
                 </a>
@@ -512,7 +503,7 @@
                     href="{{ route('leave-requests.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.index') || request()->routeIs('leave-requests.show') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.index') || request()->routeIs('leave-requests.show') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.index') || request()->routeIs('leave-requests.show') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                     </svg>
                     <span>Riwayat Izin</span>
@@ -523,7 +514,7 @@
                     href="{{ route('student.attendance.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('student.attendance.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('student.attendance.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('student.attendance.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
                     </svg>
                     <span>Rekap Kehadiran</span>
@@ -537,15 +528,149 @@
                 AKADEMIK
             </div>
             <div class="space-y-1">
+                <!-- Kalender Akademik -->
+                <a 
+                    href="{{ route('academic-calendar.index') }}" 
+                    class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('academic-calendar.*') ? $navActive : $navInactive }}"
+                >
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span>Kalender Akademik</span>
+                </a>
+
                 <!-- Materi & Ujian -->
                 <a 
                     href="{{ route('exams.index') }}" 
                     class="flex items-center gap-3 px-3 py-2 text-xs transition-colors duration-150 {{ request()->routeIs('exams.*') ? $navActive : $navInactive }}"
                 >
-                    <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                     <span>Materi &amp; Ujian</span>
+                </a>
+            </div>
+        </div>
+    @endif
+
+    <!-- Menu khusus Superadmin (Role 5) — Collapsible accordion menjaga sidebar ringkas di layar 800px -->
+    @if(Auth::user()->role_id === 5)
+        @php
+            $saAkademikOpen = request()->routeIs('dashboard', 'schedules.*', 'room-schedules.*', 'rooms.*', 'journals.*', 'attendance.recap', 'schedule-swaps.*');
+            $saKesiswaanOpen = request()->routeIs('leave-requests.*', 'academic-calendar.*', 'exams.*');
+            $saMasterOpen = request()->routeIs('classes.*', 'users.*', 'waka.import-pegawai.*', 'waka.import-wali-bk.*');
+            $saTeknisOpen = request()->routeIs('waka.settings', 'waka.settings.*', 'system-configuration.*');
+        @endphp
+
+        <!-- Sub-group 1: AKADEMIK -->
+        <div x-data="{ open: {{ $saAkademikOpen ? 'true' : 'false' }} }">
+            <button type="button" @click="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#F1F1F4] uppercase tracking-wider font-mono rounded-lg transition-colors cursor-pointer">
+                <span>AKADEMIK (6)</span>
+                <svg class="w-3.5 h-3.5 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div x-show="open" x-cloak class="mt-1 space-y-0.5">
+                <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('schedules.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                    <span>Jadwal Pelajaran</span>
+                </a>
+                <a href="{{ route('room-schedules.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('room-schedules.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('room-schedules.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
+                    <span>Jadwal Ruangan</span>
+                </a>
+                <a href="{{ route('rooms.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('rooms.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('rooms.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1.09" /></svg>
+                    <span>Daftar Ruangan</span>
+                </a>
+                <a href="{{ route('journals.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('journals.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('journals.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
+                    <span>Jurnal &amp; Presensi</span>
+                </a>
+                <a href="{{ route('attendance.recap') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('attendance.recap') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('attendance.recap') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" /></svg>
+                    <span>Rekap Presensi Bulanan</span>
+                </a>
+                <a href="{{ route('schedule-swaps.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('schedule-swaps.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('schedule-swaps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                    <span>Laporan Tukar Jadwal</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sub-group 2: KESISWAAN -->
+        <div x-data="{ open: {{ $saKesiswaanOpen ? 'true' : 'false' }} }">
+            <button type="button" @click="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#F1F1F4] uppercase tracking-wider font-mono rounded-lg transition-colors cursor-pointer">
+                <span>KESISWAAN (3)</span>
+                <svg class="w-3.5 h-3.5 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div x-show="open" x-cloak class="mt-1 space-y-0.5">
+                <a href="{{ route('leave-requests.index') }}" class="flex items-center justify-between px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('leave-requests.*') ? $navActive : $navInactive }}">
+                    <div class="flex items-center gap-3">
+                        <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('leave-requests.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                        <span>Izin Siswa</span>
+                    </div>
+                    @if($pendingLeaveCount > 0)
+                        <span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-[#282115] text-amber-800 dark:text-amber-300 text-[11px] font-mono font-bold tabular-nums">{{ $pendingLeaveCount }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('academic-calendar.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('academic-calendar.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('academic-calendar.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                    <span>Kalender Akademik</span>
+                </a>
+                <a href="{{ route('exams.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('exams.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('exams.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                    <span>Materi &amp; Ujian</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sub-group 3: MASTER DATA & IMPOR -->
+        <div x-data="{ open: {{ $saMasterOpen ? 'true' : 'false' }} }">
+            <button type="button" @click="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#F1F1F4] uppercase tracking-wider font-mono rounded-lg transition-colors cursor-pointer">
+                <span>MASTER DATA &amp; IMPOR (5)</span>
+                <svg class="w-3.5 h-3.5 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div x-show="open" x-cloak class="mt-1 space-y-0.5">
+                <a href="{{ route('classes.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ (request()->routeIs('classes.*') && !request()->routeIs('classes.promotion*')) ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('classes.*') && !request()->routeIs('classes.promotion*')) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>
+                    <span>Data Kelas</span>
+                </a>
+                <a href="{{ route('classes.promotion') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('classes.promotion*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('classes.promotion*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+                    <span>Kenaikan Kelas &amp; Mutasi</span>
+                </a>
+                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('users.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('users.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                    <span>Manajemen Pengguna</span>
+                </a>
+                <a href="{{ route('waka.import-pegawai.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('waka.import-pegawai.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.import-pegawai.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                    <span>Import Pegawai</span>
+                </a>
+                <a href="{{ route('waka.import-wali-bk.index') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('waka.import-wali-bk.*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.import-wali-bk.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                    <span>Import Wali &amp; BK</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sub-group 4: PENGATURAN TEKNIS -->
+        <div x-data="{ open: {{ $saTeknisOpen ? 'true' : 'false' }} }">
+            <button type="button" @click="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#F1F1F4] uppercase tracking-wider font-mono rounded-lg transition-colors cursor-pointer">
+                <span>PENGATURAN TEKNIS (3)</span>
+                <svg class="w-3.5 h-3.5 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div x-show="open" x-cloak class="mt-1 space-y-0.5">
+                <a href="{{ route('waka.settings') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ (request()->routeIs('waka.settings') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*'))) ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ (request()->routeIs('waka.settings') || (request()->routeIs('system-configuration.*') && !request()->routeIs('system-configuration.email*'))) ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+                    <span>Pengaturan Sistem &amp; AI</span>
+                </a>
+                <a href="{{ route('waka.settings.login-background') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('waka.settings.login-background*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('waka.settings.login-background*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                    <span>Tampilan Login</span>
+                </a>
+                <a href="{{ route('system-configuration.email') }}" class="flex items-center gap-3 px-3 py-1.5 text-xs transition-colors duration-150 {{ request()->routeIs('system-configuration.email*') ? $navActive : $navInactive }}">
+                    <svg aria-hidden="true" class="w-4 h-4 shrink-0 {{ request()->routeIs('system-configuration.email*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+                    <span>Pengaturan Email</span>
                 </a>
             </div>
         </div>

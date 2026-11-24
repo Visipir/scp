@@ -124,7 +124,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/leave-requests/{leaveRequest}/document', [V1LeaveRequestController::class, 'document'])->name('leave-requests.document');
         });
         Route::post('/leave-requests', [V1LeaveRequestController::class, 'store'])->middleware(['role:4', 'throttle:10,1'])->name('leave-requests.store');
-        Route::patch('/leave-requests/{leaveRequest}/status', [V1LeaveRequestController::class, 'updateStatus'])->middleware('role:1,3')->name('leave-requests.update-status');
+        Route::patch('/leave-requests/{leaveRequest}/status', [V1LeaveRequestController::class, 'updateStatus'])->middleware('role:3')->name('leave-requests.update-status');
 
         Route::get('/attendance', [V1AttendanceController::class, 'index'])->middleware('role:4')->name('attendance.index');
 
@@ -161,12 +161,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::patch('/system/cycle', [SystemController::class, 'cycle'])->name('system.cycle');
             Route::patch('/system/lock', [SystemController::class, 'lock'])->name('system.lock');
             Route::get('/system/unfilled-journals', [SystemController::class, 'unfilledJournals'])->name('system.unfilled-journals');
-            Route::get('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'show'])->name('system.email-settings.show');
-            Route::post('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'update'])->name('system.email-settings.update');
-            Route::post('/system/email-settings/test', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'sendTest'])->name('system.email-settings.test');
             Route::get('/waka/swap-report', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaReport'])->name('waka.swap-report');
             Route::get('/waka/swap-report/{id}', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaShow'])->name('waka.swap-report.show');
             Route::get('/waka/swap-logs', [\App\Http\Controllers\Api\V1\ScheduleSwapController::class, 'wakaLogs'])->name('waka.swap-logs');
+        });
+
+        Route::middleware('role:5')->group(function () {
+            Route::get('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'show'])->name('system.email-settings.show');
+            Route::post('/system/email-settings', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'update'])->name('system.email-settings.update');
+            Route::post('/system/email-settings/test', [\App\Http\Controllers\Api\V1\SystemEmailController::class, 'sendTest'])->name('system.email-settings.test');
         });
 
         // Notifications

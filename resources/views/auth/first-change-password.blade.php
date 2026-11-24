@@ -4,7 +4,7 @@
             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
             Aktivasi Akun Siswa
         </div>
-        <h2 class="text-xl font-bold tracking-tight auth-header-title">Ganti Password Wajib</h2>
+        <h1 class="text-xl font-bold tracking-tight auth-header-title">Ganti Password Wajib</h1>
         <p class="text-xs text-muted-token mt-1 leading-relaxed">
             Halo <span class="font-semibold">{{ $user->fullname }}</span> (NIS: <span class="font-mono font-bold">{{ $user->username }}</span>). Karena ini adalah login pertama Anda dengan kata sandi bawaan, silakan buat kata sandi baru untuk mengamankan akun Anda.
         </p>
@@ -27,13 +27,14 @@
         {{-- New Password --}}
         <div>
             <x-input-label for="password" value="Kata Sandi Baru" />
-            <x-text-input 
+            <x-password-input 
                 id="password" 
-                type="password" 
                 name="password" 
                 required 
-                autofocus 
-                placeholder="Minimal 6 karakter"
+                data-autofocus-desktop 
+                enterkeyhint="next"
+                :invalid="$errors->has('password')"
+                placeholder="Minimal 8 karakter"
                 autocomplete="new-password" 
             />
             <p class="text-[11px] text-muted-token font-mono mt-1">
@@ -44,11 +45,12 @@
         {{-- Confirm Password --}}
         <div>
             <x-input-label for="password_confirmation" value="Konfirmasi Kata Sandi Baru" />
-            <x-text-input 
+            <x-password-input 
                 id="password_confirmation" 
-                type="password" 
                 name="password_confirmation" 
                 required 
+                enterkeyhint="done"
+                :invalid="$errors->has('password_confirmation')"
                 placeholder="Ulangi kata sandi baru"
                 autocomplete="new-password" 
             />

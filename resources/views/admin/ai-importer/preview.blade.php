@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ $originUrl }}" class="p-2 -ml-2 rounded-lg text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <a href="{{ $originUrl }}" aria-label="Kembali ke halaman sebelumnya" class="p-2 -ml-2 rounded-lg text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
             </a>
@@ -24,13 +24,14 @@
                     Berikut adalah data yang berhasil diekstrak oleh Google Gemini AI. Silakan periksa kembali sebelum menyimpan ke dalam database.
                 </p>
 
-                <div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30]">
-                    <table class="min-w-full divide-y divide-zinc-200 dark:divide-[#2B2B30] text-sm">
+                <div tabindex="0" role="region" aria-label="Pratinjau Data Impor AI" class="overflow-x-auto table-scroll-region rounded-lg border border-zinc-200 dark:border-[#2B2B30]">
+                    <table class="min-w-full divide-y divide-zinc-200 dark:divide-[#2B2B30] text-sm tabular-nums">
+                        <caption class="sr-only">Pratinjau Hasil Ekstraksi Dokumen AI</caption>
                         <thead class="bg-zinc-50 dark:bg-[#232327]">
                             <tr>
                                 @if(!empty($data) && count($data) > 0)
                                     @foreach(array_keys($data[0]) as $key)
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] uppercase tracking-wider">{{ str_replace('_', ' ', $key) }}</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] uppercase tracking-wider">{{ str_replace('_', ' ', $key) }}</th>
                                     @endforeach
                                 @endif
                             </tr>
@@ -58,8 +59,8 @@
                     <form action="{{ route('ai-importer.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="cache_key" value="{{ $cacheKey }}">
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-xs">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-xs">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             Simpan ke Database

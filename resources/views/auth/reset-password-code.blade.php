@@ -1,6 +1,6 @@
 <x-guest-layout :title="'Verifikasi Kode Reset'">
     <div class="mb-4">
-        <h2 class="text-lg font-bold auth-header-title">Atur Ulang Kata Sandi</h2>
+        <h1 class="text-lg font-bold auth-header-title">Atur Ulang Kata Sandi</h1>
         <p class="text-sm text-muted-token mt-1">
             Masukkan kode verifikasi 6 digit yang dikirimkan ke email Anda dan tentukan kata sandi baru (minimal 8 karakter).
         </p>
@@ -23,6 +23,10 @@
                 :value="old('identifier', $identifier ?? '')"
                 required
                 autocomplete="username"
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                :invalid="$errors->has('identifier') || $errors->has('email')"
             />
             <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-1" />
         </div>
@@ -30,32 +34,38 @@
         <!-- Verification Code -->
         <div>
             <x-input-label for="code" :value="__('Kode Verifikasi 6 Digit')" />
+            <p id="code-format-hint" class="text-xs text-muted-token mt-1">Kode 6 digit berlaku 15 menit (maksimal 5 kali percobaan).</p>
             <x-text-input
                 id="code"
-                class="block mt-1 w-full font-mono text-center tracking-widest text-lg font-bold"
+                class="block mt-1.5 w-full font-mono text-center tracking-widest text-lg font-bold"
                 type="text"
                 name="code"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="\d{6}"
                 maxlength="6"
                 placeholder="123456"
+                aria-describedby="code-format-hint"
+                enterkeyhint="next"
+                :invalid="$errors->has('code')"
                 :value="old('code')"
                 required
-                autofocus
+                data-autofocus-desktop
             />
-            <p class="text-xs text-muted-token mt-1">Kode berlaku selama 15 menit (maksimal 5 kali percobaan).</p>
             <x-input-error :messages="$errors->get('code')" class="mt-1" />
         </div>
 
         <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Kata Sandi Baru (Min. 8 Karakter)')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+            <x-password-input wrapperClass="mt-1" id="password" name="password" required autocomplete="new-password" :invalid="$errors->has('password')" />
             <x-input-error :messages="$errors->get('password')" class="mt-1" />
         </div>
 
         <!-- Confirm Password -->
         <div>
             <x-input-label for="password_confirmation" :value="__('Konfirmasi Kata Sandi Baru')" />
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+            <x-password-input wrapperClass="mt-1" id="password_confirmation" name="password_confirmation" required autocomplete="new-password" :invalid="$errors->has('password_confirmation')" />
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
         </div>
 

@@ -142,8 +142,12 @@ class LeaveAttendanceSyncE3Test extends TestCase
         $this->assertSame(0, $recap1['total_alpa']);
         $this->assertSame(3, $recap1['total_records']);
 
-        // 3. Wali rejects leaveIzin -> reverts to Alpa (NOT deleted, same row ID)
+        // 3. Wali cannot reject leaveIzin (view-only -> 403); BK rejects -> reverts to Alpa (NOT deleted, same row ID)
         $this->apiAs($this->waliA)
+            ->patchJson("/api/v1/leave-requests/{$leaveIzin->id}/status", ['status_approval' => 'Rejected'])
+            ->assertStatus(403);
+
+        $this->apiAs($this->bkA)
             ->patchJson("/api/v1/leave-requests/{$leaveIzin->id}/status", ['status_approval' => 'Rejected'])
             ->assertOk();
 
@@ -183,7 +187,7 @@ class LeaveAttendanceSyncE3Test extends TestCase
         $this->assertSame(0, $recap3['total_alpa']);
         $this->assertSame(3, $recap3['total_records']);
 
-        // 5. Verify Wali vs BK conflict: last decision wins on leave_requests AND all 3 decisions logged in leave_request_decisions
+        // 5. Verify last decision wins on leave_requests AND all 3 BK decisions logged in leave_request_decisions
         $leaveIzin->refresh();
         $this->assertSame('Approved', $leaveIzin->status_approval);
         $this->assertSame($this->bkA->id, (int) $leaveIzin->decided_by_user_id);
@@ -192,7 +196,7 @@ class LeaveAttendanceSyncE3Test extends TestCase
         $decisions = LeaveRequestDecision::where('leave_request_id', $leaveIzin->id)->orderBy('id')->get();
         $this->assertCount(3, $decisions);
         $this->assertSame(['Approved', 'Rejected', 'Approved'], $decisions->pluck('status')->all());
-        $this->assertSame(['BK', 'Wali', 'BK'], $decisions->pluck('role')->all());
+        $this->assertSame(['BK', 'BK', 'BK'], $decisions->pluck('role')->all());
     }
 
     public function test_leave_approval_does_not_overwrite_hadir_filled_by_teacher(): void

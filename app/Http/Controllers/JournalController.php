@@ -27,7 +27,7 @@ class JournalController extends Controller
             $query->whereHas('schedule', fn ($q) => $q->where('teacher_id', $user->id));
         }
 
-        $journals = $query->latest('date')->paginate(15);
+        $journals = $query->latest('date')->paginate(15)->withQueryString();
 
         return view('journals.index', compact('journals'));
     }
@@ -89,7 +89,7 @@ class JournalController extends Controller
 
         $allStudentIds = $studentsByClass->flatten(1)->pluck('id')->all();
         $approvedLeaves = LeaveRequest::with(['decidedBy', 'verifier'])
-            ->where('status_approval', 'Approved')
+            ->whereIn('status_approval', ['Approved', 'Pending'])
             ->whereIn('student_id', $allStudentIds)
             ->whereDate('start_date', '<=', $defaultDate)
             ->whereDate('end_date', '>=', $defaultDate)
@@ -102,11 +102,16 @@ class JournalController extends Controller
             $initialAbsentStudents = [];
             foreach ($classStudents as $std) {
                 if ($leave = $approvedLeaves->get($std->id)) {
+                    $isApproved = $leave->status_approval === 'Approved';
                     $initialAbsentStudents[] = [
                         'student_id'        => (string) $std->id,
+                        'student_name'      => $std->fullname,
+                        'student_username'  => $std->username,
                         'status'            => $leave->attendance_status,
-                        'notes'             => 'Izin resmi (Pengajuan surat izin disetujui)',
+                        'category'          => $leave->category ?? $leave->attendance_status,
+                        'notes'             => $isApproved ? 'Izin resmi (Pengajuan surat izin disetujui)' : 'Izin (Menunggu persetujuan BK/Wali)',
                         'is_approved_leave' => true,
+                        'status_approval'   => $leave->status_approval,
                         'leave_id'          => $leave->id,
                         'leave_reason'      => $leave->reason,
                         'decision_label'    => $leave->decisionLabel(),
@@ -115,7 +120,11 @@ class JournalController extends Controller
             }
         }
 
-        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass', 'todayName', 'todaySchedules', 'initialAbsentStudents'));
+        $fillTimeCheck = $defaultSchedule
+            ? app(JournalService::class)->checkJournalFillTime($defaultSchedule, $defaultDate)
+            : ['allowed' => true, 'message' => null];
+
+        return view('journals.create', compact('schedules', 'kbmSuspendedEvent', 'defaultSchedule', 'defaultDate', 'studentsByClass', 'todayName', 'todaySchedules', 'initialAbsentStudents', 'fillTimeCheck'));
     }
 
     /**
@@ -139,19 +148,24 @@ class JournalController extends Controller
             ->where('role_id', 4)
             ->pluck('id');
 
-        $leaves = LeaveRequest::with(['decidedBy', 'verifier'])
-            ->where('status_approval', 'Approved')
+        $leaves = LeaveRequest::with(['student', 'decidedBy', 'verifier'])
+            ->whereIn('status_approval', ['Approved', 'Pending'])
             ->whereIn('student_id', $studentIds)
             ->whereDate('start_date', '<=', $date)
             ->whereDate('end_date', '>=', $date)
             ->get();
 
         $data = $leaves->map(function ($leave) {
+            $isApproved = $leave->status_approval === 'Approved';
             return [
                 'student_id'        => (string) $leave->student_id,
+                'student_name'      => $leave->student?->fullname ?? '',
+                'student_username'  => $leave->student?->username ?? '',
                 'status'            => $leave->attendance_status,
-                'notes'             => 'Izin resmi (Pengajuan surat izin disetujui)',
+                'category'          => $leave->category ?? $leave->attendance_status,
+                'notes'             => $isApproved ? 'Izin resmi (Pengajuan surat izin disetujui)' : 'Izin (Menunggu persetujuan BK/Wali)',
                 'is_approved_leave' => true,
+                'status_approval'   => $leave->status_approval,
                 'leave_id'          => (int) $leave->id,
                 'leave_reason'      => $leave->reason,
                 'decision_label'    => $leave->decisionLabel(),
@@ -161,7 +175,7 @@ class JournalController extends Controller
         return response()->json(['leaves' => $data]);
     }
 
-    public function store(StoreJournalRequest $request, JournalService $journals): RedirectResponse
+    public function store(StoreJournalRequest $request, JournalService $journals): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
         $schedule = Schedule::findOrFail($validated['schedule_id']);
@@ -173,10 +187,23 @@ class JournalController extends Controller
             abort(403, 'Anda bukan guru pengajar efektif untuk jadwal ini pada tanggal tersebut.');
         }
 
+        $fillTimeCheck = $journals->checkJournalFillTime($schedule, $date);
+        if (! $fillTimeCheck['allowed']) {
+            return $request->expectsJson()
+                ? response()->json(['message' => $fillTimeCheck['message']], 422)
+                : back()->withInput()->with('error', $fillTimeCheck['message']);
+        }
+
         $journals->create($schedule, $validated, $request->file('photo'), $request->user()->id, $check['swap_id']);
 
+        $successMessage = 'Jurnal berhasil dibuat dan presensi otomatis telah diisi.';
+        if ($request->expectsJson()) {
+            session()->flash('success', $successMessage);
+            return response()->json(['redirect' => route('journals.index')]);
+        }
+
         return redirect()->route('journals.index')
-            ->with('success', 'Jurnal berhasil dibuat dan presensi otomatis telah diisi.');
+            ->with('success', $successMessage);
     }
 
     public function update(Request $request, Journal $journal, JournalService $journals): RedirectResponse

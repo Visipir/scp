@@ -13,8 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: [
+            '127.0.0.1',
+            '::1',
+            '10.0.0.0/8',
+            '172.16.0.0/12',
+            '192.168.0.0/16',
+        ]);
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
+        $middleware->web(prepend: [
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\EnsurePasswordIsChanged::class,

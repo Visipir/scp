@@ -31,15 +31,39 @@ class LeaveRequestService
             $documentPath = $document->store('leave-documents', 'local');
         }
 
-        return LeaveRequest::create([
+        $category = $validated['category'] ?? null;
+        if (empty($category)) {
+            $category = LeaveRequest::determineStatusFromReason($validated['reason']);
+        }
+
+        $leaveRequest = LeaveRequest::create([
             'student_id'      => $studentId,
             'applicant_id'    => $user->id,
             'start_date'      => $validated['start_date'],
             'end_date'        => $validated['end_date'],
+            'category'        => $category,
             'reason'          => $validated['reason'],
             'document_path'   => $documentPath,
             'status_approval' => 'Pending',
         ]);
+
+        // Auto-sync to any existing attendance rows for this student in that date range (only if Alpa)
+        $targetStatus = LeaveRequest::determineTargetStatus($leaveRequest->category, $leaveRequest->reason);
+        $existingAttendances = Attendance::where('student_id', $studentId)
+            ->whereDate('date', '>=', $validated['start_date'])
+            ->whereDate('date', '<=', $validated['end_date'])
+            ->where('status', 'Alpa')
+            ->get();
+
+        foreach ($existingAttendances as $att) {
+            $att->update([
+                'leave_request_id' => $leaveRequest->id,
+                'status'           => $targetStatus,
+                'notes'            => 'Izin (Menunggu persetujuan BK/Wali)',
+            ]);
+        }
+
+        return $leaveRequest;
     }
 
     /**
@@ -89,13 +113,16 @@ class LeaveRequestService
                 ->get();
 
             if ($attendances->isNotEmpty()) {
-                $targetStatus = LeaveRequest::determineStatusFromReason($leaveRequest->reason);
+                $targetStatus = LeaveRequest::determineTargetStatus($leaveRequest->category, $leaveRequest->reason);
 
                 foreach ($attendances as $attendance) {
                     $isFromLeave = (int) $attendance->leave_request_id === (int) $leaveRequest->id
                         || ($attendance->leave_request_id === null
                             && in_array($attendance->status, ['Izin', 'Sakit'], true)
-                            && $attendance->notes === 'Izin resmi (Pengajuan surat izin disetujui)');
+                            && (
+                                $attendance->notes === 'Izin resmi (Pengajuan surat izin disetujui)' ||
+                                $attendance->notes === 'Izin (Menunggu persetujuan BK/Wali)'
+                            ));
 
                     if ($status === 'Approved') {
                         // Do NOT overwrite Hadir filled by teacher; only convert Alpa or leave-originated rows
@@ -106,8 +133,7 @@ class LeaveRequestService
                                 'notes'            => 'Izin resmi (Pengajuan surat izin disetujui)',
                             ]);
                         }
-                    } else { // Pending or Rejected
-                        // Revert ONLY attendance that originated from leave back to Alpa (do not delete row, do not overwrite teacher's Hadir)
+                    } else { // Rejected or Pending
                         if ($isFromLeave) {
                             $attendance->update([
                                 'leave_request_id' => $leaveRequest->id,
@@ -125,16 +151,16 @@ class LeaveRequestService
 
     private function resolveDeciderRole(User $verifier, ?int $studentClassId): string
     {
-        if ($studentClassId !== null && $verifier->homeroomAssignment()->where('class_id', $studentClassId)->exists()) {
-            return 'Wali';
-        }
-
         if ($studentClassId !== null && $verifier->counselorAssignments()->where('class_id', $studentClassId)->exists()) {
             return 'BK';
         }
 
         if ((int) $verifier->role_id === 3 || $verifier->counselorAssignments()->exists()) {
             return 'BK';
+        }
+
+        if ((int) $verifier->role_id === 5) {
+            return 'Superadmin';
         }
 
         if ($verifier->isHomeroomTeacher()) {

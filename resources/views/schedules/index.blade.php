@@ -5,12 +5,12 @@
             :subtitle="auth()->user()->role_id === 2 ? 'Alokasi waktu tatap muka mengajar Anda' : 'Manajemen alokasi mata pelajaran, kelas, ruang, dan guru pengampu KBM'"
         >
             <x-slot:actions>
-                @if(auth()->user()->role_id === 1)
+                @if(auth()->user()?->hasCurriculumAccess())
                     <a 
                         href="{{ route('schedule-swaps.index') }}" 
                         class="h-9 inline-flex items-center gap-2 px-3.5 bg-white dark:bg-[#19191C] hover:bg-zinc-50 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition border border-zinc-200 dark:border-[#2B2B30] shadow-2xs min-h-[44px] sm:min-h-[36px]"
                     >
-                        <svg class="w-4 h-4 text-zinc-500 dark:text-[#97979B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-zinc-500 dark:text-[#9496A1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                         </svg>
                         <span>Laporan Tukar Jadwal</span>
@@ -19,22 +19,20 @@
                     @if(!$config?->is_schedule_locked)
                         <a 
                             href="{{ route('waka.schedules.import.index') }}" 
-                            class="h-9 inline-flex items-center gap-1.5 px-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2C2C30] dark:hover:bg-[#35353A] text-zinc-800 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition min-h-[44px] sm:min-h-[36px]"
-                            title="Import Jadwal dari berkas ekspor FET (XML, CSV, PDF)"
+                            class="h-9 inline-flex items-center gap-1.5 px-3.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2C2C30] dark:hover:bg-[#35353A] text-zinc-800 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition min-h-[44px] sm:min-h-[36px]"
+                            title="Import Jadwal Pelajaran (FET XML, CSV, PDF, atau AI)"
                         >
-                            <svg class="w-4 h-4 text-[#0093dd]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg class="w-4 h-4 text-[#0073B1] dark:text-[#38BDF8]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
-                            <span>Import FET</span>
+                            <span>Import Jadwal</span>
                         </a>
-
-                        <x-ai-importer-modal type="Jadwal Pelajaran" title="Impor Jadwal AI" />
 
                         <a 
                             href="{{ route('schedules.create') }}" 
-                            class="h-9 inline-flex items-center gap-1.5 px-3.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 inline-flex items-center gap-1.5 px-3.5 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[36px]"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                             </svg>
                             <span>Tambah Jadwal</span>
@@ -45,7 +43,7 @@
                         href="{{ route('schedule-swaps.index') }}" 
                         class="h-9 inline-flex items-center gap-2 px-3.5 bg-white dark:bg-[#19191C] hover:bg-zinc-50 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#EDEDF0] text-xs font-semibold rounded-lg transition border border-zinc-200 dark:border-[#2B2B30] shadow-2xs min-h-[44px] sm:min-h-[36px]"
                     >
-                        <svg class="w-4 h-4 text-zinc-500 dark:text-[#97979B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-zinc-500 dark:text-[#9496A1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                         </svg>
                         <span>Tukar Jadwal</span>
@@ -54,9 +52,9 @@
                     @if(!$config?->is_schedule_locked)
                         <a 
                             href="{{ route('schedules.create') }}" 
-                            class="h-9 inline-flex items-center gap-1.5 px-3.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 inline-flex items-center gap-1.5 px-3.5 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[36px]"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                             </svg>
                             <span>Tambah Jadwal</span>
@@ -83,6 +81,8 @@
             activeDay: '{{ $defaultDay ?? 'all' }}',
             searchQuery: '',
             showMatrix: false,
+            pageSize: 15,
+            currentPage: 1,
             schedulesData: [
                 @foreach($schedules as $s)
                 {
@@ -95,6 +95,10 @@
                 },
                 @endforeach
             ],
+            init() {
+                this.$watch('activeDay', () => { this.currentPage = 1; });
+                this.$watch('searchQuery', () => { this.currentPage = 1; });
+            },
             matches(day, subject, className, teacherName, roomName) {
                 if (this.activeDay !== 'all' && this.activeDay !== day) return false;
                 if (!this.searchQuery.trim()) return true;
@@ -104,8 +108,22 @@
                        (teacherName || '').toLowerCase().includes(q) ||
                        (roomName || '').toLowerCase().includes(q);
             },
+            get filteredIds() {
+                return this.schedulesData
+                    .filter(s => this.matches(s.day, s.subject, s.className, s.teacherName, s.roomName))
+                    .map(s => s.id);
+            },
             get totalMatches() {
-                return this.schedulesData.filter(s => this.matches(s.day, s.subject, s.className, s.teacherName, s.roomName)).length;
+                return this.filteredIds.length;
+            },
+            get totalPages() {
+                return Math.max(1, Math.ceil(this.totalMatches / this.pageSize));
+            },
+            isRowOnPage(id) {
+                const idx = this.filteredIds.indexOf(id);
+                if (idx === -1) return false;
+                const start = (this.currentPage - 1) * this.pageSize;
+                return idx >= start && idx < start + this.pageSize;
             }
         }"
     >
@@ -166,7 +184,7 @@
                         @endphp
                         <a 
                             href="{{ route('schedules.index', array_merge(request()->query(), ['cycle' => $cycle])) }}" 
-                            class="h-8 px-3 rounded-md transition cursor-pointer flex items-center gap-1.5 min-h-[44px] sm:min-h-[32px] {{ $isSelected ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
+                            class="h-8 px-3 rounded-md transition cursor-pointer flex items-center gap-1.5 min-h-[44px] sm:min-h-[32px] {{ $isSelected ? 'bg-[#0073B1] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                         >
                             @if($isActiveCycle)
                                 <span class="w-1.5 h-1.5 rounded-full {{ $isSelected ? 'bg-white' : 'bg-emerald-500' }}"></span>
@@ -176,15 +194,16 @@
                     @endforeach
                 </div>
 
-                {{-- Admin Filter Dropdowns (Role 1) --}}
-                @if(auth()->user()->role_id === 1)
+                {{-- Admin Filter Dropdowns (Role 1 & Role 5) --}}
+                @if(auth()->user()?->hasCurriculumAccess())
                     <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <input type="hidden" name="cycle" value="{{ $cycleFilter }}">
 
+                        <label for="filter_schedule_teacher_id" class="sr-only">Filter Guru</label>
                         <select 
+                            id="filter_schedule_teacher_id"
                             name="teacher_id" 
-                            onchange="this.form.submit()" 
-                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] min-h-[44px] sm:min-h-[36px]"
                         >
                             <option value="">Semua Guru ({{ $teachers->count() }})</option>
                             @foreach($teachers as $t)
@@ -194,10 +213,11 @@
                             @endforeach
                         </select>
 
+                        <label for="filter_schedule_class_id" class="sr-only">Filter Kelas</label>
                         <select 
+                            id="filter_schedule_class_id"
                             name="class_id" 
-                            onchange="this.form.submit()" 
-                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] min-h-[44px] sm:min-h-[36px]"
+                            class="h-9 w-full sm:w-auto rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1 px-3 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] min-h-[44px] sm:min-h-[36px]"
                         >
                             <option value="">Semua Kelas ({{ $classes->count() }})</option>
                             @foreach($classes as $c)
@@ -207,10 +227,14 @@
                             @endforeach
                         </select>
 
+                        <button type="submit" class="h-9 min-h-[44px] sm:min-h-[36px] px-3 rounded-lg bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold transition cursor-pointer">
+                            Terapkan
+                        </button>
+
                         @if(request('teacher_id') || request('class_id'))
                             <a 
                                 href="{{ route('schedules.index', ['cycle' => $cycleFilter]) }}" 
-                                class="h-9 inline-flex items-center px-2 text-xs text-rose-600 dark:text-rose-400 hover:underline font-semibold min-h-[44px] sm:min-h-[36px]"
+                                class="h-9 inline-flex items-center px-2 text-xs text-rose-700 dark:text-rose-400 hover:underline font-semibold min-h-[44px] sm:min-h-[36px]"
                             >
                                 Reset
                             </a>
@@ -219,27 +243,31 @@
                 @endif
 
                 {{-- Search Bar with icon placed inside input --}}
-                <div class="relative w-full sm:flex-1 sm:min-w-[180px]">
+                <search class="relative w-full sm:flex-1 sm:min-w-[180px] block">
+                    <label for="search-schedules" class="sr-only">Cari mata pelajaran, kelas, guru, atau ruangan</label>
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-zinc-500 dark:text-[#9496A1]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
                         </svg>
                     </div>
                     <input 
-                        type="text" 
+                        id="search-schedules"
+                        type="search" 
+                        enterkeyhint="search"
                         x-model="searchQuery" 
-                        placeholder="Cari mapel, kelas, guru, ruang..." 
-                        class="w-full h-9 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1.5 pl-9 pr-8 text-xs text-zinc-900 dark:text-[#EDEDF0] placeholder-zinc-400 focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] transition min-h-[44px] sm:min-h-[36px]"
+                        placeholder="Cari mapel, kelas, guru, ruang…" 
+                        class="w-full h-9 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] py-1.5 pl-9 pr-10 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] transition min-h-[44px] sm:min-h-[36px]"
                     />
                     <button 
                         type="button" 
                         x-show="searchQuery" 
                         @click="searchQuery = ''" 
-                        class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px] justify-center"
+                        aria-label="Hapus kata kunci pencarian"
+                        class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-500 hover:text-zinc-900 dark:text-[#9496A1] dark:hover:text-zinc-200 min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px] justify-center"
                     >
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
-                </div>
+                </search>
 
                 {{-- View Toggle & Aturan Jam --}}
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
@@ -248,11 +276,11 @@
                         <button 
                             type="button" 
                             @click="viewMode = 'table'"
-                            :class="viewMode === 'table' ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
+                            :class="viewMode === 'table' ? 'bg-[#0073B1] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
                             class="h-8 px-2.5 rounded-md flex items-center gap-1.5 transition cursor-pointer min-h-[44px] sm:min-h-[32px]"
                             title="Tampilan Tabel Rinci"
                         >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                             </svg>
                             <span class="hidden sm:inline">Tabel</span>
@@ -260,11 +288,11 @@
                         <button 
                             type="button" 
                             @click="viewMode = 'cards'"
-                            :class="viewMode === 'cards' ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
+                            :class="viewMode === 'cards' ? 'bg-[#0073B1] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
                             class="h-8 px-2.5 rounded-md flex items-center gap-1.5 transition cursor-pointer min-h-[44px] sm:min-h-[32px]"
                             title="Tampilan Kartu Timeline"
                         >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
                             </svg>
                             <span class="hidden sm:inline">Kartu</span>
@@ -272,11 +300,11 @@
                         <button 
                             type="button" 
                             @click="viewMode = 'grid'"
-                            :class="viewMode === 'grid' ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
+                            :class="viewMode === 'grid' ? 'bg-[#0073B1] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]'"
                             class="h-8 px-2.5 rounded-md flex items-center gap-1.5 transition cursor-pointer min-h-[44px] sm:min-h-[32px]"
                             title="Tampilan Matriks Mingguan"
                         >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.5-15h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 014.5 4.5z" />
                             </svg>
                             <span class="hidden sm:inline">Matriks</span>
@@ -288,9 +316,9 @@
                         type="button"
                         @click="showMatrix = !showMatrix"
                         class="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-medium border rounded-lg transition cursor-pointer shrink-0 min-h-[44px] sm:min-h-[36px]"
-                        :class="showMatrix ? 'bg-[#0093dd] text-white border-transparent shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
+                        :class="showMatrix ? 'bg-[#0073B1] text-white border-transparent shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] border-zinc-200 dark:border-[#2B2B30] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                     >
-                        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span class="hidden md:inline" x-text="showMatrix ? 'Tutup Aturan' : 'Aturan Jam Belajar'"></span>
@@ -305,7 +333,7 @@
                     <span class="text-zinc-700 dark:text-[#EDEDF0] font-medium">
                         Tidak ada jadwal hari ini ({{ $todayName }}). Silakan pilih hari lain pada tab di bawah ini.
                     </span>
-                    <button type="button" @click="activeDay = 'all'" x-show="activeDay !== 'all'" class="text-[#0093dd] hover:underline font-semibold text-left sm:text-right cursor-pointer shrink-0">
+                    <button type="button" @click="activeDay = 'all'" x-show="activeDay !== 'all'" class="text-[#0073B1] dark:text-[#38BDF8] hover:underline font-semibold text-left sm:text-right cursor-pointer shrink-0">
                         Tampilkan Semua Hari &rarr;
                     </button>
                 </div>
@@ -314,13 +342,13 @@
                 <button 
                     type="button" 
                     @click="activeDay = 'all'"
-                    :class="activeDay === 'all' ? 'bg-[#0093dd] text-white font-semibold shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
+                    :class="activeDay === 'all' ? 'bg-[#0073B1] text-white font-semibold shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
                     class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5 min-h-[44px] sm:min-h-[32px]"
                 >
                     <span>Semua Hari</span>
                     <span 
-                        :class="activeDay === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-200/80 text-zinc-700 dark:bg-[#19191C] dark:text-[#97979B]'"
-                        class="text-[10px] font-mono px-1.5 py-0.5 rounded leading-none"
+                        :class="activeDay === 'all' ? 'bg-[#004A73] text-white' : 'bg-zinc-200/80 text-zinc-700 dark:bg-[#19191C] dark:text-[#9496A1]'"
+                        class="text-[11px] font-mono px-1.5 py-0.5 rounded leading-none"
                     >
                         {{ $schedules->count() }}
                     </span>
@@ -334,13 +362,13 @@
                     <button 
                         type="button" 
                         @click="activeDay = '{{ $day }}'"
-                        :class="activeDay === '{{ $day }}' ? 'bg-[#0093dd] text-white font-semibold shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
+                        :class="activeDay === '{{ $day }}' ? 'bg-[#0073B1] text-white font-semibold shadow-xs' : 'bg-zinc-50 dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#26262A] text-zinc-700 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] font-medium border border-zinc-200 dark:border-[#2B2B30]'"
                         class="h-8 px-3 rounded-lg transition cursor-pointer shrink-0 flex items-center gap-1.5 min-h-[44px] sm:min-h-[32px]"
                     >
                         <span>{{ $day }}</span>
                         <span 
-                            :class="activeDay === '{{ $day }}' ? 'bg-white/20 text-white' : 'bg-zinc-200/80 text-zinc-700 dark:bg-[#19191C] dark:text-[#97979B]'"
-                            class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded leading-none"
+                            :class="activeDay === '{{ $day }}' ? 'bg-[#004A73] text-white' : 'bg-zinc-200/80 text-zinc-700 dark:bg-[#19191C] dark:text-[#9496A1]'"
+                            class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded leading-none"
                         >
                             {{ $jpDay }} JP
                         </span>
@@ -366,7 +394,7 @@
             <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 text-xs shadow-2xs space-y-4">
                 <div class="flex items-center justify-between border-b border-zinc-100 dark:border-[#2B2B30] pb-3">
                     <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-[#0093dd]"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#0073B1]"></span>
                         <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs">
                             Aturan Alokasi Jam Belajar &mdash; {{ $cycleFilter }}
                         </span>
@@ -457,7 +485,7 @@
         @if($schedules->isEmpty())
             <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-12 text-center space-y-4 shadow-2xs">
                 <div class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-[#26262A] text-zinc-400 mx-auto flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                 </div>
@@ -469,79 +497,89 @@
                         @if(auth()->user()->role_id === 2)
                             Tidak ditemukan jadwal mengajar yang terhubung dengan akun Anda pada {{ $cycleFilter }}.
                         @else
-                            Silakan impor jadwal dari berkas PDF menggunakan modul AI atau input alokasi blok jam manual.
+                            Silakan impor jadwal dari berkas FET / PDF atau input alokasi blok jam manual.
                         @endif
                     </p>
                 </div>
-                @if(auth()->user()->role_id === 1 && !$config?->is_schedule_locked)
+                @if(auth()->user()?->hasCurriculumAccess() && !$config?->is_schedule_locked)
                     <div class="pt-2">
-                        <x-ai-importer-modal type="Jadwal Pelajaran" title="Unggah & Impor PDF AI" />
+                        <a
+                            href="{{ route('waka.schedules.import.index') }}"
+                            class="inline-flex items-center gap-2 min-h-[44px] sm:min-h-[36px] px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-lg transition"
+                        >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                            <span>Import Jadwal</span>
+                        </a>
                     </div>
                 @endif
             </div>
         @else
-            {{-- Tampilan tabel --}}
-            <div x-show="viewMode === 'table'" class="space-y-4">
+            {{-- Tampilan tabel (lazy-mounted per active viewMode to cut DOM size ~66%) --}}
+            <template x-if="viewMode === 'table'">
+            <div class="space-y-4">
                 <div class="bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-2xs">
-                    <div class="overflow-x-auto">
+                    <div tabindex="0" role="region" aria-label="Tabel Daftar Jadwal Pelajaran" class="overflow-x-auto table-scroll-region">
                         <table class="w-full text-left text-xs divide-y divide-zinc-200/80 dark:divide-[#2B2B30]">
-                            <thead class="bg-zinc-50 dark:bg-[#121214] text-zinc-500 dark:text-[#97979B] uppercase font-semibold text-[11px] tracking-wider">
+                            <caption class="sr-only">Daftar Jadwal Pelajaran ({{ $cycleFilter }})</caption>
+                            <thead class="bg-zinc-50 dark:bg-[#121214] text-zinc-600 dark:text-[#9496A1] uppercase font-semibold text-[11px] tracking-wider">
                                 <tr>
-                                    <th class="py-3 px-4 w-36">Waktu</th>
-                                    <th class="py-3 px-4 min-w-[200px]">Mata Pelajaran</th>
-                                    <th class="py-3 px-4 w-28">Kelas</th>
-                                    <th class="py-3 px-4 w-28">Ruang</th>
+                                    <th scope="col" class="py-3 px-3">Waktu</th>
+                                    <th scope="col" class="py-3 px-3">Mata Pelajaran</th>
+                                    <th scope="col" class="py-3 px-2.5">Kelas</th>
+                                    <th scope="col" class="py-3 px-2.5">Ruang</th>
                                     @if(auth()->user()->role_id !== 2)
-                                        <th class="py-3 px-4 min-w-[180px]">Guru Pengampu</th>
+                                        <th scope="col" class="py-3 px-3">Guru Pengampu</th>
                                     @endif
-                                    <th class="py-3 px-4 w-24 text-right">Beban</th>
-                                    <th class="py-3 px-4 w-28 text-right">Aksi</th>
+                                    <th scope="col" class="py-3 px-2.5 text-right">JP</th>
+                                    <th scope="col" class="py-3 px-3 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-100 dark:divide-[#2B2B30]/60">
                                 @foreach($schedules as $schedule)
                                     @php
-                                        $canManageSchedule = !$config?->is_schedule_locked && (auth()->user()->role_id === 1 || $schedule->teacher_id === auth()->id());
+                                        $canManageSchedule = !$config?->is_schedule_locked && (auth()->user()?->hasCurriculumAccess() || $schedule->teacher_id === auth()->id());
                                         $isToday = ($todayName === $schedule->day_of_week);
                                     @endphp
                                     <tr 
-                                        x-show="matches('{{ $schedule->day_of_week }}', '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->schoolClass?->class_name ?? '') }}', '{{ addslashes($schedule->teacher?->fullname ?? '') }}', '{{ addslashes($schedule->room?->room_name ?? '') }}')"
+                                        x-show="isRowOnPage({{ $schedule->id }})"
                                         class="hover:bg-zinc-50/80 dark:hover:bg-[#26262A]/50 transition group"
                                     >
                                         {{-- Waktu (Hari name hidden when single day filter is active) --}}
-                                        <td class="py-3 px-4 align-middle whitespace-nowrap">
+                                        <td class="py-3 px-3 align-middle whitespace-nowrap">
                                             <div x-show="activeDay === 'all'" class="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-[#EDEDF0]">
                                                 <span>{{ $schedule->day_of_week }}</span>
                                                 @if($isToday)
                                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Hari Ini"></span>
                                                 @endif
                                             </div>
-                                            <div class="font-mono text-xs text-zinc-700 dark:text-[#EDEDF0] mt-0.5 tabular-nums font-semibold">
+                                            <div class="font-mono text-xs text-zinc-800 dark:text-[#EDEDF0] mt-0.5 tabular-nums font-semibold">
                                                 {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} &ndash; {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                                             </div>
-                                            <div class="text-[10px] font-mono text-zinc-400 dark:text-[#97979B] mt-0.5">
+                                            <div class="text-[11px] font-mono text-zinc-600 dark:text-[#9496A1] mt-0.5">
                                                 {{ $schedule->period_label }}
                                             </div>
                                         </td>
 
                                         {{-- Mata Pelajaran (Semibold, cycle text removed) --}}
-                                        <td class="py-3 px-4 align-middle">
-                                            <div class="font-semibold text-zinc-900 dark:text-[#EDEDF0] text-sm truncate max-w-[240px]" title="{{ $schedule->subject }}">
+                                        <td class="py-3 px-3 align-middle">
+                                            <div class="font-semibold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm truncate max-w-[180px]" title="{{ $schedule->subject }}">
                                                 {{ $schedule->subject }}
                                             </div>
                                         </td>
 
                                         {{-- Kelas (Quiet neutral pill) --}}
-                                        <td class="py-3 px-4 align-middle whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans font-medium text-zinc-700 dark:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
+                                        <td class="py-3 px-2.5 align-middle whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans font-medium text-zinc-800 dark:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
                                                 {{ $schedule->schoolClass->class_name }}
                                             </span>
                                         </td>
 
                                         {{-- Ruang (Quiet neutral pill) --}}
-                                        <td class="py-3 px-4 align-middle whitespace-nowrap">
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-sans font-medium text-zinc-600 dark:text-[#97979B] bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
-                                                <svg class="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <td class="py-3 px-2.5 align-middle whitespace-nowrap">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-sans font-medium text-zinc-700 dark:text-[#9496A1] bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
+                                                <svg class="w-3 h-3 text-zinc-500 dark:text-[#9496A1]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
                                                 </svg>
                                                 {{ $schedule->room->room_name ?? '-' }}
@@ -550,12 +588,12 @@
 
                                         {{-- Guru Pengampu (Admin/Waka only - raw username hidden) --}}
                                         @if(auth()->user()->role_id !== 2)
-                                            <td class="py-3 px-4 align-middle">
-                                                <div class="text-zinc-800 dark:text-[#EDEDF0] font-medium text-xs truncate max-w-[200px]" title="{{ $schedule->teacher->fullname }}">
+                                            <td class="py-3 px-3 align-middle">
+                                                <div class="text-zinc-800 dark:text-[#EDEDF0] font-medium text-xs truncate max-w-[155px]" title="{{ $schedule->teacher->fullname }}">
                                                     {{ $schedule->teacher->fullname }}
                                                 </div>
                                                 @if(!empty($schedule->teacher?->nip))
-                                                    <div class="text-[10px] text-zinc-400 dark:text-[#97979B] font-mono mt-0.5">
+                                                    <div class="text-[11px] text-zinc-600 dark:text-[#9496A1] font-mono mt-0.5">
                                                         NIP: {{ $schedule->teacher->nip }}
                                                     </div>
                                                 @endif
@@ -563,19 +601,19 @@
                                         @endif
 
                                         {{-- Beban JP (Right aligned) --}}
-                                        <td class="py-3 px-4 align-middle text-right whitespace-nowrap">
+                                        <td class="py-3 px-2.5 align-middle text-right whitespace-nowrap">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-[#2B2B30] tabular-nums">
                                                 {{ $schedule->total_jp }} JP
                                             </span>
                                         </td>
 
                                         {{-- Aksi (Right aligned, hidden edit/trash when locked) --}}
-                                        <td class="py-3 px-4 align-middle text-right whitespace-nowrap">
+                                        <td class="py-3 px-3 align-middle text-right whitespace-nowrap">
                                             <div class="flex items-center justify-end gap-1.5">
                                                 @if(auth()->user()->role_id === 2)
                                                     <a 
                                                         href="{{ route('journals.create', ['schedule_id' => $schedule->id]) }}" 
-                                                        class="h-7 px-2.5 inline-flex items-center gap-1 bg-[#0093dd] hover:bg-[#0082c4] text-white text-[11px] font-semibold rounded-md transition shadow-2xs cursor-pointer min-h-[44px] sm:min-h-[28px]"
+                                                        class="h-7 px-2.5 inline-flex items-center gap-1 bg-[#0073B1] hover:bg-[#005D8F] text-white text-[11px] font-semibold rounded-md transition shadow-2xs cursor-pointer min-h-[44px] sm:min-h-[28px]"
                                                     >
                                                         <span>Isi Jurnal</span>
                                                     </a>
@@ -584,19 +622,18 @@
                                                 @if($canManageSchedule)
                                                     <a 
                                                         href="{{ route('schedules.edit', $schedule) }}" 
-                                                        class="h-7 px-2.5 inline-flex items-center text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-[#26262A] hover:bg-zinc-200 dark:hover:bg-[#303036] rounded-md transition text-[11px] font-medium border border-zinc-200/80 dark:border-[#2B2B30] min-h-[44px] sm:min-h-[28px]"
-                                                        title="Edit Jadwal"
+                                                        class="h-7 px-2.5 inline-flex items-center text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-[#26262A] hover:bg-zinc-200 dark:hover:bg-[#303036] rounded-md transition text-[11px] font-medium border border-zinc-200/80 dark:border-[#2B2B30] min-h-[44px] sm:min-h-[28px]"
                                                     >
                                                         Edit
                                                     </a>
-                                                    <form method="POST" action="{{ route('schedules.destroy', $schedule) }}" class="inline" onsubmit="return confirm('Hapus alokasi jadwal ini?')">
+                                                    <form method="POST" action="{{ route('schedules.destroy', $schedule) }}" class="inline" data-confirm="Hapus alokasi jadwal {{ addslashes($schedule->subject) }}?" data-confirm-title="Hapus Alokasi Jadwal">
                                                         @csrf @method('DELETE')
                                                         <button 
                                                             type="submit" 
-                                                            class="h-7 w-7 inline-flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-[28px] sm:min-w-[28px]" 
-                                                            title="Hapus"
+                                                            class="h-7 w-7 inline-flex items-center justify-center text-zinc-500 dark:text-[#9496A1] hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-[28px] sm:min-w-[28px]" 
+                                                            aria-label="Hapus jadwal {{ $schedule->subject }}"
                                                         >
-                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                                             </svg>
                                                         </button>
@@ -604,7 +641,7 @@
                                                 @endif
 
                                                 @if(!$canManageSchedule && auth()->user()->role_id !== 2)
-                                                    <span class="text-xs text-zinc-300 dark:text-zinc-600">&mdash;</span>
+                                                    <span class="text-xs text-zinc-500 dark:text-[#9496A1]">&mdash;</span>
                                                 @endif
                                             </div>
                                         </td>
@@ -613,12 +650,12 @@
 
                                 {{-- Empty Filter Results Row --}}
                                 <tr x-show="totalMatches === 0" x-cloak>
-                                    <td colspan="7" class="py-12 text-center text-xs text-zinc-500 dark:text-[#97979B]">
+                                    <td colspan="7" class="py-12 text-center text-xs text-zinc-600 dark:text-[#9496A1]">
                                         <div>Tidak ada jadwal yang cocok dengan filter atau kata kunci pencarian.</div>
                                         <button 
                                             type="button" 
                                             @click="searchQuery = ''; activeDay = 'all'" 
-                                            class="inline-block mt-2 text-xs text-[#0093dd] hover:underline font-semibold cursor-pointer"
+                                            class="inline-block mt-2 text-xs text-[#0073B1] dark:text-[#38BDF8] hover:underline font-semibold cursor-pointer"
                                         >
                                             Reset Filter &amp; Pencarian
                                         </button>
@@ -628,19 +665,23 @@
                         </table>
                     </div>
                 </div>
+
+                <x-client-pagination total-expr="totalMatches" />
             </div>
+            </template>
 
             {{-- Tampilan kartu linimasa --}}
-            <div x-show="viewMode === 'cards'" class="space-y-6">
+            <template x-if="viewMode === 'cards'">
+            <div class="space-y-6">
                 {{-- Empty Filter State --}}
                 <div x-show="totalMatches === 0" x-cloak class="p-12 text-center bg-white dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl shadow-2xs space-y-2">
-                    <p class="text-xs text-zinc-500 dark:text-[#97979B]">
+                    <p class="text-xs text-zinc-600 dark:text-[#9496A1]">
                         Tidak ada jadwal yang cocok dengan filter atau kata kunci pencarian.
                     </p>
                     <button 
                         type="button" 
                         @click="searchQuery = ''; activeDay = 'all'" 
-                        class="text-xs text-[#0093dd] hover:underline font-semibold cursor-pointer"
+                        class="text-xs text-[#0073B1] dark:text-[#38BDF8] hover:underline font-semibold cursor-pointer"
                     >
                         Reset Filter &amp; Pencarian
                     </button>
@@ -655,24 +696,24 @@
                     @if($daySchedules->isNotEmpty())
                         <div 
                             x-show="activeDay === 'all' || activeDay === '{{ $day }}'"
-                            class="space-y-3"
+                            class="space-y-3 cv-auto"
                         >
                             {{-- Day Section Header --}}
                             <div class="flex items-center justify-between border-b border-zinc-200/80 dark:border-[#2B2B30] pb-2">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] flex items-center gap-2">
+                                    <h2 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] flex items-center gap-2">
                                         <span>{{ $day }}</span>
                                         @if($isToday)
-                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                                 Hari Ini
                                             </span>
                                         @endif
-                                    </h3>
+                                    </h2>
                                 </div>
                                 <div class="flex items-center gap-2 text-xs">
-                                    <span class="text-zinc-500 dark:text-[#97979B] font-mono">{{ $daySchedules->count() }} Sesi</span>
-                                    <span class="px-2 py-0.5 rounded bg-zinc-100 dark:bg-[#232327] text-zinc-700 dark:text-zinc-300 font-bold font-mono border border-zinc-200 dark:border-[#2B2B30]">
+                                    <span class="text-zinc-600 dark:text-[#9496A1] font-mono">{{ $daySchedules->count() }} Sesi</span>
+                                    <span class="px-2 py-0.5 rounded bg-zinc-100 dark:bg-[#232327] text-zinc-800 dark:text-zinc-200 font-bold font-mono border border-zinc-200 dark:border-[#2B2B30]">
                                         {{ $totalDayJp }} JP
                                     </span>
                                 </div>
@@ -682,7 +723,7 @@
                             <div class="space-y-2.5">
                                 @foreach($daySchedules as $schedule)
                                     @php
-                                        $canManageSchedule = !$config?->is_schedule_locked && (auth()->user()->role_id === 1 || $schedule->teacher_id === auth()->id());
+                                        $canManageSchedule = !$config?->is_schedule_locked && (auth()->user()?->hasCurriculumAccess() || $schedule->teacher_id === auth()->id());
                                     @endphp
                                     <div 
                                         x-show="matches('{{ $schedule->day_of_week }}', '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->schoolClass?->class_name ?? '') }}', '{{ addslashes($schedule->teacher?->fullname ?? '') }}', '{{ addslashes($schedule->room?->room_name ?? '') }}')"
@@ -718,19 +759,19 @@
                                                     {{ $schedule->schoolClass->class_name }}
                                                 </span>
                                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-sans font-medium text-zinc-600 dark:text-[#97979B] bg-zinc-100 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
-                                                    <svg class="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg aria-hidden="true" class="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
                                                     </svg>
                                                     {{ $schedule->room->room_name ?? '-' }}
                                                 </span>
                                                 @if(auth()->user()->role_id !== 2)
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30]">
-                                                        <svg class="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg aria-hidden="true" class="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                                         </svg>
                                                         {{ $schedule->teacher->fullname }}
                                                         @if(!empty($schedule->teacher?->nip))
-                                                            <span class="text-[10px] text-zinc-400 font-mono">(NIP: {{ $schedule->teacher->nip }})</span>
+                                                            <span class="text-[10px] text-zinc-600 dark:text-[#9496A1] font-mono">(NIP: {{ $schedule->teacher->nip }})</span>
                                                         @endif
                                                     </span>
                                                 @endif
@@ -742,7 +783,7 @@
                                             @if(auth()->user()->role_id === 2)
                                                 <a 
                                                     href="{{ route('journals.create', ['schedule_id' => $schedule->id]) }}" 
-                                                    class="h-8 inline-flex items-center gap-1.5 px-3 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[32px]"
+                                                    class="h-8 inline-flex items-center gap-1.5 px-3 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-lg transition shadow-2xs min-h-[44px] sm:min-h-[32px]"
                                                 >
                                                     <span>Isi Jurnal</span>
                                                 </a>
@@ -751,19 +792,18 @@
                                             @if($canManageSchedule)
                                                 <a 
                                                     href="{{ route('schedules.edit', $schedule) }}" 
-                                                    class="h-8 px-3 inline-flex items-center text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-[#26262A] hover:bg-zinc-200 dark:hover:bg-[#303036] rounded-lg transition text-xs font-medium border border-zinc-200/80 dark:border-[#2B2B30] min-h-[44px] sm:min-h-[32px]"
-                                                    title="Edit Jadwal"
+                                                    class="h-8 px-3 inline-flex items-center text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-[#26262A] hover:bg-zinc-200 dark:hover:bg-[#303036] rounded-lg transition text-xs font-medium border border-zinc-200/80 dark:border-[#2B2B30] min-h-[44px] sm:min-h-[32px]"
                                                 >
                                                     Edit
                                                 </a>
-                                                <form method="POST" action="{{ route('schedules.destroy', $schedule) }}" class="inline" onsubmit="return confirm('Hapus alokasi jadwal ini?')">
+                                                <form method="POST" action="{{ route('schedules.destroy', $schedule) }}" class="inline" data-confirm="Hapus alokasi jadwal {{ addslashes($schedule->subject) }}?" data-confirm-title="Hapus Alokasi Jadwal">
                                                     @csrf @method('DELETE')
                                                     <button 
                                                         type="submit" 
-                                                        class="h-8 w-8 inline-flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px]" 
-                                                        title="Hapus"
+                                                        class="h-8 w-8 inline-flex items-center justify-center text-zinc-500 dark:text-[#9496A1] hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px]" 
+                                                        aria-label="Hapus jadwal {{ $schedule->subject }}"
                                                     >
-                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                         </svg>
                                                     </button>
@@ -777,9 +817,11 @@
                     @endif
                 @endforeach
             </div>
+            </template>
 
             {{-- Tampilan kisi mingguan --}}
-            <div x-show="viewMode === 'grid'" class="overflow-x-auto pb-4">
+            <template x-if="viewMode === 'grid'">
+            <div class="overflow-x-auto table-scroll-region pb-4" tabindex="0" role="region" aria-label="Matriks Jadwal Mingguan">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 min-w-[850px]">
                     @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $day)
                         @php
@@ -787,16 +829,16 @@
                             $totalDayJp = $daySchedules->sum('total_jp');
                             $isToday = ($todayName === $day);
                         @endphp
-                        <div class="bg-zinc-50/70 dark:bg-[#121214] border {{ $isToday ? 'border-[#0093dd] ring-1 ring-[#0093dd]' : 'border-zinc-200/80 dark:border-[#2B2B30]' }} rounded-xl overflow-hidden flex flex-col shadow-2xs">
+                        <div class="bg-zinc-50/70 dark:bg-[#121214] border {{ $isToday ? 'border-[#0073B1] ring-1 ring-[#0073B1]' : 'border-zinc-200/80 dark:border-[#2B2B30]' }} rounded-xl overflow-hidden flex flex-col shadow-2xs">
                             {{-- Day Header Strip --}}
-                            <div class="px-3.5 py-3 {{ $isToday ? 'bg-[#0093dd] text-white' : 'bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] border-b border-zinc-200/80 dark:border-[#2B2B30]' }} flex items-center justify-between">
+                            <div class="px-3.5 py-3 {{ $isToday ? 'bg-[#0073B1] text-white' : 'bg-white dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] border-b border-zinc-200/80 dark:border-[#2B2B30]' }} flex items-center justify-between">
                                 <div class="flex items-center gap-1.5">
                                     <span class="font-bold text-xs uppercase font-mono tracking-wider">{{ $day }}</span>
                                     @if($isToday)
                                         <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
                                     @endif
                                 </div>
-                                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded {{ $isToday ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-[#26262A] text-zinc-700 dark:text-zinc-300' }}">
+                                <span class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded {{ $isToday ? 'bg-[#004A73] text-white' : 'bg-zinc-100 dark:bg-[#26262A] text-zinc-700 dark:text-zinc-300' }}">
                                     {{ $totalDayJp }} JP
                                 </span>
                             </div>
@@ -842,7 +884,7 @@
                                             <div class="pt-1.5 border-t border-zinc-100 dark:border-[#2B2B30]">
                                                 <a 
                                                     href="{{ route('journals.create', ['schedule_id' => $schedule->id]) }}" 
-                                                    class="block text-center py-1 bg-[#0093dd] hover:bg-[#0082c4] text-white text-[10px] font-semibold rounded transition min-h-[44px] sm:min-h-[28px] flex items-center justify-center"
+                                                    class="block text-center py-1 bg-[#0073B1] hover:bg-[#005D8F] text-white text-[10px] font-semibold rounded transition min-h-[44px] sm:min-h-[28px] flex items-center justify-center"
                                                 >
                                                     Isi Jurnal
                                                 </a>
@@ -850,7 +892,7 @@
                                         @endif
                                     </div>
                                 @empty
-                                    <div class="py-10 text-center text-xs text-zinc-400 dark:text-zinc-600">
+                                    <div class="py-10 text-center text-xs text-zinc-600 dark:text-[#9496A1]">
                                         Tidak ada alokasi jadwal.
                                     </div>
                                 @endforelse
@@ -859,6 +901,7 @@
                     @endforeach
                 </div>
             </div>
+            </template>
         @endif
 
     </div>

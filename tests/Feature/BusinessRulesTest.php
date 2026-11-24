@@ -28,14 +28,35 @@ class BusinessRulesTest extends TestCase
 
     public function test_waka_can_toggle_the_active_cycle(): void
     {
-        $config = $this->makeConfig(['active_cycle' => 'Putaran 1']);
+        $config = $this->makeConfig(['active_cycle' => 'Putaran 1', 'is_schedule_locked' => false]);
         $waka = $this->makeUser(1);
+
+        // Clicking active cycle explicitly keeps it as Putaran 1
+        $this->actingAs($waka)->patch(route('system-configuration.toggle-cycle'), ['cycle' => 'Putaran 1'])
+            ->assertRedirect(route('waka.settings'));
+        $this->assertSame('Putaran 1', $config->fresh()->active_cycle);
 
         $this->actingAs($waka)->patch(route('system-configuration.toggle-cycle'))
             ->assertRedirect(route('waka.settings'));
         $this->assertSame('Putaran 2', $config->fresh()->active_cycle);
 
         $this->actingAs($waka)->patch(route('system-configuration.toggle-cycle'));
+        $this->assertSame('Putaran 1', $config->fresh()->active_cycle);
+    }
+
+    public function test_waka_cannot_change_active_cycle_when_schedule_is_locked(): void
+    {
+        $config = $this->makeConfig(['active_cycle' => 'Putaran 1', 'is_schedule_locked' => true]);
+        $waka = $this->makeUser(1);
+
+        $this->actingAs($waka)->get(route('waka.settings'))
+            ->assertOk()
+            ->assertSee('Putaran dikunci');
+
+        $this->actingAs($waka)->patch(route('system-configuration.toggle-cycle'), ['cycle' => 'Putaran 2'])
+            ->assertRedirect(route('waka.settings'))
+            ->assertSessionHas('error');
+
         $this->assertSame('Putaran 1', $config->fresh()->active_cycle);
     }
 

@@ -181,6 +181,13 @@ class UserApiTest extends TestCase
         $target->refresh();
         $this->assertTrue(Hash::check('student99', $target->password));
         $this->assertTrue((bool) $target->must_change_password);
+
+        // Waka can also pass explicit custom password via API
+        $resCustom = $this->apiAs($waka)->patchJson("/api/v1/users/{$target->id}/reset-password", [
+            'password' => 'CustomApiPass123',
+        ]);
+        $resCustom->assertOk();
+        $this->assertTrue(Hash::check('CustomApiPass123', $target->fresh()->password));
     }
 
     // MARK: - Role 3 Scoping & Restriction Tests

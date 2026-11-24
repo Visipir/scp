@@ -39,7 +39,7 @@ class ForcePasswordChangeController extends Controller
             'password' => [
                 'required',
                 'string',
-                'min:6',
+                'min:8',
                 'confirmed',
                 function ($attribute, $value, $fail) use ($user) {
                     if ($value === $user->username) {
@@ -49,7 +49,7 @@ class ForcePasswordChangeController extends Controller
             ],
         ], [
             'password.required' => 'Kata sandi baru wajib diisi.',
-            'password.min' => 'Kata sandi baru minimal 6 karakter.',
+            'password.min' => 'Kata sandi baru minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
         ]);
 

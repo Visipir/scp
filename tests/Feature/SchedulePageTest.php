@@ -18,7 +18,16 @@ class SchedulePageTest extends TestCase {
         $user = User::where('username', 'waka_kurikulum')->first();
 
         $response = $this->actingAs($user)->get('/schedules');
-        $response->assertOk();
-        $response->assertViewHas('cycleFilter', 'Putaran 2');
+        $response->assertOk()
+            ->assertViewHas('cycleFilter', 'Putaran 2')
+            ->assertSee('Import Jadwal')
+            ->assertDontSee('Import FET')
+            ->assertDontSee('Impor Jadwal AI');
+
+        $this->actingAs($user)
+            ->get(route('waka.schedules.import.index'))
+            ->assertOk()
+            ->assertSee('Import Jadwal Pelajaran')
+            ->assertSee('Impor PDF via AI');
     }
 }

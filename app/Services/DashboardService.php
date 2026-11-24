@@ -175,6 +175,154 @@ class DashboardService
     }
 
     /**
+     * Comprehensive attendance statistics for Waka:
+     * 1. Today's counts and detailed absentee list (who is on leave, sick, alpa).
+     * 2. Monthly aggregates with class breakdown and available month list.
+     *
+     * @return array<string, mixed>
+     */
+    public function wakaAttendanceOverview(?string $month = null): array
+    {
+        $now = Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $targetMonth = $month ?: $now->format('Y-m');
+
+        // 1. STATISTIK HARI INI
+        $todayCounts = [
+            'Hadir'     => 0,
+            'Sakit'     => 0,
+            'Izin'      => 0,
+            'Alpa'      => 0,
+            'Terlambat' => 0,
+        ];
+
+        $todayRaw = Attendance::whereDate('date', $today)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        foreach (array_keys($todayCounts) as $st) {
+            $todayCounts[$st] = (int) ($todayRaw[$st] ?? 0);
+        }
+
+        $totalStudents = User::where('role_id', 4)->count();
+        $todayTotalLogged = array_sum($todayCounts);
+        $todayAttendanceRate = $todayTotalLogged > 0
+            ? round(($todayCounts['Hadir'] / $todayTotalLogged) * 100, 1)
+            : 0;
+
+        // Siswa Izin / Sakit / Alpa Hari Ini (Daftar detail siapa saja yang izin dsb)
+        $todayAbsentees = Attendance::with([
+                'student.schoolClass',
+                'journal.schedule.teacher',
+                'leaveRequest',
+            ])
+            ->whereDate('date', $today)
+            ->whereIn('status', ['Izin', 'Sakit', 'Alpa', 'Terlambat'])
+            ->orderBy('status')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // 2. STATISTIK BULAN TERPILIH (FILTER BULAN)
+        $parts = explode('-', $targetMonth);
+        $year = isset($parts[0]) ? (int) $parts[0] : (int) $now->format('Y');
+        $monthNumber = isset($parts[1]) ? (int) $parts[1] : (int) $now->format('m');
+        $monthCarbon = Carbon::createFromDate($year, $monthNumber, 1, 'Asia/Jakarta');
+
+        $monthRaw = Attendance::whereYear('date', $year)
+            ->whereMonth('date', $monthNumber)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $monthCounts = [
+            'Hadir'     => (int) ($monthRaw['Hadir'] ?? 0),
+            'Sakit'     => (int) ($monthRaw['Sakit'] ?? 0),
+            'Izin'      => (int) ($monthRaw['Izin'] ?? 0),
+            'Alpa'      => (int) ($monthRaw['Alpa'] ?? 0),
+            'Terlambat' => (int) ($monthRaw['Terlambat'] ?? 0),
+        ];
+
+        $monthTotalLogged = array_sum($monthCounts);
+        $monthAttendanceRate = $monthTotalLogged > 0
+            ? round(($monthCounts['Hadir'] / $monthTotalLogged) * 100, 1)
+            : 0;
+
+        // Rekap per Rombel Kelas untuk bulan tersebut
+        $classes = \App\Models\SchoolClass::with([
+            'homeroomTeacher',
+            'counselors',
+        ])->orderBy('class_name')->get();
+
+        $classStatsRaw = Attendance::join('users', 'attendances.student_id', '=', 'users.id')
+            ->whereYear('attendances.date', $year)
+            ->whereMonth('attendances.date', $monthNumber)
+            ->selectRaw("
+                users.class_id,
+                attendances.status,
+                COUNT(*) as total
+            ")
+            ->groupBy('users.class_id', 'attendances.status')
+            ->get();
+
+        $classStats = $classes->map(function ($cls) use ($classStatsRaw) {
+            $cRaw = $classStatsRaw->where('class_id', $cls->id);
+            $hadir = (int) ($cRaw->where('status', 'Hadir')->first()?->total ?? 0);
+            $sakit = (int) ($cRaw->where('status', 'Sakit')->first()?->total ?? 0);
+            $izin = (int) ($cRaw->where('status', 'Izin')->first()?->total ?? 0);
+            $alpa = (int) ($cRaw->where('status', 'Alpa')->first()?->total ?? 0);
+            $terlambat = (int) ($cRaw->where('status', 'Terlambat')->first()?->total ?? 0);
+            $total = $hadir + $sakit + $izin + $alpa + $terlambat;
+            $rate = $total > 0 ? round(($hadir / $total) * 100, 1) : 0;
+
+            return [
+                'class_id'        => $cls->id,
+                'class_name'      => $cls->class_name,
+                'grade_level'     => $cls->grade_level,
+                'major'           => $cls->major,
+                'homeroom'        => $cls->homeroomTeacher?->fullname ?? '-',
+                'hadir'           => $hadir,
+                'sakit'           => $sakit,
+                'izin'            => $izin,
+                'alpa'            => $alpa,
+                'terlambat'       => $terlambat,
+                'total'           => $total,
+                'attendance_rate' => $rate,
+            ];
+        });
+
+        // List of months for dropdown filter (past 12 months)
+        $availableMonths = [];
+        $cursor = $now->copy()->startOfMonth();
+        for ($i = 0; $i < 12; $i++) {
+            $key = $cursor->format('Y-m');
+            $availableMonths[$key] = $cursor->translatedFormat('F Y');
+            $cursor->subMonth();
+        }
+
+        return [
+            'today' => [
+                'date'            => $today,
+                'date_formatted'  => $now->translatedFormat('l, d F Y'),
+                'counts'          => $todayCounts,
+                'total_students'  => $totalStudents,
+                'total_logged'    => $todayTotalLogged,
+                'attendance_rate' => $todayAttendanceRate,
+                'absentees'       => $todayAbsentees,
+            ],
+            'month' => [
+                'selected'        => $targetMonth,
+                'name_formatted'  => $monthCarbon->translatedFormat('F Y'),
+                'counts'          => $monthCounts,
+                'total_logged'    => $monthTotalLogged,
+                'attendance_rate' => $monthAttendanceRate,
+                'class_breakdown' => $classStats,
+                'available'       => $availableMonths,
+            ],
+        ];
+    }
+
+    /**
      * Teachers that still have unfilled journals today (end_time - 30 min rule for Waka).
      *
      * @return array<int, array<string, mixed>>

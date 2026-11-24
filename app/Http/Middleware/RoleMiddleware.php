@@ -24,6 +24,13 @@ class RoleMiddleware
             $allowed = true;
         }
 
+        // Superadmin (role 5) has administrative & technical access across all staff routes
+        if (!$allowed && (int) $user->role_id === 5) {
+            if (!in_array(4, $intRoles, true) || in_array(1, $intRoles, true) || in_array(3, $intRoles, true)) {
+                $allowed = true;
+            }
+        }
+
         if (!$allowed) {
             abort(403, 'Akses ditolak.');
         }

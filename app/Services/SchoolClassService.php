@@ -96,7 +96,7 @@ class SchoolClassService
         $actor->authorizeClassAccess($class);
 
         $class->load(['homeroomAssignment.user', 'counselorAssignments.user']);
-        $teachers = ((int) $actor->role_id === 1) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
+        $teachers = in_array((int) $actor->role_id, [1, 5], true) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
 
         $studentsQuery = $class->students()
             ->orderByRaw('attendance_number IS NULL, attendance_number ASC')

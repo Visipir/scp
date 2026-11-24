@@ -90,9 +90,14 @@ class UserController extends Controller
      */
     public function resetPassword(ResetUserPasswordRequest $request, User $user): UserResource
     {
-        $reset = $this->userService->resetPassword($request->user(), $user);
+        $customPassword = $request->validated('password');
+        $reset = $this->userService->resetPassword($request->user(), $user, $customPassword);
+
+        $msg = filled($customPassword)
+            ? "Kata sandi pengguna {$user->fullname} berhasil di-reset sesuai password baru."
+            : "Kata sandi pengguna {$user->fullname} berhasil di-reset menjadi username.";
 
         return (new UserResource($reset))
-            ->additional(['message' => "Kata sandi pengguna {$user->fullname} berhasil di-reset menjadi username."]);
+            ->additional(['message' => $msg]);
     }
 }

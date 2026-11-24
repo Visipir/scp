@@ -19,9 +19,15 @@ $dot = match($status) {
     'Terlambat'         => 'bg-purple-500 dark:bg-purple-400',
     default             => 'bg-zinc-400 dark:bg-[#97979B]',
 };
+$label = match($status) {
+    'Approved' => 'Disetujui',
+    'Rejected' => 'Ditolak',
+    'Pending'  => 'Menunggu',
+    default    => $status,
+};
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border tracking-wide uppercase font-mono {$classes}"]) }}>
-    <span class="w-1.5 h-1.5 rounded-full {{ $dot }}"></span>
-    {{ $status }}
+<span {{ $attributes->merge(['class' => "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold border tracking-wide uppercase font-mono {$classes}"]) }}>
+    <span class="w-1.5 h-1.5 rounded-full {{ $dot }}" aria-hidden="true"></span>
+    {{ $label }}
 </span>

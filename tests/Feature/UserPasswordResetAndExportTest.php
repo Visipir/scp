@@ -68,6 +68,51 @@ class UserPasswordResetAndExportTest extends TestCase
         $this->assertStringContainsString($tempPassword, $csvContent);
     }
 
+    public function test_waka_can_reset_user_password_with_custom_password_or_default(): void
+    {
+        $waka = $this->makeUser(1);
+        $teacher = $this->makeUser(2, [
+            'username'             => 'guru-manual-pw',
+            'fullname'             => 'Guru Manual PW',
+            'password'             => Hash::make('OldPass123!'),
+            'must_change_password' => false,
+        ]);
+        $teacher->createToken('old-token');
+
+        // UI displays both reset choices to Waka
+        $this->actingAs($waka)
+            ->get(route('users.index'))
+            ->assertOk()
+            ->assertSee('Gunakan Password Default')
+            ->assertSee('Masukkan Password Baru Sendiri');
+
+        // Validation rejects short/empty custom password
+        $this->actingAs($waka)
+            ->from(route('users.index'))
+            ->patch(route('users.reset-password', $teacher), [
+                'reset_mode' => 'custom',
+                'password'   => '123',
+            ])
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHasErrors('password');
+
+        // Custom password reset succeeds, revokes tokens, and forces password change
+        $this->actingAs($waka)
+            ->from(route('users.index'))
+            ->patch(route('users.reset-password', $teacher), [
+                'reset_mode' => 'custom',
+                'password'   => 'SekolahBaru2026!',
+            ])
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('success')
+            ->assertSessionMissing('reset_credentials');
+
+        $teacher->refresh();
+        $this->assertTrue(Hash::check('SekolahBaru2026!', $teacher->password));
+        $this->assertTrue((bool) $teacher->must_change_password);
+        $this->assertSame(0, $teacher->tokens()->count());
+    }
+
     public function test_waka_bulk_teacher_reset_randomizes_all_teachers_revokes_tokens_and_exports_csv(): void
     {
         Storage::fake('local');

@@ -27,6 +27,7 @@ class LeaveRequestResource extends JsonResource
             ] : null),
             'start_date'      => $this->start_date?->toDateString(),
             'end_date'        => $this->end_date?->toDateString(),
+            'category'        => $this->category ?? $this->attendance_status,
             'reason'          => $this->reason,
             'status_approval'    => $this->status_approval,
             'decided_by_user_id' => $this->decided_by_user_id !== null ? (int) $this->decided_by_user_id : null,

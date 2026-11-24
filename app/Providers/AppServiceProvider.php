@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Carbon\Carbon::setLocale('id');
+
         // API login: 5 attempts per minute per username + IP.
         RateLimiter::for('api-login', function (Request $request) {
             $rawUsername = $request->input('username');

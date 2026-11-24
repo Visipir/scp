@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3">
-            <a href="{{ route('exams.index') }}" class="p-2 -ml-2 rounded-lg text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition" title="Kembali">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <a href="{{ route('exams.index') }}" aria-label="Kembali ke Repositori" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px] -ml-2 rounded-lg text-zinc-500 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition" title="Kembali">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
             </a>
@@ -14,7 +14,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-4xl" x-data="{
+    <div class="space-y-6" x-data="{
         category: '{{ old('category', $exam->category) }}',
         removeFile: false,
         selectedFileName: '',
@@ -74,7 +74,7 @@
                                 <input type="radio" name="category" value="materi" x-model="category" class="sr-only">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                         </svg>
                                     </span>
@@ -91,7 +91,7 @@
                                 <input type="radio" name="category" value="bank_soal" x-model="category" class="sr-only">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                         </svg>
                                     </span>
@@ -108,7 +108,7 @@
                                 <input type="radio" name="category" value="ujian" x-model="category" class="sr-only">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
                                         </svg>
                                     </span>
@@ -126,10 +126,10 @@
                     <div class="pt-6 border-t border-zinc-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Kelas Sasaran -->
                         <div>
-                            <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
+                            <label for="edit_exam_class_id" class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                                 2. Kelas Sasaran <span class="text-rose-500">*</span>
                             </label>
-                            <select name="class_id" required class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                            <select id="edit_exam_class_id" name="class_id" required class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                                 @foreach($allClasses as $c)
                                     <option value="{{ $c->id }}" @selected(old('class_id', $exam->class_id) == $c->id)>
                                         {{ $c->class_name }}
@@ -141,62 +141,62 @@
 
                         <!-- Mata Pelajaran -->
                         <div>
-                            <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
+                            <label for="edit_exam_subject" class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                                 3. Mata Pelajaran <span class="text-rose-500">*</span>
                             </label>
-                            <input type="text" 
+                            <input id="edit_exam_subject" type="text" 
                                    name="subject" 
                                    value="{{ old('subject', $exam->subject) }}" 
                                    required 
-                                   class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                                   class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                             <x-input-error :messages="$errors->get('subject')" class="mt-1" />
                         </div>
                     </div>
 
                     <!-- Judul konten -->
                     <div class="pt-6 border-t border-zinc-100">
-                        <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
+                        <label for="edit_exam_title" class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             4. Judul Materi / Asesmen <span class="text-rose-500">*</span>
                         </label>
-                        <input type="text" 
+                        <input id="edit_exam_title" type="text" 
                                name="title" 
                                value="{{ old('title', $exam->title) }}" 
                                required 
-                               class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                               class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                         <x-input-error :messages="$errors->get('title')" class="mt-1" />
                     </div>
 
                     <!-- Tanggal & rentang waktu -->
                     <div class="pt-6 border-t border-zinc-100">
-                        <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
+                        <div class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             5. Tanggal &amp; Waktu Pelaksanaan <span class="text-rose-500">*</span>
-                        </label>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-zinc-600 mb-1">Tanggal Berlaku / Ujian</label>
-                                <input type="date" 
+                                <label for="edit_exam_date" class="block text-[11px] font-semibold text-zinc-600 mb-1">Tanggal Berlaku / Ujian</label>
+                                <input id="edit_exam_date" type="date" 
                                        name="exam_date" 
                                        value="{{ old('exam_date', $exam->exam_date ? \Carbon\Carbon::parse($exam->exam_date)->format('Y-m-d') : '') }}" 
                                        required 
-                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                                 <x-input-error :messages="$errors->get('exam_date')" class="mt-1" />
                             </div>
 
                             <div>
-                                <label class="block text-[11px] font-semibold text-zinc-600 mb-1">Jam Mulai <span class="text-zinc-400 font-normal">(opsional)</span></label>
-                                <input type="time" 
+                                <label for="edit_exam_start_time" class="block text-[11px] font-semibold text-zinc-600 mb-1">Jam Mulai <span class="text-zinc-400 font-normal">(opsional)</span></label>
+                                <input id="edit_exam_start_time" type="time" 
                                        name="start_time" 
                                        value="{{ old('start_time', $exam->start_time ? \Carbon\Carbon::parse($exam->start_time)->format('H:i') : '') }}" 
-                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                                 <x-input-error :messages="$errors->get('start_time')" class="mt-1" />
                             </div>
 
                             <div>
-                                <label class="block text-[11px] font-semibold text-zinc-600 mb-1">Jam Selesai <span class="text-zinc-400 font-normal">(opsional)</span></label>
-                                <input type="time" 
+                                <label for="edit_exam_end_time" class="block text-[11px] font-semibold text-zinc-600 mb-1">Jam Selesai <span class="text-zinc-400 font-normal">(opsional)</span></label>
+                                <input id="edit_exam_end_time" type="time" 
                                        name="end_time" 
                                        value="{{ old('end_time', $exam->end_time ? \Carbon\Carbon::parse($exam->end_time)->format('H:i') : '') }}" 
-                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs">
+                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3.5 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] font-mono focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs">
                                 <x-input-error :messages="$errors->get('end_time')" class="mt-1" />
                             </div>
                         </div>
@@ -204,12 +204,12 @@
 
                     <!-- Petunjuk / deskripsi -->
                     <div class="pt-6 border-t border-zinc-100">
-                        <label class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
+                        <label for="edit_exam_description" class="block text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase tracking-wider font-mono mb-2">
                             6. Petunjuk Belajar / Catatan Instruksi <span class="text-zinc-400 font-normal lowercase">(opsional)</span>
                         </label>
-                        <textarea name="description" 
+                        <textarea id="edit_exam_description" name="description" 
                                   rows="3" 
-                                  class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] leading-relaxed">{{ old('description', $exam->description) }}</textarea>
+                                  class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] leading-relaxed">{{ old('description', $exam->description) }}</textarea>
                         <x-input-error :messages="$errors->get('description')" class="mt-1" />
                     </div>
 
@@ -240,7 +240,7 @@
                                         </div>
                                     </div>
                                     <a href="{{ route('exams.download', $exam) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] rounded-md transition">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                         </svg>
                                         Unduh
@@ -258,8 +258,7 @@
                                 <span class="text-[11px] text-zinc-400">Maks. 20MB</span>
                             </div>
 
-                            <div class="border-2 border-dashed border-zinc-300 dark:border-[#2B2B30] hover:border-zinc-400 dark:hover:border-[#3A3A3F] bg-zinc-50/50 dark:bg-[#19191C] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-xl p-5 transition text-center cursor-pointer relative"
-                                 @click="document.getElementById('material_file').click()">
+                            <label for="material_file" class="block border-2 border-dashed border-zinc-300 dark:border-[#2B2B30] hover:border-zinc-400 dark:hover:border-[#3A3A3F] bg-zinc-50/50 dark:bg-[#19191C] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-xl p-5 transition text-center cursor-pointer relative">
                                 <input type="file" 
                                        id="material_file" 
                                        name="material_file" 
@@ -284,34 +283,34 @@
                                                 <div class="text-[11px] text-zinc-500 font-mono" x-text="selectedFileSize"></div>
                                             </div>
                                         </div>
-                                        <button type="button" @click="resetFile()" class="p-1 text-zinc-400 hover:text-rose-600 transition">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <button type="button" @click.prevent="resetFile()" aria-label="Hapus berkas pengganti" class="min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] inline-flex items-center justify-center p-1 text-zinc-400 hover:text-rose-600 transition cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
                                     </div>
                                 </template>
-                            </div>
-                            <p class="text-xs text-rose-600 mt-1" x-show="fileError" x-text="fileError"></p>
+                            </label>
+                            <p class="text-xs text-rose-600 mt-1" aria-live="polite" x-show="fileError" x-text="fileError"></p>
                             <x-input-error :messages="$errors->get('material_file')" class="mt-1" />
                         </div>
 
                         <!-- External Link Input -->
                         <div class="pt-2">
-                            <label class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] mb-1.5">
+                            <label for="edit_exam_external_link" class="block text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] mb-1.5">
                                 Tautan CBT / Ujian Online / Cloud Drive <span class="text-zinc-400 font-normal">(opsional)</span>
                             </label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <svg class="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <svg class="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                                     </svg>
                                 </div>
-                                <input type="url" 
+                                <input id="edit_exam_external_link" type="url" 
                                        name="external_link" 
                                        value="{{ old('external_link', $exam->external_link) }}" 
-                                       placeholder="https://forms.gle/... atau https://cbt.sekolah.sch.id/..." 
-                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] pl-9 pr-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-xs font-mono placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61]">
+                                       placeholder="https://forms.gle/… atau https://cbt.sekolah.sch.id/…" 
+                                       class="w-full rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] pl-9 pr-4 py-2.5 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-xs font-mono placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61]">
                             </div>
                             <x-input-error :messages="$errors->get('external_link')" class="mt-1" />
                         </div>
@@ -323,8 +322,8 @@
                     <a href="{{ route('exams.index') }}" class="px-4 py-2 text-xs font-semibold text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-lg transition">
                         Batal
                     </a>
-                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-xs cursor-pointer">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                         Simpan Perubahan

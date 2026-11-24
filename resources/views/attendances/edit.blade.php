@@ -13,7 +13,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6 max-w-3xl">
+    <div class="space-y-6">
 
         <div class="bg-zinc-50 dark:bg-[#19191C] border border-zinc-200 dark:border-[#2B2B30] rounded-lg p-4 font-mono text-xs text-zinc-600 dark:text-[#97979B] flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -27,7 +27,7 @@
         </div>
 
         <div class="p-3.5 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5">
-            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
             <div class="leading-relaxed">
                 <strong>Siswa Izin Keluar di Tengah Pelajaran:</strong> Jika siswa semula hadir lalu izin meninggalkan kelas (misal: sakit ke UKS, dipanggil BK, dispensasi kegiatan, atau pulang darurat), ubah statusnya menjadi <strong>Izin</strong> atau <strong>Sakit</strong> dan tuliskan alasannya pada kolom catatan.
             </div>
@@ -39,8 +39,8 @@
             </span>
             <button 
                 type="button" 
-                onclick="window.dispatchEvent(new CustomEvent('reset-all-hadir'))" 
-                class="px-2.5 py-1 bg-white dark:bg-[#1E1E22] border border-zinc-300 dark:border-[#2C2C30] hover:bg-zinc-50 dark:hover:bg-[#26262A] text-[11px] font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white rounded transition cursor-pointer"
+                @click="$dispatch('reset-all-hadir')" 
+                class="min-h-[44px] sm:min-h-0 px-2.5 py-1 bg-white dark:bg-[#1E1E22] border border-zinc-300 dark:border-[#2C2C30] hover:bg-zinc-50 dark:hover:bg-[#26262A] text-[11px] font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white rounded transition cursor-pointer"
             >
                 Set Semua Hadir
             </button>
@@ -71,7 +71,7 @@
                                 @foreach(['Hadir','Izin','Sakit','Alpa','Terlambat'] as $status)
                                     <label class="cursor-pointer shrink-0">
                                         <input type="radio" name="attendances[{{ $i }}][status]" value="{{ $status }}" x-model="currentStatus" class="peer sr-only" @checked($attendance->status === $status)>
-                                        <span class="inline-block px-2.5 py-1 text-[11px] font-mono font-bold uppercase tracking-wider rounded border transition peer-checked:ring-1 peer-checked:ring-zinc-900 dark:peer-checked:ring-[#0093dd]
+                                        <span class="inline-block px-2.5 py-1 text-[11px] font-mono font-bold uppercase tracking-wider rounded border transition peer-checked:ring-1 peer-checked:ring-zinc-900 dark:peer-checked:ring-[#0073B1]
                                             {{ match($status) {
                                                 'Hadir' => 'peer-checked:bg-emerald-50 dark:peer-checked:bg-[#16281D] peer-checked:text-emerald-800 dark:peer-checked:text-emerald-300 peer-checked:border-emerald-300 dark:peer-checked:border-emerald-700/60',
                                                 'Izin'  => 'peer-checked:bg-blue-50 dark:peer-checked:bg-[#16222F] peer-checked:text-blue-800 dark:peer-checked:text-sky-300 peer-checked:border-blue-300 dark:peer-checked:border-sky-700/60',
@@ -111,14 +111,14 @@
                                     </button>
                                 </div>
                             </div>
-                            <input type="text" name="attendances[{{ $i }}][notes]" x-model="noteText" placeholder="Tuliskan catatan kenapa siswa keluar kelas (misal: sakit ke UKS jam ke-3)..." class="w-full border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] rounded-md px-3 py-1.5 text-xs text-zinc-900 dark:text-[#EDEDF0] placeholder-zinc-400 dark:placeholder-[#5B5B61] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]">
+                            <input type="text" name="attendances[{{ $i }}][notes]" x-model="noteText" aria-label="Catatan ketidakhadiran {{ $attendance->student->fullname }}" placeholder="Tuliskan catatan kenapa siswa keluar kelas (misal: sakit ke UKS jam ke-3)…" class="w-full border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] rounded-md px-3 py-1.5 text-xs text-zinc-900 dark:text-[#EDEDF0] placeholder-zinc-400 dark:placeholder-[#5B5B61] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]">
                         </div>
                     </div>
                 @endforeach
             </div>
 
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                <button type="submit" class="px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                     Simpan Perubahan Presensi
                 </button>
                 <a href="{{ route('journals.show', $journal) }}" class="text-xs font-semibold text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0]">

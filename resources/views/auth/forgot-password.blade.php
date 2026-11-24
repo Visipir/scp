@@ -1,6 +1,6 @@
 <x-guest-layout :title="'Lupa Kata Sandi'">
     <div class="mb-4">
-        <h2 class="text-lg font-bold auth-header-title">Lupa Kata Sandi?</h2>
+        <h1 class="text-lg font-bold auth-header-title">Lupa Kata Sandi?</h1>
         <p class="text-sm text-muted-token mt-1">
             Masukkan alamat email terdaftar atau Nama Pengguna / NIS akun Anda. Jika akun memiliki email terverifikasi, kami akan mengirimkan kode verifikasi 6 digit untuk mengatur ulang kata sandi.
         </p>
@@ -26,7 +26,13 @@
                 name="identifier" 
                 :value="old('identifier', old('email'))" 
                 required 
-                autofocus 
+                data-autofocus-desktop 
+                autocomplete="username"
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                enterkeyhint="send"
+                :invalid="$errors->has('identifier') || $errors->has('email')"
                 placeholder="email@sekolah.sch.id atau NIS/NIP"
             />
             <x-input-error :messages="$errors->get('identifier') ?: $errors->get('email')" class="mt-1.5" />

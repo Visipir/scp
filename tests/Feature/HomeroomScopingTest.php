@@ -108,11 +108,17 @@ class HomeroomScopingTest extends TestCase
         $leaveB = $this->makeLeave($studentB);
 
         $waka = $this->makeUser(1);
+        $superadmin = $this->makeUser(5);
 
         $this->actingAs($waka)->get('/leave-requests/' . $leaveB->id)->assertOk();
         $this->actingAs($waka)
             ->patch('/leave-requests/' . $leaveB->id . '/status', ['status_approval' => 'Approved'])
+            ->assertForbidden();
+
+        $this->actingAs($superadmin)
+            ->patch('/leave-requests/' . $leaveB->id . '/status', ['status_approval' => 'Approved'])
             ->assertRedirect(route('leave-requests.show', $leaveB));
+        $this->assertSame('Approved', $leaveB->fresh()->status_approval);
     }
 
     public function test_leave_list_is_filtered_by_homeroom_class(): void

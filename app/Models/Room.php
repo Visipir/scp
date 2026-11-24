@@ -8,6 +8,16 @@ class Room extends Model
 {
     protected $guarded = [];
 
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'room_id');
+    }
+
+    public function roomSchedules()
+    {
+        return $this->hasMany(RoomSchedule::class, 'room_id');
+    }
+
     public static function resolveOrCreate(?string $name): self
     {
         $clean = trim((string)$name);
@@ -17,7 +27,7 @@ class Room extends Model
 
         if (preg_match('/^\d+$/', $clean)) {
             $clean = 'Ruang ' . $clean;
-        } elseif (preg_match('/^(?:teori|r\.?\s*teori|r\.?)\s*(\d+)$/i', $clean, $m)) {
+        } elseif (preg_match('/^(?:ruang\s*teori|teori|r\.?\s*teori|r\.?)\s*(\d+)$/i', $clean, $m)) {
             $clean = 'Ruang ' . $m[1];
         } elseif (preg_match('/^(?:lab\.?|l\.?|lab)\s*(\d+)$/i', $clean, $m)) {
             $clean = 'Lab ' . $m[1];

@@ -1,22 +1,27 @@
 <!-- Mobile Top Header Bar -->
-<div class="lg:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150">
+<div class="lg:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 pt-[env(safe-area-inset-top,0px)] bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] transition-colors duration-150">
     <div class="flex items-center gap-2">
         <!-- Hamburger Menu Button (44x44px touch target) -->
         <button 
             type="button" 
             @click="sidebarOpen = true" 
-            class="w-11 h-11 -ml-2 text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] focus:outline-none focus:ring-2 focus:ring-[#0093dd] transition cursor-pointer flex items-center justify-center shrink-0"
+            :aria-expanded="sidebarOpen"
+            aria-controls="mobile-nav-drawer"
+            class="w-11 h-11 -ml-2 text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-[#EDEDF0] rounded-lg hover:bg-zinc-100 dark:hover:bg-[#26262A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0073B1] transition cursor-pointer flex items-center justify-center shrink-0"
             aria-label="Buka Menu"
         >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
 
         <!-- Brand Name -->
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-sans min-w-0">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
-            <span class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white truncate">School Class Progress</span>
+            <picture class="shrink-0">
+                <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="24" height="24" class="w-6 h-6 object-contain shrink-0">
+            </picture>
+            <span translate="no" class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white truncate">School Class Progress</span>
         </a>
     </div>
 
@@ -30,88 +35,66 @@
     </div>
 </div>
 
-<!-- Mobile Off-Canvas Sidebar Drawer (Backdrop & Drawer) -->
-<div 
-    x-show="sidebarOpen" 
-    x-cloak 
-    class="relative z-50 lg:hidden" 
-    role="dialog" 
-    aria-modal="true"
+<!-- Native Top-Layer Mobile Sidebar Drawer (<dialog showModal() auto-inert & Esc/backdrop dismiss) -->
+<dialog 
+    id="mobile-nav-drawer"
+    closedby="any"
+    x-effect="if (sidebarOpen) { if (!$el.open) { $el.showModal(); $nextTick(() => $refs.mobileCloseBtn?.focus()); } } else if ($el.open) { $el.close(); }"
+    @close="sidebarOpen = false"
+    @cancel.prevent="sidebarOpen = false"
+    aria-label="Menu Navigasi Utama"
+    class="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-80 max-w-[85vw] p-0 bg-white dark:bg-[#19191C] border-r border-zinc-200 dark:border-[#2B2B30] text-zinc-900 dark:text-[#EDEDF0] shadow-xl lg:hidden open:flex flex-col"
 >
-    <!-- Backdrop Overlay -->
-    <div 
-        x-show="sidebarOpen"
-        x-transition:enter="transition-opacity ease-linear duration-200"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition-opacity ease-linear duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 bg-[#09090B]/80 backdrop-blur-xs" 
-        @click="sidebarOpen = false"
-    ></div>
+    <!-- Drawer Header -->
+    <div class="h-14 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-[#2B2B30] shrink-0">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
+            <picture class="shrink-0">
+                <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="24" height="24" class="w-6 h-6 object-contain shrink-0">
+            </picture>
+            <span translate="no" class="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>
+        </a>
 
-    <!-- Slide-over Drawer Panel -->
-    <div class="fixed inset-0 flex">
-        <div 
-            x-show="sidebarOpen"
-            x-transition:enter="transition ease-in-out duration-200 transform"
-            x-transition:enter-start="-translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transition ease-in-out duration-150 transform"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="-translate-x-full"
-            class="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-[#19191C] border-r border-zinc-200 dark:border-[#2B2B30]"
+        <button 
+            x-ref="mobileCloseBtn"
+            type="button" 
+            @click="sidebarOpen = false" 
+            class="w-11 h-11 -mr-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-[#B4B6C2] dark:hover:text-[#F1F1F4] dark:hover:bg-[#262832] transition flex items-center justify-center cursor-pointer shrink-0"
+            aria-label="Tutup menu"
         >
-            <!-- Drawer Close Button (44x44px touch target) -->
-            <div class="absolute top-1.5 right-1.5">
-                <button 
-                    type="button" 
-                    @click="sidebarOpen = false" 
-                    class="w-11 h-11 rounded-lg text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 dark:text-[#97979B] dark:hover:text-[#EDEDF0] dark:hover:bg-[#26262A] transition flex items-center justify-center cursor-pointer"
-                    aria-label="Tutup menu"
-                >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Drawer Content (h-14 to match navbar height) -->
-            <div class="h-14 flex items-center px-4 border-b border-zinc-200 dark:border-[#2B2B30] shrink-0">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-6 h-6 object-contain shrink-0">
-                    <span class="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">School Class Progress</span>
-                </a>
-            </div>
-
-            <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
-                <!-- Navigation Items Loop -->
-                @include('layouts.sidebar-nav-links')
-            </nav>
-
-            <!-- Mobile Drawer User Profile Footer -->
-            <div class="p-3 border-t border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/70 dark:bg-[#19191C]">
-                @include('layouts.sidebar-user-footer')
-            </div>
-        </div>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
-</div>
+
+    <nav aria-label="Menu Seluler" class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+        @include('layouts.sidebar-nav-links')
+    </nav>
+
+    <!-- Mobile Drawer User Profile Footer -->
+    <div class="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] border-t border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/70 dark:bg-[#19191C]">
+        @include('layouts.sidebar-user-footer')
+    </div>
+</dialog>
 
 <!-- Desktop Fixed Sidebar -->
 <aside class="hidden lg:flex flex-col w-64 xl:w-72 fixed inset-y-0 left-0 bg-white dark:bg-[#19191C] border-r border-zinc-200 dark:border-[#2B2B30] z-30 select-none transition-colors duration-150">
     <!-- Brand / Monogram Header (h-14 to align precisely with top navbar border) -->
     <div class="h-14 flex items-center px-6 border-b border-zinc-200 dark:border-[#2B2B30] shrink-0">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-7 h-7 object-contain shrink-0">
-            <span class="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-[#0093dd] transition-colors">School Class Progress</span>
+            <picture class="shrink-0">
+                <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                <img src="{{ asset('images/logo.png') }}" alt="" width="28" height="28" class="w-7 h-7 object-contain shrink-0">
+            </picture>
+            <span translate="no" class="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-[#0073B1] transition-colors">School Class Progress</span>
         </a>
     </div>
 
     <!-- Navigation List Area -->
-    <div class="flex-1 overflow-y-auto px-3.5 py-5 space-y-6">
+    <nav aria-label="Menu Utama" class="flex-1 overflow-y-auto px-3.5 py-5 space-y-6">
         @include('layouts.sidebar-nav-links')
-    </div>
+    </nav>
 
     <!-- Sidebar Bottom Profile Section -->
     <div class="p-3 border-t border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/70 dark:bg-[#19191C] transition-colors duration-150">

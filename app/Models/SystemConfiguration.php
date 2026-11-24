@@ -8,6 +8,14 @@ class SystemConfiguration extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'is_schedule_locked'         => 'boolean',
+        'is_journal_time_restricted' => 'boolean',
+        'journal_early_buffer_minutes' => 'integer',
+        'mail_verify_peer'           => 'boolean',
+        'login_background_updated_at'=> 'datetime',
+    ];
+
     public function updatedByUser()
     {
         return $this->belongsTo(User::class, 'updated_by');

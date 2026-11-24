@@ -5,7 +5,7 @@ $borderAccent = match($type) {
     'danger' => 'border-l-rose-500',
     'warning' => 'border-l-amber-400',
     'success' => 'border-l-emerald-400',
-    default => 'border-l-[#0093dd]',
+    default => 'border-l-[#0073B1]',
 };
 $tagBg = match($type) {
     'danger' => 'bg-rose-100 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700/60',
@@ -21,7 +21,7 @@ $label = match($type) {
 };
 @endphp
 
-<div {{ $attributes->merge(['class' => "rounded-lg border border-zinc-200 dark:border-[#2B2B30] border-l-2 bg-white dark:bg-[#1D1D21] p-4 text-zinc-800 dark:text-[#EDEDF0] shadow-xs dark:shadow-none {$borderAccent}"]) }} role="alert">
+<div {{ $attributes->merge(['class' => "rounded-lg border border-zinc-200 dark:border-[#2B2B30] border-l-2 bg-white dark:bg-[#1D1D21] p-4 text-zinc-800 dark:text-[#EDEDF0] shadow-xs dark:shadow-none {$borderAccent}"]) }} role="{{ $type === 'danger' ? 'alert' : 'status' }}" aria-live="{{ $type === 'danger' ? 'assertive' : 'polite' }}">
     <div class="flex items-start gap-3">
         <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded font-mono shrink-0 border mt-0.5 {{ $tagBg }}">
             {{ $label }}

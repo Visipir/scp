@@ -15,7 +15,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="space-y-6">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <div class="p-3 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl text-center">
@@ -65,18 +65,19 @@
             <input type="hidden" name="token" value="{{ $preview['token'] }}">
 
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
+                <div tabindex="0" role="region" aria-label="Pratinjau Impor Jadwal FET" class="overflow-x-auto table-scroll-region">
+                    <table class="w-full text-left text-xs border-collapse tabular-nums">
+                        <caption class="sr-only">Pratinjau Hasil Parsing Jadwal Pelajaran FET</caption>
                         <thead>
                             <tr class="bg-zinc-50 dark:bg-[#252529] border-b border-zinc-200 dark:border-[#2C2C30] text-[10px] uppercase tracking-wider font-mono text-zinc-500 dark:text-[#97979B]">
-                                <th class="py-2.5 px-3">No</th>
-                                <th class="py-2.5 px-3">Hari</th>
-                                <th class="py-2.5 px-3">Jam (JP)</th>
-                                <th class="py-2.5 px-3">Rentang Waktu</th>
-                                <th class="py-2.5 px-3">Mata Pelajaran</th>
-                                <th class="py-2.5 px-3">Kelas</th>
-                                <th class="py-2.5 px-3">Guru Pengajar</th>
-                                <th class="py-2.5 px-3">Ruangan</th>
+                                <th scope="col" class="py-2.5 px-3">No</th>
+                                <th scope="col" class="py-2.5 px-3">Hari</th>
+                                <th scope="col" class="py-2.5 px-3">Jam (JP)</th>
+                                <th scope="col" class="py-2.5 px-3">Rentang Waktu</th>
+                                <th scope="col" class="py-2.5 px-3">Mata Pelajaran</th>
+                                <th scope="col" class="py-2.5 px-3">Kelas</th>
+                                <th scope="col" class="py-2.5 px-3">Guru Pengajar</th>
+                                <th scope="col" class="py-2.5 px-3">Ruangan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-[#2C2C30]">
@@ -85,7 +86,7 @@
                                     <td class="py-2 px-3 font-mono text-zinc-400">{{ $idx + 1 }}</td>
                                     <td class="py-2 px-3 font-semibold">{{ $s['day_of_week'] }}</td>
                                     <td class="py-2 px-3 font-mono">
-                                        <span class="px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/40 text-[#0093dd] font-bold">
+                                        <span class="px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/40 text-[#0073B1] dark:text-[#38BDF8] font-bold">
                                             JP {{ $s['start_period'] }}@if($s['start_period'] !== $s['end_period'])–{{ $s['end_period'] }}@endif
                                         </span>
                                     </td>

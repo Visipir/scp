@@ -17,7 +17,7 @@ trait ScpTestHelpers
 {
     protected function seedRoles(): void
     {
-        foreach ([1 => 'Waka Kurikulum', 2 => 'Guru', 3 => 'Tim Kesiswaan', 4 => 'Siswa/Ortu'] as $id => $name) {
+        foreach ([1 => 'Waka Kurikulum', 2 => 'Guru', 3 => 'Tim Kesiswaan', 4 => 'Siswa/Ortu', 5 => 'Superadmin'] as $id => $name) {
             Role::firstOrCreate(['id' => $id], ['role_name' => $name]);
         }
     }

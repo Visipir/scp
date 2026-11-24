@@ -39,11 +39,25 @@ class LeaveRequest extends Model
     }
 
     /**
-     * Determine attendance status ('Sakit' or 'Izin') from leave request reason.
+     * Determine attendance status ('Sakit' or 'Izin') from category and/or reason.
      */
     public function getAttendanceStatusAttribute(): string
     {
-        return self::determineStatusFromReason($this->reason);
+        return self::determineTargetStatus($this->category, $this->reason);
+    }
+
+    public static function determineTargetStatus(?string $category, ?string $reason = null): string
+    {
+        if ($category === 'Sakit') {
+            return 'Sakit';
+        }
+
+        if ($category === 'Dispensasi' || $category === 'Lainnya') {
+            return 'Izin';
+        }
+
+        // If category is null or 'Izin', check reason for sickness keywords (legacy tests compatibility)
+        return self::determineStatusFromReason($reason);
     }
 
     public static function determineStatusFromReason(?string $reason): string
@@ -89,7 +103,7 @@ class LeaveRequest extends Model
             : ($this->decided_by_user_id ? $this->decidedBy : $this->verifier);
         $name = $actor?->fullname;
         $role = $this->decided_by_role ?: ($actor
-            ? ((int) $actor->role_id === 1 ? 'Waka' : ($actor->isHomeroomTeacher() ? 'Wali' : 'BK'))
+            ? ((int) $actor->role_id === 5 ? 'Superadmin' : ((int) $actor->role_id === 1 ? 'Waka' : ($actor->isHomeroomTeacher() ? 'Wali' : 'BK')))
             : 'BK');
 
         return $name ? "{$verb} oleh {$role}: {$name}" : "{$verb} oleh {$role}";
@@ -102,7 +116,7 @@ class LeaveRequest extends Model
      */
     public function scopeVisibleTo($query, User $user)
     {
-        if ((int) $user->role_id === 1) {
+        if (in_array((int) $user->role_id, [1, 5], true)) {
             return $query;
         }
 
@@ -133,7 +147,7 @@ class LeaveRequest extends Model
      */
     public function isVisibleTo(User $user): bool
     {
-        if ((int) $user->role_id === 1) {
+        if (in_array((int) $user->role_id, [1, 5], true)) {
             return true;
         }
 

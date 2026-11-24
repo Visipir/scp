@@ -8,14 +8,14 @@
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required data-autofocus-desktop autocomplete="email" inputmode="email" autocorrect="off" autocapitalize="none" spellcheck="false" :invalid="$errors->has('email')" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+            <x-password-input wrapperClass="mt-1" id="password" name="password" required autocomplete="new-password" :invalid="$errors->has('password')" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
@@ -23,9 +23,7 @@
         <div class="mt-4">
             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+            <x-password-input wrapperClass="mt-1" id="password_confirmation" name="password_confirmation" required autocomplete="new-password" :invalid="$errors->has('password_confirmation')" />
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>

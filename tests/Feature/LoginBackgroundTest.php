@@ -14,6 +14,7 @@ class LoginBackgroundTest extends TestCase
     use RefreshDatabase;
     use ScpTestHelpers;
 
+    private User $superadmin;
     private User $waka;
     private User $guru;
     private User $siswa;
@@ -23,6 +24,7 @@ class LoginBackgroundTest extends TestCase
         parent::setUp();
         $this->seedRoles();
 
+        $this->superadmin = $this->makeUser(5); // Superadmin
         $this->waka = $this->makeUser(1); // Waka Kurikulum
         $this->guru = $this->makeUser(2); // Guru
         $this->siswa = $this->makeUser(4); // Siswa
@@ -44,9 +46,17 @@ class LoginBackgroundTest extends TestCase
         $this->assertTrue($resBg->headers->has('Cache-Control'));
     }
 
-    public function test_non_waka_roles_forbidden_from_uploading_background()
+    public function test_non_superadmin_roles_forbidden_from_managing_background()
     {
         $fakeImg = UploadedFile::fake()->image('bg.jpg', 1400, 900);
+
+        // Waka (Role 1) -> 403
+        $this->actingAs($this->waka)
+            ->get(route('waka.settings.login-background'))
+            ->assertStatus(403);
+        $this->actingAs($this->waka)
+            ->post('/waka/settings/login-background', ['background' => $fakeImg])
+            ->assertStatus(403);
 
         // Guru (Role 2) -> 403
         $this->actingAs($this->guru)
@@ -63,9 +73,9 @@ class LoginBackgroundTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_waka_can_view_settings_page()
+    public function test_superadmin_can_view_settings_page()
     {
-        $res = $this->actingAs($this->waka)->get(route('waka.settings.login-background'));
+        $res = $this->actingAs($this->superadmin)->get(route('waka.settings.login-background'));
         $res->assertStatus(200);
         $res->assertSee('Tampilan Login');
         $res->assertSee('Unggah Gambar Latar Belakang Baru');
@@ -76,7 +86,7 @@ class LoginBackgroundTest extends TestCase
         // Double extension e.g. script.php.jpg
         $file = UploadedFile::fake()->createWithContent('malicious.php.jpg', '<?php phpinfo(); ?>');
 
-        $res = $this->actingAs($this->waka)
+        $res = $this->actingAs($this->superadmin)
             ->post('/waka/settings/login-background', ['background' => $file]);
 
         $res->assertSessionHasErrors(['background']);
@@ -87,7 +97,7 @@ class LoginBackgroundTest extends TestCase
         $svgContent = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>';
         $file = UploadedFile::fake()->createWithContent('vector.svg', $svgContent);
 
-        $res = $this->actingAs($this->waka)
+        $res = $this->actingAs($this->superadmin)
             ->post('/waka/settings/login-background', ['background' => $file]);
 
         $res->assertSessionHasErrors(['background']);
@@ -98,7 +108,7 @@ class LoginBackgroundTest extends TestCase
         // 4 MB file
         $file = UploadedFile::fake()->image('huge.jpg', 1600, 1000)->size(4096);
 
-        $res = $this->actingAs($this->waka)
+        $res = $this->actingAs($this->superadmin)
             ->post('/waka/settings/login-background', ['background' => $file]);
 
         $res->assertSessionHasErrors(['background']);
@@ -109,17 +119,17 @@ class LoginBackgroundTest extends TestCase
         // 800x600 px image
         $file = UploadedFile::fake()->image('small.jpg', 800, 600);
 
-        $res = $this->actingAs($this->waka)
+        $res = $this->actingAs($this->superadmin)
             ->post('/waka/settings/login-background', ['background' => $file]);
 
         $res->assertSessionHasErrors(['background']);
     }
 
-    public function test_waka_valid_upload_reencodes_and_stream_serves_custom_image()
+    public function test_superadmin_valid_upload_reencodes_and_stream_serves_custom_image()
     {
         $file = UploadedFile::fake()->image('school_hall.jpg', 1600, 1000);
 
-        $res = $this->actingAs($this->waka)
+        $res = $this->actingAs($this->superadmin)
             ->post('/waka/settings/login-background', ['background' => $file]);
 
         $res->assertRedirect(route('waka.settings.login-background'));
@@ -127,7 +137,7 @@ class LoginBackgroundTest extends TestCase
 
         $config = SystemConfiguration::first();
         $this->assertNotNull($config->login_background_path);
-        $this->assertSame($this->waka->id, $config->login_background_updated_by);
+        $this->assertSame($this->superadmin->id, $config->login_background_updated_by);
 
         $diskPath = storage_path('app/' . $config->login_background_path);
         $this->assertFileExists($diskPath);
@@ -142,7 +152,7 @@ class LoginBackgroundTest extends TestCase
     {
         // First upload
         $file1 = UploadedFile::fake()->image('first.jpg', 1400, 900);
-        $this->actingAs($this->waka)->post('/waka/settings/login-background', ['background' => $file1]);
+        $this->actingAs($this->superadmin)->post('/waka/settings/login-background', ['background' => $file1]);
 
         $config = SystemConfiguration::first();
         $firstPath = storage_path('app/' . $config->login_background_path);
@@ -150,7 +160,7 @@ class LoginBackgroundTest extends TestCase
 
         // Second upload
         $file2 = UploadedFile::fake()->image('second.png', 1500, 1000);
-        $this->actingAs($this->waka)->post('/waka/settings/login-background', ['background' => $file2]);
+        $this->actingAs($this->superadmin)->post('/waka/settings/login-background', ['background' => $file2]);
 
         $config->refresh();
         $secondPath = storage_path('app/' . $config->login_background_path);
@@ -163,14 +173,14 @@ class LoginBackgroundTest extends TestCase
     public function test_reset_background_deletes_file_and_reverts_to_default()
     {
         $file = UploadedFile::fake()->image('custom.jpg', 1400, 900);
-        $this->actingAs($this->waka)->post('/waka/settings/login-background', ['background' => $file]);
+        $this->actingAs($this->superadmin)->post('/waka/settings/login-background', ['background' => $file]);
 
         $config = SystemConfiguration::first();
         $filePath = storage_path('app/' . $config->login_background_path);
         $this->assertFileExists($filePath);
 
         // Reset to default
-        $res = $this->actingAs($this->waka)->delete(route('waka.settings.login-background.destroy'));
+        $res = $this->actingAs($this->superadmin)->delete(route('waka.settings.login-background.destroy'));
         $res->assertRedirect(route('waka.settings.login-background'));
 
         $config->refresh();

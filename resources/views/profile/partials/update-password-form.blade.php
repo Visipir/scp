@@ -14,12 +14,13 @@
 
         <div>
             <x-input-label for="update_password_current_password" value="Kata Sandi Saat Ini" />
-            <x-text-input 
+            <x-password-input 
+                wrapperClass="mt-1"
                 id="update_password_current_password" 
                 name="current_password" 
-                type="password" 
-                class="mt-1 block w-full text-xs" 
+                class="text-xs" 
                 autocomplete="current-password" 
+                :invalid="$errors->updatePassword->has('current_password')"
                 placeholder="Masukkan kata sandi lama"
             />
             <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-1.5" />
@@ -28,12 +29,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <x-input-label for="update_password_password" value="Kata Sandi Baru" />
-                <x-text-input 
+                <x-password-input 
+                    wrapperClass="mt-1"
                     id="update_password_password" 
                     name="password" 
-                    type="password" 
-                    class="mt-1 block w-full text-xs" 
+                    class="text-xs" 
                     autocomplete="new-password" 
+                    :invalid="$errors->updatePassword->has('password')"
                     placeholder="Minimal 8 karakter"
                 />
                 <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-1.5" />
@@ -41,12 +43,13 @@
 
             <div>
                 <x-input-label for="update_password_password_confirmation" value="Konfirmasi Kata Sandi Baru" />
-                <x-text-input 
+                <x-password-input 
+                    wrapperClass="mt-1"
                     id="update_password_password_confirmation" 
                     name="password_confirmation" 
-                    type="password" 
-                    class="mt-1 block w-full text-xs" 
+                    class="text-xs" 
                     autocomplete="new-password" 
+                    :invalid="$errors->updatePassword->has('password_confirmation')"
                     placeholder="Ulangi kata sandi baru"
                 />
                 <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-1.5" />
@@ -66,7 +69,7 @@
                     x-init="setTimeout(() => show = false, 2500)"
                     class="text-xs font-medium text-emerald-400 flex items-center gap-1.5"
                 >
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
                     Kata sandi diperbarui

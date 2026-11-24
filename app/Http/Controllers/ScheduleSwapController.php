@@ -29,18 +29,25 @@ class ScheduleSwapController extends Controller
         $config = SystemConfiguration::first();
         $isScheduleLocked = (bool) ($config?->is_schedule_locked);
 
-        // Role 1 (Waka): Comprehensive Report View
-        if ((int) $user->role_id === 1) {
+        // Role 1 (Waka) & Role 5 (Superadmin): Comprehensive Report View
+        if ($user->hasCurriculumAccess()) {
             $filters = $request->only(['start_date', 'end_date', 'status', 'cycle', 'teacher_id', 'class_id', 'search']);
-            $activeTab = $request->input('tab', 'swaps'); // 'swaps', 'teachers', 'logs'
+            $defaultTab = $request->has('teachers_page') ? 'teachers' : ($request->has('logs_page') ? 'logs' : 'swaps');
+            $activeTab = $request->input('tab', $defaultTab);
 
-            $report = $this->swapService->getWakaSwapReport($filters);
+            $report = $this->swapService->getWakaSwapReport($filters, 15);
             $summary = $report['summary'];
-            $swaps = $report['swaps']->appends($request->query());
+            $swaps = $report['swaps']->appends(array_merge($request->query(), ['tab' => 'swaps']));
             $activeFilters = $report['filters'];
 
-            $teacherRecap = $this->swapService->getWakaTeacherRecap($filters);
-            $activityLogs = $this->swapService->getWakaSwapLogs($filters)->appends($request->query());
+            $teacherRecap = $this->paginateCollection(
+                $this->swapService->getWakaTeacherRecap($filters),
+                15,
+                'teachers_page',
+                ['tab' => 'teachers']
+            );
+            $activityLogs = $this->swapService->getWakaSwapLogs($filters, 15, 'logs_page')
+                ->appends(array_merge($request->query(), ['tab' => 'logs']));
 
             $teachers = User::where('role_id', 2)->orderBy('fullname')->get();
             $classes = SchoolClass::orderBy('class_name')->get();
@@ -60,8 +67,8 @@ class ScheduleSwapController extends Controller
 
         // Role 2 (Guru): Inbox and Outbox tabs + Swap request form
         $list = $this->swapService->listSwapsForUser($user);
-        $inbox = $list['inbox'];
-        $outbox = $list['outbox'];
+        $inbox = $this->paginateCollection($list['inbox'], 15, 'inbox_page', ['tab' => 'inbox']);
+        $outbox = $this->paginateCollection($list['outbox'], 15, 'outbox_page', ['tab' => 'outbox']);
         $pendingCount = $list['pending_count'];
 
         // Teacher's own active cycle schedules for form selection
@@ -95,8 +102,8 @@ class ScheduleSwapController extends Controller
     public function exportCsv(Request $request): StreamedResponse
     {
         $user = $request->user();
-        if ((int) $user->role_id !== 1) {
-            abort(403, 'Akses khusus Waka Kurikulum.');
+        if (!$user->hasCurriculumAccess()) {
+            abort(403, 'Akses khusus Waka Kurikulum & Superadmin.');
         }
 
         $filters = $request->only(['start_date', 'end_date', 'status', 'cycle', 'teacher_id', 'class_id', 'search']);
@@ -110,7 +117,7 @@ class ScheduleSwapController extends Controller
             // UTF-8 BOM
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            fputcsv($handle, ['LAPORAN PERTUKARAN JADWAL GURU - SMA PGRI 1 KUDUS']);
+            fputcsv($handle, ['LAPORAN PERTUKARAN JADWAL GURU - SMK NEGERI 1 BANTUL']);
             fputcsv($handle, ['Waktu Cetak / Unduh:', Carbon::now('Asia/Jakarta')->translatedFormat('d F Y H:i:s') . ' WIB']);
             fputcsv($handle, ['Periode Filter:', $report['filters']['start_date'] . ' s/d ' . $report['filters']['end_date']]);
             fputcsv($handle, []);
@@ -170,8 +177,8 @@ class ScheduleSwapController extends Controller
     public function printReport(Request $request): View
     {
         $user = $request->user();
-        if ((int) $user->role_id !== 1) {
-            abort(403, 'Akses khusus Waka Kurikulum.');
+        if (!$user->hasCurriculumAccess()) {
+            abort(403, 'Akses khusus Waka Kurikulum & Superadmin.');
         }
 
         $filters = $request->only(['start_date', 'end_date', 'status', 'cycle', 'teacher_id', 'class_id', 'search']);

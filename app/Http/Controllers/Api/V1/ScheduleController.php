@@ -26,11 +26,11 @@ class ScheduleController extends Controller
 
         if ((int) $user->role_id === 2) {
             $query->where('teacher_id', $user->id);
-        } elseif ((int) $user->role_id === 1 && $request->filled('teacher_id')) {
+        } elseif ($user->hasCurriculumAccess() && $request->filled('teacher_id')) {
             $query->where('teacher_id', (int) $request->input('teacher_id'));
         }
 
-        if ((int) $user->role_id === 1 && $request->filled('class_id')) {
+        if ($user->hasCurriculumAccess() && $request->filled('class_id')) {
             $query->where('class_id', (int) $request->input('class_id'));
         }
 

@@ -57,6 +57,9 @@ class SchoolClassController extends Controller
             $request->query('search')
         );
 
+        $data['students'] = $this->paginateCollection($data['students'], 15, 'students_page', ['tab' => 'students']);
+        $data['recentAbsences'] = $this->paginateCollection($data['recentAbsences'], 15, 'absences_page', ['tab' => 'absences']);
+
         return view('classes.show', $data);
     }
 
@@ -148,7 +151,7 @@ class SchoolClassController extends Controller
 
     public function updateAssignments(Request $request, SchoolClass $class): RedirectResponse
     {
-        abort_unless((int) $request->user()->role_id === 1, 403, 'Hanya Waka Kurikulum yang dapat mengubah penugasan.');
+        abort_unless($request->user()->hasCurriculumAccess(), 403, 'Hanya Waka Kurikulum & Superadmin yang dapat mengubah penugasan.');
 
         $validated = $request->validate([
             'homeroom_user_id'     => ['nullable', 'exists:users,id'],

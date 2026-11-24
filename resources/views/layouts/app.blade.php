@@ -4,7 +4,9 @@
         'dashboard'            => 'Dashboard',
         'schedules'            => 'Jadwal Pelajaran',
         'room-schedules'       => 'Jadwal Ruangan',
+        'rooms'                => 'Daftar Ruangan',
         'journals'             => 'Jurnal & Presensi',
+        'attendance'           => 'Rekap Presensi Bulanan',
         'schedule-swaps'       => 'Laporan Tukar Jadwal',
         'leave-requests'       => 'Izin Siswa',
         'academic-calendar'    => 'Kalender Akademik',
@@ -12,8 +14,8 @@
         'classes'              => 'Data Kelas',
         'users'                => 'Manajemen Pengguna',
         'exams'                => 'Materi & Ujian',
-        'waka'                 => 'Pengaturan Kurikulum',
-        'settings'             => 'Pengaturan Kurikulum',
+        'waka'                 => Auth::user()?->role_id === 5 ? 'Pengaturan Sistem' : 'Pengaturan Kurikulum',
+        'settings'             => Auth::user()?->role_id === 5 ? 'Pengaturan Sistem' : 'Pengaturan Kurikulum',
         'system-configuration' => 'Pengaturan Email',
         'profile'              => 'Profil',
     ];
@@ -26,6 +28,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#0F1014">
+    <meta name="text-scale" content="scale">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $pageTitle ? $pageTitle . ' - ' : '' }}{{ config('app.name', 'School Class Progress') }}</title>
@@ -34,16 +40,18 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
-    <!-- Typography: Inter & JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Scripts & Self-hosted Fonts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Theme Preference Initialization (Auto Device Detection / Stored) -->
-    <script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         (function() {
             try {
                 const savedTheme = localStorage.getItem('theme') || 'system';
+                const colorMeta = document.querySelector('meta[name="color-scheme"]');
+                if (colorMeta) {
+                    colorMeta.content = savedTheme === 'dark' ? 'dark' : (savedTheme === 'light' ? 'light' : 'light dark');
+                }
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 const isDark = savedTheme === 'dark' || (savedTheme === 'system' && prefersDark);
                 if (isDark) {
@@ -53,22 +61,19 @@
                     document.documentElement.classList.remove('dark');
                     document.documentElement.classList.add('light');
                 }
+                const themeMeta = document.querySelector('meta[name="theme-color"]');
+                if (themeMeta) {
+                    themeMeta.content = isDark ? '#0F1014' : '#F0F2F5';
+                }
             } catch (e) {
                 document.documentElement.classList.add('dark');
             }
         })();
     </script>
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
+    <style nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         [x-cloak] {
             display: none !important;
-        }
-        :root {
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
         body {
             font-family: var(--font-sans);
@@ -77,38 +82,18 @@
         .font-mono {
             font-family: var(--font-mono);
         }
-        /* Dark Mode Resilience Rules */
-        html.dark div.bg-white:not([class*="dark:bg-"]),
-        html.dark section.bg-white:not([class*="dark:bg-"]),
-        html.dark a.bg-white:not([class*="dark:bg-"]),
-        html.dark select.bg-white,
-        html.dark input.bg-white,
-        html.dark textarea.bg-white {
-            background-color: var(--surface-card) !important;
-            border-color: var(--border-hairline) !important;
-            color: var(--text-primary) !important;
-        }
-        html.dark input[type="text"],
-        html.dark input[type="search"],
-        html.dark input[type="date"],
-        html.dark input[type="time"],
-        html.dark input[type="month"],
-        html.dark select,
-        html.dark textarea {
-            background-color: var(--bg-page) !important;
-            border-color: var(--border-hairline) !important;
-            color: var(--text-primary) !important;
-        }
     </style>
 </head>
-<body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0093dd] selection:text-white transition-colors duration-150" 
+<body class="h-full bg-[var(--bg-page)] text-[var(--text-primary)] selection:bg-[#0073B1] selection:text-white transition-colors duration-150" 
       x-data="{ sidebarOpen: false }">
-    <div class="min-h-screen flex flex-col lg:flex-row bg-[var(--bg-page)]">
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+    <div id="app-announcer" role="status" aria-live="polite" class="sr-only"></div>
+    <div class="min-h-dvh flex flex-col lg:flex-row bg-[var(--bg-page)]">
         <!-- Sidebar & Navigation System -->
         @include('layouts.navigation')
 
         <!-- Main Workspace Area -->
-        <div class="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72 transition-all duration-200 bg-[var(--bg-page)]">
+        <div class="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72 transition-[padding] duration-200 bg-[var(--bg-page)]">
             <!-- Desktop Top Utility Bar -->
             @php
                 $globalConfig = \App\Models\SystemConfiguration::first();
@@ -116,7 +101,10 @@
             <header class="hidden lg:flex h-14 bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] items-center justify-between px-6 lg:px-8 shrink-0 sticky top-0 z-20 transition-colors duration-150">
                 <!-- Left: Minimalist Breadcrumb Trail -->
                 <div class="flex items-center gap-2 text-xs">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-5 h-5 object-contain shrink-0">
+                    <picture class="shrink-0">
+                        <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                        <img src="{{ asset('images/logo.png') }}" alt="" width="20" height="20" class="w-5 h-5 object-contain shrink-0">
+                    </picture>
                     <span class="text-zinc-700 dark:text-[#EDEDF0] font-sans font-semibold text-sm">{{ $breadcrumbTitle }}</span>
                 </div>
 
@@ -140,7 +128,7 @@
                     <div class="h-4 w-px bg-zinc-200 dark:bg-[#2B2B30]"></div>
 
                     <!-- Date info -->
-                    <div class="text-[11px] text-zinc-500 dark:text-[#97979B] font-mono">
+                    <div class="text-xs text-zinc-600 dark:text-[#B4B6C2] font-mono tabular-nums">
                         {{ now()->translatedFormat('d M Y') }}
                     </div>
 
@@ -153,7 +141,7 @@
 
             <!-- Page Heading Slot -->
             @isset($header)
-                <div class="bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] px-6 lg:px-8 py-5 transition-colors duration-150 min-w-0">
+                <div class="bg-white dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] px-4 sm:px-6 lg:px-8 py-5 transition-colors duration-150 min-w-0">
                     <div class="max-w-7xl mx-auto w-full min-w-0">
                         {{ $header }}
                     </div>
@@ -161,18 +149,22 @@
             @endisset
 
             <!-- Page Content -->
-            <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 bg-[var(--bg-page)]">
+            <main id="main-content" tabindex="-1" class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 bg-[var(--bg-page)] focus-visible:outline-none">
                 <div class="max-w-7xl mx-auto w-full min-w-0">
                     {{ $slot }}
                 </div>
             </main>
 
             <!-- Footer -->
-            <footer class="border-t border-zinc-200 dark:border-[#2B2B30] py-4 px-6 lg:px-8 text-center sm:text-left text-xs text-zinc-500 dark:text-[#5B5B61] flex flex-col sm:flex-row justify-between items-center gap-2 bg-white dark:bg-[#19191C] transition-colors duration-150">
-                <div>School Class Progress &copy; {{ date('Y') }}</div>
-                <div class="text-zinc-400 dark:text-[#5B5B61]">Sistem Informasi Presensi &amp; Jurnal Kelas</div>
+            <footer class="border-t border-zinc-200 dark:border-[#2B2B30] py-4 px-4 sm:px-6 lg:px-8 pb-[max(1rem,env(safe-area-inset-bottom,0px))] text-center sm:text-left text-xs text-zinc-600 dark:text-[#9496A1] bg-white dark:bg-[#19191C] transition-colors duration-150">
+                <div class="max-w-7xl mx-auto w-full min-w-0 flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <div>School Class Progress &copy; {{ date('Y') }} &bull; SMK Negeri 1 Bantul</div>
+                    <div class="text-zinc-600 dark:text-[#9496A1]">Sistem Informasi Presensi &amp; Jurnal Kelas</div>
+                </div>
             </footer>
         </div>
     </div>
+
+    <x-confirm-modal />
 </body>
 </html>

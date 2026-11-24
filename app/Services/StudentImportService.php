@@ -267,7 +267,7 @@ class StudentImportService
     {
         $realPath = $file->getRealPath();
 
-        // 1. Attempt local text extraction via smalot/pdfparser
+        // 1. Attempt local text extraction via smalot/pdfparser and pdftotext
         try {
             $pdfParser = new PdfParser();
             $pdf = $pdfParser->parseFile($realPath);
@@ -277,8 +277,15 @@ class StudentImportService
             // Extract text from all pages
             $pdfText = $pdf->getText();
 
+            if (empty(trim($pdfText))) {
+                $rawText = @shell_exec(sprintf('pdftotext %s -', escapeshellarg($realPath)));
+                if (!empty($rawText)) {
+                    $pdfText = $rawText;
+                }
+            }
+
             // If PDF has readable text and contains large dataset (> 2 pages or > 80 students)
-            if ($totalPages > 2 && strlen($pdfText) > 1000) {
+            if (($totalPages > 2 || strlen($pdfText) > 1000) && strlen($pdfText) > 200) {
                 $localStudents = $this->parsePdfTextLocally($pdfText, $overrideAcademicYear, $pages);
                 if (count($localStudents) > 0) {
                     Log::info('[StudentImport] Processed PDF via local parser. Total: ' . count($localStudents) . ' students.');
@@ -287,6 +294,15 @@ class StudentImportService
             }
         } catch (\Throwable $e) {
             Log::warning('[StudentImport] Smalot PDF text extraction failed: ' . $e->getMessage());
+            // Fallback to pdftotext CLI
+            $rawText = @shell_exec(sprintf('pdftotext %s -', escapeshellarg($realPath)));
+            if (!empty($rawText) && strlen($rawText) > 200) {
+                $localStudents = $this->parsePdfTextLocally($rawText, $overrideAcademicYear);
+                if (count($localStudents) > 0) {
+                    Log::info('[StudentImport] Processed PDF via pdftotext CLI fallback. Total: ' . count($localStudents) . ' students.');
+                    return $localStudents;
+                }
+            }
         }
 
         // 2. For single-class PDF or scanned document, delegate to Gemini AI

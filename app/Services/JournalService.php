@@ -7,6 +7,7 @@ use App\Models\Journal;
 use App\Models\LeaveRequest;
 use App\Models\Schedule;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -68,8 +69,8 @@ class JournalService
                 'total_siswa' => $students->count(),
             ]);
 
-            // 3. Get approved leave requests covering this date keyed by student_id
-            $leavesByStudent = LeaveRequest::where('status_approval', 'Approved')
+            // 3. Get approved or pending leave requests covering this date keyed by student_id
+            $leavesByStudent = LeaveRequest::whereIn('status_approval', ['Approved', 'Pending'])
                 ->whereDate('start_date', '<=', $validated['date'])
                 ->whereDate('end_date', '>=', $validated['date'])
                 ->where(function ($query) use ($students) {
@@ -79,7 +80,7 @@ class JournalService
                 ->keyBy('student_id');
             $studentsOnLeave = $leavesByStudent->keys()->all();
 
-            Log::info('[JournalSync] Izin yang disetujui ditemukan.', [
+            Log::info('[JournalSync] Izin ditemukan (Approved & Pending).', [
                 'jumlah_izin' => count($studentsOnLeave),
                 'student_ids' => $studentsOnLeave,
             ]);
@@ -90,8 +91,9 @@ class JournalService
                 foreach ($validated['absent_students'] as $item) {
                     if (! empty($item['student_id']) && ! empty($item['status'])) {
                         $manualAbsences[(int) $item['student_id']] = [
-                            'status' => $item['status'],
-                            'notes'  => $item['notes'] ?? null,
+                            'status'   => $item['status'],
+                            'notes'    => $item['notes'] ?? null,
+                            'leave_id' => !empty($item['leave_id']) ? (int) $item['leave_id'] : null,
                         ];
                     }
                 }
@@ -99,7 +101,7 @@ class JournalService
 
             // 4. Bulk insert attendance records (Default is always Hadir)
             $attendances = $students->map(function (User $student) use ($journal, $validated, $manualAbsences, $leavesByStudent) {
-                // Priority: manual -> approved leave (Izin/Sakit) -> Hadir
+                // Priority: manual -> leave (Izin/Sakit) -> Hadir
                 $status = 'Hadir';
                 $notes = null;
                 $leaveRequestId = null;
@@ -107,12 +109,20 @@ class JournalService
                 if (isset($manualAbsences[$student->id])) {
                     $status = $manualAbsences[$student->id]['status'];
                     $notes = $manualAbsences[$student->id]['notes'];
-                    if ($leave = $leavesByStudent->get($student->id)) {
+                    $leaveRequestId = $manualAbsences[$student->id]['leave_id'];
+                    if (! $leaveRequestId && ($leave = $leavesByStudent->get($student->id))) {
                         $leaveRequestId = $leave->id;
                     }
+                    if (empty($notes) && ($leave = $leavesByStudent->get($student->id))) {
+                        $notes = $leave->status_approval === 'Approved'
+                            ? 'Izin resmi (Pengajuan surat izin disetujui)'
+                            : 'Izin (Menunggu persetujuan BK/Wali)';
+                    }
                 } elseif ($leave = $leavesByStudent->get($student->id)) {
-                    $status = LeaveRequest::determineStatusFromReason($leave->reason);
-                    $notes = 'Izin resmi (Pengajuan surat izin disetujui)';
+                    $status = $leave->attendance_status;
+                    $notes = $leave->status_approval === 'Approved'
+                        ? 'Izin resmi (Pengajuan surat izin disetujui)'
+                        : 'Izin (Menunggu persetujuan BK/Wali)';
                     $leaveRequestId = $leave->id;
                 }
 
@@ -167,7 +177,7 @@ class JournalService
      */
     public function userCanView(User $user, Journal $journal): bool
     {
-        if ((int) $user->role_id === 1) {
+        if (in_array((int) $user->role_id, [1, 5], true)) {
             return true;
         }
 
@@ -190,8 +200,7 @@ class JournalService
      */
     public function canViewPhoto(User $user, Journal $journal): bool
     {
-        return (int) $user->role_id === 1
-            || (int) $user->role_id === 3
+        return in_array((int) $user->role_id, [1, 3, 5], true)
             || ((int) $user->role_id === 2 && (int) $journal->schedule?->teacher_id === (int) $user->id);
     }
 
@@ -356,5 +365,78 @@ class JournalService
 
         // Graceful Fallback: standard Laravel file store
         return $file->store('journals', 'local');
+    }
+
+    /**
+     * Check whether a teacher is allowed to fill a journal for this schedule at this date/time.
+     * Enforces Waka's configured time restriction settings.
+     *
+     * @return array{allowed: bool, reason: ?string, start_time?: string, message: ?string}
+     */
+    public function checkJournalFillTime(Schedule $schedule, string $date, ?Carbon $now = null): array
+    {
+        $config = \App\Models\SystemConfiguration::first();
+        $now = $now ?? Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+
+        // 1. Block future dates
+        if ($date > $today) {
+            return [
+                'allowed' => false,
+                'reason'  => 'future_date',
+                'message' => 'Tidak dapat mengisi jurnal untuk tanggal di masa depan (' . Carbon::parse($date)->translatedFormat('d F Y') . ').',
+            ];
+        }
+
+        // 2. If time restriction is disabled or set to anytime, allow immediately
+        if ($config && (!$config->is_journal_time_restricted || $config->journal_fill_rule === 'anytime')) {
+            return ['allowed' => true, 'reason' => null, 'message' => null];
+        }
+
+        $rule = $config?->journal_fill_rule ?? 'during_and_after';
+        $bufferMinutes = (int) ($config?->journal_early_buffer_minutes ?? 0);
+
+        // For today's schedule:
+        if ($date === $today) {
+            $startTime = Carbon::parse($date . ' ' . $schedule->start_time, 'Asia/Jakarta')->subMinutes($bufferMinutes);
+            $endTime = Carbon::parse($date . ' ' . $schedule->end_time, 'Asia/Jakarta');
+
+            // Lesson has not started yet
+            if ($now->lt($startTime)) {
+                $formattedStart = $startTime->format('H:i');
+                $toleranceNotice = $bufferMinutes > 0 ? " (toleransi {$bufferMinutes} menit lebih awal)" : "";
+                return [
+                    'allowed'    => false,
+                    'reason'     => 'not_started',
+                    'start_time' => $formattedStart,
+                    'message'    => "Jam pelajaran belum dimulai. Jurnal baru dapat diisi mulai pukul {$formattedStart} WIB{$toleranceNotice} saat KBM berlangsung.",
+                ];
+            }
+
+            // If rule is during_schedule_only, check if lesson has ended (+15 mins grace period)
+            if ($rule === 'during_schedule_only') {
+                $graceEnd = $endTime->copy()->addMinutes(15);
+                if ($now->gt($graceEnd)) {
+                    return [
+                        'allowed' => false,
+                        'reason'  => 'schedule_ended',
+                        'message' => "Batas waktu pengisian jurnal untuk jam pelajaran ini telah berakhir pada pukul {$endTime->format('H:i')} WIB.",
+                    ];
+                }
+            }
+
+            return ['allowed' => true, 'reason' => null, 'message' => null];
+        }
+
+        // For past dates:
+        if ($rule === 'during_schedule_only') {
+            return [
+                'allowed' => false,
+                'reason'  => 'past_date_restricted',
+                'message' => 'Pengaturan kurikulum mengharuskan jurnal diisi tepat pada saat jam pelajaran berlangsung.',
+            ];
+        }
+
+        return ['allowed' => true, 'reason' => null, 'message' => null];
     }
 }

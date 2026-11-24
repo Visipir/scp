@@ -123,6 +123,49 @@ class RoomScheduleController extends Controller
     }
 
     /**
+     * Update the room for the specified room schedule.
+     */
+    public function update(Request $request, RoomSchedule $roomSchedule)
+    {
+        $validated = $request->validate([
+            'room_id' => 'required|exists:rooms,id',
+        ], [
+            'room_id.required' => 'Pilih ruangan yang valid.',
+            'room_id.exists'   => 'Ruangan yang dipilih tidak ditemukan.',
+        ]);
+
+        $newRoomId = (int) $validated['room_id'];
+
+        if ((int) $roomSchedule->room_id !== $newRoomId) {
+            $conflict = RoomSchedule::where('room_id', $newRoomId)
+                ->where('day_of_week', $roomSchedule->day_of_week)
+                ->where('period', $roomSchedule->period)
+                ->where('cycle_type', $roomSchedule->cycle_type)
+                ->where('id', '!=', $roomSchedule->id)
+                ->first();
+
+            if ($conflict) {
+                $conflictRoom = Room::find($newRoomId);
+                $conflictClass = SchoolClass::find($conflict->class_id);
+                return back()->with('error', "Bentrok: {$conflictRoom?->room_name} sudah digunakan oleh kelas {$conflictClass?->class_name} pada {$roomSchedule->day_of_week} Jam ke-{$roomSchedule->period} ({$roomSchedule->cycle_type}).");
+            }
+
+            $roomSchedule->update(['room_id' => $newRoomId]);
+
+            // Sync corresponding Schedule if exists
+            \App\Models\Schedule::where('class_id', $roomSchedule->class_id)
+                ->where('day_of_week', $roomSchedule->day_of_week)
+                ->where('cycle_type', $roomSchedule->cycle_type)
+                ->where('start_period', '<=', $roomSchedule->period)
+                ->where('end_period', '>=', $roomSchedule->period)
+                ->update(['room_id' => $newRoomId]);
+        }
+
+        $room = Room::find($newRoomId);
+        return back()->with('success', "Ruangan berhasil diperbarui menjadi {$room?->room_name}.");
+    }
+
+    /**
      * Remove the specified room schedule from storage.
      */
     public function destroy(RoomSchedule $roomSchedule)
@@ -177,8 +220,8 @@ class RoomScheduleController extends Controller
             foreach ($parsedItems as $item) {
                 $className = trim($item['class_name'] ?? '');
                 $roomName = trim($item['room_name'] ?? '');
-                $dayOfWeek = trim($item['day_of_week'] ?? 'Senin');
-                $cycleType = $item['cycle_type'] ?? $targetCycle;
+                $dayOfWeek = \App\Http\Controllers\AiImporterController::normalizeDay($item['day_of_week'] ?? 'Senin');
+                $cycleType = \App\Http\Controllers\AiImporterController::normalizeCycle($item['cycle_type'] ?? $targetCycle);
 
                 if (empty($className) || empty($roomName)) {
                     continue;

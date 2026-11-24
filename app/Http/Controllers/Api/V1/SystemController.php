@@ -19,6 +19,13 @@ class SystemController extends Controller
     {
         $config = SystemConfiguration::firstOrFail();
 
+        if ($config->is_schedule_locked) {
+            return response()->json([
+                'message' => 'Putaran tidak dapat diubah saat jadwal sedang dikunci.',
+                'errors'  => null,
+            ], 403);
+        }
+
         $config->update([
             'active_cycle' => $request->input('active_cycle'),
             'updated_by'   => $request->user()->id,

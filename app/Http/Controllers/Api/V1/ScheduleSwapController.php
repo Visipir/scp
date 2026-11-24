@@ -20,7 +20,7 @@ class ScheduleSwapController extends Controller
 
     public function wakaReport(Request $request): JsonResponse
     {
-        if ((int) $request->user()->role_id !== 1) {
+        if (!in_array((int) $request->user()->role_id, [1, 5], true)) {
             abort(403, 'Akses khusus Waka Kurikulum.');
         }
 
@@ -42,7 +42,7 @@ class ScheduleSwapController extends Controller
 
     public function wakaShow(Request $request, int $id): JsonResponse
     {
-        if ((int) $request->user()->role_id !== 1) {
+        if (!in_array((int) $request->user()->role_id, [1, 5], true)) {
             abort(403, 'Akses khusus Waka Kurikulum.');
         }
 
@@ -53,7 +53,7 @@ class ScheduleSwapController extends Controller
 
     public function wakaLogs(Request $request): JsonResponse
     {
-        if ((int) $request->user()->role_id !== 1) {
+        if (!in_array((int) $request->user()->role_id, [1, 5], true)) {
             abort(403, 'Akses khusus Waka Kurikulum.');
         }
 
@@ -75,7 +75,7 @@ class ScheduleSwapController extends Controller
     {
         $user = $request->user();
 
-        if ((int) $user->role_id === 1) {
+        if ($user->hasCurriculumAccess()) {
             $all = $this->swapService->listAllSwapsForWaka();
             return ApiResponse::data([
                 'swaps' => ScheduleSwapResource::collection($all)->resolve(),

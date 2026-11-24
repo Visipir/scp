@@ -35,17 +35,11 @@ Route::middleware(['auth', 'role:1'])->group(function () {
         Route::get('/', [SystemConfigurationController::class, 'edit'])->name('edit');
         Route::patch('/toggle-cycle', [SystemConfigurationController::class, 'toggleCycle'])->name('toggle-cycle');
         Route::patch('/toggle-lock', [SystemConfigurationController::class, 'toggleLock'])->name('toggle-lock');
-        Route::get('/email', [\App\Http\Controllers\SystemEmailController::class, 'edit'])->name('email');
-        Route::post('/email', [\App\Http\Controllers\SystemEmailController::class, 'update'])->name('email.update');
-        Route::post('/email/test', [\App\Http\Controllers\SystemEmailController::class, 'sendTest'])->name('email.test');
     });
 
     Route::prefix('waka')->name('waka.')->group(function () {
         Route::get('/settings', [SystemConfigurationController::class, 'edit'])->name('settings');
-        Route::post('/settings/gemini', [SystemConfigurationController::class, 'updateGeminiConfig'])->name('settings.gemini');
-        Route::get('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'index'])->name('settings.login-background');
-        Route::post('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'update'])->middleware('throttle:10,1')->name('settings.login-background.update');
-        Route::delete('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'destroy'])->name('settings.login-background.destroy');
+        Route::post('/settings/journal-time', [SystemConfigurationController::class, 'updateJournalTimeConfig'])->name('settings.journal-time');
         Route::post('/schedules/import-pdf', [ScheduleImportController::class, 'import'])->name('schedules.import');
         Route::get('/schedules/import', [ScheduleImportController::class, 'index'])->name('schedules.import.index');
         Route::post('/schedules/import/preview', [ScheduleImportController::class, 'preview'])->name('schedules.import.preview');
@@ -60,9 +54,39 @@ Route::middleware(['auth', 'role:1'])->group(function () {
     });
 });
 
+// Technical configuration routes: Superadmin only (Role 5)
+Route::middleware(['auth', 'role:5'])->group(function () {
+    Route::prefix('system-configuration')->name('system-configuration.')->group(function () {
+        Route::get('/email', [\App\Http\Controllers\SystemEmailController::class, 'edit'])->name('email');
+        Route::post('/email', [\App\Http\Controllers\SystemEmailController::class, 'update'])->name('email.update');
+        Route::post('/email/test', [\App\Http\Controllers\SystemEmailController::class, 'sendTest'])->name('email.test');
+    });
+
+    Route::prefix('waka')->name('waka.')->group(function () {
+        Route::post('/settings/gemini', [SystemConfigurationController::class, 'updateGeminiConfig'])->name('settings.gemini');
+        Route::get('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'index'])->name('settings.login-background');
+        Route::post('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'update'])->middleware('throttle:10,1')->name('settings.login-background.update');
+        Route::delete('/settings/login-background', [\App\Http\Controllers\Waka\LoginBackgroundController::class, 'destroy'])->name('settings.login-background.destroy');
+    });
+});
+
 Route::middleware(['auth', 'role:1'])->prefix('ai-importer')->name('ai-importer.')->group(function () {
     Route::post('/process', [\App\Http\Controllers\AiImporterController::class, 'process'])->name('process');
+    Route::get('/preview/{key}', [\App\Http\Controllers\AiImporterController::class, 'preview'])->name('preview');
     Route::post('/store', [\App\Http\Controllers\AiImporterController::class, 'store'])->name('store');
+});
+
+Route::middleware(['auth', 'role:1,3'])->get('/attendance/recap', [\App\Http\Controllers\AttendanceRecapController::class, 'index'])->name('attendance.recap');
+
+Route::middleware(['auth', 'role:1,3'])->group(function () {
+    Route::resource('rooms', \App\Http\Controllers\RoomController::class)->except(['create', 'show', 'edit']);
+});
+
+Route::middleware(['auth', 'role:1,3'])->prefix('classes')->name('classes.')->group(function () {
+    Route::get('/promotion', [\App\Http\Controllers\ClassPromotionController::class, 'index'])->name('promotion');
+    Route::post('/promotion/simulate', [\App\Http\Controllers\ClassPromotionController::class, 'simulate'])->name('promotion.simulate');
+    Route::post('/promotion/execute', [\App\Http\Controllers\ClassPromotionController::class, 'execute'])->name('promotion.execute');
+    Route::post('/promotion/assignments', [\App\Http\Controllers\ClassPromotionController::class, 'updateAssignments'])->name('promotion.assignments');
 });
 
 Route::middleware(['auth', 'role:1,2,3'])->prefix('classes')->name('classes.')->group(function () {
@@ -137,7 +161,7 @@ Route::middleware(['auth'])->prefix('leave-requests')->name('leave-requests.')->
         Route::get('/{leaveRequest}', [LeaveRequestController::class, 'show'])->name('show');
         Route::get('/{leaveRequest}/document', [LeaveRequestController::class, 'document'])->name('document');
     });
-    Route::middleware('role:1,3')->group(function () {
+    Route::middleware('role:3')->group(function () {
         Route::patch('/{leaveRequest}/status', [LeaveRequestController::class, 'updateStatus'])->name('update-status');
     });
 });
@@ -146,6 +170,7 @@ Route::middleware(["auth", "role:1,2,3"])->group(function () {
     Route::get("/room-schedules", [\App\Http\Controllers\RoomScheduleController::class, "index"])->name("room-schedules.index");
     Route::get("/room-schedules/create", [\App\Http\Controllers\RoomScheduleController::class, "create"])->name("room-schedules.create");
     Route::post("/room-schedules", [\App\Http\Controllers\RoomScheduleController::class, "store"])->name("room-schedules.store");
+    Route::put("/room-schedules/{roomSchedule}", [\App\Http\Controllers\RoomScheduleController::class, "update"])->name("room-schedules.update");
     Route::delete("/room-schedules/{roomSchedule}", [\App\Http\Controllers\RoomScheduleController::class, "destroy"])->name("room-schedules.destroy");
     Route::post("/room-schedules/import", [\App\Http\Controllers\RoomScheduleController::class, "import"])->name("room-schedules.import");
 });
@@ -169,11 +194,14 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
 
 require __DIR__.'/auth.php';
 
-Route::middleware(['auth', 'role:1,3'])->prefix('academic-calendar')->name('academic-calendar.')->group(function () {
+Route::middleware(['auth'])->prefix('academic-calendar')->name('academic-calendar.')->group(function () {
     Route::get('/', [\App\Http\Controllers\AcademicCalendarController::class, 'index'])->name('index');
-    Route::post('/', [\App\Http\Controllers\AcademicCalendarController::class, 'store'])->name('store');
-    Route::delete('/{academicCalendar}', [\App\Http\Controllers\AcademicCalendarController::class, 'destroy'])->name('destroy');
-    Route::post('/import', [\App\Http\Controllers\AcademicCalendarController::class, 'import'])->name('import');
+    Route::middleware('role:1,3')->group(function () {
+        Route::post('/', [\App\Http\Controllers\AcademicCalendarController::class, 'store'])->name('store');
+        Route::put('/{academicCalendar}', [\App\Http\Controllers\AcademicCalendarController::class, 'update'])->name('update');
+        Route::delete('/{academicCalendar}', [\App\Http\Controllers\AcademicCalendarController::class, 'destroy'])->name('destroy');
+        Route::post('/import', [\App\Http\Controllers\AcademicCalendarController::class, 'import'])->name('import');
+    });
 });
 
 Route::middleware(['auth'])->prefix('exams')->name('exams.')->group(function () {

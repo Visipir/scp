@@ -21,23 +21,26 @@ class EmailSettingsTest extends TestCase
         $this->seedRoles();
     }
 
-    public function test_non_waka_cannot_access_email_settings(): void
+    public function test_non_superadmin_cannot_access_email_settings(): void
     {
+        $waka = $this->makeUser(1); // Waka Kurikulum
         $teacher = $this->makeUser(2); // Guru
         $student = $this->makeUser(4); // Siswa
 
         // Web routes
+        $this->actingAs($waka)->get('/system-configuration/email')->assertForbidden();
         $this->actingAs($teacher)->get('/system-configuration/email')->assertForbidden();
         $this->actingAs($student)->get('/system-configuration/email')->assertForbidden();
 
         // API routes
+        $this->apiAs($waka)->getJson('/api/v1/system/email-settings')->assertForbidden();
         $this->apiAs($teacher)->getJson('/api/v1/system/email-settings')->assertForbidden();
         $this->apiAs($student)->getJson('/api/v1/system/email-settings')->assertForbidden();
     }
 
-    public function test_waka_can_view_email_settings_and_password_is_masked(): void
+    public function test_superadmin_can_view_email_settings_and_password_is_masked(): void
     {
-        $waka = $this->makeUser(1, ['email' => 'waka@example.com']);
+        $superadmin = $this->makeUser(5, ['email' => 'superadmin@example.com']);
         $this->makeConfig([
             'mail_host'         => 'smtp.mailtrap.io',
             'mail_port'         => 2525,
@@ -49,14 +52,14 @@ class EmailSettingsTest extends TestCase
         ]);
 
         // Web view
-        $response = $this->actingAs($waka)->get('/system-configuration/email');
+        $response = $this->actingAs($superadmin)->get('/system-configuration/email');
         $response->assertOk();
         $response->assertSee('smtp.mailtrap.io');
         $response->assertSee('testuser');
         $response->assertDontSee('supersecretpassword');
 
         // API view
-        $apiResponse = $this->apiAs($waka)->getJson('/api/v1/system/email-settings');
+        $apiResponse = $this->apiAs($superadmin)->getJson('/api/v1/system/email-settings');
         $apiResponse->assertOk();
         $apiResponse->assertJson([
             'data' => [
@@ -69,9 +72,9 @@ class EmailSettingsTest extends TestCase
         $this->assertStringNotContainsString('supersecretpassword', $apiResponse->getContent());
     }
 
-    public function test_waka_can_update_email_settings_with_encrypted_password(): void
+    public function test_superadmin_can_update_email_settings_with_encrypted_password(): void
     {
-        $waka = $this->makeUser(1);
+        $superadmin = $this->makeUser(5);
         $this->makeConfig();
 
         $payload = [
@@ -84,7 +87,7 @@ class EmailSettingsTest extends TestCase
             'mail_from_name'    => 'Official School Mailer',
         ];
 
-        $response = $this->apiAs($waka)->postJson('/api/v1/system/email-settings', $payload);
+        $response = $this->apiAs($superadmin)->postJson('/api/v1/system/email-settings', $payload);
         $response->assertOk();
 
         $config = SystemConfiguration::first();
@@ -99,13 +102,13 @@ class EmailSettingsTest extends TestCase
 
     public function test_updating_without_password_keeps_existing_password(): void
     {
-        $waka = $this->makeUser(1);
+        $superadmin = $this->makeUser(5);
         $this->makeConfig([
             'mail_host'     => 'smtp.gmail.com',
             'mail_password' => Crypt::encryptString('existingSecret'),
         ]);
 
-        $response = $this->apiAs($waka)->postJson('/api/v1/system/email-settings', [
+        $response = $this->apiAs($superadmin)->postJson('/api/v1/system/email-settings', [
             'mail_host'         => 'smtp.updated.com',
             'mail_port'         => 465,
             'mail_encryption'   => 'ssl',
@@ -122,12 +125,12 @@ class EmailSettingsTest extends TestCase
         $this->assertSame('existingSecret', Crypt::decryptString($config->mail_password));
     }
 
-    public function test_waka_can_send_test_email(): void
+    public function test_superadmin_can_send_test_email(): void
     {
         Mail::fake();
 
-        $waka = $this->makeUser(1, [
-            'email'             => 'waka.test@example.test',
+        $superadmin = $this->makeUser(5, [
+            'email'             => 'superadmin.test@example.test',
             'email_verified_at' => now(),
         ]);
         $this->makeConfig([
@@ -140,30 +143,30 @@ class EmailSettingsTest extends TestCase
             'mail_from_name'    => 'SMK Test',
         ]);
 
-        $response = $this->apiAs($waka)->postJson('/api/v1/system/email-settings/test');
+        $response = $this->apiAs($superadmin)->postJson('/api/v1/system/email-settings/test');
         $response->assertOk()
             ->assertJson([
-                'message' => 'Email tes berhasil dikirimkan ke: waka.test@example.test',
+                'message' => 'Email tes berhasil dikirimkan ke: superadmin.test@example.test',
             ]);
 
         Mail::assertSent(\App\Mail\TestMail::class, function ($mail) {
-            return $mail->hasTo('waka.test@example.test');
+            return $mail->hasTo('superadmin.test@example.test');
         });
     }
 
-    public function test_waka_without_verified_email_cannot_send_test_email(): void
+    public function test_superadmin_without_verified_email_cannot_send_test_email(): void
     {
         Mail::fake();
 
-        $wakaUnverified = $this->makeUser(1, [
-            'email'             => 'waka.unverified@example.test',
+        $superadminUnverified = $this->makeUser(5, [
+            'email'             => 'superadmin.unverified@example.test',
             'email_verified_at' => null,
         ]);
         $this->makeConfig([
             'mail_host' => 'smtp.test.com',
         ]);
 
-        $response = $this->apiAs($wakaUnverified)->postJson('/api/v1/system/email-settings/test');
+        $response = $this->apiAs($superadminUnverified)->postJson('/api/v1/system/email-settings/test');
         $response->assertStatus(422);
 
         Mail::assertNothingSent();

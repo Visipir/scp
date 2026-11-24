@@ -13,14 +13,14 @@
         </div>
     </x-slot>
 
-    <div class="space-y-4 sm:space-y-6 max-w-3xl">
+    <div class="space-y-4 sm:space-y-6">
 
         {{-- Filter: child (parent only) + month --}}
         <form method="GET" action="{{ route('student.attendance.index') }}" class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-end gap-3">
             @if($isParent)
                 <div class="flex-1">
                     <x-input-label for="student_id" value="Pilih Siswa" />
-                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition">
+                    <select id="student_id" name="student_id" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition">
                         @foreach($children as $child)
                             <option value="{{ $child->id }}" @selected($student->id === $child->id)>{{ $child->fullname }}</option>
                         @endforeach
@@ -29,9 +29,9 @@
             @endif
             <div class="flex-1">
                 <x-input-label for="month" value="Bulan" />
-                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" />
+                <input id="month" name="month" type="month" value="{{ $month }}" class="w-full rounded-lg border border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition" />
             </div>
-            <button type="submit" class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition cursor-pointer">
+            <button type="submit" class="px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition cursor-pointer">
                 Terapkan
             </button>
         </form>
@@ -87,6 +87,12 @@
                 </div>
             @endforelse
         </div>
+
+        @if(method_exists($records, 'hasPages') && $records->hasPages())
+            <div class="pt-2 text-xs">
+                {{ $records->links() }}
+            </div>
+        @endif
 
     </div>
 </x-app-layout>

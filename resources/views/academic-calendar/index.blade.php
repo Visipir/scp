@@ -11,10 +11,30 @@
     <div 
         class="space-y-6"
         x-data="{
+            showManageForms: {{ $errors->any() ? 'true' : 'false' }},
             detailModalOpen: false,
             selectedDate: '',
             selectedFormattedDate: '',
             selectedEvents: [],
+            editModalOpen: false,
+            editCalendarId: null,
+            editTitle: '',
+            editStartDate: '',
+            editEndDate: '',
+            editCategory: 'agenda_sekolah',
+            editIsKbmOff: false,
+            editDescription: '',
+            openEditCalendar(cal) {
+                this.editCalendarId = cal.id;
+                this.editTitle = cal.title;
+                this.editStartDate = cal.start_date;
+                this.editEndDate = cal.end_date;
+                this.editCategory = cal.category;
+                this.editIsKbmOff = !!cal.is_kbm_off;
+                this.editDescription = cal.description || '';
+                this.editModalOpen = true;
+                this.$nextTick(() => document.getElementById('edit_cal_title')?.focus());
+            },
             openDayDetail(day) {
                 this.selectedDate = day.date;
                 this.selectedFormattedDate = day.formattedDate || day.date;
@@ -23,16 +43,19 @@
             },
             prefillForm(date) {
                 this.detailModalOpen = false;
-                const startInput = document.getElementById('start_date');
-                const endInput = document.getElementById('end_date');
-                if (startInput) startInput.value = date;
-                if (endInput) endInput.value = date;
-                const formElem = document.getElementById('manual-add-form');
-                if (formElem) {
-                    formElem.scrollIntoView({ behavior: 'smooth' });
-                    const titleInput = document.getElementById('title');
-                    if (titleInput) titleInput.focus();
-                }
+                this.showManageForms = true;
+                this.$nextTick(() => {
+                    const startInput = document.getElementById('start_date');
+                    const endInput = document.getElementById('end_date');
+                    if (startInput) startInput.value = date;
+                    if (endInput) endInput.value = date;
+                    const formElem = document.getElementById('manual-add-form');
+                    if (formElem) {
+                        formElem.scrollIntoView({ behavior: 'smooth' });
+                        const titleInput = document.getElementById('title');
+                        if (titleInput) titleInput.focus();
+                    }
+                });
             }
         }"
     >
@@ -52,9 +75,9 @@
                     HARI INI
                 </span>
                 <div class="text-xs">
-                    <h3 class="font-bold text-amber-950 dark:text-amber-200 text-sm">
+                    <h2 class="font-bold text-amber-950 dark:text-amber-200 text-sm">
                         Hari Ini Tidak Efektif KBM: {{ $todayEvent->title }}
-                    </h3>
+                    </h2>
                     <p class="text-amber-800 dark:text-amber-300 mt-0.5 leading-relaxed">
                         Kategori: <strong class="font-semibold">{{ ucwords(str_replace('_', ' ', $todayEvent->category)) }}</strong> &bull; 
                         Tanggal: <span class="font-mono font-medium">{{ $todayEvent->start_date->translatedFormat('d M Y') }} s/d {{ $todayEvent->end_date->translatedFormat('d M Y') }}</span>.
@@ -84,7 +107,7 @@
                             class="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-900 dark:text-[#97979B] dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Sebelumnya ({{ $monthNames[$prevMonthDate->month] }} {{ $prevMonthDate->year }})"
                         >
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                             </svg>
                         </a>
@@ -93,7 +116,7 @@
                             class="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-900 dark:text-[#97979B] dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A] transition cursor-pointer"
                             title="Bulan Berikutnya ({{ $monthNames[$nextMonthDate->month] }} {{ $nextMonthDate->year }})"
                         >
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                             </svg>
                         </a>
@@ -109,46 +132,55 @@
 
                 {{-- Month / Year Jump Form & Today Button --}}
                 <div class="flex flex-wrap items-center gap-2 text-xs">
-                    <form method="GET" action="{{ route('academic-calendar.index') }}" class="flex items-center gap-1.5">
-                        <select 
-                            name="month" 
-                            onchange="this.form.submit()" 
-                            class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none cursor-pointer"
-                        >
-                            @foreach($monthNames as $mNum => $mName)
-                                <option value="{{ $mNum }}" @selected($month == $mNum)>{{ $mName }}</option>
-                            @endforeach
-                        </select>
+                    <search>
+                        <form method="GET" action="{{ route('academic-calendar.index') }}" class="flex items-center gap-1.5">
+                            <label for="cal_filter_month" class="sr-only">Pilih Bulan</label>
+                            <select 
+                                id="cal_filter_month"
+                                name="month" 
+                                class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none cursor-pointer"
+                            >
+                                @foreach($monthNames as $mNum => $mName)
+                                    <option value="{{ $mNum }}" @selected($month == $mNum)>{{ $mName }}</option>
+                                @endforeach
+                            </select>
 
-                        <select 
-                            name="year" 
-                            onchange="this.form.submit()" 
-                            class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none cursor-pointer"
-                        >
-                            @foreach(range(2025, 2028) as $y)
-                                <option value="{{ $y }}" @selected($year == $y)>{{ $y }}</option>
-                            @endforeach
-                        </select>
-                    </form>
+                            <label for="cal_filter_year" class="sr-only">Pilih Tahun</label>
+                            <select 
+                                id="cal_filter_year"
+                                name="year" 
+                                class="rounded-lg border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 text-xs font-semibold font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none cursor-pointer"
+                            >
+                                @foreach(range(2025, 2028) as $y)
+                                    <option value="{{ $y }}" @selected($year == $y)>{{ $y }}</option>
+                                @endforeach
+                            </select>
+
+                            <button type="submit" class="min-h-[44px] sm:min-h-[34px] px-3 py-1.5 rounded-lg bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold transition cursor-pointer">
+                                Tampilkan
+                            </button>
+                        </form>
+                    </search>
 
                     @if($month != now()->month || $year != now()->year)
                         <a 
                             href="{{ route('academic-calendar.index') }}" 
-                            class="px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#232327] text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#26262A] transition shadow-2xs"
+                            class="inline-flex items-center min-h-[44px] sm:min-h-0 px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-white dark:bg-[#232327] text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#26262A] transition shadow-2xs"
                         >
                             Bulan Ini
                         </a>
                     @endif
 
-                    <a 
-                        href="#manual-add-form" 
-                        class="px-3 py-1.5 rounded-lg bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+                    <button 
+                        type="button"
+                        @click="showManageForms = true; $nextTick(() => document.getElementById('manual-add-form')?.scrollIntoView({ behavior: 'smooth' }))"
+                        class="min-h-[44px] sm:min-h-0 px-3 py-1.5 rounded-lg bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs cursor-pointer"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                         <span>Tambah Agenda</span>
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -156,7 +188,7 @@
             <div class="px-4 py-2.5 bg-zinc-50/70 dark:bg-[#19191C] border-b border-zinc-200 dark:border-[#2B2B30] grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-[#16281D] text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 font-bold">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
@@ -168,7 +200,7 @@
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-rose-100 dark:bg-[#2D1618] text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0 font-bold">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                     </span>
@@ -180,7 +212,7 @@
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-indigo-100 dark:bg-[#16222F] text-indigo-700 dark:text-sky-300 flex items-center justify-center shrink-0 font-bold">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                         </svg>
                     </span>
@@ -192,7 +224,7 @@
 
                 <div class="flex items-center gap-2 bg-white dark:bg-[#232327] p-2 rounded-lg border border-zinc-200/80 dark:border-[#2B2B30] shadow-2xs">
                     <span class="w-6 h-6 rounded-md bg-zinc-100 dark:bg-[#19191C] text-zinc-700 dark:text-[#97979B] flex items-center justify-center shrink-0 font-bold">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
@@ -204,49 +236,49 @@
             </div>
 
             {{-- Color Legend Bar --}}
-            <div class="px-4 py-2 bg-white dark:bg-[#1D1D21] border-b border-zinc-200 dark:border-[#2B2B30] flex flex-wrap items-center justify-between gap-y-1.5 text-[11px] text-zinc-600 dark:text-[#97979B]">
+            <div class="px-4 py-2 bg-white dark:bg-[#1D1D21] border-b border-zinc-200 dark:border-[#2B2B30] flex flex-wrap items-center justify-between gap-y-1.5 text-[11px] text-zinc-600 dark:text-[#9496A1]">
                 <div class="flex flex-wrap items-center gap-x-3.5 gap-y-1">
-                    <span class="font-bold text-zinc-800 dark:text-[#EDEDF0] uppercase tracking-wider font-mono text-[10px]">Keterangan:</span>
+                    <span class="font-bold text-zinc-800 dark:text-[#EDEDF0] uppercase tracking-wider font-mono text-[11px]">Keterangan:</span>
                     
                     <div class="flex items-center gap-1.5">
                         <span class="w-3 h-3 rounded-xs bg-rose-500 shadow-2xs"></span>
-                        <span class="font-medium text-zinc-700">Libur Nasional (Tgl Merah)</span>
+                        <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">Libur Nasional (Tgl Merah)</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="w-3 h-3 rounded-xs bg-amber-400 shadow-2xs"></span>
-                        <span class="font-medium text-zinc-700">Libur Bersama / Semester</span>
+                        <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">Libur Bersama / Semester</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="w-3 h-3 rounded-xs bg-purple-500 shadow-2xs"></span>
-                        <span class="font-medium text-zinc-700">Agenda Sekolah (KBM Off)</span>
+                        <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">Agenda Sekolah (KBM Off)</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="w-3 h-3 rounded-xs bg-sky-500 shadow-2xs"></span>
-                        <span class="font-medium text-zinc-700">Agenda Sekolah (KBM Efektif)</span>
+                        <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">Agenda Sekolah (KBM Efektif)</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-1.5">
-                        <span class="w-3 h-3 rounded-full bg-zinc-900"></span>
-                        <span class="font-medium text-zinc-700">Hari Ini</span>
+                        <span class="w-3 h-3 rounded-full bg-[#0073B1]"></span>
+                        <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">Hari Ini</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <span class="font-bold text-rose-600 font-mono text-xs">Min</span>
-                        <span class="text-zinc-500">Tgl Merah</span>
+                        <span class="font-bold text-rose-700 dark:text-rose-400 font-mono text-xs">Min</span>
+                        <span class="text-zinc-600 dark:text-[#9496A1]">Tgl Merah</span>
                     </div>
                 </div>
             </div>
 
             {{-- Day Names Header (Minggu s/d Sabtu) --}}
             <div class="grid grid-cols-7 border-b border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/90 dark:bg-[#232327] text-center py-2 text-xs font-bold uppercase tracking-wider font-mono">
-                <div class="text-rose-600"><span class="sm:hidden">Min</span><span class="hidden sm:inline">Minggu</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Sen</span><span class="hidden sm:inline">Senin</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Sel</span><span class="hidden sm:inline">Selasa</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Rab</span><span class="hidden sm:inline">Rabu</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Kam</span><span class="hidden sm:inline">Kamis</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Jum</span><span class="hidden sm:inline">Jumat</span></div>
-                <div class="text-zinc-700"><span class="sm:hidden">Sab</span><span class="hidden sm:inline">Sabtu</span></div>
+                <div class="text-rose-700 dark:text-rose-400"><span class="sm:hidden">Min</span><span class="hidden sm:inline">Minggu</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Sen</span><span class="hidden sm:inline">Senin</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Sel</span><span class="hidden sm:inline">Selasa</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Rab</span><span class="hidden sm:inline">Rabu</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Kam</span><span class="hidden sm:inline">Kamis</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Jum</span><span class="hidden sm:inline">Jumat</span></div>
+                <div class="text-zinc-700 dark:text-[#EDEDF0]"><span class="sm:hidden">Sab</span><span class="hidden sm:inline">Sabtu</span></div>
             </div>
 
             {{-- Unified Calendar Grid: Crisp 1px borders --}}
@@ -293,7 +325,7 @@
                         {{-- Day Header (Number + Badges) --}}
                         <div class="flex items-center justify-between">
                             @if($isToday)
-                                <span class="w-6 h-6 rounded-full bg-[#0093dd] text-white font-bold text-xs flex items-center justify-center font-mono shadow-xs ring-2 ring-[#0093dd] ring-offset-1">
+                                <span class="w-6 h-6 rounded-full bg-[#0073B1] text-white font-bold text-xs flex items-center justify-center font-mono shadow-xs ring-2 ring-[#0073B1] ring-offset-1 dark:ring-offset-[#1D1D21]">
                                     {{ $day['dayNumber'] }}
                                 </span>
                             @else
@@ -304,7 +336,7 @@
 
                             {{-- Multiple events badge (only show if > 1) --}}
                             @if(count($day['events']) > 1)
-                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-zinc-200 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-zinc-200 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">
                                     {{ count($day['events']) }}
                                 </span>
                             @endif
@@ -316,14 +348,14 @@
                                 @foreach(array_slice($day['events'], 0, 2) as $ev)
                                     @php
                                         $pillStyle = match($ev['category']) {
-                                            'libur_nasional' => 'bg-rose-600 text-white shadow-2xs',
-                                            'libur_bersama'  => 'bg-amber-600 text-white shadow-2xs',
-                                            'agenda_sekolah' => $ev['is_kbm_off'] ? 'bg-purple-600 text-white shadow-2xs' : 'bg-sky-600 text-white shadow-2xs',
+                                            'libur_nasional' => 'bg-rose-700 text-white shadow-2xs',
+                                            'libur_bersama'  => 'bg-amber-700 text-white shadow-2xs',
+                                            'agenda_sekolah' => $ev['is_kbm_off'] ? 'bg-purple-700 text-white shadow-2xs' : 'bg-sky-700 text-white shadow-2xs',
                                             default          => 'bg-zinc-800 text-white',
                                         };
                                     @endphp
                                     <div 
-                                        class="px-1.5 py-0.5 rounded text-[10px] font-semibold leading-tight truncate transition {{ $pillStyle }}"
+                                        class="px-1.5 py-0.5 rounded text-[11px] font-semibold leading-tight truncate transition {{ $pillStyle }}"
                                         title="{{ $ev['title'] }} ({{ ucwords(str_replace('_', ' ', $ev['category'])) }}) - {{ $ev['is_kbm_off'] ? 'KBM Libur' : 'KBM Efektif' }}"
                                     >
                                         {{ $ev['title'] }}
@@ -331,7 +363,7 @@
                                 @endforeach
 
                                 @if(count($day['events']) > 2)
-                                    <div class="text-[9px] font-mono font-bold text-zinc-500 pl-0.5">
+                                    <div class="text-[11px] font-mono font-bold text-zinc-600 dark:text-[#9496A1] pl-0.5">
                                         +{{ count($day['events']) - 2 }} lainnya
                                     </div>
                                 @endif
@@ -344,10 +376,10 @@
             {{-- Section: Agenda & Hari Libur Bulan Ini --}}
             <div class="p-4 sm:p-5 bg-zinc-50/50 dark:bg-[#19191C] border-t border-zinc-200 dark:border-[#2B2B30]">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase font-mono tracking-wider flex items-center gap-2">
+                    <h2 class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] uppercase font-mono tracking-wider flex items-center gap-2">
                         <span>Agenda &amp; Hari Libur Bulan {{ $monthNames[$month] }} {{ $year }}</span>
-                        <span class="px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-[#232327] text-zinc-700 dark:text-[#EDEDF0] text-[10px] font-mono">{{ $monthEvents->count() }}</span>
-                    </h3>
+                        <span class="px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-[#232327] text-zinc-800 dark:text-[#EDEDF0] text-[11px] font-mono">{{ $monthEvents->count() }}</span>
+                    </h2>
                 </div>
 
                 @if($monthEvents->isNotEmpty())
@@ -356,8 +388,8 @@
                             <div class="bg-white dark:bg-[#232327] p-3.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] shadow-2xs flex flex-col justify-between hover:border-zinc-300 dark:hover:border-[#3A3A3F] transition">
                                 <div>
                                     <div class="flex items-start justify-between gap-2">
-                                        <h4 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm line-clamp-1">{{ $mEv->title }}</h4>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shrink-0
+                                        <h3 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm line-clamp-1">{{ $mEv->title }}</h3>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-bold uppercase tracking-wider shrink-0
                                             {{ match($mEv->category) {
                                                 'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
                                                 'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
@@ -368,8 +400,8 @@
                                         </span>
                                     </div>
 
-                                    <div class="mt-2 text-[11px] text-zinc-500 font-mono flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <div class="mt-2 text-[11px] text-zinc-600 dark:text-[#9496A1] font-mono flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-[#9496A1] shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                         </svg>
                                         <span>
@@ -382,31 +414,53 @@
                                     </div>
 
                                     @if($mEv->description)
-                                        <p class="mt-1.5 text-[11px] text-zinc-500 line-clamp-2 leading-relaxed">{{ $mEv->description }}</p>
+                                        <p class="mt-1.5 text-[11px] text-zinc-600 dark:text-[#9496A1] line-clamp-2 leading-relaxed">{{ $mEv->description }}</p>
                                     @endif
                                 </div>
 
-                                <div class="mt-3 pt-2.5 border-t border-zinc-100 flex items-center justify-between text-[11px]">
-                                    <span class="inline-flex items-center gap-1 font-semibold {{ $mEv->is_kbm_off ? 'text-rose-700' : 'text-emerald-700' }}">
+                                <div class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-[#2B2B30] flex items-center justify-between text-[11px]">
+                                    <span class="inline-flex items-center gap-1 font-semibold {{ $mEv->is_kbm_off ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $mEv->is_kbm_off ? 'bg-rose-600' : 'bg-emerald-600' }}"></span>
                                         {{ $mEv->is_kbm_off ? 'KBM Diliburkan' : 'KBM Efektif' }}
                                     </span>
 
-                                    <form action="{{ route('academic-calendar.destroy', $mEv->id) }}" method="POST" onsubmit="return confirm('Hapus agenda ini?')" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-zinc-400 hover:text-rose-600 transition cursor-pointer p-0.5" title="Hapus Agenda">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    @if(in_array(auth()->user()->role_id, [1, 3, 5]))
+                                        <div class="flex items-center gap-1">
+                                            <button 
+                                                type="button" 
+                                                @click="openEditCalendar({
+                                                    id: {{ $mEv->id }},
+                                                    title: '{{ addslashes($mEv->title) }}',
+                                                    start_date: '{{ \Carbon\Carbon::parse($mEv->start_date)->format('Y-m-d') }}',
+                                                    end_date: '{{ \Carbon\Carbon::parse($mEv->end_date)->format('Y-m-d') }}',
+                                                    category: '{{ $mEv->category }}',
+                                                    is_kbm_off: {{ $mEv->is_kbm_off ? 'true' : 'false' }},
+                                                    description: '{{ addslashes($mEv->description ?? '') }}'
+                                                })" 
+                                                class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[30px] sm:min-w-[30px] rounded-md text-zinc-500 dark:text-[#9496A1] hover:text-[#0073B1] dark:hover:text-[#38BDF8] transition cursor-pointer p-1" 
+                                                aria-label="Edit agenda {{ $mEv->title }}"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                                                </svg>
+                                            </button>
+                                            <form action="{{ route('academic-calendar.destroy', $mEv->id) }}" method="POST" data-confirm="Hapus agenda '{{ addslashes($mEv->title) }}'?" data-confirm-title="Hapus Agenda" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[30px] sm:min-w-[30px] rounded-md text-zinc-500 dark:text-[#9496A1] hover:text-rose-700 dark:hover:text-rose-400 transition cursor-pointer p-1" aria-label="Hapus agenda {{ $mEv->title }}">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 @else
-                    <div class="py-6 text-center text-zinc-400 dark:text-[#97979B] text-xs bg-white dark:bg-[#232327] rounded-lg border border-dashed border-zinc-200 dark:border-[#2B2B30]">
+                    <div class="py-6 text-center text-zinc-600 dark:text-[#9496A1] text-xs bg-white dark:bg-[#232327] rounded-lg border border-dashed border-zinc-200 dark:border-[#2B2B30]">
                         Tidak ada agenda sekolah atau hari libur khusus pada bulan {{ $monthNames[$month] }} {{ $year }}.
                     </div>
                 @endif
@@ -415,53 +469,26 @@
         </div>
 
         {{-- Modal detail hari --}}
-        <div 
-            x-show="detailModalOpen" 
-            x-cloak 
-            style="display: none;" 
-            class="fixed inset-0 z-50 overflow-y-auto" 
-            role="dialog" 
-            aria-modal="true"
-            @keydown.escape.window="detailModalOpen = false"
+        <dialog 
+            closedby="any"
+            x-effect="detailModalOpen ? ($el.open || $el.showModal()) : ($el.open && $el.close())"
+            @close="detailModalOpen = false"
+            @cancel.prevent="detailModalOpen = false"
+            aria-labelledby="cal-detail-modal-title"
+            class="m-auto w-[calc(100%-2rem)] sm:max-w-md bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl text-left overflow-y-auto shadow-2xl p-5 sm:p-6"
         >
-            <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-                <div 
-                    x-show="detailModalOpen" 
-                    x-cloak 
-                    style="display: none;"
-                    x-transition:enter="ease-out duration-200" 
-                    x-transition:enter-start="opacity-0" 
-                    x-transition:enter-end="opacity-100"
-                    x-transition:leave="ease-in duration-150" 
-                    x-transition:leave-start="opacity-100" 
-                    x-transition:leave-end="opacity-0"
-                    class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity" 
-                    @click="detailModalOpen = false"
-                ></div>
-
-                <div 
-                    x-show="detailModalOpen" 
-                    x-cloak 
-                    style="display: none;"
-                    x-transition:enter="ease-out duration-200" 
-                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave="ease-in duration-150" 
-                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
-                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="relative bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full p-5 sm:p-6"
-                >
                     <div class="flex items-start justify-between gap-3 border-b border-zinc-100 dark:border-[#2B2B30] pb-3 mb-4">
                         <div>
-                            <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Detail Agenda / Tanggal</span>
-                            <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight mt-0.5" x-text="selectedFormattedDate"></h3>
+                            <span class="text-xs font-semibold text-zinc-600 dark:text-[#9496A1] uppercase tracking-wider">Detail Agenda / Tanggal</span>
+                            <h2 id="cal-detail-modal-title" class="text-sm sm:text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight mt-0.5" x-text="selectedFormattedDate"></h2>
                         </div>
                         <button 
                             type="button" 
                             @click="detailModalOpen = false" 
-                            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
+                            aria-label="Tutup detail agenda"
+                            class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                         >
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -472,7 +499,7 @@
                         <template x-for="event in selectedEvents" :key="event.id">
                             <div class="p-3.5 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50/60 dark:bg-[#232327] space-y-2">
                                 <div class="flex items-start justify-between gap-2">
-                                    <h4 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm" x-text="event.title"></h4>
+                                    <h3 class="font-bold text-zinc-900 dark:text-[#EDEDF0] text-xs sm:text-sm" x-text="event.title"></h3>
                                     <span 
                                         class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider shrink-0"
                                         :class="{
@@ -485,7 +512,7 @@
                                 </div>
 
                                 <div class="text-[11px] text-zinc-500 font-mono flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                    <svg aria-hidden="true" class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                     </svg>
                                     <span x-text="event.start_date + ' s/d ' + event.end_date"></span>
@@ -510,7 +537,7 @@
                     {{-- If Day Has No Events --}}
                     <div x-show="!selectedEvents || selectedEvents.length === 0" class="py-6 text-center text-xs text-zinc-500 space-y-2">
                         <div class="w-10 h-10 rounded-full bg-emerald-50 dark:bg-[#16281D] text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-2 border border-emerald-200 dark:border-emerald-700/60">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
                         </div>
@@ -524,7 +551,7 @@
                             @click="prefillForm(selectedDate)"
                             class="px-3 py-1.5 bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] text-zinc-800 dark:text-[#EDEDF0] text-xs font-semibold rounded-md transition cursor-pointer inline-flex items-center gap-1"
                         >
-                            <svg class="w-3.5 h-3.5 text-zinc-600 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-3.5 h-3.5 text-zinc-600 dark:text-[#97979B]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             <span>Tambah Agenda Tanggal Ini</span>
@@ -538,56 +565,69 @@
                             Tutup
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
+        </dialog>
 
-        {{-- Form agenda dan import --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Form agenda dan import (Progressive Disclosure) --}}
+        <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Kelola &amp; Impor Agenda Kalender</h2>
+                    <p class="text-xs text-zinc-600 dark:text-[#9496A1] mt-0.5">Tambahkan agenda manual atau impor data kalender pendidikan dalam format CSV.</p>
+                </div>
+                <button 
+                    type="button" 
+                    @click="showManageForms = !showManageForms"
+                    :aria-expanded="showManageForms"
+                    class="min-h-[44px] sm:min-h-0 px-3.5 py-2 rounded-lg border border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] hover:bg-zinc-100 dark:hover:bg-[#2B2B30] text-xs font-semibold text-zinc-800 dark:text-[#EDEDF0] transition cursor-pointer shrink-0"
+                    x-text="showManageForms ? 'Sembunyikan Form' : 'Buka Form Agenda & Impor'"
+                ></button>
+            </div>
+
+        <div x-show="showManageForms" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-zinc-100 dark:border-[#2B2B30]">
             
             <!-- Manual Add Form -->
-            <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 shadow-xs flex flex-col justify-between" id="manual-add-form">
+            <div class="bg-zinc-50/50 dark:bg-[#19191C] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-5 flex flex-col justify-between" id="manual-add-form">
                 <div>
-                    <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] border-b border-zinc-100 dark:border-[#2B2B30] pb-3 mb-4 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] border-b border-zinc-200 dark:border-[#2B2B30] pb-3 mb-4 flex items-center justify-between">
                         <span>Tambah Agenda / Hari Libur Manual</span>
-                        <span class="text-[10px] font-mono text-zinc-400 font-normal uppercase">Form Entry</span>
+                        <span class="text-[11px] font-mono text-zinc-600 dark:text-[#9496A1] font-normal uppercase">Form Entry</span>
                     </h3>
                     <form action="{{ route('academic-calendar.store') }}" method="POST" class="space-y-3.5 text-xs">
                         @csrf
                         <div>
                             <x-input-label for="title" value="Nama Agenda / Keterangan Libur *" />
-                            <input type="text" id="title" name="title" required placeholder="Contoh: Libur Hari Raya, Ujian Sekolah, dsb." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                            <input type="text" id="title" name="title" required placeholder="Contoh: Libur Hari Raya, Ujian Sekolah, dsb." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#1D1D21] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <x-input-label for="start_date" value="Tanggal Mulai *" />
-                                <input type="date" id="start_date" name="start_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                                <input type="date" id="start_date" name="start_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#1D1D21] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                             </div>
                             <div>
                                 <x-input-label for="end_date" value="Tanggal Selesai *" />
-                                <input type="date" id="end_date" name="end_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                                <input type="date" id="end_date" name="end_date" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#1D1D21] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                             </div>
                         </div>
                         <div>
                             <x-input-label for="category" value="Kategori *" />
-                            <select id="category" name="category" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                            <select id="category" name="category" required class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#1D1D21] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                                 <option value="libur_nasional">Libur Nasional</option>
                                 <option value="libur_bersama">Libur Bersama</option>
                                 <option value="agenda_sekolah">Agenda Sekolah</option>
                             </select>
                         </div>
                         <div>
-                            <label class="flex items-center gap-2 cursor-pointer mt-1">
-                                <input type="checkbox" name="is_kbm_off" value="1" checked class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900">
-                                <span class="text-xs text-zinc-700 font-medium">KBM Diliburkan (Nonaktifkan Alert Jurnal Terlambat)</span>
+                            <label for="cal_is_kbm_off" class="flex items-center gap-2 cursor-pointer mt-1">
+                                <input id="cal_is_kbm_off" type="checkbox" name="is_kbm_off" value="1" checked class="rounded border-zinc-300 dark:border-[#2B2B30] text-[#0073B1] focus:ring-[#0073B1]">
+                                <span class="text-xs text-zinc-700 dark:text-[#EDEDF0] font-medium">KBM Diliburkan (Nonaktifkan Alert Jurnal Terlambat)</span>
                             </label>
                         </div>
                         <div>
                             <x-input-label for="description" value="Catatan Tambahan (Opsional)" />
-                            <textarea id="description" name="description" rows="2" placeholder="Catatan atau keterangan opsional..." class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]"></textarea>
+                            <textarea id="description" name="description" rows="2" placeholder="Catatan atau keterangan opsional…" class="mt-1 block w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#1D1D21] text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"></textarea>
                         </div>
                         <div class="pt-2">
-                            <button type="submit" class="w-full px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                            <button type="submit" class="w-full min-h-[44px] sm:min-h-0 px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                                 Simpan Agenda
                             </button>
                         </div>
@@ -595,37 +635,33 @@
                 </div>
             </div>
 
-            <!-- Import CSV & AI Card -->
-            <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            <!-- Import CSV Card -->
+            <div class="bg-zinc-50/50 dark:bg-[#19191C] border border-zinc-200/80 dark:border-[#2B2B30] rounded-xl p-5 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
-                        <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Import File Kaldik (CSV / AI)</h3>
-                        <span class="text-[10px] font-mono text-zinc-400 uppercase">Mass Upload</span>
+                    <div class="flex items-center justify-between border-b border-zinc-200 dark:border-[#2B2B30] pb-3 mb-4">
+                        <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Import File Kaldik (CSV)</h3>
+                        <span class="text-[11px] font-mono text-zinc-600 dark:text-[#9496A1] uppercase">Mass Upload</span>
                     </div>
 
-                    <p class="text-xs text-zinc-500 leading-relaxed mb-4">
-                        Anda dapat mengunggah file CSV atau memanfaatkan dokumen PDF Kalender Pendidikan resmi sekolah dengan AI Gemini untuk ekstraksi instan.
+                    <p class="text-xs text-zinc-600 dark:text-[#9496A1] leading-relaxed mb-4">
+                        Anda dapat mengunggah file CSV atau memakai tombol <strong>Import via AI (PDF)</strong> di kanan atas halaman untuk mengekstrak dokumen kalender resmi sekolah.
                     </p>
 
                     <form action="{{ route('academic-calendar.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
-                        <div class="p-4 bg-zinc-50 dark:bg-[#19191C] rounded-lg border border-dashed border-zinc-300 dark:border-[#2B2B30] text-xs">
-                            <label class="block font-semibold text-zinc-800 dark:text-[#EDEDF0] mb-1">Unggah Format File CSV</label>
-                            <span class="block text-[11px] text-zinc-500 dark:text-[#97979B] mb-2">Format: Title, StartDate (YYYY-MM-DD), EndDate, Category, IsKBMOff (1/0)</span>
-                            <input type="file" name="file" accept=".csv,text/csv" required class="block w-full text-xs text-zinc-600 dark:text-[#97979B] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-[#2B2B30] file:text-zinc-800 dark:file:text-[#EDEDF0] hover:file:bg-zinc-300 dark:hover:file:bg-[#3A3A3F]">
+                        <div class="p-4 bg-white dark:bg-[#1D1D21] rounded-lg border border-dashed border-zinc-300 dark:border-[#2B2B30] text-xs">
+                            <label for="calendar_csv_file" class="block font-semibold text-zinc-800 dark:text-[#EDEDF0] mb-1">Unggah Format File CSV</label>
+                            <span class="block text-[11px] text-zinc-600 dark:text-[#9496A1] mb-2">Format: Title, StartDate (YYYY-MM-DD), EndDate, Category, IsKBMOff (1/0)</span>
+                            <input id="calendar_csv_file" type="file" name="file" accept=".csv,text/csv" required class="block w-full text-xs text-zinc-600 dark:text-[#9496A1] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-[#2B2B30] file:text-zinc-800 dark:file:text-[#EDEDF0] hover:file:bg-zinc-300 dark:hover:file:bg-[#3A3A3F]">
                         </div>
-                        <button type="submit" class="w-full px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
+                        <button type="submit" class="w-full min-h-[44px] sm:min-h-0 px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-md transition shadow-none cursor-pointer">
                             Unggah &amp; Ekstrak CSV
                         </button>
                     </form>
                 </div>
-
-                <div class="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
-                    <span class="text-zinc-500">Punya dokumen Kaldik PDF?</span>
-                    <x-ai-importer-modal type="Kalender Pendidikan" title="Gunakan AI Gemini PDF" />
-                </div>
             </div>
 
+        </div>
         </div>
 
         {{-- Daftar agenda --}}
@@ -636,25 +672,26 @@
                         Daftar Lengkap Agenda &amp; Hari Tidak Efektif
                     </h2>
                     <p class="text-xs text-zinc-500 mt-0.5 font-mono">
-                        Total {{ $calendars->count() }} agenda / hari libur terdaftar di sistem.
+                        Total {{ $calendars->total() }} agenda / hari libur terdaftar di sistem.
                     </p>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div tabindex="0" role="region" aria-label="Tabel Agenda Kalender Akademik" class="overflow-x-auto table-scroll-region">
+                <table class="w-full text-left border-collapse tabular-nums">
+                    <caption class="sr-only">Daftar Agenda dan Hari Libur Kalender Akademik</caption>
                     <thead>
                         <tr class="border-b border-zinc-200/80 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] text-[11px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
-                            <th class="py-3 px-4">Rentang Tanggal</th>
-                            <th class="py-3 px-4">Nama Agenda / Kegiatan</th>
-                            <th class="py-3 px-4">Kategori</th>
-                            <th class="py-3 px-4 text-center">Status KBM</th>
-                            <th class="py-3 px-4 text-right">Aksi</th>
+                            <th scope="col" class="py-3 px-4">Rentang Tanggal</th>
+                            <th scope="col" class="py-3 px-4">Nama Agenda / Kegiatan</th>
+                            <th scope="col" class="py-3 px-4">Kategori</th>
+                            <th scope="col" class="py-3 px-4 text-center">Status KBM</th>
+                            <th scope="col" class="py-3 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-200/60 dark:divide-[#2B2B30] text-xs text-zinc-700 dark:text-[#EDEDF0]">
                         @forelse($calendars as $cal)
-                            <tr class="hover:bg-[#232327] transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/30 dark:bg-[#232327]/30' : '' }}">
+                            <tr class="hover:bg-zinc-50 dark:hover:bg-[#232327] transition-colors {{ $cal->is_kbm_off ? 'bg-zinc-50/40 dark:bg-[#232327]/30' : '' }}">
                                 <td class="py-3 px-4 whitespace-nowrap font-mono">
                                     @if($cal->start_date->equalTo($cal->end_date))
                                         {{ $cal->start_date->translatedFormat('d M Y') }}
@@ -665,11 +702,11 @@
                                 <td class="py-3 px-4 font-semibold text-zinc-900 dark:text-[#EDEDF0]">
                                     {{ $cal->title }}
                                     @if($cal->description)
-                                        <span class="block text-[11px] font-normal text-zinc-400 mt-0.5">{{ $cal->description }}</span>
+                                        <span class="block text-[11px] font-normal text-zinc-600 dark:text-[#9496A1] mt-0.5">{{ $cal->description }}</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-bold uppercase tracking-wider
                                         {{ match($cal->category) {
                                             'libur_nasional' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-[#2D1618] dark:text-rose-300 dark:border-rose-700/60',
                                             'libur_bersama'  => 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-[#282115] dark:text-amber-300 dark:border-amber-700/60',
@@ -681,28 +718,50 @@
                                 </td>
                                 <td class="py-3 px-4 whitespace-nowrap text-center">
                                     @if($cal->is_kbm_off)
-                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700">
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-400">
                                             <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Libur (Off)
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Efektif KBM
                                         </span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 whitespace-nowrap text-right font-mono">
-                                    <form action="{{ route('academic-calendar.destroy', $cal->id) }}" method="POST" onsubmit="return confirm('Hapus agenda/libur ini?')" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-rose-600 hover:text-rose-800 font-semibold hover:underline cursor-pointer">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    @if(in_array(auth()->user()->role_id, [1, 3, 5]))
+                                        <div class="inline-flex items-center gap-2">
+                                            <button 
+                                                type="button" 
+                                                @click="openEditCalendar({
+                                                    id: {{ $cal->id }},
+                                                    title: '{{ addslashes($cal->title) }}',
+                                                    start_date: '{{ \Carbon\Carbon::parse($cal->start_date)->format('Y-m-d') }}',
+                                                    end_date: '{{ \Carbon\Carbon::parse($cal->end_date)->format('Y-m-d') }}',
+                                                    category: '{{ $cal->category }}',
+                                                    is_kbm_off: {{ $cal->is_kbm_off ? 'true' : 'false' }},
+                                                    description: '{{ addslashes($cal->description ?? '') }}'
+                                                })" 
+                                                class="min-h-[44px] sm:min-h-0 px-1.5 text-[#0073B1] dark:text-[#38BDF8] hover:underline font-semibold cursor-pointer"
+                                            >
+                                                Edit
+                                            </button>
+                                            <span class="text-zinc-300 dark:text-zinc-600">|</span>
+                                            <form action="{{ route('academic-calendar.destroy', $cal->id) }}" method="POST" data-confirm="Hapus agenda '{{ addslashes($cal->title) }}'?" data-confirm-title="Hapus Agenda" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="min-h-[44px] sm:min-h-0 px-1.5 text-rose-700 dark:text-rose-400 hover:underline font-semibold cursor-pointer">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span class="text-zinc-500 dark:text-[#9496A1] text-xs">-</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-zinc-400 text-xs">
+                                <td colspan="5" class="py-8 text-center text-zinc-600 dark:text-[#9496A1] text-xs">
                                     Belum ada agenda atau kalender akademik yang didaftarkan.
                                 </td>
                             </tr>
@@ -710,7 +769,120 @@
                     </tbody>
                 </table>
             </div>
+
+            @if($calendars->hasPages())
+                <div class="p-4 border-t border-zinc-200/80 dark:border-[#2B2B30] text-xs">
+                    {{ $calendars->links() }}
+                </div>
+            @endif
         </div>
 
+        {{-- Modal Edit Agenda Kalender --}}
+        <dialog 
+            closedby="any"
+            x-effect="editModalOpen ? ($el.open || $el.showModal()) : ($el.open && $el.close())"
+            @close="editModalOpen = false"
+            @cancel.prevent="editModalOpen = false"
+            aria-labelledby="edit-cal-modal-title"
+            class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] text-left shadow-xl p-6 overflow-y-auto"
+        >
+                    <div class="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-[#2B2B30]">
+                        <h2 id="edit-cal-modal-title" class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0]">Edit Agenda Kalender Akademik</h2>
+                        <button type="button" @click="editModalOpen = false" aria-label="Tutup modal" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-[#9496A1] dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#26262A]">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <form method="POST" :action="'{{ url('/academic-calendar') }}/' + editCalendarId" class="mt-4 space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label for="edit_cal_title" class="block text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Nama Agenda / Hari Libur</label>
+                            <input 
+                                id="edit_cal_title"
+                                type="text" 
+                                name="title" 
+                                x-model="editTitle" 
+                                required 
+                                class="w-full rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"
+                            >
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="edit_cal_start_date" class="block text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Tanggal Mulai</label>
+                                <input 
+                                    id="edit_cal_start_date"
+                                    type="date" 
+                                    name="start_date" 
+                                    x-model="editStartDate" 
+                                    required 
+                                    class="w-full rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"
+                                >
+                            </div>
+                            <div>
+                                <label for="edit_cal_end_date" class="block text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Tanggal Selesai</label>
+                                <input 
+                                    id="edit_cal_end_date"
+                                    type="date" 
+                                    name="end_date" 
+                                    x-model="editEndDate" 
+                                    required 
+                                    class="w-full rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="edit_cal_category" class="block text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Kategori</label>
+                            <select 
+                                id="edit_cal_category"
+                                name="category" 
+                                x-model="editCategory" 
+                                required 
+                                class="w-full rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"
+                            >
+                                <option value="libur_nasional">Libur Nasional</option>
+                                <option value="libur_bersama">Cuti / Libur Bersama</option>
+                                <option value="agenda_sekolah">Agenda Khusus Sekolah</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="edit_cal_is_kbm_off" class="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    id="edit_cal_is_kbm_off"
+                                    type="checkbox" 
+                                    name="is_kbm_off" 
+                                    value="1" 
+                                    x-model="editIsKbmOff" 
+                                    class="rounded border-zinc-300 dark:border-[#2B2B30] text-[#0073B1] focus:ring-[#0073B1]"
+                                >
+                                <span class="text-xs font-semibold text-zinc-800 dark:text-[#EDEDF0]">KBM Diliburkan (Hari Tidak Efektif)</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label for="edit_cal_description" class="block text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Keterangan (Opsional)</label>
+                            <textarea 
+                                id="edit_cal_description"
+                                name="description" 
+                                x-model="editDescription" 
+                                rows="2" 
+                                class="w-full rounded-lg border-zinc-200 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]"
+                            ></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-zinc-200 dark:border-[#2B2B30]">
+                            <button type="button" @click="editModalOpen = false" class="min-h-[44px] sm:min-h-0 px-3.5 py-2 text-xs font-semibold text-zinc-600 dark:text-[#9496A1] hover:bg-zinc-100 dark:hover:bg-[#26262A] rounded-lg transition cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit" class="min-h-[44px] sm:min-h-0 px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-lg transition cursor-pointer">
+                                Perbarui Agenda
+                            </button>
+                        </div>
+                    </form>
+        </dialog>
     </div>
 </x-app-layout>

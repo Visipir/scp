@@ -251,10 +251,14 @@ class AuthorizationMatrixD4Test extends TestCase
 
     public function test_leave_requests_list_detail_document_status_and_query_manipulation(): void
     {
-        // 1. Waka: sees all 3 leaves, can view/download/update status on any
+        // 1. Waka: sees all 3 leaves, can view/download, CANNOT update status (view-only)
         $this->assertCount(3, $this->apiAs($this->waka)->getJson('/api/v1/leave-requests')->assertOk()->json('data'));
         $this->apiAs($this->waka)->getJson("/api/v1/leave-requests/{$this->leaveB->id}")->assertOk();
+        $this->actingAs($this->waka)->get(route('leave-requests.index'))->assertOk();
+        $this->actingAs($this->waka)->get(route('leave-requests.show', $this->leaveB))->assertOk()->assertDontSee('Keputusan Verifikasi Kesiswaan');
         $this->actingAs($this->waka)->get(route('leave-requests.document', $this->leaveB))->assertOk();
+        $this->actingAs($this->waka)->patch(route('leave-requests.update-status', $this->leaveB), ['status_approval' => 'Approved'])->assertStatus(403);
+        $this->apiAs($this->waka)->patchJson("/api/v1/leave-requests/{$this->leaveB->id}/status", ['status_approval' => 'Approved'])->assertStatus(403);
 
         // 2. BK-A: sees only leaveA; 403 on leaveB & leaveC detail/document/update-status; query ?class_id=classB & ?student_id=siswaB returns empty
         $bkALeaves = $this->apiAs($this->bkA)->getJson('/api/v1/leave-requests')->assertOk()->json('data');
@@ -277,9 +281,12 @@ class AuthorizationMatrixD4Test extends TestCase
         $this->apiAs($this->bkB)->getJson("/api/v1/leave-requests/{$this->leaveA->id}/document")->assertStatus(403);
         $this->apiAs($this->bkB)->patchJson("/api/v1/leave-requests/{$this->leaveA->id}/status", ['status_approval' => 'Approved'])->assertStatus(403);
 
-        // 4. Wali Kelas A: sees only leaveA; can approve leaveA; 403 on leaveB
+        // 4. Wali Kelas A: sees only leaveA (view-only); CANNOT approve leaveA or leaveB; 403 on leaveB
         $waliALeaves = $this->apiAs($this->waliA)->getJson('/api/v1/leave-requests')->assertOk()->json('data');
         $this->assertSame([$this->leaveA->id], array_column($waliALeaves, 'id'));
+        $this->actingAs($this->waliA)->get(route('leave-requests.show', $this->leaveA))->assertOk()->assertDontSee('Keputusan Verifikasi Kesiswaan');
+        $this->actingAs($this->waliA)->patch(route('leave-requests.update-status', $this->leaveA), ['status_approval' => 'Approved'])->assertStatus(403);
+        $this->apiAs($this->waliA)->patchJson("/api/v1/leave-requests/{$this->leaveA->id}/status", ['status_approval' => 'Approved'])->assertStatus(403);
         $this->apiAs($this->waliA)->getJson("/api/v1/leave-requests/{$this->leaveB->id}")->assertStatus(403);
         $this->apiAs($this->waliA)->getJson("/api/v1/leave-requests/{$this->leaveB->id}/document")->assertStatus(403);
         $this->apiAs($this->waliA)->patchJson("/api/v1/leave-requests/{$this->leaveB->id}/status", ['status_approval' => 'Approved'])->assertStatus(403);

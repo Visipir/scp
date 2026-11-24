@@ -98,7 +98,7 @@ class LeaveRequestController extends Controller
 
     public function updateStatus(UpdateLeaveStatusRequest $request, LeaveRequest $leaveRequest, LeaveRequestService $service): JsonResponse
     {
-        abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
+        abort_unless($request->user()->canDecideLeaveRequest($leaveRequest), 403, 'Akses ditolak.');
 
         $service->updateStatus($leaveRequest, $request->validated()['status_approval'], $request->user());
 

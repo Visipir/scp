@@ -22,6 +22,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function getNameAttribute(): string
+    {
+        return $this->fullname ?? $this->username ?? '';
+    }
+
+    public function getNisAttribute(): ?string
+    {
+        return $this->username ?? null;
+    }
+
     public function isEmailVerified(): bool
     {
         return !empty($this->email) && $this->email_verified_at !== null;
@@ -118,13 +128,77 @@ class User extends Authenticatable
         return (int) $this->role_id === 3 || $this->counselorAssignments()->exists();
     }
 
+    public function isSuperadmin(): bool
+    {
+        return (int) $this->role_id === 5;
+    }
+
+    public function isWaka(): bool
+    {
+        return (int) $this->role_id === 1;
+    }
+
+    public function hasTechnicalAccess(): bool
+    {
+        return (int) $this->role_id === 5;
+    }
+
+    public function hasCurriculumAccess(): bool
+    {
+        return in_array((int) $this->role_id, [1, 5], true);
+    }
+
     public function hasKesiswaanAccess(): bool
     {
-        if (in_array((int) $this->role_id, [1, 3], true)) {
+        if (in_array((int) $this->role_id, [1, 3, 5], true)) {
             return true;
         }
 
         return $this->homeroomAssignment()->exists() || $this->counselorAssignments()->exists();
+    }
+
+    /**
+     * Whether the user is allowed to approve/reject/reset student leave requests (Tim Kesiswaan / Guru BK & Superadmin).
+     * Waka (role 1) and Guru/Wali Kelas (role 2 without counselor assignment) are strictly view-only.
+     */
+    public function canDecideLeaveRequests(): bool
+    {
+        if ((int) $this->role_id === 1) {
+            return false;
+        }
+
+        if (in_array((int) $this->role_id, [3, 5], true)) {
+            return true;
+        }
+
+        return $this->counselorAssignments()->exists();
+    }
+
+    /**
+     * Whether the user can verify/decide the given leave request (scoped to counselor classes).
+     */
+    public function canDecideLeaveRequest(LeaveRequest $leaveRequest): bool
+    {
+        if ((int) $this->role_id === 5) {
+            return true;
+        }
+
+        if ((int) $this->role_id === 1) {
+            return false;
+        }
+
+        $studentClassId = $leaveRequest->student?->class_id ?? $leaveRequest->student()->value('class_id');
+
+        if ($this->counselorAssignments()->exists()) {
+            return $studentClassId !== null
+                && $this->counselorAssignments()->where('class_id', (int) $studentClassId)->exists();
+        }
+
+        if ((int) $this->role_id === 3) {
+            return $this->class_id === null || (int) $this->class_id === (int) $studentClassId;
+        }
+
+        return false;
     }
 
     /**
@@ -169,7 +243,7 @@ class User extends Authenticatable
      */
     public function supervisedClassIds(): ?array
     {
-        if ((int) $this->role_id === 1) {
+        if (in_array((int) $this->role_id, [1, 5], true)) {
             return null; // Unrestricted (all classes)
         }
 
@@ -266,7 +340,7 @@ class User extends Authenticatable
      */
     public function canExportClassLoginCards(int|SchoolClass $class): bool
     {
-        if ((int) $this->role_id === 1) {
+        if (in_array((int) $this->role_id, [1, 5], true)) {
             return true;
         }
 

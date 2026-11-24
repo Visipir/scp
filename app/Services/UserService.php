@@ -26,8 +26,8 @@ class UserService
 
         $query = User::with(['role', 'schoolClass']);
 
-        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only view students (role_id 4) in their supervisedClassIds
-        if ((int) $actor->role_id !== 1) {
+        // Non-admin kesiswaan actors (BK / Wali Kelas) may only view students (role_id 4) in their supervisedClassIds
+        if (!in_array((int) $actor->role_id, [1, 5], true)) {
             $query->where('role_id', 4);
             $allowedClassIds = $actor->supervisedClassIds();
             if ($allowedClassIds !== null) {
@@ -49,7 +49,9 @@ class UserService
             $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
                 $q->where('fullname', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%");
             });
         }
 
@@ -70,8 +72,8 @@ class UserService
             abort(403, 'Akses ditolak.');
         }
 
-        // Non-Waka kesiswaan actors (BK / Wali Kelas) may only create students (role 4) in their supervisedClassIds
-        if ((int) $actor->role_id !== 1) {
+        // Non-admin kesiswaan actors (BK / Wali Kelas) may only create students (role 4) in their supervisedClassIds
+        if (!in_array((int) $actor->role_id, [1, 5], true)) {
             if ((int) ($data['role_id'] ?? 0) !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk menambahkan akun siswa.');
             }
@@ -117,7 +119,7 @@ class UserService
             unset($data['username'], $data['password'], $data['fullname'], $data['role_id'], $data['must_change_password']);
         }
 
-        if ((int) $actor->role_id !== 1) {
+        if (!in_array((int) $actor->role_id, [1, 5], true)) {
             if (isset($data['role_id']) && (int) $data['role_id'] !== 4) {
                 abort(403, 'Akses ditolak. Anda hanya memiliki wewenang untuk mengubah data siswa.');
             }
@@ -186,9 +188,10 @@ class UserService
     }
 
     /**
-     * Reset user password to their username with must_change_password flag set.
+     * Reset user password to their username (default) or a supplied custom password (Waka/Superadmin),
+     * with must_change_password flag set and Sanctum tokens revoked.
      */
-    public function resetPassword(User $actor, User $target): User
+    public function resetPassword(User $actor, User $target, ?string $customPassword = null): User
     {
         if (!$this->canManageUser($actor, $target)) {
             abort(403, 'Akses ditolak.');
@@ -198,8 +201,17 @@ class UserService
             abort(422, "Akun {$target->username} adalah akun terlindung penguji dan password-nya tidak boleh di-reset.");
         }
 
+        if ($customPassword !== null && $customPassword !== '') {
+            if (!in_array((int) $actor->role_id, [1, 5], true)) {
+                abort(403, 'Akses ditolak. Hanya Waka Kurikulum dan Superadmin yang dapat menetapkan password reset manual.');
+            }
+            $plainPassword = $customPassword;
+        } else {
+            $plainPassword = $target->username;
+        }
+
         $target->update([
-            'password'             => Hash::make($target->username),
+            'password'             => Hash::make($plainPassword),
             'must_change_password' => true,
         ]);
 
@@ -266,8 +278,8 @@ class UserService
      */
     public function bulkResetTeacherPasswords(User $actor, ?array $userIds = null): array
     {
-        if ((int) $actor->role_id !== 1) {
-            abort(403, 'Akses ditolak. Hanya Waka Kurikulum yang dapat melakukan reset password massal guru.');
+        if (!in_array((int) $actor->role_id, [1, 5], true)) {
+            abort(403, 'Akses ditolak. Hanya Waka Kurikulum dan Superadmin yang dapat melakukan reset password massal guru.');
         }
 
         $query = User::where('role_id', 2)->orderBy('fullname');
@@ -356,7 +368,7 @@ class UserService
      */
     public function canManageUser(User $actor, User $target): bool
     {
-        if ((int) $actor->role_id === 1) {
+        if (in_array((int) $actor->role_id, [1, 5], true)) {
             return true;
         }
 

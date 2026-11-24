@@ -27,7 +27,7 @@ class UpdateUserRequest extends FormRequest
             return false;
         }
 
-        if ((int) $actor->role_id !== 1) {
+        if (!in_array((int) $actor->role_id, [1, 5], true)) {
             if ($this->has('role_id') && (int) $this->input('role_id') !== 4) {
                 return false;
             }

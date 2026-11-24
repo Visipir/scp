@@ -37,6 +37,12 @@ class SystemApiTest extends TestCase
 
         $this->apiAs($this->makeUser(1))->patchJson('/api/v1/system/cycle', ['active_cycle' => 'Salah'])
             ->assertStatus(422)->assertJsonStructure(['errors' => ['active_cycle']]);
+
+        // Blocked when locked
+        $config->update(['is_schedule_locked' => true]);
+        $this->apiAs($this->makeUser(1))->patchJson('/api/v1/system/cycle', ['active_cycle' => 'Putaran 1'])
+            ->assertStatus(403);
+        $this->assertSame('Putaran 2', $config->fresh()->active_cycle);
     }
 
     public function test_lock_is_set_explicitly(): void

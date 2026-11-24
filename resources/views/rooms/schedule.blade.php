@@ -5,17 +5,20 @@
 
     <div class="space-y-4">
             <!-- Filter Header -->
-            <div class="bg-white dark:bg-[#1E1E22] p-4 rounded-xl border border-zinc-200 dark:border-[#2C2C30] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <form method="GET" action="{{ route('room-schedules.index') }}" class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full" id="roomFilterForm">
+            <search class="block bg-white dark:bg-[#1E1E22] p-4 rounded-xl border border-zinc-200 dark:border-[#2C2C30] shadow-sm">
+                <form method="GET" action="{{ route('room-schedules.index') }}" class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full" id="roomFilterForm">
                     
                     <!-- Room Selector -->
-                    <div class="flex items-center gap-2 w-full md:w-auto">
-                        <label for="room_id" class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-400 dark:text-[#97979B]">Ruangan:</label>
-                        <select name="room_id" id="room_id" onchange="document.getElementById('roomFilterForm').submit()" class="block w-full md:w-48 text-sm rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 focus:border-[#0093dd] focus:ring-[#0093dd] font-bold text-zinc-900 dark:text-[#EDEDF0]">
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <label for="room_id" class="text-xs font-bold font-mono uppercase tracking-wider text-zinc-600 dark:text-[#9496A1]">Ruangan:</label>
+                        <select name="room_id" id="room_id" class="block w-full md:w-48 text-sm rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] py-1.5 pl-3 pr-8 focus:border-[#0073B1] focus:ring-[#0073B1] font-bold text-zinc-900 dark:text-[#EDEDF0]">
                             @foreach($rooms as $r)
                                 <option value="{{ $r->id }}" {{ $roomId == $r->id ? 'selected' : '' }}>{{ $r->room_name }}</option>
                             @endforeach
                         </select>
+                        <button type="submit" class="min-h-[44px] sm:min-h-[34px] px-3 py-1.5 rounded-md bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold transition cursor-pointer">
+                            Pilih
+                        </button>
                     </div>
                     
                     <div class="hidden md:block h-5 w-px bg-zinc-200 dark:bg-[#2C2C30]"></div>
@@ -29,7 +32,7 @@
                                     type="submit" 
                                     name="cycle" 
                                     value="{{ $cycle }}" 
-                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-[#0093dd] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
+                                    class="px-3.5 py-1.5 rounded transition cursor-pointer {{ $cycleFilter === $cycle ? 'bg-[#0073B1] text-white shadow-xs font-semibold' : 'text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                                 >
                                     {{ $cycle }}
                                 </button>
@@ -38,7 +41,7 @@
                     </div>
 
                 </form>
-            </div>
+            </search>
 
             @php
                 $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
@@ -84,15 +87,15 @@
                                         
                                         @if($occupiedBy)
                                             <!-- Occupied Slot -->
-                                            <div class="p-2.5 rounded-lg border border-[#0093dd]/30 bg-[#0093dd]/5 dark:bg-[#0093dd]/10 relative group transition-colors">
-                                                <div class="text-[10px] font-mono text-[#0093dd] font-semibold mb-0.5">
+                                            <div class="p-2.5 rounded-lg border border-[#0073B1]/30 bg-[#0073B1]/5 dark:bg-[#0073B1]/10 relative group transition-colors">
+                                                <div class="text-[10px] font-mono text-[#0073B1] dark:text-[#38BDF8] font-semibold mb-0.5">
                                                     P{{ $period['period'] }} &bull; {{ $period['start_time'] }}-{{ $period['end_time'] }}
                                                 </div>
                                                 <div class="text-xs font-bold text-zinc-900 dark:text-[#EDEDF0] leading-tight">
                                                     {{ $occupiedBy->subject }}
                                                 </div>
                                                 <div class="mt-1.5 flex flex-wrap items-center gap-1">
-                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#0093dd]/15 text-[#0093dd]">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#0073B1]/15 text-[#0073B1] dark:text-[#38BDF8]">
                                                         {{ $occupiedBy->schoolClass->class_name ?? 'Kelas' }}
                                                     </span>
                                                     <span class="text-[10px] text-zinc-600 dark:text-[#97979B] truncate">
@@ -116,14 +119,28 @@
                     </div>
                 </div>
 
-                <!-- Mobile & Tablet View (< lg) using Alpine Tabs -->
-                <div class="lg:hidden" x-data="{ activeTab: 'Senin' }">
-                    <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-4 pb-1">
+                <!-- Mobile & Tablet View (< lg) using Alpine Tabs synced with URL ?day= -->
+                <div class="lg:hidden" x-data="{
+                    activeTab: (() => {
+                        const d = new URLSearchParams(window.location.search).get('day');
+                        return @js($days).includes(d) ? d : 'Senin';
+                    })(),
+                    setTab(day) {
+                        this.activeTab = day;
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('day', day);
+                        window.history.replaceState({}, '', url);
+                    }
+                }">
+                    <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-4 pb-1" role="tablist" aria-label="Pilih hari">
                         @foreach($days as $day)
                             <button 
-                                @click="activeTab = '{{ $day }}'"
-                                :class="activeTab === '{{ $day }}' ? 'bg-[#0093dd] text-white shadow' : 'bg-white dark:bg-[#1E1E22] text-zinc-600 dark:text-[#97979B] border border-zinc-200 dark:border-[#2C2C30] hover:bg-zinc-50 dark:hover:bg-[#26262A]'"
-                                class="px-4 py-2 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0"
+                                type="button"
+                                role="tab"
+                                :aria-selected="(activeTab === '{{ $day }}').toString()"
+                                @click="setTab('{{ $day }}')"
+                                :class="activeTab === '{{ $day }}' ? 'bg-[#0073B1] text-white shadow' : 'bg-white dark:bg-[#1E1E22] text-zinc-600 dark:text-[#97979B] border border-zinc-200 dark:border-[#2C2C30] hover:bg-zinc-50 dark:hover:bg-[#26262A]'"
+                                class="px-4 py-2 text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                             >
                                 {{ $day }}
                             </button>
@@ -153,23 +170,23 @@
                                             }
                                         @endphp
                                         
-                                        <div class="flex items-start gap-3 p-2.5 rounded-lg border {{ $occupiedBy ? 'border-[#0093dd]/30 bg-[#0093dd]/5 dark:bg-[#0093dd]/10' : 'border-dashed border-zinc-200 dark:border-[#2C2C30] bg-zinc-50/50 dark:bg-[#19191C]' }}">
+                                        <div class="flex items-start gap-3 p-2.5 rounded-lg border {{ $occupiedBy ? 'border-[#0073B1]/30 bg-[#0073B1]/5 dark:bg-[#0073B1]/10' : 'border-dashed border-zinc-200 dark:border-[#2C2C30] bg-zinc-50/50 dark:bg-[#19191C]' }}">
                                             <div class="shrink-0 w-16 text-center">
                                                 <div class="text-[10px] font-bold text-zinc-400 dark:text-[#5B5B61]">P{{ $period['period'] }}</div>
-                                                <div class="text-xs font-mono font-medium {{ $occupiedBy ? 'text-[#0093dd]' : 'text-zinc-500 dark:text-[#97979B]' }}">
+                                                <div class="text-xs font-mono font-medium {{ $occupiedBy ? 'text-[#0073B1] dark:text-[#38BDF8]' : 'text-zinc-500 dark:text-[#97979B]' }}">
                                                     {{ $period['start_time'] }}
                                                     <br>
                                                     {{ $period['end_time'] }}
                                                 </div>
                                             </div>
                                             
-                                            <div class="flex-1 min-w-0 border-l {{ $occupiedBy ? 'border-[#0093dd]/30' : 'border-zinc-200 dark:border-[#2C2C30]' }} pl-3">
+                                            <div class="flex-1 min-w-0 border-l {{ $occupiedBy ? 'border-[#0073B1]/30' : 'border-zinc-200 dark:border-[#2C2C30]' }} pl-3">
                                                 @if($occupiedBy)
                                                     <div class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] leading-tight">
                                                         {{ $occupiedBy->subject }}
                                                     </div>
                                                     <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#0093dd]/15 text-[#0093dd]">
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#0073B1]/15 text-[#0073B1] dark:text-[#38BDF8]">
                                                             {{ $occupiedBy->schoolClass->class_name ?? 'Kelas' }}
                                                         </span>
                                                         <span class="text-xs text-zinc-600 dark:text-[#97979B]">
@@ -192,13 +209,4 @@
             @endif
         </div>
     
-    <style>
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
 </x-app-layout>

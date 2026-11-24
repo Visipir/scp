@@ -583,6 +583,8 @@ class FetScheduleParserService
         $dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
         $classPattern = '/\b(X|XI|XII)\s+([A-Z0-9]+(?:\s+[0-9]+)?)\b/i';
 
+        $codeMap = \App\Http\Controllers\ScheduleImportController::TEACHER_CODE_MAP;
+
         foreach ($pages as $p) {
             $pNum = (int) ($p['number'] ?? 0);
             if ($pNum <= 2) {
@@ -591,22 +593,45 @@ class FetScheduleParserService
 
             $texts = $p->xpath('.//text') ?: [];
 
-            // 1. Extract Teacher Code and Name from header
+            $pageMode = null;
             $teacherCode = null;
             $teacherName = null;
+            $className = null;
+
+            // 1. Check Class Header (e.g. "Kelas X RPL1", "X RPL 1", "XI TKJ 2")
             foreach ($texts as $t) {
-                $str = html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $str = trim(html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
                 $top = (int) $t['top'];
-                if ($top >= 50 && $top <= 90) {
-                    if (preg_match('/["\']?(\d+)[.,\s]*([^"\'\n]+)/u', $str, $m)) {
-                        $teacherCode = $m[1];
-                        $teacherName = trim($m[2], " \t\n\r\0\x0B\"'");
+                if ($top >= 40 && $top <= 90) {
+                    if (preg_match('/^\s*(?:Kelas\s+)?(X|XI|XII)\s*([A-Z0-9]+(?:\s+[0-9]+)?)\s*$/i', $str, $cm)) {
+                        $pageMode = 'class';
+                        $className = trim($cm[1] . ' ' . $cm[2]);
+                        break;
+                    } elseif (preg_match($classPattern, $str, $cm)) {
+                        $pageMode = 'class';
+                        $className = trim($cm[0]);
                         break;
                     }
                 }
             }
 
-            if (!$teacherCode) {
+            // 2. Check Teacher Header if not class mode
+            if (!$pageMode) {
+                foreach ($texts as $t) {
+                    $str = html_entity_decode(strip_tags($t->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $top = (int) $t['top'];
+                    if ($top >= 50 && $top <= 90) {
+                        if (preg_match('/["\']?(\d+)[.,\s]*([^"\'\n]+)/u', $str, $m)) {
+                            $pageMode = 'teacher';
+                            $teacherCode = $m[1];
+                            $teacherName = trim($m[2], " \t\n\r\0\x0B\"'");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$pageMode) {
                 continue;
             }
 
@@ -632,7 +657,7 @@ class FetScheduleParserService
             }
 
             if (count($dayPositions) < 5) {
-                $dayPositions = ['Senin' => 166, 'Selasa' => 334, 'Rabu' => 507, 'Kamis' => 617, 'Jumat' => 731];
+                $dayPositions = ['Senin' => 147, 'Selasa' => 267, 'Rabu' => 424, 'Kamis' => 583, 'Jumat' => 731];
             }
 
             // 3. Identify Time Row Coordinates
@@ -651,7 +676,7 @@ class FetScheduleParserService
 
             if (count($rowPositions) < 10) {
                 $rowPositions = [
-                    1 => 145, 2 => 218, 3 => 290, 4 => 363, 5 => 435,
+                    1 => 141, 2 => 218, 3 => 290, 4 => 363, 5 => 435,
                     6 => 507, 7 => 580, 8 => 652, 9 => 725, 10 => 797,
                 ];
             }
@@ -684,6 +709,9 @@ class FetScheduleParserService
                 $left = (int) $t['left'];
 
                 if ($top < 120 || $top > 830 || $left < 90) {
+                    continue;
+                }
+                if (str_contains($str, 'Jadwal dihasilkan dengan FET')) {
                     continue;
                 }
 
@@ -734,44 +762,34 @@ class FetScheduleParserService
                         continue;
                     }
 
-                    $foundClass = null;
-                    foreach ($items as $it) {
-                        if (preg_match($classPattern, $it['text'], $m)) {
-                            $foundClass = trim($m[0]);
-                            break;
-                        }
-                    }
-
-                    if ($foundClass) {
+                    if ($pageMode === 'class') {
                         $startP = $pIdx;
                         $endP = $pIdx;
                         $collectedItems = $items;
 
                         for ($nextP = $pIdx + 1; $nextP <= 10; $nextP++) {
                             $nextItems = $elements[$day][$nextP] ?? [];
-                            if (empty($nextItems)) {
-                                if ($endP - $startP < 1) {
-                                    $endP = $nextP;
-                                }
-                                break;
-                            }
+                            if (empty($nextItems)) break;
 
                             $nextFree = false;
-                            $nextHasClass = false;
                             foreach ($nextItems as $nit) {
                                 if (in_array($nit['text'], ['---', '-x-', '--', '-'], true)) {
                                     $nextFree = true;
                                     break;
                                 }
-                                if (preg_match($classPattern, $nit['text'])) {
-                                    $nextHasClass = true;
-                                    break;
+                            }
+                            if ($nextFree) break;
+
+                            $hasNewTeacher = false;
+                            foreach ($nextItems as $nit) {
+                                if (preg_match('/["\'«“](\d+)[.,\s]*/u', $nit['text'], $tm)) {
+                                    if (isset($codeMap[$tm[1]])) {
+                                        $hasNewTeacher = true;
+                                        break;
+                                    }
                                 }
                             }
-
-                            if ($nextFree || $nextHasClass) {
-                                break;
-                            }
+                            if ($hasNewTeacher) break;
 
                             $endP = $nextP;
                             foreach ($nextItems as $nit) {
@@ -779,38 +797,137 @@ class FetScheduleParserService
                             }
                         }
 
-                        $roomRaw = null;
-                        $subjectParts = [];
+                        $tCode = null;
+                        $tName = null;
+                        $rRaw = null;
+                        $subParts = [];
+                        $inTeacherQuote = false;
+                        $teacherParts = [];
 
                         foreach ($collectedItems as $cIt) {
                             $txt = $cIt['text'];
-                            if (strcasecmp($txt, $foundClass) === 0) continue;
-                            if (preg_match('/^(?:LAB|RUANG|R\.)\s*[A-Z0-9\s-]+$/i', $txt)) {
-                                $roomRaw = $txt;
+                            if (preg_match('/["\'«“](\d+)[.,\s]*(.*)/u', $txt, $tm)) {
+                                $tCode = $tm[1];
+                                $inTeacherQuote = true;
+                                $tNameRest = trim($tm[2], " \t\n\r\0\x0B\"'«»“”");
+                                if (!empty($tNameRest)) $teacherParts[] = $tNameRest;
+                                if (str_ends_with($txt, '"') || str_ends_with($txt, "'") || str_ends_with($txt, '”')) {
+                                    $inTeacherQuote = false;
+                                }
+                            } elseif ($inTeacherQuote) {
+                                $clean = trim($txt, " \t\n\r\0\x0B\"'«»“”");
+                                if (!empty($clean)) $teacherParts[] = $clean;
+                                if (str_ends_with($txt, '"') || str_ends_with($txt, "'") || str_ends_with($txt, '”')) {
+                                    $inTeacherQuote = false;
+                                }
+                            } elseif (preg_match('/^(?:LAB|RUANG|R\.|LAPANGAN)\s*[A-Z0-9\s-]+$/i', $txt)) {
+                                $rRaw = $txt;
                             } else {
-                                $cleanTxt = preg_replace($classPattern, '', $txt);
-                                $cleanTxt = trim($cleanTxt);
-                                if (!empty($cleanTxt)) $subjectParts[] = $cleanTxt;
+                                $subParts[] = $txt;
                             }
                         }
 
-                        $subjectRaw = trim(implode(' ', $subjectParts)) ?: 'Pelajaran';
+                        if ($tCode && isset($codeMap[$tCode])) {
+                            $tName = $codeMap[$tCode];
+                        } elseif (!empty($teacherParts)) {
+                            $tName = implode(' ', $teacherParts);
+                        }
+
+                        $subjectRaw = trim(implode(' ', $subParts)) ?: 'Pelajaran';
 
                         for ($sp = $startP; $sp <= $endP; $sp++) {
                             $slots[] = [
                                 'day'          => $day,
                                 'period'       => $sp,
-                                'teacher_raw'  => $teacherName,
-                                'teacher_code' => $teacherCode,
+                                'teacher_raw'  => $tName,
+                                'teacher_code' => $tCode,
                                 'subject'      => $subjectRaw,
-                                'class_raw'    => $foundClass,
-                                'room_raw'     => $roomRaw,
+                                'class_raw'    => $className,
+                                'room_raw'     => $rRaw,
                             ];
                         }
 
                         $pIdx = $endP + 1;
                     } else {
-                        $pIdx++;
+                        // Teacher Mode
+                        $foundClass = null;
+                        foreach ($items as $it) {
+                            if (preg_match($classPattern, $it['text'], $m)) {
+                                $foundClass = trim($m[0]);
+                                break;
+                            }
+                        }
+
+                        if ($foundClass) {
+                            $startP = $pIdx;
+                            $endP = $pIdx;
+                            $collectedItems = $items;
+
+                            for ($nextP = $pIdx + 1; $nextP <= 10; $nextP++) {
+                                $nextItems = $elements[$day][$nextP] ?? [];
+                                if (empty($nextItems)) {
+                                    if ($endP - $startP < 1) {
+                                        $endP = $nextP;
+                                    }
+                                    break;
+                                }
+
+                                $nextFree = false;
+                                $nextHasClass = false;
+                                foreach ($nextItems as $nit) {
+                                    if (in_array($nit['text'], ['---', '-x-', '--', '-'], true)) {
+                                        $nextFree = true;
+                                        break;
+                                    }
+                                    if (preg_match($classPattern, $nit['text'])) {
+                                        $nextHasClass = true;
+                                        break;
+                                    }
+                                }
+
+                                if ($nextFree || $nextHasClass) {
+                                    break;
+                                }
+
+                                $endP = $nextP;
+                                foreach ($nextItems as $nit) {
+                                    $collectedItems[] = $nit;
+                                }
+                            }
+
+                            $roomRaw = null;
+                            $subjectParts = [];
+
+                            foreach ($collectedItems as $cIt) {
+                                $txt = $cIt['text'];
+                                if (strcasecmp($txt, $foundClass) === 0) continue;
+                                if (preg_match('/^(?:LAB|RUANG|R\.|LAPANGAN)\s*[A-Z0-9\s-]+$/i', $txt)) {
+                                    $roomRaw = $txt;
+                                } else {
+                                    $cleanTxt = preg_replace($classPattern, '', $txt);
+                                    $cleanTxt = trim($cleanTxt);
+                                    if (!empty($cleanTxt)) $subjectParts[] = $cleanTxt;
+                                }
+                            }
+
+                            $subjectRaw = trim(implode(' ', $subjectParts)) ?: 'Pelajaran';
+
+                            for ($sp = $startP; $sp <= $endP; $sp++) {
+                                $slots[] = [
+                                    'day'          => $day,
+                                    'period'       => $sp,
+                                    'teacher_raw'  => $teacherName,
+                                    'teacher_code' => $teacherCode,
+                                    'subject'      => $subjectRaw,
+                                    'class_raw'    => $foundClass,
+                                    'room_raw'     => $roomRaw,
+                                ];
+                            }
+
+                            $pIdx = $endP + 1;
+                        } else {
+                            $pIdx++;
+                        }
                     }
                 }
             }
@@ -819,8 +936,12 @@ class FetScheduleParserService
         return $slots;
     }
 
-    public function resolveTeacher(string $raw, ?string $code, Collection $teachers): ?User
+    public function resolveTeacher(?string $raw, ?string $code, Collection $teachers): ?User
     {
+        if (empty($raw) && empty($code)) {
+            return null;
+        }
+
         // 1. Check code map
         if ($code && isset(ScheduleImportController::TEACHER_CODE_MAP[$code])) {
             $officialName = ScheduleImportController::TEACHER_CODE_MAP[$code];

@@ -15,7 +15,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="space-y-6">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             <div class="p-3 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl text-center">
@@ -53,17 +53,18 @@
             <input type="hidden" name="token" value="{{ $preview['token'] }}">
 
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
+                <div tabindex="0" role="region" aria-label="Pratinjau Impor Wali Kelas dan Guru BK" class="overflow-x-auto table-scroll-region">
+                    <table class="w-full text-left text-xs border-collapse tabular-nums">
+                        <caption class="sr-only">Pratinjau Pemetaan Wali Kelas dan Guru BK dari Excel</caption>
                         <thead>
-                            <tr class="bg-zinc-50 dark:bg-[#252529] border-b border-zinc-200 dark:border-[#2C2C30] text-[10px] uppercase tracking-wider font-mono text-zinc-500 dark:text-[#97979B]">
-                                <th class="py-2.5 px-3">No</th>
-                                <th class="py-2.5 px-3">Kelas (Excel)</th>
-                                <th class="py-2.5 px-3">Kelas Database</th>
-                                <th class="py-2.5 px-3">Wali Kelas (Excel)</th>
-                                <th class="py-2.5 px-3">Pencocokan Wali</th>
-                                <th class="py-2.5 px-3">Guru BK (Excel)</th>
-                                <th class="py-2.5 px-3">Pencocokan Guru BK</th>
+                            <tr class="bg-zinc-50 dark:bg-[#252529] border-b border-zinc-200 dark:border-[#2C2C30] text-[10px] uppercase tracking-wider font-mono text-zinc-600 dark:text-[#9496A1]">
+                                <th scope="col" class="py-2.5 px-3">No</th>
+                                <th scope="col" class="py-2.5 px-3">Kelas (Excel)</th>
+                                <th scope="col" class="py-2.5 px-3">Kelas Database</th>
+                                <th scope="col" class="py-2.5 px-3">Wali Kelas (Excel)</th>
+                                <th scope="col" class="py-2.5 px-3">Pencocokan Wali</th>
+                                <th scope="col" class="py-2.5 px-3">Guru BK (Excel)</th>
+                                <th scope="col" class="py-2.5 px-3">Pencocokan Guru BK</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-[#2C2C30]">
@@ -88,11 +89,11 @@
                                             <span class="text-emerald-400 font-medium">{{ $r['wali_user']['fullname'] }}</span>
                                             <span class="font-mono text-zinc-400 text-[10px]">({{ $r['wali_user']['username'] }})</span>
                                         @elseif($r['wali_status'] === 'fuzzy' || $r['wali_status'] === 'ambiguous')
-                                            <select name="confirmed_wali[{{ $idx }}]" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
+                                            <select name="confirmed_wali[{{ $idx }}]" aria-label="Pilih Wali Kelas untuk {{ $r['class_name'] ?? 'kelas baris ' . ($idx + 1) }}" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
                                                 <option value="" {{ $r['wali_status'] === 'ambiguous' ? 'selected' : '' }}>-- {{ $r['wali_status'] === 'ambiguous' ? 'Pilih Kandidat (Wajib Konfirmasi)' : 'Lewati / Belum Ada' }} --</option>
                                                 @foreach($r['wali_cands'] as $cand)
                                                     <option value="{{ $cand['user']['id'] }}" {{ $r['wali_status'] === 'fuzzy' ? 'selected' : '' }}>
-                                                        {{ $cand['user']['fullname'] }} [NIP: ...{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
+                                                        {{ $cand['user']['fullname'] }} [NIP: …{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -106,11 +107,11 @@
                                             <span class="text-emerald-400 font-medium">{{ $r['bk_user']['fullname'] }}</span>
                                             <span class="font-mono text-zinc-400 text-[10px]">({{ $r['bk_user']['username'] }})</span>
                                         @elseif($r['bk_status'] === 'fuzzy' || $r['bk_status'] === 'ambiguous')
-                                            <select name="confirmed_bk[{{ $idx }}]" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
+                                            <select name="confirmed_bk[{{ $idx }}]" aria-label="Pilih Guru BK untuk {{ $r['class_name'] ?? 'kelas baris ' . ($idx + 1) }}" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
                                                 <option value="" {{ $r['bk_status'] === 'ambiguous' ? 'selected' : '' }}>-- {{ $r['bk_status'] === 'ambiguous' ? 'Pilih Kandidat (Wajib Konfirmasi)' : 'Lewati / Belum Ada' }} --</option>
                                                 @foreach($r['bk_cands'] as $cand)
                                                     <option value="{{ $cand['user']['id'] }}" {{ $r['bk_status'] === 'fuzzy' ? 'selected' : '' }}>
-                                                        {{ $cand['user']['fullname'] }} [NIP: ...{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
+                                                        {{ $cand['user']['fullname'] }} [NIP: …{{ $cand['nip_last4'] ?? '-' }}] ({{ $cand['subject'] ?? 'Guru' }}) - {{ $cand['score'] }}%
                                                     </option>
                                                 @endforeach
                                             </select>

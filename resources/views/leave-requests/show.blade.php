@@ -13,7 +13,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6 max-w-3xl">
+    <div class="space-y-6">
 
         @if(session('success'))
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
@@ -30,7 +30,19 @@
                         Kelas: {{ $leaveRequest->student->schoolClass->class_name ?? '-' }} &bull; Diajukan oleh: {{ $leaveRequest->applicant->fullname }}
                     </p>
                 </div>
-                <div class="shrink-0">
+                <div class="shrink-0 flex items-center gap-2">
+                    @php
+                        $cat = $leaveRequest->category ?? $leaveRequest->attendance_status;
+                        $catBadge = match($cat) {
+                            'Sakit' => 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50',
+                            'Dispensasi' => 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-sky-300 border-blue-200 dark:border-blue-800/50',
+                            'Lainnya' => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
+                            default => 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50',
+                        };
+                    @endphp
+                    <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider border {{ $catBadge }}">
+                        {{ $cat }}
+                    </span>
                     <x-status-badge :status="$leaveRequest->status_approval" />
                 </div>
             </div>
@@ -49,16 +61,14 @@
 
             <div>
                 <dt class="text-[10px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider mb-1">Alasan Ketidakhadiran</dt>
-                <dd class="p-4 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg text-xs text-zinc-900 dark:text-[#EDEDF0] leading-relaxed whitespace-pre-line">
-                    {{ $leaveRequest->reason }}
-                </dd>
+                <dd class="p-4 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg text-xs text-zinc-900 dark:text-[#EDEDF0] leading-relaxed whitespace-pre-line">{{ trim((string) $leaveRequest->reason) }}</dd>
             </div>
 
             @if($leaveRequest->document_path)
                 <div class="pt-4 border-t border-zinc-200 dark:border-[#2B2B30]">
                     <dt class="text-[10px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider mb-2">Dokumen Bukti / Lampiran</dt>
-                    <a href="{{ route('leave-requests.document', $leaveRequest) }}" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] text-xs font-semibold font-mono text-zinc-900 dark:text-[#EDEDF0] rounded-lg border border-zinc-200 dark:border-[#2B2B30] hover:border-[#0093dd]/50 dark:hover:border-[#3A3A3F] transition cursor-pointer">
-                        <svg class="w-4 h-4 text-[#0093dd]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                    <a href="{{ route('leave-requests.document', $leaveRequest) }}" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-100 dark:bg-[#232327] hover:bg-zinc-200 dark:hover:bg-[#26262A] text-xs font-semibold font-mono text-zinc-900 dark:text-[#EDEDF0] rounded-lg border border-zinc-200 dark:border-[#2B2B30] hover:border-[#0073B1]/50 dark:hover:border-[#3A3A3F] transition cursor-pointer">
+                        <svg aria-hidden="true" class="w-4 h-4 text-[#0073B1] dark:text-[#38BDF8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
                         <span>Buka Dokumen Bukti Lampiran</span>
                         <span class="text-[10px] text-zinc-500 dark:text-[#97979B] font-mono">&nearr;</span>
                     </a>
@@ -73,8 +83,8 @@
             </div>
         </div>
 
-        {{-- Verification Action (Waka / BK / Wali Kelas) --}}
-        @if(auth()->user()->hasKesiswaanAccess())
+        {{-- Verification Action (Tim Kesiswaan / Guru BK only; Waka & Guru/Wali view-only) --}}
+        @if(auth()->user()->canDecideLeaveRequest($leaveRequest))
             <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-6 sm:p-8 space-y-4">
                 <div>
                     <h3 class="text-sm font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">Keputusan Verifikasi Kesiswaan</h3>
@@ -86,7 +96,7 @@
                         @csrf @method('PATCH')
                         <input type="hidden" name="status_approval" value="Approved">
                         <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 border border-emerald-200 text-emerald-700 dark:bg-[#16281D] dark:hover:bg-[#1E3828] dark:active:bg-[#254532] dark:border-emerald-700/60 dark:text-emerald-300 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             Setujui
                         </button>
                     </form>
@@ -97,7 +107,7 @@
                         @csrf @method('PATCH')
                         <input type="hidden" name="status_approval" value="Rejected">
                         <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 border border-rose-200 text-rose-700 dark:bg-[#2D1618] dark:hover:bg-[#3D1E20] dark:active:bg-[#4D2427] dark:border-rose-700/60 dark:text-rose-300 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                             Tolak
                         </button>
                     </form>
@@ -108,7 +118,7 @@
                         @csrf @method('PATCH')
                         <input type="hidden" name="status_approval" value="Pending">
                         <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 border border-amber-200 text-amber-700 dark:bg-[#282115] dark:hover:bg-[#382F1E] dark:active:bg-[#473B25] dark:border-amber-700/60 dark:text-amber-300 text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             Set Pending
                         </button>
                     </form>

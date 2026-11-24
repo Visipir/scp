@@ -14,7 +14,7 @@ class UpdateExamRequest extends FormRequest
             return false;
         }
 
-        if ((int) $user->role_id === 1) {
+        if (in_array((int) $user->role_id, [1, 5], true)) {
             return true;
         }
 

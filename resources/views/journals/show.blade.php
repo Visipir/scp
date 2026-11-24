@@ -14,7 +14,7 @@
                     &larr; Kembali
                 </a>
                 @if(auth()->user()->role_id === 2 && \Carbon\Carbon::parse($journal->date)->isSameDay(now('Asia/Jakarta')))
-                    <a href="{{ route('attendances.edit', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold rounded-md transition shadow-2xs">
+                    <a href="{{ route('attendances.edit', $journal) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold rounded-md transition shadow-2xs">
                         Edit Presensi
                     </a>
                 @endif
@@ -22,7 +22,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-4 max-w-3xl">
+    <div class="space-y-4">
 
         @if(session('success'))
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
@@ -46,19 +46,21 @@
             </div>
 
             <div>
-                <h3 class="text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Materi &amp; Uraian Kegiatan</h3>
-                <p class="text-xs text-zinc-800 dark:text-[#EDEDF0] leading-relaxed whitespace-pre-line bg-zinc-50 dark:bg-[#232327] p-3 rounded-md border border-zinc-100 dark:border-[#2B2B30]">
-                    {{ $journal->topic_description }}
-                </p>
+                <h2 class="text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1">Materi &amp; Uraian Kegiatan</h2>
+                <p class="text-xs text-zinc-800 dark:text-[#EDEDF0] leading-relaxed whitespace-pre-line bg-zinc-50 dark:bg-[#232327] p-3 rounded-md border border-zinc-100 dark:border-[#2B2B30]">{{ trim((string) $journal->topic_description) }}</p>
             </div>
 
             @if($journal->photo_path)
                 <div>
-                    <h3 class="text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1.5">Foto Dokumentasi KBM</h3>
+                    <h2 class="text-xs font-bold text-zinc-700 dark:text-[#EDEDF0] mb-1.5">Foto Dokumentasi KBM</h2>
                     <div class="inline-block p-1 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg">
                         <img 
                             src="{{ route('journals.photo', $journal) }}" 
                             alt="Dokumentasi KBM" 
+                            width="800"
+                            height="600"
+                            loading="lazy"
+                            decoding="async"
                             class="rounded max-h-96 max-w-full w-auto object-contain"
                         />
                     </div>
@@ -126,7 +128,7 @@
                                     </div>
                                     @if($attendance->notes)
                                         <div class="pt-2 border-t border-zinc-200/60 dark:border-[#2B2B30] flex items-start gap-1.5 text-zinc-700 dark:text-[#EDEDF0] text-[11px] bg-white dark:bg-[#1D1D21] px-2.5 py-1.5 rounded border border-zinc-100 dark:border-[#2B2B30]">
-                                            <svg class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                                            <svg aria-hidden="true" class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
                                             <div class="min-w-0">
                                                 <span class="text-[10px] font-bold font-mono text-zinc-500 uppercase tracking-wider block">Alasan / Catatan Keluar Kelas:</span>
                                                 <span class="font-medium text-zinc-800 dark:text-[#EDEDF0] break-words">{{ $attendance->notes }}</span>
@@ -139,20 +141,20 @@
                     </div>
                 @else
                     <div class="flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] border border-emerald-200/70 dark:border-emerald-700/60 p-3 rounded-md">
-                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <svg aria-hidden="true" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span><strong>Nihil</strong> &mdash; Seluruh {{ $totalStudents }} siswa hadir dalam KBM (tidak ada siswa yang sakit, izin, atau alpa).</span>
                     </div>
                 @endif
 
                 @if($totalStudents > 0)
-                    <details class="mt-4 pt-3 border-t border-zinc-100 dark:border-[#2B2B30] group">
+                    <details x-data="{ currentPage: 1, pageSize: 15, totalMatches: {{ $totalStudents }}, get totalPages() { return Math.max(1, Math.ceil(this.totalMatches / this.pageSize)); } }" class="mt-4 pt-3 border-t border-zinc-100 dark:border-[#2B2B30] group">
                         <summary class="text-[11px] font-mono text-zinc-500 hover:text-zinc-800 dark:hover:text-[#EDEDF0] cursor-pointer select-none flex items-center justify-between">
                             <span>Lihat Daftar Seluruh Siswa ({{ $totalStudents }} Siswa)</span>
                             <span class="group-open:rotate-180 transition-transform">&darr;</span>
                         </summary>
-                        <div class="mt-3 divide-y divide-zinc-100 dark:divide-[#2B2B30] max-h-60 overflow-y-auto border border-zinc-100 dark:border-[#2B2B30] rounded-md">
+                        <div class="mt-3 divide-y divide-zinc-100 dark:divide-[#2B2B30] border border-zinc-100 dark:border-[#2B2B30] rounded-md">
                             @foreach($journal->attendances as $index => $attendance)
-                                <div class="px-3 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-[#232327] gap-1 sm:gap-4">
+                                <div x-show="{{ $index }} >= (currentPage - 1) * pageSize && {{ $index }} < currentPage * pageSize" class="px-3 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-zinc-50 dark:hover:bg-[#232327] gap-1 sm:gap-4">
                                     <div class="flex items-center gap-2 min-w-0">
                                         <span class="text-zinc-400 font-mono text-[11px] w-6 shrink-0">{{ $index + 1 }}.</span>
                                         <span class="text-zinc-800 dark:text-[#EDEDF0] font-medium truncate">{{ $attendance->student->fullname }}</span>
@@ -169,6 +171,7 @@
                                 </div>
                             @endforeach
                         </div>
+                        <x-client-pagination total-expr="totalMatches" />
                     </details>
                 @endif
             </div>

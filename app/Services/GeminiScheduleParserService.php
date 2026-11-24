@@ -37,11 +37,35 @@ class GeminiScheduleParserService
         @ini_set('max_execution_time', 300);
         @set_time_limit(300);
 
-        // Group pages into batches of 6 to avoid exceeding 15 RPM and 8192 token limit
-        $parser = new \Smalot\PdfParser\Parser();
-        $pdf = $parser->parseFile($pdfPath);
-        $pages = $pdf->getPages();
-        $chunks = array_chunk($pages, 6, true);
+        // Extract page texts with pdftotext CLI first, fallback to Smalot
+        $pageTexts = [];
+        $rawPdfText = @shell_exec(sprintf('pdftotext %s -', escapeshellarg($pdfPath)));
+        if (!empty($rawPdfText)) {
+            $splitPages = explode("\f", $rawPdfText);
+            foreach ($splitPages as $pIdx => $pContent) {
+                $trimmed = trim($pContent);
+                if ($trimmed !== '') {
+                    $pageTexts[$pIdx + 1] = $trimmed;
+                }
+            }
+        }
+
+        if (empty($pageTexts)) {
+            try {
+                $parser = new \Smalot\PdfParser\Parser();
+                $pdf = $parser->parseFile($pdfPath);
+                foreach ($pdf->getPages() as $pIndex => $page) {
+                    $pText = trim($page->getText());
+                    if ($pText !== '') {
+                        $pageTexts[$pIndex + 1] = $pText;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Smalot parsing fallback failed: ' . $e->getMessage());
+            }
+        }
+
+        $chunks = array_chunk($pageTexts, 6, true);
         
         $allData = [];
 
@@ -49,13 +73,9 @@ class GeminiScheduleParserService
             $chunkText = '';
             $pageNumbers = [];
 
-            foreach ($chunkPages as $pIndex => $page) {
-                $pText = trim($page->getText());
-                if ($pText !== '') {
-                    $pNum = $pIndex + 1;
-                    $pageNumbers[] = $pNum;
-                    $chunkText .= "--- HALAMAN {$pNum} ---\n" . $pText . "\n\n";
-                }
+            foreach ($chunkPages as $pNum => $pText) {
+                $pageNumbers[] = $pNum;
+                $chunkText .= "--- HALAMAN {$pNum} ---\n" . $pText . "\n\n";
             }
 
             if (trim($chunkText) === '') {

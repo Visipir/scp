@@ -822,7 +822,7 @@ class AiChatbotTools
      */
     public function getUnfilledJournalsToday(User $user, array $args): array
     {
-        if ((int) $user->role_id !== 1) {
+        if (!in_array((int) $user->role_id, [1, 5], true)) {
             return ['error' => 'tidak diizinkan'];
         }
 
@@ -863,6 +863,7 @@ class AiChatbotTools
             2 => 'Guru',
             3 => $user->scopedClassId() !== null ? 'Wali Kelas' : 'Guru BK',
             4 => $user->children()->exists() ? 'Orang Tua' : 'Siswa',
+            5 => 'Superadmin',
             default => 'Pengguna Sekolah',
         };
 

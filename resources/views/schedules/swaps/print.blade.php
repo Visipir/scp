@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Pertukaran Jadwal Mengajar Guru - SMA PGRI 1 Kudus</title>
-    <style>
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Laporan Pertukaran Jadwal Mengajar Guru - SMK Negeri 1 Bantul</title>
+    <style nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         @page {
             size: A4 landscape;
             margin: 12mm 15mm;
@@ -125,7 +126,7 @@
             }
         }
         .btn-print {
-            background: #0093dd;
+            background: #0073B1;
             color: #fff;
             padding: 8px 16px;
             font-size: 12px;
@@ -139,14 +140,14 @@
 </head>
 <body>
     <div class="no-print" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-        <button class="btn-print" onclick="window.print()">Cetak Dokumen / Simpan PDF</button>
+        <button type="button" id="print-doc-btn" class="btn-print">Cetak Dokumen / Simpan PDF</button>
         <a href="{{ route('schedule-swaps.index') }}" style="color: #4b5563; font-size: 11px; text-decoration: none;">&larr; Kembali ke Laporan Web</a>
     </div>
 
     <div class="header">
-        <h1>SMA PGRI 1 KUDUS</h1>
+        <h1>SMK NEGERI 1 BANTUL</h1>
         <h2>Laporan Pertukaran Jadwal Mengajar Guru</h2>
-        <p>Jl. Mejobo No. 99 Kudus &bull; Sistem Monitoring SCP Kurikulum</p>
+        <p>Bantul, D.I. Yogyakarta &bull; Sistem Monitoring SCP Kurikulum</p>
     </div>
 
     <div class="meta-strip">
@@ -178,19 +179,20 @@
         </div>
     </div>
 
-    <table>
+    <table style="font-variant-numeric: tabular-nums;">
+        <caption style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;">Laporan Pertukaran Jadwal Mengajar Guru</caption>
         <thead>
             <tr>
-                <th style="width: 25px; text-align: center;">No</th>
-                <th style="width: 75px;">Tanggal</th>
-                <th>Guru Pemohon</th>
-                <th>Jadwal Asli</th>
-                <th>Guru Pengganti</th>
-                <th>Jadwal Pengganti</th>
-                <th style="width: 70px;">Status</th>
-                <th style="width: 65px;">Jurnal</th>
-                <th style="width: 80px;">Waktu Respon</th>
-                <th>Catatan</th>
+                <th scope="col" style="width: 25px; text-align: center;">No</th>
+                <th scope="col" style="width: 75px;">Tanggal</th>
+                <th scope="col">Guru Pemohon</th>
+                <th scope="col">Jadwal Asli</th>
+                <th scope="col">Guru Pengganti</th>
+                <th scope="col">Jadwal Pengganti</th>
+                <th scope="col" style="width: 70px;">Status</th>
+                <th scope="col" style="width: 65px;">Jurnal</th>
+                <th scope="col" style="width: 80px;">Waktu Respon</th>
+                <th scope="col">Catatan</th>
             </tr>
         </thead>
         <tbody>
@@ -273,12 +275,17 @@
             NIP. ........................................
         </div>
         <div class="signature-box">
-            Kudus, {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y') }}<br>
+            Bantul, {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y') }}<br>
             <strong>Waka Kurikulum</strong>
             <div class="signature-space"></div>
             <strong>__________________________</strong><br>
             NIP. ........................................
         </div>
     </div>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
+        document.getElementById('print-doc-btn')?.addEventListener('click', function () {
+            window.print();
+        });
+    </script>
 </body>
 </html>

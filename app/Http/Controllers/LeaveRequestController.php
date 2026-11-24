@@ -53,13 +53,13 @@ class LeaveRequestController extends Controller
             });
         }
 
-        $classes = (in_array((int) $user->role_id, [1, 3]) || $user->hasKesiswaanAccess())
+        $classes = (in_array((int) $user->role_id, [1, 3, 5]) || $user->hasKesiswaanAccess())
             ? ($user->supervisedClassIds() !== null
                 ? \App\Models\SchoolClass::whereIn('id', $user->supervisedClassIds())->orderBy('class_name')->get()
                 : \App\Models\SchoolClass::orderBy('class_name')->get())
             : collect();
 
-        $leaveRequests = $query->latest()->paginate(15)->withQueryString();
+        $leaveRequests = $query->latest()->paginate(5)->withQueryString();
 
         return view('leave-requests.index', compact('leaveRequests', 'classes', 'status', 'studentSearch'));
     }
@@ -120,6 +120,7 @@ class LeaveRequestController extends Controller
 
         $validated = $request->validate([
             'student_id'  => ['required', 'exists:users,id'],
+            'category'    => ['nullable', 'in:Izin,Sakit,Dispensasi,Lainnya'],
             'start_date'  => ['required', 'date', 'after_or_equal:today'],
             'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
             'reason'      => ['required', 'string', 'max:5000'],
@@ -133,11 +134,11 @@ class LeaveRequestController extends Controller
     }
 
     /**
-     * Approve or reject a leave request (Tim Kesiswaan / Waka only).
+     * Approve or reject a leave request (Tim Kesiswaan / Guru BK only).
      */
     public function updateStatus(Request $request, LeaveRequest $leaveRequest, LeaveRequestService $service): RedirectResponse
     {
-        abort_unless($leaveRequest->isVisibleTo($request->user()), 403, 'Akses ditolak.');
+        abort_unless($request->user()->canDecideLeaveRequest($leaveRequest), 403, 'Akses ditolak.');
 
         $validated = $request->validate([
             'status_approval' => ['required', 'in:Pending,Approved,Rejected'],

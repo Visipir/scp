@@ -19,8 +19,13 @@
                 name="username" 
                 :value="is_string(old('username')) ? old('username') : ''" 
                 required 
-                autofocus 
+                data-autofocus-desktop 
                 autocomplete="username" 
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                enterkeyhint="next"
+                :invalid="$errors->has('username')"
                 placeholder="NIP / NIS / Username"
             />
             <x-input-error :messages="$errors->get('username')" class="mt-1.5" />
@@ -29,12 +34,13 @@
         <!-- Password -->
         <div>
             <x-input-label for="password" value="Password" />
-            <x-text-input 
+            <x-password-input 
                 id="password" 
-                type="password" 
                 name="password" 
                 required 
                 autocomplete="current-password" 
+                enterkeyhint="done"
+                :invalid="$errors->has('password')"
                 placeholder="Kata sandi akun"
             />
             <x-input-error :messages="$errors->get('password')" class="mt-1.5" />
@@ -42,20 +48,20 @@
 
         <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between pt-1">
-            <label for="remember_me" class="inline-flex items-center cursor-pointer">
+            <label for="remember_me" class="inline-flex items-center min-h-[44px] sm:min-h-0 cursor-pointer">
                 <input 
                     id="remember_me" 
                     type="checkbox" 
-                    class="rounded border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-[#0093dd] shadow-none focus:ring-[#0093dd] focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#19191C] cursor-pointer" 
+                    class="rounded border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-[#0073B1] shadow-none focus:ring-[#0073B1] focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#19191C] cursor-pointer" 
                     name="remember"
                 >
-                <span class="ms-2 text-xs text-zinc-600 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] select-none">Ingat Saya</span>
+                <span class="ms-2 text-xs text-zinc-700 dark:text-[#B4B6C2] hover:text-zinc-900 dark:hover:text-[#F1F1F4] select-none">Ingat Saya</span>
             </label>
 
             @if (Route::has('password.request'))
                 <a 
                     href="{{ route('password.request') }}" 
-                    class="text-xs font-medium text-[#0093dd] hover:underline hover:text-[#007bbd] transition-colors"
+                    class="inline-flex items-center min-h-[44px] sm:min-h-0 px-1 text-xs font-semibold text-[#0073B1] dark:text-[#38BDF8] hover:underline transition-colors"
                 >
                     Lupa password?
                 </a>

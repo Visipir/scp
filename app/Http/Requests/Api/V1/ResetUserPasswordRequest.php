@@ -29,6 +29,8 @@ class ResetUserPasswordRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'password' => ['nullable', 'string', 'min:6'],
+        ];
     }
 }

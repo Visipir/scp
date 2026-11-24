@@ -17,4 +17,9 @@ class Attendance extends Model
     {
         return $this->belongsTo(Journal::class, 'journal_id');
     }
+
+    public function leaveRequest()
+    {
+        return $this->belongsTo(LeaveRequest::class, 'leave_request_id');
+    }
 }

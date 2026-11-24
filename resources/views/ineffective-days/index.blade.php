@@ -15,10 +15,10 @@
             <div class="flex items-center gap-3">
                 <button 
                     type="button" 
-                    onclick="window.dispatchEvent(new CustomEvent('toggle-ineffective-modal'))"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition shadow-xs cursor-pointer"
+                    @click="$dispatch('toggle-ineffective-modal')"
+                    class="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-0 px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition shadow-xs cursor-pointer"
                 >
-                    <svg class="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <svg aria-hidden="true" class="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     Tambah Hari Tidak Efektif
@@ -28,7 +28,7 @@
     </x-slot>
 
     <div 
-        class="space-y-6 max-w-5xl"
+        class="space-y-6"
         x-data="{ showModal: false, isRange: false }"
         @toggle-ineffective-modal.window="showModal = true"
     >
@@ -47,9 +47,9 @@
                         HARI INI
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-950 dark:text-amber-200">
+                        <h2 class="text-sm font-bold text-amber-950 dark:text-amber-200">
                             Hari Ini Ditetapkan Sebagai Hari Tidak Efektif KBM
-                        </h3>
+                        </h2>
                         <p class="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
                             Keterangan: <span class="font-semibold">{{ $todayIneffective->description }}</span> &bull; 
                             Tahun Ajaran: <span class="font-mono">{{ $todayIneffective->academic_year ?? '-' }}</span>.
@@ -73,15 +73,16 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div tabindex="0" role="region" aria-label="Daftar Hari Tidak Efektif" class="overflow-x-auto table-scroll-region">
+                <table class="w-full text-left border-collapse tabular-nums">
+                    <caption class="sr-only">Daftar Hari Tidak Efektif KBM</caption>
                     <thead>
                         <tr class="border-b border-zinc-200/80 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#232327] text-[11px] font-bold font-mono text-zinc-500 dark:text-[#97979B] uppercase tracking-wider">
-                            <th class="py-3 px-4">Tanggal &amp; Hari</th>
-                            <th class="py-3 px-4">Keterangan / Agenda</th>
-                            <th class="py-3 px-4">Th. Ajaran</th>
-                            <th class="py-3 px-4">Ditetapkan Oleh</th>
-                            <th class="py-3 px-4 text-right">Aksi</th>
+                            <th scope="col" class="py-3 px-4">Tanggal &amp; Hari</th>
+                            <th scope="col" class="py-3 px-4">Keterangan / Agenda</th>
+                            <th scope="col" class="py-3 px-4">Th. Ajaran</th>
+                            <th scope="col" class="py-3 px-4">Ditetapkan Oleh</th>
+                            <th scope="col" class="py-3 px-4 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-200/60 dark:divide-[#2B2B30] text-xs text-zinc-700 dark:text-[#EDEDF0]">
@@ -90,7 +91,7 @@
                                 $isToday = $day->date->isToday();
                                 $isFuture = $day->date->isFuture();
                             @endphp
-                            <tr class="hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 dark:bg-amber-950/20 font-medium' : '' }}">
+                            <tr class="hover:bg-zinc-50 dark:hover:bg-[#232327] transition-colors {{ $isToday ? 'bg-amber-50/30 dark:bg-amber-950/20 font-medium' : '' }}">
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-zinc-900 dark:text-[#EDEDF0] font-mono">
@@ -124,17 +125,18 @@
                                     <form 
                                         method="POST" 
                                         action="{{ route('ineffective-days.destroy', $day) }}" 
-                                        onsubmit="return confirm('Hapus tanggal {{ $day->date->translatedFormat('d M Y') }} dari daftar hari tidak efektif?')"
+                                        data-confirm="Hapus tanggal {{ $day->date->translatedFormat('d M Y') }} dari daftar hari tidak efektif?"
+                                        data-confirm-title="Hapus Hari Tidak Efektif"
                                         class="inline-block"
                                     >
                                         @csrf
                                         @method('DELETE')
                                         <button 
                                             type="submit" 
-                                            class="p-1 text-zinc-400 hover:text-rose-600 rounded hover:bg-rose-50 transition cursor-pointer"
-                                            title="Hapus"
+                                            class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] p-1.5 text-zinc-500 dark:text-[#9496A1] hover:text-rose-700 dark:hover:text-rose-400 rounded hover:bg-rose-50 dark:hover:bg-[#2D1618] transition cursor-pointer"
+                                            aria-label="Hapus tanggal {{ $day->date->translatedFormat('d M Y') }}"
                                         >
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                             </svg>
                                         </button>
@@ -145,7 +147,7 @@
                             <tr>
                                 <td colspan="5" class="py-10 text-center text-zinc-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
-                                        <svg class="w-8 h-8 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <svg aria-hidden="true" class="w-8 h-8 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                         </svg>
                                         <p class="text-xs font-medium">Belum ada hari tidak efektif yang didaftarkan.</p>
@@ -172,46 +174,19 @@
         </div>
 
         {{-- Modal tambah hari tidak efektif --}}
-        <div 
-            x-show="showModal" 
-            x-cloak 
-            class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="modal-title" 
-            role="dialog" 
-            aria-modal="true"
-            @keydown.escape.window="showModal = false"
+        <dialog 
+            closedby="any"
+            x-effect="showModal ? ($el.open || $el.showModal()) : ($el.open && $el.close())"
+            @close="showModal = false"
+            @cancel.prevent="showModal = false"
+            aria-labelledby="ineffective-modal-title" 
+            class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl bg-white dark:bg-[#1D1D21] text-left shadow-2xl border border-zinc-200/80 dark:border-[#2B2B30] divide-y divide-zinc-200/80 dark:divide-[#2B2B30] p-0 overflow-y-auto"
         >
-            <!-- Backdrop Blur Overlay -->
-            <div 
-                x-show="showModal"
-                x-transition:enter="ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity"
-                @click="showModal = false"
-            ></div>
-
-            <!-- Modal Window -->
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
-                <div 
-                    x-show="showModal"
-                    x-transition:enter="ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
-                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave="ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                    class="relative transform overflow-hidden rounded-xl bg-white dark:bg-[#1D1D21] text-left shadow-2xl transition-all w-full max-w-lg border border-zinc-200/80 dark:border-[#2B2B30] divide-y divide-zinc-200/80 dark:divide-[#2B2B30]"
-                    @click.stop
-                >
                     <!-- Header -->
                     <div class="p-5 sm:p-6 flex items-start justify-between gap-4">
                         <div>
-                            <h2 id="modal-title" class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <h2 id="ineffective-modal-title" class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
+                                <svg aria-hidden="true" class="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                 </svg>
                                 Tetapkan Hari Tidak Efektif
@@ -226,7 +201,7 @@
                             class="p-1.5 rounded-md text-zinc-400 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition cursor-pointer"
                         >
                             <span class="sr-only">Tutup</span>
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -244,14 +219,14 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="!isRange ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
+                                    :class="!isRange ? 'border-zinc-900 dark:border-[#0073B1] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="false" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Satu Hari Saja</span>
                                 </label>
                                 <label 
                                     class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition text-xs font-medium"
-                                    :class="isRange ? 'border-zinc-900 dark:border-[#0093dd] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
+                                    :class="isRange ? 'border-zinc-900 dark:border-[#0073B1] bg-zinc-50 dark:bg-[#19191C] text-zinc-900 dark:text-[#EDEDF0] font-bold' : 'border-zinc-200 dark:border-[#2B2B30] text-zinc-600 dark:text-[#97979B] hover:bg-zinc-100 dark:hover:bg-[#26262A]'"
                                 >
                                     <input type="radio" name="mode" :value="true" x-model="isRange" class="text-zinc-900 focus:ring-zinc-900">
                                     <span>Rentang Hari (Libur)</span>
@@ -267,7 +242,7 @@
                                     id="start_date" 
                                     name="start_date" 
                                     type="date" 
-                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
+                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition" 
                                     value="{{ old('start_date', now()->format('Y-m-d')) }}" 
                                     required 
                                 />
@@ -280,7 +255,7 @@
                                     id="end_date" 
                                     name="end_date" 
                                     type="date" 
-                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
+                                    class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition" 
                                     value="{{ old('end_date') }}" 
                                 />
                                 <x-input-error :messages="$errors->get('end_date')" class="mt-1" />
@@ -295,7 +270,7 @@
                                 name="description" 
                                 type="text" 
                                 placeholder="Contoh: Class Meeting Semester Ganjil, Libur Nasional Maulid Nabi" 
-                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
+                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition" 
                                 value="{{ old('description') }}" 
                                 required 
                             />
@@ -309,7 +284,7 @@
                                 id="academic_year" 
                                 name="academic_year" 
                                 type="text" 
-                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-700 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition" 
+                                class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-zinc-50 dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-700 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition" 
                                 value="{{ old('academic_year', '2026/2027') }}" 
                             />
                             <x-input-error :messages="$errors->get('academic_year')" class="mt-1" />
@@ -325,14 +300,12 @@
                             </button>
                             <button 
                                 type="submit"
-                                class="px-5 py-2 bg-[#0093dd] hover:bg-[#0082c4] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition shadow-none cursor-pointer"
+                                class="px-5 py-2 bg-[#0073B1] hover:bg-[#005D8F] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition shadow-none cursor-pointer"
                             >
                                 Simpan Hari Tidak Efektif
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
+        </dialog>
     </div>
 </x-app-layout>

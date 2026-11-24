@@ -30,7 +30,7 @@
                 <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden divide-y divide-zinc-200 dark:divide-[#2B2B30]">
                     <div class="p-5 sm:p-6">
                         <h2 class="text-base font-semibold text-zinc-900 dark:text-[#EDEDF0] tracking-tight flex items-center gap-2">
-                            <svg class="w-5 h-5 text-zinc-700 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-5 h-5 text-zinc-700 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                             </svg>
                             Unggah Gambar Latar Belakang Baru
@@ -69,9 +69,9 @@
                                     <span id="preview_specs" class="font-mono text-[10px] text-zinc-500 dark:text-zinc-400"></span>
                                 </div>
                                 <div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden border border-zinc-300 dark:border-[#3A3A3F] bg-black/40">
-                                    <img id="preview_img" src="" alt="Pratinjau Gambar" class="w-full h-full object-cover" />
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
-                                        <span class="text-[10px] font-mono text-white/80">Simulasi Overlay Layar Masuk</span>
+                                    <div id="preview_img_slot" class="w-full h-full"></div>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3 pointer-events-none">
+                                        <span class="text-[11px] font-mono text-white/90">Simulasi Overlay Layar Masuk</span>
                                     </div>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@
                             <div class="pt-3 flex items-center gap-3">
                                 <button 
                                     type="submit" 
-                                    class="px-4 py-2 bg-[#0093dd] hover:bg-[#0082c5] text-white text-xs font-semibold rounded-lg shadow-sm transition"
+                                    class="min-h-[44px] sm:min-h-0 px-4 py-2 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer"
                                 >
                                     Simpan Latar Belakang
                                 </button>
@@ -92,15 +92,15 @@
                         <h3 class="text-xs font-semibold text-zinc-900 dark:text-[#EDEDF0]">
                             Kembalikan ke Latar Belakang Default
                         </h3>
-                        <p class="text-xs text-zinc-500 dark:text-[#97979B] mt-1">
+                        <p class="text-xs text-zinc-600 dark:text-[#9496A1] mt-1">
                             Hapus gambar khusus saat ini dan pulihkan tampilan gradasi warna brand bawaan.
                         </p>
-                        <form method="POST" action="{{ route('waka.settings.login-background.destroy') }}" class="mt-3" onsubmit="return confirm('Apakah Anda yakin ingin menghapus gambar latar dan kembali ke default?')">
+                        <form method="POST" action="{{ route('waka.settings.login-background.destroy') }}" class="mt-3" data-confirm="Apakah Anda yakin ingin menghapus gambar latar dan kembali ke default?" data-confirm-title="Reset Latar Belakang Login">
                             @csrf
                             @method('DELETE')
                             <button 
                                 type="submit" 
-                                class="px-3.5 py-1.5 bg-zinc-200 dark:bg-[#2B2B30] hover:bg-zinc-300 dark:hover:bg-[#34343A] text-zinc-800 dark:text-zinc-200 text-xs font-medium rounded-lg transition"
+                                class="min-h-[44px] sm:min-h-0 px-3.5 py-1.5 bg-zinc-200 dark:bg-[#2B2B30] hover:bg-zinc-300 dark:hover:bg-[#34343A] text-zinc-800 dark:text-zinc-200 text-xs font-medium rounded-lg transition cursor-pointer disabled:opacity-50"
                                 {{ !$config->login_background_path ? 'disabled' : '' }}
                             >
                                 Kembalikan ke Default
@@ -133,6 +133,9 @@
                             <img 
                                 src="{{ route('login.background', ['v' => $bgTimestamp]) }}" 
                                 alt="Latar Belakang Saat Ini" 
+                                width="1280"
+                                height="720"
+                                loading="lazy"
                                 class="w-full h-full object-cover"
                             />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-between p-3">
@@ -160,36 +163,4 @@
 
         </div>
     </div>
-
-    {{-- Native FileReader Preview Script --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileInput = document.getElementById('background_input');
-            const previewContainer = document.getElementById('preview_container');
-            const previewImg = document.getElementById('preview_img');
-            const previewSpecs = document.getElementById('preview_specs');
-
-            if (!fileInput) return;
-
-            fileInput.addEventListener('change', function (e) {
-                const file = e.target.files && e.target.files[0];
-                if (!file) {
-                    previewContainer.classList.add('hidden');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const tempImg = new Image();
-                    tempImg.onload = function () {
-                        previewImg.src = event.target.result;
-                        previewSpecs.textContent = `${tempImg.naturalWidth} \u00D7 ${tempImg.naturalHeight} px | ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
-                        previewContainer.classList.remove('hidden');
-                    };
-                    tempImg.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-    </script>
 </x-app-layout>

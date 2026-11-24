@@ -20,9 +20,19 @@ class SystemConfigurationController extends Controller
     {
         $config = SystemConfiguration::firstOrFail();
 
+        if ($config->is_schedule_locked) {
+            return redirect()->route('waka.settings')
+                ->with('error', 'Putaran tidak dapat diubah saat jadwal sedang dikunci. Buka kunci jadwal terlebih dahulu.');
+        }
+
+        $requestedCycle = $request->input('cycle');
+        $nextCycle = in_array($requestedCycle, ['Putaran 1', 'Putaran 2'], true)
+            ? $requestedCycle
+            : ($config->active_cycle === 'Putaran 1' ? 'Putaran 2' : 'Putaran 1');
+
         $config->update([
-            'active_cycle' => $config->active_cycle === 'Putaran 1' ? 'Putaran 2' : 'Putaran 1',
-            'updated_by' => $request->user()->id,
+            'active_cycle' => $nextCycle,
+            'updated_by'   => $request->user()->id,
         ]);
 
         return redirect()->route('waka.settings')
@@ -42,6 +52,27 @@ class SystemConfigurationController extends Controller
 
         return redirect()->route('waka.settings')
             ->with('success', "Jadwal berhasil {$status}.");
+    }
+
+    public function updateJournalTimeConfig(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'is_journal_time_restricted'   => ['nullable'],
+            'journal_fill_rule'            => ['required', 'in:during_and_after,during_schedule_only,anytime'],
+            'journal_early_buffer_minutes' => ['required', 'integer', 'min:0', 'max:120'],
+        ]);
+
+        $config = SystemConfiguration::firstOrFail();
+
+        $config->update([
+            'is_journal_time_restricted'   => $request->boolean('is_journal_time_restricted'),
+            'journal_fill_rule'            => $validated['journal_fill_rule'],
+            'journal_early_buffer_minutes' => (int) $validated['journal_early_buffer_minutes'],
+            'updated_by'                   => $request->user()->id,
+        ]);
+
+        return redirect()->route('waka.settings')
+            ->with('success', 'Pengaturan waktu pengisian jurnal berhasil diperbarui.');
     }
 
     public function updateGeminiConfig(Request $request): RedirectResponse

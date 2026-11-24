@@ -156,8 +156,28 @@ class LeaveDecisionAndWaliMenuD5Test extends TestCase
                 ->assertSee('Disetujui oleh BK: DRA. ENDANG SULISTYOWATI');
         }
 
-        // 2. Wali overrides to Rejected via Web -> last decision recorded & attendance re-synced to Alpa
+        // 2. Wali cannot decide via Web or API (view-only) -> 403 & BK decision remains intact
         $this->actingAs($this->waliA)
+            ->patch(route('leave-requests.update-status', $leave), [
+                'status_approval' => 'Rejected',
+            ])
+            ->assertForbidden();
+
+        Sanctum::actingAs($this->waliA);
+        $this->patchJson("/api/v1/leave-requests/{$leave->id}/status", [
+            'status_approval' => 'Rejected',
+        ])
+            ->assertForbidden();
+
+        $leave->refresh();
+        $attendance->refresh();
+        $this->assertSame('Approved', $leave->status_approval);
+        $this->assertSame($this->bkA->id, (int) $leave->decided_by_user_id);
+        $this->assertSame('BK', $leave->decided_by_role);
+        $this->assertSame('Sakit', $attendance->status);
+
+        // 3. BK overrides to Rejected via Web -> last decision recorded & attendance re-synced to Alpa
+        $this->actingAs($this->bkA)
             ->patch(route('leave-requests.update-status', $leave), [
                 'status_approval' => 'Rejected',
             ])
@@ -166,34 +186,34 @@ class LeaveDecisionAndWaliMenuD5Test extends TestCase
         $leave->refresh();
         $attendance->refresh();
         $this->assertSame('Rejected', $leave->status_approval);
-        $this->assertSame($this->waliA->id, (int) $leave->decided_by_user_id);
-        $this->assertSame('Wali', $leave->decided_by_role);
+        $this->assertSame($this->bkA->id, (int) $leave->decided_by_user_id);
+        $this->assertSame('BK', $leave->decided_by_role);
         $this->assertNotNull($leave->decided_at);
-        $this->assertSame('Ditolak oleh Wali: HARIS PURWANTO, S.Kom', $leave->decisionLabel());
+        $this->assertSame('Ditolak oleh BK: DRA. ENDANG SULISTYOWATI', $leave->decisionLabel());
         $this->assertSame('Alpa', $attendance->status);
 
         foreach ([$this->bkA, $this->waliA, $this->studentA, $this->parentA] as $viewer) {
             $this->actingAs($viewer)
                 ->get(route('leave-requests.show', $leave))
                 ->assertOk()
-                ->assertSee('Ditolak oleh Wali: HARIS PURWANTO, S.Kom');
+                ->assertSee('Ditolak oleh BK: DRA. ENDANG SULISTYOWATI');
         }
 
-        // 3. Wali approves via API -> last decision recorded & attendance re-synced to Sakit
-        Sanctum::actingAs($this->waliA);
+        // 4. BK approves via API -> last decision recorded & attendance re-synced to Sakit
+        Sanctum::actingAs($this->bkA);
         $this->patchJson("/api/v1/leave-requests/{$leave->id}/status", [
             'status_approval' => 'Approved',
         ])
             ->assertOk()
             ->assertJsonPath('data.status_approval', 'Approved')
-            ->assertJsonPath('data.decided_by_user_id', $this->waliA->id)
-            ->assertJsonPath('data.decided_by_role', 'Wali')
-            ->assertJsonPath('data.decision_label', 'Disetujui oleh Wali: HARIS PURWANTO, S.Kom');
+            ->assertJsonPath('data.decided_by_user_id', $this->bkA->id)
+            ->assertJsonPath('data.decided_by_role', 'BK')
+            ->assertJsonPath('data.decision_label', 'Disetujui oleh BK: DRA. ENDANG SULISTYOWATI');
 
         $attendance->refresh();
         $this->assertSame('Sakit', $attendance->status);
 
-        // 4. Reset to Pending clears decision metadata
+        // 5. Reset to Pending clears decision metadata
         Sanctum::actingAs($this->bkA);
         $this->patchJson("/api/v1/leave-requests/{$leave->id}/status", [
             'status_approval' => 'Pending',
@@ -283,8 +303,15 @@ class LeaveDecisionAndWaliMenuD5Test extends TestCase
             ->assertDontSee('Sakit demam')
             ->assertDontSee('Izin liburan');
 
-        // Wali sees verification buttons on leave-requests.show
+        // Wali is view-only on leave-requests.show (no verification buttons); BK sees them
         $this->actingAs($this->waliA)
+            ->get(route('leave-requests.show', $pending))
+            ->assertOk()
+            ->assertDontSee('Keputusan Verifikasi Kesiswaan')
+            ->assertDontSee('Setujui')
+            ->assertDontSee('Tolak');
+
+        $this->actingAs($this->bkA)
             ->get(route('leave-requests.show', $pending))
             ->assertOk()
             ->assertSee('Keputusan Verifikasi Kesiswaan')

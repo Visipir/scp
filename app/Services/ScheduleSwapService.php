@@ -864,7 +864,7 @@ class ScheduleSwapService
      *     filters: array<string, mixed>
      * }
      */
-    public function getWakaSwapReport(array $filters = [], int $perPage = 25): array
+    public function getWakaSwapReport(array $filters = [], int $perPage = 15): array
     {
         $this->autoExpirePendingSwaps();
 
@@ -1029,7 +1029,7 @@ class ScheduleSwapService
      *
      * @param  array<string, mixed>  $filters
      */
-    public function getWakaSwapLogs(array $filters = [], int $perPage = 25): LengthAwarePaginator
+    public function getWakaSwapLogs(array $filters = [], int $perPage = 15, string $pageName = 'logs_page'): LengthAwarePaginator
     {
         $query = ScheduleSwapLog::with([
             'swap.requester',
@@ -1057,7 +1057,7 @@ class ScheduleSwapService
 
         return $query->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], $pageName);
     }
 
     /**

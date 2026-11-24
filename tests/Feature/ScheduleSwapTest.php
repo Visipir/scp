@@ -651,7 +651,7 @@ class ScheduleSwapTest extends TestCase
         // Print view
         $printRes = $this->actingAs($this->waka)->get('/schedule-swaps/print');
         $printRes->assertOk();
-        $printRes->assertSee('SMA PGRI 1 KUDUS');
+        $printRes->assertSee('SMK NEGERI 1 BANTUL');
         $printRes->assertSee('Laporan Pertukaran Jadwal Mengajar Guru');
     }
 }

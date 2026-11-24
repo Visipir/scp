@@ -488,7 +488,7 @@ class JournalApiTest extends TestCase
         $resFilled->assertJsonPath('meta.filled', 1);
     }
 
-    public function test_create_journal_before_schedule_start_time_succeeds(): void
+    public function test_create_journal_before_schedule_start_time_restricted(): void
     {
         $guru = $this->makeUser(2);
         $class = $this->makeClass('XI BR 2');
@@ -509,7 +509,7 @@ class JournalApiTest extends TestCase
             'end_time'    => '15:30',
         ]);
 
-        // Teacher submits journal early in the morning (06:30)
+        // Teacher submits journal early in the morning (06:30) while restriction is active (default)
         $this->travelTo($today->copy()->setTime(6, 30, 0));
         Storage::fake('local');
 
@@ -520,7 +520,24 @@ class JournalApiTest extends TestCase
             'photo'             => UploadedFile::fake()->image('foto_lab.jpg'),
         ]);
 
-        $response->assertStatus(201);
+        // Should be rejected because lesson has not started yet
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['schedule_id']);
+        $this->assertStringContainsString('Jam pelajaran belum dimulai', $response->json('errors.schedule_id.0'));
+
+        // If Waka turns off restriction, early submission succeeds
+        $this->makeConfig([
+            'is_journal_time_restricted' => false,
+        ]);
+
+        $responseSuccess = $this->apiAs($guru)->post('/api/v1/journals', [
+            'schedule_id'       => $sched->id,
+            'date'              => $today->toDateString(),
+            'topic_description' => 'Persiapan Praktikum Kimia',
+            'photo'             => UploadedFile::fake()->image('foto_lab.jpg'),
+        ]);
+
+        $responseSuccess->assertStatus(201);
         $this->assertDatabaseHas('journals', [
             'schedule_id'       => $sched->id,
             'topic_description' => 'Persiapan Praktikum Kimia',

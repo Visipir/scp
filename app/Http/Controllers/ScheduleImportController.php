@@ -133,8 +133,37 @@ class ScheduleImportController extends Controller
         try {
             $parsedItems = $parser->parsePdf($request->file('schedule_pdf'), $targetCycle);
         } catch (\Throwable $e) {
-            Log::error('Schedule Import Parsing Failed: ' . $e->getMessage());
-            return back()->with('error', 'Gagal memproses jadwal dengan AI: ' . $e->getMessage());
+            Log::warning('Schedule Import Gemini Parsing Failed, attempting FET local fallback: ' . $e->getMessage());
+            try {
+                $fetParser = app(\App\Services\FetScheduleParserService::class);
+                $slots = $fetParser->parsePdf($request->file('schedule_pdf')->getRealPath());
+                if (!empty($slots)) {
+                    $parsedItems = [];
+                    foreach ($slots as $slot) {
+                        $p = $slot['period'] ?? 1;
+                        $d = $slot['day'] ?? 'Senin';
+                        $pStartTime = \App\Services\LessonHourService::getStartTime($p, $d, $targetCycle) ?? '07:15:00';
+                        $pEndTime = \App\Services\LessonHourService::getEndTime($p, $d, $targetCycle) ?? '08:00:00';
+                        $parsedItems[] = [
+                            'class_name'   => $slot['class_raw'] ?? '',
+                            'subject'      => $slot['subject'] ?? 'Pelajaran',
+                            'day_of_week'  => $d,
+                            'room_name'    => $slot['room_raw'] ?? 'Ruang 1',
+                            'teacher_name' => $slot['teacher_raw'] ?? '',
+                            'teacher_code' => $slot['teacher_code'] ?? '',
+                            'start_time'   => $pStartTime,
+                            'end_time'     => $pEndTime,
+                            'period'       => $p,
+                        ];
+                    }
+                }
+            } catch (\Throwable $fallbackEx) {
+                Log::error('FET local parser fallback also failed: ' . $fallbackEx->getMessage());
+            }
+
+            if (empty($parsedItems)) {
+                return back()->with('error', 'Gagal memproses jadwal dengan AI maupun parser lokal: ' . $e->getMessage());
+            }
         }
 
         if (empty($parsedItems)) {
@@ -154,13 +183,13 @@ class ScheduleImportController extends Controller
             foreach ($parsedItems as $item) {
                 $className = trim($item['class_name'] ?? '');
                 $subject = trim($item['subject'] ?? 'Pelajaran');
-                $dayOfWeek = trim($item['day_of_week'] ?? 'Senin');
+                $dayOfWeek = \App\Http\Controllers\AiImporterController::normalizeDay($item['day_of_week'] ?? 'Senin');
                 $roomName = trim($item['room_name'] ?? 'R. Teori');
                 $teacherName = trim($item['teacher_name'] ?? '');
                 $teacherCode = trim($item['teacher_code'] ?? '');
                 $startTime = trim($item['start_time'] ?? '');
                 $endTime = trim($item['end_time'] ?? '');
-                $cycleType = $targetCycle;
+                $cycleType = \App\Http\Controllers\AiImporterController::normalizeCycle($targetCycle);
 
                 if (empty($className) || empty($startTime) || empty($endTime)) {
                     continue;
@@ -171,29 +200,10 @@ class ScheduleImportController extends Controller
                 $endTime = strlen($endTime) === 5 ? "{$endTime}:00" : substr($endTime, 0, 8);
 
                 // 1. Resolve Class
-                $class = SchoolClass::where('class_name', $className)->first();
-                if (!$class) {
-                    $class = SchoolClass::create([
-                        'class_name'    => $className,
-                        'academic_year' => '2026/2027',
-                    ]);
-                    $newClassesCount++;
-                }
+                $class = SchoolClass::resolveOrCreate($className, $cycleType);
 
                 // 2. Resolve Room (Normalize theory rooms to numbered rooms)
-                if (preg_match('/^(?:teori|r\.?\s*teori|ruang)\s*(\d+)$/i', $roomName, $m)) {
-                    $roomName = 'Ruang ' . $m[1];
-                } elseif (in_array(strtolower($roomName), ['teori', 'ruang teori', 'r. teori', 'ruang kbm', 'kbm'])) {
-                    $roomName = 'Ruang 1';
-                }
-
-                $room = Room::where('room_name', $roomName)->first();
-                if (!$room) {
-                    $room = Room::create([
-                        'room_name' => $roomName ?: 'Ruang 1',
-                    ]);
-                    $newRoomsCount++;
-                }
+                $room = Room::resolveOrCreate($roomName);
 
                 // 3. Resolve Teacher (Guru role_id = 2)
                 $teacher = null;

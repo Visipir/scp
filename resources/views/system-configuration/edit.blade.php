@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-6 max-w-3xl">
+    <div class="space-y-6">
 
         @if(session('success'))
             <x-alert-banner type="success">{{ session('success') }}</x-alert-banner>
@@ -39,6 +39,11 @@
                     <p class="text-xs text-zinc-500 dark:text-[#97979B] max-w-sm leading-relaxed">
                         Mengubah siklus putaran 2-mingguan sistem.
                     </p>
+                    @if($config->is_schedule_locked ?? false)
+                        <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">
+                            Putaran dikunci. Buka kunci jadwal untuk mengubah putaran.
+                        </p>
+                    @endif
                 </div>
 
                 <form method="POST" action="{{ route('system-configuration.toggle-cycle') }}" class="shrink-0">
@@ -50,7 +55,8 @@
                             type="submit"
                             name="cycle"
                             value="Putaran 1"
-                            class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 {{ ($config->active_cycle ?? 'Putaran 1') === 'Putaran 1' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
+                            @disabled($config->is_schedule_locked ?? false)
+                            class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed {{ ($config->active_cycle ?? 'Putaran 1') === 'Putaran 1' ? 'bg-[#0073B1] text-white shadow-xs' : 'text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                         >
                             Putaran 1
                         </button>
@@ -58,7 +64,8 @@
                             type="submit"
                             name="cycle"
                             value="Putaran 2"
-                            class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 {{ ($config->active_cycle ?? 'Putaran 1') === 'Putaran 2' ? 'bg-[#0093dd] text-white shadow-xs' : 'text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
+                            @disabled($config->is_schedule_locked ?? false)
+                            class="px-4 py-2 text-xs font-bold font-mono uppercase tracking-wider rounded transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed {{ ($config->active_cycle ?? 'Putaran 1') === 'Putaran 2' ? 'bg-[#0073B1] text-white shadow-xs' : 'text-zinc-500 dark:text-[#97979B] hover:text-zinc-900 dark:hover:text-[#EDEDF0] hover:bg-zinc-200 dark:hover:bg-[#26262A]' }}"
                         >
                             Putaran 2
                         </button>

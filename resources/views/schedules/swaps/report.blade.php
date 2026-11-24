@@ -8,7 +8,7 @@
                 href="{{ route('schedule-swaps.export-csv', request()->query()) }}" 
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-[#1E1E22] rounded-lg border border-zinc-200 dark:border-[#2B2B30] hover:bg-zinc-50 dark:hover:bg-[#26262A] transition"
             >
-                <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg aria-hidden="true" class="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M7.5 12L12 16.5m0 0L16.5 12M12 16.5V3" />
                 </svg>
                 <span>Ekspor CSV</span>
@@ -18,7 +18,7 @@
                 target="_blank"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-[#1E1E22] rounded-lg border border-zinc-200 dark:border-[#2B2B30] hover:bg-zinc-50 dark:hover:bg-[#26262A] transition"
             >
-                <svg class="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg aria-hidden="true" class="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.656h10.5z" />
                 </svg>
                 <span>Cetak / PDF</span>
@@ -54,7 +54,7 @@
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider">Total Pengajuan</span>
                     <div class="w-8 h-8 rounded-lg bg-sky-50 dark:bg-[#16222F] text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700/60 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                         </svg>
                     </div>
@@ -71,7 +71,7 @@
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Disetujui</span>
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-[#16281D] text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                         </svg>
                     </div>
@@ -88,7 +88,7 @@
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Menunggu</span>
                     <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-[#282115] text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
@@ -105,7 +105,7 @@
                 <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
                     <span class="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400">Ditolak / Batal / Expired</span>
                     <div class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-[#2D1618] text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-700/60 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </div>
@@ -124,30 +124,30 @@
             <button 
                 type="button" 
                 @click="activeTab = 'swaps'"
-                :class="activeTab === 'swaps' ? 'border-[#0093dd] text-[#0093dd] dark:text-[#0093dd]' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'"
-                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2"
+                :class="activeTab === 'swaps' ? 'border-[#0073B1] text-[#0073B1] dark:text-[#38BDF8]' : 'border-transparent text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-zinc-200'"
+                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2 min-h-[44px] sm:min-h-0"
             >
                 <span>Daftar Tukar Jadwal</span>
-                <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                <span class="px-1.5 py-0.5 text-[11px] font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
                     {{ $swaps->total() }}
                 </span>
             </button>
             <button 
                 type="button" 
                 @click="activeTab = 'teachers'"
-                :class="activeTab === 'teachers' ? 'border-[#0093dd] text-[#0093dd] dark:text-[#0093dd]' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'"
-                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2"
+                :class="activeTab === 'teachers' ? 'border-[#0073B1] text-[#0073B1] dark:text-[#38BDF8]' : 'border-transparent text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-zinc-200'"
+                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2 min-h-[44px] sm:min-h-0"
             >
                 <span>Rekap per Guru</span>
-                <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
-                    {{ $teacherRecap->count() }}
+                <span class="px-1.5 py-0.5 text-[11px] font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                    {{ method_exists($teacherRecap, 'total') ? $teacherRecap->total() : $teacherRecap->count() }}
                 </span>
             </button>
             <button 
                 type="button" 
                 @click="activeTab = 'logs'"
-                :class="activeTab === 'logs' ? 'border-[#0093dd] text-[#0093dd] dark:text-[#0093dd]' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'"
-                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2"
+                :class="activeTab === 'logs' ? 'border-[#0073B1] text-[#0073B1] dark:text-[#38BDF8]' : 'border-transparent text-zinc-600 dark:text-[#9496A1] hover:text-zinc-900 dark:hover:text-zinc-200'"
+                class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2 min-h-[44px] sm:min-h-0"
             >
                 <span>Log Aktivitas</span>
                 <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
@@ -164,32 +164,35 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                     {{-- Start Date --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Mulai Tanggal</label>
+                        <label for="swap_filter_start_date" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Mulai Tanggal</label>
                         <input 
+                            id="swap_filter_start_date"
                             type="date" 
                             name="start_date" 
                             value="{{ $activeFilters['start_date'] }}"
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                     </div>
 
                     {{-- End Date --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Sampai Tanggal</label>
+                        <label for="swap_filter_end_date" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Sampai Tanggal</label>
                         <input 
+                            id="swap_filter_end_date"
                             type="date" 
                             name="end_date" 
                             value="{{ $activeFilters['end_date'] }}"
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                     </div>
 
                     {{-- Status --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Status</label>
+                        <label for="swap_filter_status" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Status</label>
                         <select 
+                            id="swap_filter_status"
                             name="status" 
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                             <option value="all" {{ ($activeFilters['status'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Status</option>
                             <option value="approved" {{ ($activeFilters['status'] ?? '') === 'approved' ? 'selected' : '' }}>Disetujui</option>
@@ -202,10 +205,11 @@
 
                     {{-- Teacher --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Guru</label>
+                        <label for="swap_filter_teacher" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Guru</label>
                         <select 
+                            id="swap_filter_teacher"
                             name="teacher_id" 
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                             <option value="">Semua Guru</option>
                             @foreach($teachers as $t)
@@ -218,10 +222,11 @@
 
                     {{-- Class --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Kelas</label>
+                        <label for="swap_filter_class" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Kelas</label>
                         <select 
+                            id="swap_filter_class"
                             name="class_id" 
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                             <option value="">Semua Kelas</option>
                             @foreach($classes as $c)
@@ -234,10 +239,11 @@
 
                     {{-- Putaran / Cycle --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Putaran</label>
+                        <label for="swap_filter_cycle" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Putaran</label>
                         <select 
+                            id="swap_filter_cycle"
                             name="cycle" 
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-2.5 py-1.5 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         >
                             <option value="all" {{ ($activeFilters['cycle'] ?? '') === 'all' ? 'selected' : '' }}>Semua Putaran</option>
                             <option value="Putaran 1" {{ ($activeFilters['cycle'] ?? '') === 'Putaran 1' ? 'selected' : '' }}>Putaran 1</option>
@@ -248,14 +254,17 @@
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                     <div class="relative flex-1">
+                        <label for="swap_filter_search" class="sr-only">Cari guru, mata pelajaran, atau catatan</label>
                         <input 
-                            type="text" 
+                            id="swap_filter_search"
+                            type="search" 
+                            enterkeyhint="search"
                             name="search" 
                             value="{{ $activeFilters['search'] ?? '' }}"
-                            placeholder="Cari guru, mata pelajaran, atau catatan..." 
-                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-3 py-1.5 pl-8 focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd]"
+                            placeholder="Cari guru, mata pelajaran, atau catatan…" 
+                            class="w-full text-xs rounded-lg border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/80 text-zinc-900 dark:text-white px-3 py-1.5 pl-8 focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1]"
                         />
-                        <svg class="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
                         </svg>
                     </div>
@@ -269,7 +278,7 @@
                         </a>
                         <button 
                             type="submit" 
-                            class="px-4 py-1.5 text-xs font-semibold text-white bg-[#0093dd] hover:bg-[#0082c4] rounded-lg transition text-center shadow-xs"
+                            class="px-4 py-1.5 text-xs font-semibold text-white bg-[#0073B1] hover:bg-[#005D8F] rounded-lg transition text-center shadow-xs"
                         >
                             Terapkan Filter
                         </button>
@@ -281,18 +290,19 @@
         {{-- Daftar tukar jadwal --}}
         <div x-show="activeTab === 'swaps'" class="space-y-4">
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2B2B30] rounded-xl overflow-hidden shadow-xs">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
+                <div tabindex="0" role="region" aria-label="Daftar Pengajuan Tukar Jadwal" class="overflow-x-auto table-scroll-region">
+                    <table class="w-full text-left text-xs tabular-nums">
+                        <caption class="sr-only">Daftar Pengajuan Pertukaran Jadwal Mengajar Guru</caption>
                         <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-b border-zinc-200 dark:border-[#2B2B30] font-semibold uppercase tracking-wider text-[11px]">
                             <tr>
-                                <th class="py-3 px-4">Tanggal &amp; Putaran</th>
-                                <th class="py-3 px-4">Guru Pemohon &amp; Jadwal</th>
-                                <th class="py-3 px-4">Guru Target &amp; Jadwal</th>
-                                <th class="py-3 px-4">Status</th>
-                                <th class="py-3 px-4">Jurnal Terisi</th>
-                                <th class="py-3 px-4">Diajukan</th>
-                                <th class="py-3 px-4">Diputuskan</th>
-                                <th class="py-3 px-4 text-right">Aksi</th>
+                                <th scope="col" class="py-3 px-4">Tanggal &amp; Putaran</th>
+                                <th scope="col" class="py-3 px-4">Guru Pemohon &amp; Jadwal</th>
+                                <th scope="col" class="py-3 px-4">Guru Target &amp; Jadwal</th>
+                                <th scope="col" class="py-3 px-4">Status</th>
+                                <th scope="col" class="py-3 px-4">Jurnal Terisi</th>
+                                <th scope="col" class="py-3 px-4">Diajukan</th>
+                                <th scope="col" class="py-3 px-4">Diputuskan</th>
+                                <th scope="col" class="py-3 px-4 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -375,7 +385,7 @@
                                                     @click.stop
                                                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 hover:underline"
                                                 >
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <svg aria-hidden="true" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                                                     </svg>
                                                     <span>Sudah Diisi</span>
@@ -408,7 +418,7 @@
                             @empty
                                 <tr>
                                     <td colspan="8" class="py-12 text-center text-zinc-400 dark:text-zinc-500">
-                                        <svg class="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <svg aria-hidden="true" class="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                                         </svg>
                                         Tidak ada data pertukaran jadwal yang sesuai dengan filter.
@@ -436,34 +446,36 @@
                         <p class="text-xs text-zinc-500 dark:text-zinc-400">Total aktivitas pengajuan dan penerimaan pertukaran jadwal periode ini</p>
                     </div>
                     <div class="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-                        {{ $teacherRecap->count() }} Guru Terdaftar
+                        {{ method_exists($teacherRecap, 'total') ? $teacherRecap->total() : $teacherRecap->count() }} Guru Terdaftar
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
+                <div tabindex="0" role="region" aria-label="Rekapitulasi Aktivitas Tukar Jadwal per Guru" class="overflow-x-auto table-scroll-region">
+                    <table class="w-full text-left text-xs tabular-nums">
+                        <caption class="sr-only">Peringkat dan Rekapitulasi Tukar Jadwal Guru</caption>
                         <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-b border-zinc-200 dark:border-[#2B2B30] font-semibold uppercase tracking-wider text-[11px]">
                             <tr>
-                                <th class="py-3 px-4 w-12 text-center">Rank</th>
-                                <th class="py-3 px-4">Nama Guru</th>
-                                <th class="py-3 px-4 text-center">Diajukan</th>
-                                <th class="py-3 px-4 text-center">Diterima</th>
-                                <th class="py-3 px-4 text-center">Disetujui</th>
-                                <th class="py-3 px-4 text-center">Ditolak</th>
-                                <th class="py-3 px-4 text-center">Total Aktivitas</th>
-                                <th class="py-3 px-4">Tukar Terakhir</th>
+                                <th scope="col" class="py-3 px-4 w-12 text-center">Rank</th>
+                                <th scope="col" class="py-3 px-4">Nama Guru</th>
+                                <th scope="col" class="py-3 px-4 text-center">Diajukan</th>
+                                <th scope="col" class="py-3 px-4 text-center">Diterima</th>
+                                <th scope="col" class="py-3 px-4 text-center">Disetujui</th>
+                                <th scope="col" class="py-3 px-4 text-center">Ditolak</th>
+                                <th scope="col" class="py-3 px-4 text-center">Total Aktivitas</th>
+                                <th scope="col" class="py-3 px-4">Tukar Terakhir</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
                             @forelse($teacherRecap as $index => $recap)
                                 <tr class="{{ $recap['is_top_5'] ? 'bg-amber-50/20 dark:bg-amber-950/10' : '' }} hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
                                     <td class="py-3 px-4 text-center font-mono font-bold">
+                                        @php $rankNum = (method_exists($teacherRecap, 'firstItem') && $teacherRecap->firstItem() ? $teacherRecap->firstItem() : 1) + $index; @endphp
                                         @if($recap['is_top_5'])
                                             <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 text-[10px]">
-                                                #{{ $index + 1 }}
+                                                #{{ $rankNum }}
                                             </span>
                                         @else
-                                            <span class="text-zinc-400">#{{ $index + 1 }}</span>
+                                            <span class="text-zinc-400">#{{ $rankNum }}</span>
                                         @endif
                                     </td>
                                     <td class="py-3 px-4">
@@ -508,6 +520,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if(method_exists($teacherRecap, 'hasPages') && $teacherRecap->hasPages())
+                    <div class="p-4 border-t border-zinc-200 dark:border-[#2B2B30]">
+                        {{ $teacherRecap->links() }}
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -591,54 +609,30 @@
         </div>
 
         {{-- Drawer detail --}}
-        <div 
-            x-show="drawerOpen" 
-            style="display: none;"
-            class="fixed inset-0 z-50 overflow-hidden" 
+        <dialog 
+            closedby="any"
+            x-effect="drawerOpen ? ($el.open || $el.showModal()) : ($el.open && $el.close())"
+            @close="closeDrawer()"
+            @cancel.prevent="closeDrawer()"
             aria-labelledby="slide-over-title" 
-            role="dialog" 
-            aria-modal="true"
+            class="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-full max-w-md bg-white dark:bg-[#1E1E22] border-l border-zinc-200 dark:border-[#2B2B30] shadow-2xl p-0 open:flex flex-col text-left"
         >
-            <div class="absolute inset-0 overflow-hidden">
-                {{-- Backdrop --}}
-                <div 
-                    x-show="drawerOpen"
-                    x-transition:enter="ease-in-out duration-300"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-100"
-                    x-transition:leave="ease-in-out duration-300"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    class="absolute inset-0 bg-zinc-950/60 backdrop-blur-xs transition-opacity" 
-                    @click="closeDrawer()"
-                ></div>
-
-                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-                    <div 
-                        x-show="drawerOpen"
-                        x-transition:enter="transform transition ease-in-out duration-300"
-                        x-transition:enter-start="translate-x-full"
-                        x-transition:enter-end="translate-x-0"
-                        x-transition:leave="transform transition ease-in-out duration-300"
-                        x-transition:leave-start="translate-x-0"
-                        x-transition:leave-end="translate-x-full"
-                        class="pointer-events-auto w-screen max-w-md bg-white dark:bg-[#1E1E22] border-l border-zinc-200 dark:border-[#2B2B30] shadow-2xl flex flex-col"
-                    >
                         {{-- Drawer Header --}}
                         <div class="p-5 border-b border-zinc-200 dark:border-[#2B2B30] flex items-center justify-between">
                             <div>
-                                <h2 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                                <h2 id="slide-over-title" class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                                     <span>Detail Pertukaran Jadwal</span>
                                     <span class="text-xs font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300" x-text="activeSwap ? '#' + activeSwap.id : ''"></span>
                                 </h2>
-                                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5" x-text="activeSwap ? activeSwap.swap_date + ' • ' + activeSwap.cycle : ''"></p>
+                                <p class="text-xs text-zinc-600 dark:text-[#9496A1] mt-0.5" x-text="activeSwap ? activeSwap.swap_date + ' • ' + activeSwap.cycle : ''"></p>
                             </div>
                             <button 
                                 type="button" 
                                 @click="closeDrawer()"
-                                class="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                                aria-label="Tutup panel detail"
+                                class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                             >
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
@@ -704,7 +698,7 @@
                                         </div>
 
                                         <div class="flex justify-center text-zinc-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
                                             </svg>
                                         </div>
@@ -746,7 +740,7 @@
                                                     <div class="relative">
                                                         <div class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#1E1E22]"
                                                             :class="{
-                                                                'bg-[#0093dd]': log.event === 'requested',
+                                                                'bg-[#0073B1]': log.event === 'requested',
                                                                 'bg-emerald-500': log.event === 'approved',
                                                                 'bg-rose-500': log.event === 'rejected',
                                                                 'bg-zinc-500': log.event === 'cancelled' || log.event === 'expired',
@@ -767,9 +761,6 @@
                                 </div>
                             </template>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </dialog>
     </div>
 </x-app-layout>

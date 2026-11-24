@@ -37,7 +37,6 @@ class UiConsistencyTest extends TestCase
             '/classes' => 'Data Kelas',
             '/users' => 'Manajemen Pengguna',
             '/waka/settings' => 'Pengaturan Kurikulum',
-            '/system-configuration/email' => 'Pengaturan Email',
             '/profile' => 'Profil',
         ];
 
@@ -50,6 +49,14 @@ class UiConsistencyTest extends TestCase
             $response->assertSee('Putaran 2', false);
             $response->assertSee('Jadwal Terkunci', false);
         }
+
+        // Email SMTP technical config is restricted to Superadmin (role 5)
+        $this->actingAs($waka)->get('/system-configuration/email')->assertForbidden();
+
+        $superadmin = $this->makeUser(5, ['email' => 'sa@example.test', 'email_verified_at' => now()]);
+        $emailRes = $this->actingAs($superadmin)->get('/system-configuration/email');
+        $emailRes->assertStatus(200);
+        $emailRes->assertSee('Pengaturan Email', false);
     }
 
     public function test_teacher_dashboard_and_pages_render_cleanly_with_uniform_titles(): void

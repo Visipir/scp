@@ -13,7 +13,7 @@
         </div>
     </x-slot>
 
-    <div class="max-w-2xl">
+    <div class="space-y-6">
         <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200/80 dark:border-[#2C2C30] rounded-lg p-6 sm:p-8 space-y-6">
             <div class="border-b border-zinc-200/80 dark:border-[#2C2C30] pb-4">
                 <h2 class="text-base font-bold text-zinc-900 dark:text-[#EDEDF0] tracking-tight">
@@ -35,7 +35,7 @@
                             id="student_id"
                             name="student_id"
                             required
-                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition"
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition"
                         >
                             @if(auth()->user()->class_id)
                                 <option value="{{ auth()->id() }}" @selected(old('student_id') == auth()->id())>
@@ -54,6 +54,61 @@
                     <input type="hidden" name="student_id" value="{{ auth()->id() }}">
                 @endif
 
+                {{-- Kategori Ketidakhadiran (Izin, Sakit, Dispensasi, Lainnya) --}}
+                <div x-data="{ selectedCategory: '{{ old('category', 'Izin') }}' }">
+                    <x-input-label value="Jenis Permohonan *" />
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-1.5">
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-lg border cursor-pointer transition text-center select-none"
+                            :class="selectedCategory === 'Izin' 
+                                ? 'border-[#0073B1] bg-sky-50/70 dark:bg-sky-950/30 text-[#0073B1] dark:text-sky-300 font-bold ring-1 ring-[#0073B1]' 
+                                : 'border-zinc-200 dark:border-[#2C2C30] bg-white dark:bg-[#19191C] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-50 dark:hover:bg-[#232327]'">
+                            <input type="radio" name="category" value="Izin" class="sr-only" x-model="selectedCategory" required>
+                            <svg aria-hidden="true" class="w-5 h-5 mb-1 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                            <span class="text-xs">Izin</span>
+                            <span class="text-[10px] text-zinc-400 dark:text-[#5B5B61] mt-0.5 font-normal">Urusan / Keluarga</span>
+                        </label>
+
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-lg border cursor-pointer transition text-center select-none"
+                            :class="selectedCategory === 'Sakit' 
+                                ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 font-bold ring-1 ring-purple-500' 
+                                : 'border-zinc-200 dark:border-[#2C2C30] bg-white dark:bg-[#19191C] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-50 dark:hover:bg-[#232327]'">
+                            <input type="radio" name="category" value="Sakit" class="sr-only" x-model="selectedCategory">
+                            <svg aria-hidden="true" class="w-5 h-5 mb-1 text-purple-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="text-xs">Sakit</span>
+                            <span class="text-[10px] text-zinc-400 dark:text-[#5B5B61] mt-0.5 font-normal">Kondisi Medis</span>
+                        </label>
+
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-lg border cursor-pointer transition text-center select-none"
+                            :class="selectedCategory === 'Dispensasi' 
+                                ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold ring-1 ring-blue-500' 
+                                : 'border-zinc-200 dark:border-[#2C2C30] bg-white dark:bg-[#19191C] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-50 dark:hover:bg-[#232327]'">
+                            <input type="radio" name="category" value="Dispensasi" class="sr-only" x-model="selectedCategory">
+                            <svg aria-hidden="true" class="w-5 h-5 mb-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0V4.875A1.875 1.875 0 0 0 12.625 3h-1.25a1.875 1.875 0 0 0-1.875 1.875v8.625m4.502 0h-4.502" />
+                            </svg>
+                            <span class="text-xs">Dispensasi</span>
+                            <span class="text-[10px] text-zinc-400 dark:text-[#5B5B61] mt-0.5 font-normal">Tugas / Lomba</span>
+                        </label>
+
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-lg border cursor-pointer transition text-center select-none"
+                            :class="selectedCategory === 'Lainnya' 
+                                ? 'border-zinc-500 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold ring-1 ring-zinc-500' 
+                                : 'border-zinc-200 dark:border-[#2C2C30] bg-white dark:bg-[#19191C] text-zinc-700 dark:text-[#EDEDF0] hover:bg-zinc-50 dark:hover:bg-[#232327]'">
+                            <input type="radio" name="category" value="Lainnya" class="sr-only" x-model="selectedCategory">
+                            <svg aria-hidden="true" class="w-5 h-5 mb-1 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                            </svg>
+                            <span class="text-xs">Lainnya</span>
+                            <span class="text-[10px] text-zinc-400 dark:text-[#5B5B61] mt-0.5 font-normal">Alasan Lain</span>
+                        </label>
+                    </div>
+                    <x-input-error :messages="$errors->get('category')" class="mt-1.5" />
+                </div>
+
                 {{-- Dates Grid --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -64,7 +119,7 @@
                             type="date"
                             value="{{ old('start_date', now()->format('Y-m-d')) }}"
                             required
-                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition"
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition"
                         />
                         <x-input-error :messages="$errors->get('start_date')" class="mt-1.5" />
                     </div>
@@ -77,7 +132,7 @@
                             type="date"
                             value="{{ old('end_date', now()->format('Y-m-d')) }}"
                             required
-                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition"
+                            class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-2 text-sm font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition"
                         />
                         <x-input-error :messages="$errors->get('end_date')" class="mt-1.5" />
                     </div>
@@ -91,8 +146,8 @@
                         name="reason"
                         rows="4"
                         required
-                        placeholder="Tuliskan keterangan lengkap alasan ketidakhadiran siswa..."
-                        class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] p-3 text-sm text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] shadow-none transition resize-y"
+                        placeholder="Tuliskan keterangan lengkap alasan ketidakhadiran siswa…"
+                        class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] p-3 text-sm text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] shadow-none transition resize-y"
                     >{{ old('reason') }}</textarea>
                     <x-input-error :messages="$errors->get('reason')" class="mt-1.5" />
                 </div>
@@ -105,7 +160,7 @@
                         <label for="document_path" class="group flex flex-col items-center justify-center w-full min-h-[110px] rounded-md border border-dashed border-zinc-300 dark:border-[#2B2B30] bg-zinc-50/50 dark:bg-[#19191C] hover:bg-zinc-100/50 dark:hover:bg-[#26262A] hover:border-zinc-400 dark:hover:border-[#3A3A3F] transition cursor-pointer p-4 text-center">
                             
                             <div class="flex flex-col items-center">
-                                <svg class="w-6 h-6 text-zinc-400 dark:text-[#5B5B61] mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="w-6 h-6 text-zinc-400 dark:text-[#5B5B61] mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
                                 <p class="text-xs font-semibold text-zinc-700 dark:text-[#EDEDF0]" x-text="docName || 'Pilih atau drop file surat dokter / izin'"></p>
@@ -134,13 +189,13 @@
                             />
                         </label>
                     </div>
-                    <p x-show="docError" x-text="docError" class="text-xs text-rose-600 mt-1 font-medium"></p>
+                    <p x-show="docError" x-text="docError" aria-live="polite" class="text-xs text-rose-600 mt-1 font-medium"></p>
                     <x-input-error :messages="$errors->get('document')" class="mt-1.5" />
                 </div>
 
                 {{-- Submit Button --}}
                 <div class="pt-3">
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white font-semibold text-xs uppercase tracking-wider rounded-md transition shadow-none focus:outline-none focus:ring-2 focus:ring-[#0093dd] focus:ring-offset-2">
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white font-semibold text-xs uppercase tracking-wider rounded-md transition shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0073B1] focus-visible:ring-offset-2 cursor-pointer">
                         Kirim Permohonan Izin
                     </button>
                 </div>

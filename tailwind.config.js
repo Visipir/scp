@@ -13,7 +13,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
                 mono: ['"JetBrains Mono"', ...defaultTheme.fontFamily.mono],
             },
             colors: {
@@ -37,13 +37,14 @@ export default {
                     muted: 'var(--text-muted)',
                 },
                 accent: {
-                    DEFAULT: '#0093dd',
-                    hover: '#0082c4',
-                    active: '#006fa7',
+                    DEFAULT: '#0073B1',
+                    hover: '#005D8F',
+                    active: '#004A73',
                     muted: '#0a3d5e',
-                    pink: '#0093dd',
+                    ink: 'var(--accent-ink)',
+                    pink: '#0073B1',
                 },
-                'accent-pink': '#0093dd',
+                'accent-pink': '#0073B1',
             },
             borderColor: {
                 hairline: 'var(--border-hairline)',

@@ -56,6 +56,7 @@ class StoreJournalRequest extends FormRequest
             'absent_students.*.student_id'   => ['required_with:absent_students', 'exists:users,id'],
             'absent_students.*.status'       => ['required_with:absent_students', 'in:Sakit,Izin,Alpa,Terlambat'],
             'absent_students.*.notes'        => ['nullable', 'string', 'max:255'],
+            'absent_students.*.leave_id'     => ['nullable', 'integer'],
         ];
     }
 
@@ -68,5 +69,23 @@ class StoreJournalRequest extends FormRequest
             'photo.mimes'    => 'Format foto harus berupa JPG, JPEG, atau PNG.',
             'date.unique'    => 'Jurnal untuk jadwal ini pada tanggal tersebut sudah ada.',
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($v) {
+            $scheduleId = $this->input('schedule_id');
+            $date = $this->input('date');
+
+            if ($scheduleId && $date && !$v->errors()->has('date') && !$v->errors()->has('schedule_id')) {
+                $schedule = \App\Models\Schedule::find($scheduleId);
+                if ($schedule) {
+                    $check = app(\App\Services\JournalService::class)->checkJournalFillTime($schedule, $date);
+                    if (!$check['allowed']) {
+                        $v->errors()->add('schedule_id', $check['message']);
+                    }
+                }
+            }
+        });
     }
 }

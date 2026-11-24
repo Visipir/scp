@@ -5,7 +5,7 @@
             subtitle="Konfigurasi server email SMTP dan kredensial pengirim notifikasi sistem"
         >
             <a href="{{ route('waka.settings') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white bg-white dark:bg-[#1E1E22] rounded-lg border border-zinc-200 dark:border-[#2B2B30] hover:bg-zinc-50 dark:hover:bg-[#26262A] transition">
-                &larr; Kembali ke Pengaturan Kurikulum
+                &larr; {{ Auth::user()->role_id === 5 ? 'Kembali ke Pengaturan Sistem' : 'Kembali ke Pengaturan Kurikulum' }}
             </a>
         </x-page-header>
     </x-slot>
@@ -46,7 +46,7 @@
                                 id="mail_host"
                                 value="{{ old('mail_host', $settings['mail_host']) }}"
                                 placeholder="misal: smtp.gmail.com atau mail.sekolah.sch.id"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_host')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -63,7 +63,7 @@
                                 id="mail_port"
                                 value="{{ old('mail_port', $settings['mail_port']) }}"
                                 placeholder="587"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition font-mono"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition font-mono"
                             >
                             @error('mail_port')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -79,7 +79,7 @@
                             <select
                                 name="mail_encryption"
                                 id="mail_encryption"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition cursor-pointer"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition cursor-pointer"
                             >
                                 <option value="tls" {{ old('mail_encryption', $settings['mail_encryption']) === 'tls' ? 'selected' : '' }}>TLS (Direkomendasikan untuk port 587)</option>
                                 <option value="ssl" {{ old('mail_encryption', $settings['mail_encryption']) === 'ssl' ? 'selected' : '' }}>SSL (Port 465)</option>
@@ -98,9 +98,12 @@
                                 type="text"
                                 name="mail_username"
                                 id="mail_username"
+                                spellcheck="false"
+                                autocapitalize="none"
+                                autocomplete="username"
                                 value="{{ old('mail_username', $settings['mail_username']) }}"
                                 placeholder="user@example.test"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_username')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -112,13 +115,14 @@
                         <label for="mail_password" class="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                             Password SMTP
                         </label>
-                        <input
-                            type="password"
-                            name="mail_password"
+                        <x-password-input
                             id="mail_password"
-                            placeholder="{{ !empty($settings['mail_password']) ? '•••••• (Biarkan kosong jika tidak diubah)' : 'Password SMTP / App Password' }}"
-                            class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition font-mono"
-                        >
+                            name="mail_password"
+                            autocomplete="new-password"
+                            :required="false"
+                            :placeholder="!empty($settings['mail_password']) ? '•••••• (Biarkan kosong jika tidak diubah)' : 'Password SMTP / App Password'"
+                            class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] pl-3.5 pr-11 py-2.5 shadow-none transition font-mono"
+                        />
                         <p class="text-[11px] text-zinc-500 dark:text-[#97979B] mt-1">
                             Password dienkripsi secara aman dengan Laravel Crypt. Untuk Gmail, gunakan <em>App Password</em> 16 digit.
                         </p>
@@ -136,9 +140,12 @@
                                 type="email"
                                 name="mail_from_address"
                                 id="mail_from_address"
+                                spellcheck="false"
+                                autocapitalize="none"
+                                autocomplete="email"
                                 value="{{ old('mail_from_address', $settings['mail_from_address']) }}"
                                 placeholder="noreply@example.test"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_from_address')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -155,7 +162,7 @@
                                 id="mail_from_name"
                                 value="{{ old('mail_from_name', $settings['mail_from_name']) }}"
                                 placeholder="SCP - SMKN 1 Bantul"
-                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0093dd] focus:border-[#0093dd] px-3.5 py-2.5 shadow-none transition"
+                                class="w-full text-xs rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#26262A] text-zinc-900 dark:text-[#EDEDF0] focus:ring-1 focus:ring-[#0073B1] focus:border-[#0073B1] px-3.5 py-2.5 shadow-none transition"
                             >
                             @error('mail_from_name')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -170,7 +177,7 @@
                                 name="mail_ignore_cert"
                                 value="1"
                                 {{ old('mail_ignore_cert', $settings['mail_ignore_cert'] ?? false) ? 'checked' : '' }}
-                                class="rounded border-zinc-300 dark:border-zinc-700 text-[#0093dd] focus:ring-[#0093dd] bg-white dark:bg-[#26262A]"
+                                class="rounded border-zinc-300 dark:border-zinc-700 text-[#0073B1] dark:text-[#38BDF8] focus:ring-[#0073B1] bg-white dark:bg-[#26262A]"
                             >
                             <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 Abaikan verifikasi sertifikat SSL (self-signed)
@@ -257,15 +264,16 @@
                 </span>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs divide-y divide-zinc-200 dark:divide-[#2B2B30]">
-                    <thead class="bg-zinc-50 dark:bg-[#26262A] text-zinc-500 dark:text-[#97979B] font-mono text-[11px] uppercase tracking-wider">
+            <div tabindex="0" role="region" aria-label="Riwayat Pengiriman Email" class="overflow-x-auto table-scroll-region">
+                <table class="w-full text-left text-xs divide-y divide-zinc-200 dark:divide-[#2B2B30] tabular-nums">
+                    <caption class="sr-only">Log Pengiriman Email Sistem SMTP</caption>
+                    <thead class="bg-zinc-50 dark:bg-[#26262A] text-zinc-600 dark:text-[#9496A1] font-mono text-[11px] uppercase tracking-wider">
                         <tr>
-                            <th class="px-5 py-3 font-semibold">Waktu</th>
-                            <th class="px-5 py-3 font-semibold">Tipe Email</th>
-                            <th class="px-5 py-3 font-semibold">Penerima</th>
-                            <th class="px-5 py-3 font-semibold">Status</th>
-                            <th class="px-5 py-3 font-semibold">Keterangan / Error</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Waktu</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Tipe Email</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Penerima</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Status</th>
+                            <th scope="col" class="px-5 py-3 font-semibold">Keterangan / Error</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-200 dark:divide-[#2B2B30] font-sans">
@@ -293,12 +301,12 @@
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     @if($log->status === 'success')
                                         <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                            <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                             Terkirim
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-semibold text-[11px]">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                             Gagal
                                         </span>
                                     @endif

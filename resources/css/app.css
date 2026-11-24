@@ -10,88 +10,393 @@
    DARK DEVELOPER-CONSOLE DESIGN TOKENS (Single Source of Truth)
    ========================================================================== */
 :root {
+    color-scheme: light dark;
     --bg-page: #0F1014;
-    --surface-card: #20222A;
+    --surface-card: #1D1D22;
     --surface-nested: #15161D;
-    --surface-hover: #292B36;
-    --border-hairline: #303342;
+    --surface-hover: #262832;
+    --border-hairline: #2E3140;
     --nav-active: #272935;
     --nav-hover: #1C1D25;
-    --text-primary: #EDEDF0;
-    --text-secondary: #97979B;
-    --text-muted: #5B5B61;
-    --accent: #0093dd;
-    --accent-hover: #0082c4;
-    --accent-active: #006fa7;
+    --text-primary: #F1F1F4;
+    --text-secondary: #B4B6C2;
+    --text-muted: #9496A1;
+    --accent: #0073B1;
+    --accent-hover: #005D8F;
+    --accent-active: #004A73;
     --accent-muted: #0a3d5e;
-    --ring-focus: #0093dd;
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --accent-ink: #38BDF8;
+    --ring-focus: #38BDF8;
+    --scrollbar-thumb: light-dark(#71717A, #7F8190);
+    --scrollbar-track: light-dark(#F4F4F6, #15161D);
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
+:root:has(> head > meta[name="color-scheme"][content="dark"]),
 html.dark {
     color-scheme: dark;
     --bg-page: #0F1014;
-    --surface-card: #20222A;
+    --surface-card: #1D1D22;
     --surface-nested: #15161D;
-    --surface-hover: #292B36;
-    --border-hairline: #303342;
+    --surface-hover: #262832;
+    --border-hairline: #2E3140;
     --nav-active: #272935;
     --nav-hover: #1C1D25;
-    --text-primary: #EDEDF0;
-    --text-secondary: #97979B;
-    --text-muted: #5B5B61;
-    --accent: #0093dd;
-    --accent-hover: #0082c4;
-    --accent-active: #006fa7;
+    --text-primary: #F1F1F4;
+    --text-secondary: #B4B6C2;
+    --text-muted: #9496A1;
+    --accent: #0073B1;
+    --accent-hover: #005D8F;
+    --accent-active: #004A73;
     --accent-muted: #0a3d5e;
-    --ring-focus: #0093dd;
+    --accent-ink: #38BDF8;
+    --ring-focus: #38BDF8;
+    --scrollbar-thumb: #7F8190;
+    --scrollbar-track: #15161D;
 }
 
-html.light, html:not(.dark) {
+:root:has(> head > meta[name="color-scheme"][content="light"]),
+html.light,
+html:not(.dark) {
     color-scheme: light;
     --bg-page: #F0F2F5;
     --surface-card: #FFFFFF;
     --surface-nested: #F8F9FA;
     --surface-hover: #EAECEF;
-    --border-hairline: #E2E4E8;
-    --nav-active: #E2E6EA;
+    --border-hairline: #D4D7DD;
+    --nav-active: #E0F2FE;
     --nav-hover: #EBEFF2;
-    --text-primary: #19191C;
-    --text-secondary: #52525B;
-    --text-muted: #71717A;
-    --accent: #0093dd;
-    --accent-hover: #0082c4;
-    --accent-active: #006fa7;
+    --text-primary: #18181B;
+    --text-secondary: #3F3F46;
+    --text-muted: #52525B;
+    --accent: #0073B1;
+    --accent-hover: #005D8F;
+    --accent-active: #004A73;
     --accent-muted: #e0f2fe;
-    --ring-focus: #0093dd;
+    --accent-ink: #0073B1;
+    --ring-focus: #0073B1;
+    --scrollbar-thumb: #71717A;
+    --scrollbar-track: #F4F4F6;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+/* Native browser controls, typography & reduced-motion accessibility */
+html {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 115, 177, 0.16);
+    scroll-padding-top: 4.5rem;
 }
 
-::-webkit-scrollbar-track {
-    background: transparent;
+@media (pointer: fine) {
+    html {
+        overscroll-behavior: none;
+    }
 }
 
-::-webkit-scrollbar-thumb {
-    background: #D4D4D8;
+h1, h2, h3, h4, h5, h6, [id] {
+    scroll-margin-top: 4.5rem;
+}
+
+body {
+    accent-color: var(--accent);
+    caret-color: var(--accent-ink);
+    line-height: 1.5;
+}
+
+h1, h2, h3, th {
+    text-wrap: balance;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+.skip-link {
+    position: fixed;
+    inset-block-start: -100%;
+    inset-inline-start: 0.75rem;
+    z-index: 100;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--accent);
+    color: #FFFFFF;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    inset-block-start: calc(0.75rem + env(safe-area-inset-top, 0px));
+    outline: 3px solid var(--ring-focus);
+    outline-offset: 2px;
+}
+
+/* Native switch control styling (progressive enhancement when native switch is absent) */
+input[type="checkbox"][switch] {
+    accent-color: var(--accent);
+    margin: 0;
+    cursor: pointer;
+    inline-size: 2.75rem;
+    block-size: 1.5rem;
+}
+
+input[type="checkbox"][switch].scp-switch-fallback {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: 2.75rem;
+    block-size: 1.5rem;
     border-radius: 9999px;
+    border: 1px solid #d4d4d8;
+    background-color: #d4d4d8;
+    background-image: none !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background-color 150ms ease, border-color 150ms ease;
+    touch-action: pan-y;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #A1A1AA;
+.dark input[type="checkbox"][switch].scp-switch-fallback {
+    border-color: #3f3f46;
+    background-color: #3f3f46;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-    background: #2B2B30;
+input[type="checkbox"][switch].scp-switch-fallback::before {
+    content: "";
+    position: absolute;
+    inset: -10px -2px;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-    background: #3A3A3F;
+input[type="checkbox"][switch].scp-switch-fallback::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 2px;
+    inset-inline-start: 2px;
+    inline-size: calc(1.5rem - 6px);
+    block-size: calc(1.5rem - 6px);
+    border-radius: 9999px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+    transition: transform 150ms ease;
+}
+
+input[type="checkbox"][switch].scp-switch-fallback:checked {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    background-image: none !important;
+}
+
+input[type="checkbox"][switch].scp-switch-fallback:checked::after {
+    transform: translateX(1.25rem);
+}
+
+input[type="checkbox"][switch]:focus-visible {
+    outline: 3px solid var(--ring-focus);
+    outline-offset: 3px;
+}
+
+/* Reserve chevron room on styled selects when px-* utility classes override @tailwindcss/forms */
+select:not([multiple]):not([size]) {
+    padding-inline-end: 2.25rem;
+}
+
+/* Native <dialog> modal scroll containment (no body overflow locking) */
+dialog:modal {
+    overscroll-behavior: contain;
+    max-block-size: calc(100dvh - 2rem);
+}
+
+dialog::backdrop {
+    background: rgba(9, 9, 11, 0.78);
+    backdrop-filter: blur(2px);
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+
+/* Visually hidden utility keeping elements accessible & focusable */
+.visually-hidden:where(:not(:focus-within, :active)) {
+    position: absolute !important;
+    clip-path: inset(50%) !important;
+    overflow: hidden !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Keyboard-scrollable table regions & performance layout containment */
+.table-scroll-region:focus-visible {
+    outline: 2px solid var(--ring-focus);
+    outline-offset: -2px;
+}
+
+.cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
+}
+
+@supports not (content-visibility: auto) {
+    .cv-auto {
+        contain: layout style paint;
+    }
+}
+
+/* Subgrid-aligned dashboard cards with intrinsic fallback */
+.card-grid-aligned {
+    display: grid;
+    grid-auto-rows: 1fr;
+}
+
+.card-subgrid-link {
+    display: block;
+    block-size: 100%;
+    container-type: inline-size;
+}
+
+.card-subgrid {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    block-size: 100%;
+}
+
+@supports (grid-template-rows: subgrid) {
+    .card-grid-aligned {
+        grid-auto-rows: auto;
+    }
+    .card-subgrid-link {
+        display: grid;
+        grid-template-rows: 1fr auto;
+        grid-template-rows: subgrid;
+        grid-row: span 2;
+    }
+    .card-subgrid {
+        grid-template-rows: subgrid;
+        grid-row: span 2;
+    }
+}
+
+/* Touch target floor on coarse pointers for dashboard interactive controls */
+@media (pointer: coarse) {
+    :where(.dashboard-touch-scope a, .dashboard-touch-scope button, .dashboard-touch-scope summary, .dashboard-touch-scope select, .dashboard-touch-scope input:not([type="checkbox"], [type="radio"], [type="file"])) {
+        min-block-size: 44px;
+    }
+}
+
+/* Post-interaction form validation feedback without premature :invalid noise */
+:is(input, select, textarea):is(:user-invalid, .user-invalid-fallback) {
+    border-color: #E11D48 !important;
+}
+
+@media (max-width: 639px) and (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select,
+    textarea {
+        font-size: max(1rem, 1em);
+    }
+}
+
+/* Scoped reduced motion: keep subtle color changes intact while stopping spatial/continuous motion */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    .animate-spin,
+    .animate-pulse,
+    .animate-bounce,
+    .animate-ping {
+        animation: none !important;
+    }
+    [x-transition],
+    dialog,
+    .transform,
+    [class*="transition-"],
+    input[type="checkbox"][switch].scp-switch-fallback,
+    input[type="checkbox"][switch].scp-switch-fallback::after {
+        transition-property: opacity, color, background-color, border-color !important;
+    }
+    input[type="checkbox"][switch].scp-switch-fallback::after {
+        transition: none !important;
+    }
+}
+
+/* Standard Scrollbar with WCAG 1.4.11 >= 3:1 contrast & legacy WebKit fallback */
+:root,
+.overflow-auto,
+.overflow-x-auto,
+.overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+@supports not (scrollbar-color: auto) {
+    :root,
+    .overflow-auto,
+    .overflow-x-auto,
+    .overflow-y-auto {
+        scrollbar-width: auto;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--scrollbar-track);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 9999px;
+    }
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+@supports not (scrollbar-width: none) {
+    .hide-scrollbar {
+        scrollbar-width: auto;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (forced-colors: active) {
+    a, button, input, select, textarea, .rounded-xl, .rounded-lg, dialog {
+        forced-color-adjust: auto;
+    }
+    :focus-visible {
+        outline: 2px solid Highlight !important;
+        outline-offset: 2px;
+    }
+    .border, [class*="rounded-"] {
+        border-color: ButtonBorder;
+    }
+    input[type="checkbox"][switch].scp-switch-fallback {
+        forced-color-adjust: none;
+        border-color: ButtonText !important;
+        background-color: Canvas !important;
+    }
+    input[type="checkbox"][switch].scp-switch-fallback:checked {
+        background-color: Highlight !important;
+        border-color: Highlight !important;
+    }
+    input[type="checkbox"][switch].scp-switch-fallback::after {
+        background-color: ButtonText;
+    }
+    input[type="checkbox"][switch].scp-switch-fallback:checked::after {
+        background-color: HighlightText;
+    }
 }
 
 /* ==========================================================================
@@ -230,7 +535,7 @@ body {
 }
 
 .dark .text-zinc-300 {
-    color: var(--text-muted) !important; /* #5B5B61 */
+    color: #D4D4D8 !important;
 }
 
 /* 5. Action Buttons (Accent: #0093dd) */
@@ -385,13 +690,17 @@ body {
 .dark textarea:focus {
     background-color: var(--bg-page) !important;
     border-color: var(--accent) !important;
-    outline: none !important;
     box-shadow: 0 0 0 2px rgba(0, 147, 221, 0.25) !important;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
     color: var(--text-muted) !important;
+    opacity: 1;
 }
 
 .dark select option {
@@ -488,11 +797,11 @@ body {
 .dark .border-blue-200,
 .dark .border-blue-200\/60,
 .dark .border-blue-200\/80,
-.dark .border-sky-100,
-.dark .border-sky-200,
-.dark .border-indigo-100,
-.dark .border-indigo-200,
-.dark .border-indigo-200\/80,
+.dark .border-sky-100:not([class*="dark:border-"]),
+.dark .border-sky-200:not([class*="dark:border-"]),
+.dark .border-indigo-100:not([class*="dark:border-"]),
+.dark .border-indigo-200:not([class*="dark:border-"]),
+.dark .border-indigo-200\/80:not([class*="dark:border-"]),
 .dark .border-blue-800\/80 {
     border-color: rgba(14, 165, 233, 0.28) !important;
 }
@@ -570,7 +879,7 @@ body {
 .dark .bg-rose-950\/60,
 .dark .bg-red-950\/60 {
     background-color: rgba(244, 63, 94, 0.14) !important;
-    color: #f43f5e !important;
+    color: #fb7185 !important;
     border-color: rgba(244, 63, 94, 0.28) !important;
 }
 .dark .border-rose-100,
@@ -583,11 +892,13 @@ body {
 .dark .border-rose-800\/80 {
     border-color: rgba(244, 63, 94, 0.28) !important;
 }
+.dark .text-rose-500,
 .dark .text-rose-700,
 .dark .text-rose-800,
 .dark .text-rose-900,
 .dark .text-rose-950,
 .dark .text-rose-600,
+.dark .text-red-500,
 .dark .text-red-700,
 .dark .text-red-800,
 .dark .text-red-900,
@@ -596,7 +907,7 @@ body {
 .dark .text-pink-700,
 .dark .text-pink-800,
 .dark .text-rose-300 {
-    color: #f43f5e !important;
+    color: #fb7185 !important;
 }
 
 /* Terlambat (Purple) */
@@ -907,7 +1218,8 @@ html.light input::placeholder,
 html.light textarea::placeholder,
 html:not(.dark) input::placeholder,
 html:not(.dark) textarea::placeholder {
-    color: #A1A1AA !important;
+    color: #52525B !important;
+    opacity: 1;
 }
 
 html.light input:focus,

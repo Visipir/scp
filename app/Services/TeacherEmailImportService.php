@@ -178,10 +178,17 @@ class TeacherEmailImportService
         $handle = fopen($path, 'r');
         if (!$handle) return [];
 
+        $firstLine = fgets($handle);
+        rewind($handle);
+        $delimiter = ',';
+        if ($firstLine !== false && substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
+            $delimiter = ';';
+        }
+
         $rows = [];
         $headerMap = null;
 
-        while (($r = fgetcsv($handle, 1000, ',')) !== false) {
+        while (($r = fgetcsv($handle, 2000, $delimiter)) !== false) {
             if ($headerMap === null) {
                 $upper = array_map(fn($v) => strtoupper(trim((string) $v)), $r);
                 $headerMap = [];

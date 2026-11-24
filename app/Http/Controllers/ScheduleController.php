@@ -29,11 +29,11 @@ class ScheduleController extends Controller
         // Jika Guru (role 2), hanya tampilkan jadwal yang terhubung dengan guru tersebut
         if ($user?->role_id === 2) {
             $query->where('teacher_id', $user->id);
-        } elseif ($user?->role_id === 1 && $request->filled('teacher_id')) {
+        } elseif ($user?->hasCurriculumAccess() && $request->filled('teacher_id')) {
             $query->where('teacher_id', (int) $request->query('teacher_id'));
         }
 
-        if ($user?->role_id === 1 && $request->filled('class_id')) {
+        if ($user?->hasCurriculumAccess() && $request->filled('class_id')) {
             $query->where('class_id', (int) $request->query('class_id'));
         }
 
@@ -43,7 +43,7 @@ class ScheduleController extends Controller
             ->get();
 
         $classes = SchoolClass::orderBy('class_name')->get();
-        $teachers = ($user?->role_id === 1) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
+        $teachers = ($user?->hasCurriculumAccess()) ? User::where('role_id', 2)->orderBy('fullname')->get() : collect();
         $scheduleMatrix = LessonHourService::getAllMatrix();
 
         $dayMap = [

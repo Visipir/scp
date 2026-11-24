@@ -15,7 +15,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="space-y-6">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div class="p-3 bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl text-center">
@@ -56,17 +56,18 @@
             <input type="hidden" name="token" value="{{ $preview['token'] }}">
 
             <div class="bg-white dark:bg-[#1E1E22] border border-zinc-200 dark:border-[#2C2C30] rounded-xl overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
+                <div tabindex="0" role="region" aria-label="Pratinjau Impor Data Pegawai" class="overflow-x-auto table-scroll-region">
+                    <table class="w-full text-left text-xs border-collapse tabular-nums">
+                        <caption class="sr-only">Pratinjau Pencocokan Data Pegawai dari Excel</caption>
                         <thead>
-                            <tr class="bg-zinc-50 dark:bg-[#252529] border-b border-zinc-200 dark:border-[#2C2C30] text-[10px] uppercase tracking-wider font-mono text-zinc-500 dark:text-[#97979B]">
-                                <th class="py-2.5 px-3">No</th>
-                                <th class="py-2.5 px-3">NIP</th>
-                                <th class="py-2.5 px-3">Nama Pegawai (Excel)</th>
-                                <th class="py-2.5 px-3">Mapel</th>
-                                <th class="py-2.5 px-3">Email</th>
-                                <th class="py-2.5 px-3">Status Pencocokan</th>
-                                <th class="py-2.5 px-3">Akun Database Terkait</th>
+                            <tr class="bg-zinc-50 dark:bg-[#252529] border-b border-zinc-200 dark:border-[#2C2C30] text-[10px] uppercase tracking-wider font-mono text-zinc-600 dark:text-[#9496A1]">
+                                <th scope="col" class="py-2.5 px-3">No</th>
+                                <th scope="col" class="py-2.5 px-3">NIP</th>
+                                <th scope="col" class="py-2.5 px-3">Nama Pegawai (Excel)</th>
+                                <th scope="col" class="py-2.5 px-3">Mapel</th>
+                                <th scope="col" class="py-2.5 px-3">Email</th>
+                                <th scope="col" class="py-2.5 px-3">Status Pencocokan</th>
+                                <th scope="col" class="py-2.5 px-3">Akun Database Terkait</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-[#2C2C30]">
@@ -99,7 +100,7 @@
                                             <span class="text-zinc-800 dark:text-zinc-200">{{ $r['matched_user']['fullname'] }}</span>
                                             <span class="font-mono text-zinc-400">({{ $r['matched_user']['username'] }})</span>
                                         @elseif($r['status'] === 'fuzzy')
-                                            <select name="confirmed_fuzzy[{{ $idx }}]" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
+                                            <select name="confirmed_fuzzy[{{ $idx }}]" aria-label="Pilih kandidat akun untuk {{ $r['raw_name'] ?? 'pegawai baris ' . ($idx + 1) }}" class="text-xs bg-zinc-50 dark:bg-[#252529] border border-zinc-300 dark:border-[#3A3A3F] rounded px-2 py-1 text-zinc-800 dark:text-[#EDEDF0]">
                                                 <option value="">-- Buat Akun Baru Saja --</option>
                                                 @foreach($r['candidate_list'] as $cand)
                                                     <option value="{{ $cand['user']['id'] }}" selected>

@@ -22,7 +22,7 @@
                     class="mt-1 block w-full text-xs" 
                     :value="old('fullname', $user->fullname)" 
                     required 
-                    autofocus 
+                    data-autofocus-desktop 
                     autocomplete="name" 
                     placeholder="Masukkan nama lengkap"
                 />
@@ -33,7 +33,7 @@
                 <div class="flex items-center justify-between">
                     <x-input-label for="username" value="Username / NIP / NIS" />
                     <span class="text-[10px] text-zinc-500 dark:text-[#97979B] font-mono flex items-center gap-1">
-                        <svg class="w-3 h-3 text-zinc-400 dark:text-[#5B5B61]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3 h-3 text-zinc-400 dark:text-[#5B5B61]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                         </svg>
                         Terkunci
@@ -65,7 +65,7 @@
                         x-init="setTimeout(() => show = false, 2500)"
                         class="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                         Tersimpan
@@ -90,14 +90,14 @@
                 @if($user->email)
                     @if($user->email_verified_at)
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
-                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg aria-hidden="true" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
                             Terverifikasi
                         </span>
                     @else
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                             </svg>
                             Belum Diverifikasi
@@ -230,15 +230,16 @@
         </div>
 
         {{-- Remove Email Modal / Prompt --}}
-        <div 
-            x-show="showRemoveModal" 
-            x-cloak 
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-            @keydown.escape.window="showRemoveModal = false"
+        <dialog 
+            closedby="any"
+            x-effect="showRemoveModal ? ($el.open || $el.showModal()) : ($el.open && $el.close())"
+            @close="showRemoveModal = false"
+            @cancel.prevent="showRemoveModal = false"
+            aria-labelledby="remove-email-modal-title"
+            class="m-auto w-[calc(100%-2rem)] max-w-md bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl p-6 space-y-4 shadow-xl text-left text-zinc-900 dark:text-[#EDEDF0]"
         >
-            <div class="bg-white dark:bg-[#1D1D21] border border-zinc-200 dark:border-[#2B2B30] rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
                 <div>
-                    <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Hapus Alamat Email?</h3>
+                    <h3 id="remove-email-modal-title" class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Hapus Alamat Email?</h3>
                     <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                         Setelah dihapus, Anda tidak dapat memulihkan kata sandi secara mandiri via email. Masukkan kata sandi saat ini untuk mengonfirmasi.
                     </p>
@@ -250,11 +251,12 @@
 
                     <div>
                         <x-input-label for="current_password" value="Kata Sandi Saat Ini" />
-                        <x-text-input 
+                        <x-password-input 
+                            wrapperClass="mt-1"
                             id="current_password" 
                             name="current_password" 
-                            type="password" 
-                            class="mt-1 block w-full text-xs" 
+                            class="text-xs" 
+                            autocomplete="current-password"
                             placeholder="Kata sandi akun Anda" 
                             required 
                         />
@@ -265,19 +267,18 @@
                         <button 
                             type="button" 
                             @click="showRemoveModal = false" 
-                            class="px-3 py-1.5 text-xs font-semibold rounded-md border border-zinc-300 dark:border-[#2B2B30] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md border border-zinc-300 dark:border-[#2B2B30] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition cursor-pointer"
                         >
                             Batal
                         </button>
                         <button 
                             type="submit" 
-                            class="px-3 py-1.5 text-xs font-semibold rounded-md bg-rose-600 text-white hover:bg-rose-700 transition"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer"
                         >
                             Hapus Email
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+        </dialog>
     </div>
 </section>

@@ -18,6 +18,7 @@ class StoreLeaveRequestRequest extends FormRequest
     {
         return [
             'student_id' => ['required', 'integer', 'exists:users,id'],
+            'category'   => ['nullable', 'string', 'in:Izin,Sakit,Dispensasi,Lainnya'],
             'start_date' => ['required', 'date', 'after_or_equal:today'],
             'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
             'reason'     => ['required', 'string', 'max:5000'],

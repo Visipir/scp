@@ -19,7 +19,7 @@ class ScheduleService
      */
     public function resolveTeacherId(User $user, array $data, ?Schedule $schedule = null): int
     {
-        if ((int) $user->role_id === 1 && ! empty($data['teacher_id'])) {
+        if (in_array((int) $user->role_id, [1, 5], true) && ! empty($data['teacher_id'])) {
             return (int) $data['teacher_id'];
         }
 
@@ -31,7 +31,7 @@ class ScheduleService
      */
     public function authorizeTeacher(User $user, Schedule $schedule): void
     {
-        if ((int) $user->role_id !== 1 && (int) $schedule->teacher_id !== (int) $user->id) {
+        if (!in_array((int) $user->role_id, [1, 5], true) && (int) $schedule->teacher_id !== (int) $user->id) {
             abort(403, 'Anda tidak memiliki akses ke jadwal ini.');
         }
     }
@@ -70,7 +70,7 @@ class ScheduleService
         }
 
         $payload = $data;
-        if ((int) $user->role_id === 1 && ! empty($data['teacher_id'])) {
+        if (in_array((int) $user->role_id, [1, 5], true) && ! empty($data['teacher_id'])) {
             $payload['teacher_id'] = $teacherId;
         } else {
             unset($payload['teacher_id']);

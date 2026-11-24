@@ -13,11 +13,23 @@
         </div>
     </x-slot>
 
-    <div class="max-w-xl space-y-4">
+    <div class="space-y-4">
         @if($kbmSuspendedEvent ?? false)
             <div class="bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-300 flex items-center gap-2">
                 <span class="font-bold uppercase font-mono px-1.5 py-0.5 rounded bg-amber-200 dark:bg-[#3D2E1A] text-[10px] text-amber-900 dark:text-amber-300">Info</span>
                 <span>KBM Diliburkan: {{ $kbmSuspendedEvent->title }} - {{ $kbmSuspendedEvent->description }}</span>
+            </div>
+        @endif
+
+        @if(isset($fillTimeCheck) && !$fillTimeCheck['allowed'])
+            <div class="bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5">
+                <svg aria-hidden="true" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <div>
+                    <span class="font-bold">Pengisian Jurnal Belum Dibuka:</span>
+                    <span>{{ $fillTimeCheck['message'] }}</span>
+                </div>
             </div>
         @endif
 
@@ -80,6 +92,11 @@
                     get currentStudents() {
                         return this.studentsByClass[this.currentClassId] || [];
                     },
+                    getStudentName(id) {
+                        if (!id) return '';
+                        const std = (this.currentStudents || []).find(s => String(s.id) === String(id));
+                        return std ? (std.fullname + (std.username ? ' (' + std.username + ')' : '')) : ('Siswa #' + id);
+                    },
                     addAbsentStudent(status = 'Sakit', defaultNote = '') {
                         this.absentStudents.push({ student_id: '', status: status, notes: defaultNote });
                     },
@@ -107,7 +124,7 @@
                             <span class="font-medium text-zinc-700 dark:text-[#EDEDF0]">
                                 Tidak ada jadwal hari ini{{ isset($todayName) ? " ({$todayName})" : '' }}. Silakan pilih tanggal dan jadwal hari lain di bawah ini.
                             </span>
-                            <a href="{{ route('schedules.index') }}" class="text-[#0093dd] hover:underline font-semibold shrink-0">
+                            <a href="{{ route('schedules.index') }}" class="text-[#0073B1] dark:text-[#38BDF8] hover:underline font-semibold shrink-0">
                                 Lihat Jadwal Hari Lain &rarr;
                             </a>
                         </div>
@@ -145,12 +162,12 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <x-input-label for="date" value="Tanggal" />
-                                <input id="date" name="date" type="date" x-model="selectedDate" :disabled="!isManual" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-1.5 text-xs font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]" />
+                                <input id="date" name="date" type="date" x-model="selectedDate" :disabled="!isManual" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-1.5 text-xs font-mono text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]" />
                                 <x-input-error :messages="$errors->get('date')" class="mt-1" />
                             </div>
                             <div>
                                 <x-input-label for="schedule_id" value="Jadwal Kelas" />
-                                <select id="schedule_id" name="schedule_id" x-model="selectedScheduleId" :disabled="!isManual" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-1.5 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                                <select id="schedule_id" name="schedule_id" x-model="selectedScheduleId" :disabled="!isManual" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] px-3 py-1.5 text-xs text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                                     <option value="">-- Pilih Jadwal --</option>
                                     @foreach($schedules as $schedule)
                                         <option value="{{ $schedule->id }}">
@@ -167,7 +184,7 @@
                 {{-- Materi / Topik --}}
                 <div>
                     <x-input-label for="topic_description" value="Uraian Materi / Topik Pembelajaran" />
-                    <textarea id="topic_description" name="topic_description" rows="3" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] p-3 text-xs text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd] resize-y" required placeholder="Tuliskan ringkasan materi yang diajarkan...">{{ old('topic_description') }}</textarea>
+                    <textarea id="topic_description" name="topic_description" rows="3" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] p-3 text-xs text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1] resize-y" required placeholder="Tuliskan ringkasan materi yang diajarkan…">{{ old('topic_description') }}</textarea>
                     <x-input-error :messages="$errors->get('topic_description')" class="mt-1" />
                 </div>
 
@@ -185,11 +202,11 @@
                             </span>
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <button type="button" @click="addAbsentStudent('Sakit', '')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white dark:bg-[#232327] border border-zinc-300 dark:border-[#2B2B30] text-[11px] font-semibold text-zinc-700 dark:text-[#EDEDF0] hover:text-zinc-900 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-[#2C2C30] transition cursor-pointer shadow-none">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                     + Catat Tidak Hadir
                                 </button>
                                 <button type="button" @click="addLeavingMidClass()" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 dark:bg-[#282115] border border-amber-300 dark:border-amber-700/60 text-[11px] font-bold text-amber-900 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-[#382F1E] rounded-md transition cursor-pointer shadow-none">
-                                    <svg class="w-3 h-3 text-amber-700 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+                                    <svg aria-hidden="true" class="w-3 h-3 text-amber-700 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
                                     + Izin Keluar di Tengah KBM
                                 </button>
                             </div>
@@ -197,46 +214,65 @@
 
                         {{-- Nihil Message --}}
                         <div x-show="absentStudents.length === 0" class="text-xs font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-[#16281D] border border-emerald-300 dark:border-emerald-700/60 p-3 rounded-md flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg aria-hidden="true" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Seluruh siswa hadir lengkap. (Nihil catatan ketidakhadiran / izin keluar)</span>
                         </div>
 
                         {{-- Absent List --}}
                         <div class="space-y-2.5" x-show="absentStudents.length > 0">
                             <template x-for="(item, idx) in absentStudents" :key="idx">
-                                <div class="p-3 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2" :class="item.is_approved_leave ? 'border-l-4 border-l-blue-500 dark:border-l-sky-500' : ''">
-                                    {{-- Banner Izin yang disetujui BK --}}
-                                    <div x-show="item.is_approved_leave" class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-mono text-blue-700 dark:text-sky-300 bg-blue-50/80 dark:bg-[#16222F] px-2.5 py-1 rounded border border-blue-200/80 dark:border-sky-700/50">
+                                <div class="p-3 bg-zinc-50 dark:bg-[#232327] border border-zinc-200 dark:border-[#2B2B30] rounded-lg shadow-sm space-y-2" :class="item.is_approved_leave ? 'ring-1 ring-sky-500/40 border-sky-300 dark:border-sky-600' : ''">
+                                    {{-- Banner Izin yang disetujui BK / Wali --}}
+                                    <div x-show="item.is_approved_leave" class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-mono text-blue-700 dark:text-sky-300 bg-blue-50/80 dark:bg-[#16222F] px-2.5 py-1.5 rounded border border-blue-200/80 dark:border-sky-700/50">
                                         <div class="flex items-center gap-1.5 min-w-0">
-                                            <svg class="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            <span class="font-bold shrink-0" x-text="item.decision_label ? item.decision_label : 'Izin Resmi Disetujui'"></span>:
+                                            <svg aria-hidden="true" class="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span class="font-bold shrink-0" x-text="item.decision_label ? item.decision_label : (item.status_approval === 'Approved' ? 'Izin Resmi Disetujui' : 'Menunggu Persetujuan BK/Wali')"></span>:
                                             <span class="truncate max-w-xs text-zinc-700 dark:text-[#EDEDF0]" x-text="item.leave_reason"></span>
                                         </div>
-                                        <span class="text-[10px] text-blue-600/80 dark:text-sky-400 font-semibold">(Otomatis Terpilih <strong x-text="item.status"></strong>)</span>
+                                        <span class="text-[10px] text-blue-600/90 dark:text-sky-400 font-semibold">(Otomatis Terpilih <strong x-text="item.status"></strong>)</span>
                                     </div>
 
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <div class="flex items-center gap-1.5 shrink-0">
                                             <span class="font-mono text-zinc-400 dark:text-[#5B5B61] text-xs font-bold w-5" x-text="(idx + 1) + '.'"></span>
                                         </div>
-                                        <div class="flex-1 w-full min-w-0">
-                                            <select :name="'absent_students[' + idx + '][student_id]'" x-model="item.student_id" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-2.5 text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
-                                                <option value="">-- Pilih Siswa --</option>
-                                                <template x-for="std in currentStudents" :key="std.id">
-                                                    <option :value="std.id" x-text="std.fullname + (std.username ? ' (' + std.username + ')' : '')" :selected="item.student_id == std.id"></option>
-                                                </template>
-                                            </select>
-                                        </div>
+
+                                        {{-- Student Selection / Display --}}
+                                        <template x-if="item.is_approved_leave">
+                                            <div class="flex-1 w-full min-w-0 flex items-center justify-between gap-2 px-3 py-1.5 rounded-md bg-white dark:bg-[#19191C] border border-blue-200 dark:border-sky-800/60">
+                                                <div class="flex items-center gap-2 truncate">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+                                                        :class="item.category === 'Sakit' ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300' : (item.category === 'Dispensasi' ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-sky-300' : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300')"
+                                                        x-text="item.category || item.status">
+                                                    </span>
+                                                    <span class="font-bold text-xs text-zinc-900 dark:text-[#EDEDF0] truncate" x-text="item.student_name ? (item.student_name + (item.student_username ? ' (' + item.student_username + ')' : '')) : getStudentName(item.student_id)"></span>
+                                                </div>
+                                                <span class="text-[10px] font-mono text-zinc-400 dark:text-[#97979B] shrink-0" x-text="item.status_approval === 'Approved' ? 'Resmi Disetujui' : 'Menunggu BK/Wali'"></span>
+                                                <input type="hidden" :name="'absent_students[' + idx + '][student_id]'" :value="item.student_id">
+                                                <input type="hidden" :name="'absent_students[' + idx + '][leave_id]'" :value="item.leave_id">
+                                            </div>
+                                        </template>
+                                        <template x-if="!item.is_approved_leave">
+                                            <div class="flex-1 w-full min-w-0">
+                                                <select :name="'absent_students[' + idx + '][student_id]'" x-model="item.student_id" :aria-label="'Pilih siswa tidak hadir ke-' + (idx + 1)" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-2.5 text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
+                                                    <option value="">-- Pilih Siswa --</option>
+                                                    <template x-for="std in currentStudents" :key="std.id">
+                                                        <option :value="std.id" x-text="std.fullname + (std.username ? ' (' + std.username + ')' : '')" :selected="item.student_id == std.id"></option>
+                                                    </template>
+                                                </select>
+                                            </div>
+                                        </template>
+
                                         <div class="w-full sm:w-36 shrink-0">
-                                            <select :name="'absent_students[' + idx + '][status]'" x-model="item.status" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-2.5 font-semibold text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                                            <select :name="'absent_students[' + idx + '][status]'" x-model="item.status" :aria-label="'Status kehadiran siswa ke-' + (idx + 1)" required class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-2.5 font-semibold text-zinc-900 dark:text-[#EDEDF0] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                                                 <option value="Izin">Izin</option>
                                                 <option value="Sakit">Sakit</option>
                                                 <option value="Alpa">Alpa</option>
                                                 <option value="Terlambat">Terlambat</option>
                                             </select>
                                         </div>
-                                        <button type="button" @click="removeAbsentStudent(idx)" class="self-end sm:self-auto text-zinc-400 dark:text-[#5B5B61] hover:text-rose-600 dark:hover:text-rose-400 p-1.5 transition cursor-pointer rounded hover:bg-rose-50 dark:hover:bg-rose-500/10" :title="item.is_approved_leave ? 'Abaikan izin resmi / tandai hadir' : 'Hapus Catatan'">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <button type="button" @click="removeAbsentStudent(idx)" :aria-label="item.is_approved_leave ? 'Abaikan izin resmi siswa ke-' + (idx + 1) : 'Hapus catatan siswa ke-' + (idx + 1)" class="self-end sm:self-auto text-zinc-400 dark:text-[#5B5B61] hover:text-rose-600 dark:hover:text-rose-400 p-1.5 transition cursor-pointer rounded hover:bg-rose-50 dark:hover:bg-rose-500/10" :title="item.is_approved_leave ? 'Abaikan izin resmi / tandai hadir' : 'Hapus Catatan'">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>
 
@@ -265,7 +301,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <input type="text" :name="'absent_students[' + idx + '][notes]'" x-model="item.notes" placeholder="Tuliskan alasan keluar kelas (misal: sakit perut ke UKS jam ke-3, dipanggil BK, dll)..." class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-3 text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0093dd] focus:ring-1 focus:ring-[#0093dd]">
+                                        <input type="text" :name="'absent_students[' + idx + '][notes]'" x-model="item.notes" :aria-label="'Catatan alasan siswa ke-' + (idx + 1)" placeholder="Tuliskan alasan keluar kelas (misal: sakit perut ke UKS jam ke-3, dipanggil BK, dll)…" class="w-full rounded-md border-zinc-300 dark:border-[#2B2B30] bg-white dark:bg-[#19191C] text-xs py-1.5 px-3 text-zinc-900 dark:text-[#EDEDF0] placeholder:text-zinc-400 dark:placeholder:text-[#5B5B61] focus:border-[#0073B1] focus:ring-1 focus:ring-[#0073B1]">
                                     </div>
                                 </div>
                             </template>
@@ -278,7 +314,7 @@
                     <x-input-label for="photo" value="Foto Dokumentasi KBM (Wajib, Maks 5MB) *" />
                     <div class="mt-1">
                         <label for="photo" class="flex flex-col items-center justify-center w-full min-h-[90px] border border-dashed border-zinc-300 dark:border-[#2B2B30] rounded-md cursor-pointer bg-zinc-50/60 dark:bg-[#19191C] hover:bg-zinc-100 dark:hover:bg-[#26262A] transition p-3 text-center">
-                            <svg class="w-5 h-5 text-zinc-400 dark:text-[#5B5B61] mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
+                            <svg aria-hidden="true" class="w-5 h-5 text-zinc-400 dark:text-[#5B5B61] mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
                             <p class="text-xs font-medium text-zinc-700 dark:text-[#EDEDF0]" x-text="fileName ? fileName : 'Klik untuk pilih foto kamera / galeri'"></p>
                             <p class="text-[10px] text-zinc-400 dark:text-[#5B5B61] mt-0.5">Otomatis dikompresi tanpa merubah orientasi</p>
                             <input id="photo" name="photo" type="file" class="sr-only" accept="image/jpeg,image/png,image/jpg" required
@@ -298,13 +334,19 @@
                                     }
                                 " />
                         </label>
-                        <p class="text-xs text-rose-600 mt-1" x-show="fileError" x-text="fileError"></p>
+                        <p class="text-xs text-rose-600 mt-1" aria-live="polite" x-show="fileError" x-text="fileError"></p>
                         <x-input-error :messages="$errors->get('photo')" class="mt-1" />
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="button" :disabled="isUploading"
+                    @if(isset($fillTimeCheck) && !$fillTimeCheck['allowed'])
+                        <button type="button" disabled class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 font-semibold text-xs uppercase tracking-wider rounded-lg opacity-70 cursor-not-allowed">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                            Belum Dapat Diisi (Menunggu Jam Pelajaran)
+                        </button>
+                    @else
+                        <button type="button" :disabled="isUploading"
                         @click="
                             if(!$refs.form.reportValidity()) return;
                             isUploading = true;
@@ -312,6 +354,8 @@
                             let formData = new FormData($refs.form);
                             let xhr = new XMLHttpRequest();
                             xhr.open('POST', $refs.form.action);
+                            xhr.setRequestHeader('Accept', 'application/json');
+                            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                             
                             xhr.upload.addEventListener('progress', (e) => {
                                 if (e.lengthComputable) {
@@ -323,17 +367,20 @@
                             });
 
                             xhr.onload = () => {
+                                let payload = null;
+                                try { payload = JSON.parse(xhr.responseText); } catch (_) {}
                                 if (xhr.status >= 200 && xhr.status < 300) {
-                                    if(xhr.responseURL && xhr.responseURL !== window.location.href) {
-                                        window.location.href = xhr.responseURL;
+                                    if (payload?.redirect) {
+                                        window.location.assign(payload.redirect);
+                                    } else if (xhr.responseURL && xhr.responseURL !== window.location.href) {
+                                        window.location.assign(xhr.responseURL);
                                     } else {
-                                        document.open();
-                                        document.write(xhr.responseText);
-                                        document.close();
+                                        window.location.reload();
                                     }
                                 } else {
                                     isUploading = false;
-                                    fileError = 'Gagal menyimpan jurnal. Silakan coba lagi.';
+                                    const firstFieldErr = payload?.errors ? Object.values(payload.errors).flat()[0] : null;
+                                    fileError = firstFieldErr || payload?.message || 'Gagal menyimpan jurnal. Silakan coba lagi.';
                                 }
                             };
 
@@ -344,14 +391,15 @@
 
                             xhr.send(formData);
                         "
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0093dd] hover:bg-[#0082c4] active:bg-[#006fa7] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none disabled:opacity-50 cursor-pointer"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0073B1] hover:bg-[#005D8F] active:bg-[#004A73] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-none disabled:opacity-50 cursor-pointer"
                     >
-                        <svg x-show="isUploading" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <svg aria-hidden="true" x-show="isUploading" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span x-text="isUploading ? 'Menyimpan... ' + (uploadProgressText || '') : 'Simpan Jurnal KBM'"></span>
+                        <span x-text="isUploading ? 'Menyimpan… ' + (uploadProgressText || '') : 'Simpan Jurnal KBM'"></span>
                     </button>
+                    @endif
                     <a href="{{ route('journals.index') }}" x-show="!isUploading" class="text-xs font-semibold text-[#97979B] hover:text-[#EDEDF0]">Batal</a>
                 </div>
             </form>
