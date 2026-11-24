@@ -4,6 +4,33 @@ Sistem terintegrasi untuk manajemen jadwal pelajaran berputar (`Putaran 1` & `Pu
 
 ---
 
+## Tampilan Antarmuka (Screenshots)
+
+Tangkapan layar antarmuka web (mode gelap & terang, data dummy terisi):
+
+### Halaman Login
+![Halaman Login](docs/screenshots/login.png)
+
+### Dashboard Waka Kurikulum (Statistik Harian, Rekap Bulanan & Jurnal Tertunda)
+![Dashboard Waka](docs/screenshots/dashboard-waka.png)
+
+### Dashboard Guru & Wali Kelas
+![Dashboard Guru](docs/screenshots/dashboard-guru.png)
+
+### Rekapitulasi Presensi Bulanan
+![Rekapitulasi Presensi Bulanan](docs/screenshots/attendance-recap.png)
+
+### Manajemen Pengguna
+![Manajemen Pengguna](docs/screenshots/users-management.png)
+
+### Jadwal Pelajaran Putaran
+![Jadwal Pelajaran](docs/screenshots/schedules.png)
+
+### Perizinan Siswa (Light Mode)
+![Izin Siswa Light Mode](docs/screenshots/leave-requests.png)
+
+---
+
 ## 1. Teknologi & Versi (Stack)
 
 - **Backend**: Laravel 13.x (`^13.8`, PHP `^8.3`), Laravel Sanctum `^4.0`, `phpoffice/phpspreadsheet ^5.9`, `smalot/pdfparser ^2.12`
